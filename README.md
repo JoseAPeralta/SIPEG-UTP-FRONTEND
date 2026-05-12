@@ -1,87 +1,71 @@
-# Welcome to React Router!
+# SIPEG UTP Frontend
 
-A modern, production-ready template for building full-stack React applications using React Router.
+Frontend React para la plataforma SIPEG UTP de gestion de eventos academicos, asistencia, certificados, aulas, ponentes, usuarios, reportes y estadisticas.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Stack
 
-## Features
+- React 19
+- TypeScript
+- Vite
+- React Router v7
+- Chakra UI v3
+- Zustand
+- Vitest + Testing Library
+- ESLint flat config + Prettier
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-
-## Getting Started
-
-### Installation
-
-Install the dependencies:
+## Comandos
 
 ```bash
 npm install
-```
-
-### Development
-
-Start the development server with HMR:
-
-```bash
 npm run dev
-```
-
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
-```bash
+npm run lint
+npm run typecheck
+npm test
 npm run build
 ```
 
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
+## Calidad
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+npm run format:check
+npm run lint
+npm run typecheck
+npm test
+npm run build
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
+Tambien puedes ejecutar todo con:
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+```bash
+npm run check
 ```
 
-## Styling
+## Estructura
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+```txt
+src/
+├── components/
+├── data/
+├── hooks/
+├── pages/
+├── store/
+├── styles/
+├── test/
+├── theme/
+├── types/
+├── utils/
+├── App.tsx
+├── main.tsx
+└── setupTests.ts
+```
 
----
+## Backend Boundary
 
-Built with ❤️ using React Router.
+Este repositorio es solo frontend. Mientras no exista backend, los datos viven en `src/data`. Las futuras llamadas HTTP deben aislarse en una capa de cliente/API y no deben hardcodearse dentro de componentes.
+
+## Docker
+
+```bash
+docker build -t sipeg-utp-frontend .
+docker run -p 8080:80 sipeg-utp-frontend
+```

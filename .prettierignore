@@ -1,0 +1,8 @@
+.agents/
+AGENTS.md
+build/
+coverage/
+dist/
+node_modules/
+.react-router/
+package-lock.json
