@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router";
 
 import { App } from "@/App";
 import { Provider } from "@components/ui/provider";
+import { registerServiceWorker } from "@/pwa/registerServiceWorker";
 import "@/styles/global.css";
 
 const rootElement = document.getElementById("root");
@@ -21,3 +22,5 @@ createRoot(rootElement).render(
     </Provider>
   </StrictMode>,
 );
+
+registerServiceWorker();

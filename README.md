@@ -21,6 +21,7 @@ npm run dev
 npm run lint
 npm run typecheck
 npm test
+npm run pwa:icons
 npm run build
 ```
 
@@ -31,6 +32,7 @@ npm run format:check
 npm run lint
 npm run typecheck
 npm test
+npm run pwa:icons
 npm run build
 ```
 
@@ -68,4 +70,12 @@ Este repositorio es solo frontend. Mientras no exista backend, los datos viven e
 ```bash
 docker build -t sipeg-utp-frontend .
 docker run -p 8080:80 sipeg-utp-frontend
+```
+
+## PWA
+
+La aplicacion incluye `manifest.webmanifest`, `sw.js`, pagina offline e iconos instalables en `public/icons`. Si necesitas regenerar los iconos basicos:
+
+```bash
+npm run pwa:icons
 ```
