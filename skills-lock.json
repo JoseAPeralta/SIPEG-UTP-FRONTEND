@@ -7,11 +7,23 @@
       "skillPath": "skills/accessibility/SKILL.md",
       "computedHash": "10e83284d3395ab5ec2f2db602b663480a37a4ff404d16510eefe86b034fcc1a"
     },
+    "architecture-blueprint-generator": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/architecture-blueprint-generator/SKILL.md",
+      "computedHash": "9b20f13d1d96ba1c2550e1ce535f932e943c42939d3fae906a9e0d6c1bfb471a"
+    },
     "chakra-ui-builder": {
       "source": "chakra-ui/chakra-ui",
       "sourceType": "github",
       "skillPath": "skills/chakra-ui-builder/SKILL.md",
       "computedHash": "b60b9f098afb4464df10f625bb8635e9567969d99f8b10012e1305ca988906bb"
+    },
+    "create-architectural-decision-record": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/create-architectural-decision-record/SKILL.md",
+      "computedHash": "5c99e32293271aef0270c279c2af8b62301e29257bf85f2ebf7e810c740b4404"
     },
     "executing-plans": {
       "source": "obra/superpowers",
@@ -42,6 +54,12 @@
       "sourceType": "github",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "c77b86b4332919499608f9af1880074e1fec65a59b95c70c27a9f39cd137865e"
+    },
+    "secure-code-guardian": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/secure-code-guardian/SKILL.md",
+      "computedHash": "36e0b6460df5ea86c0a6aeeb1d33ad6dfa8f8a404ba1dc47feb3cf93341cb2c6"
     },
     "test-driven-development": {
       "source": "obra/superpowers",
