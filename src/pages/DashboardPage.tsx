@@ -4,7 +4,7 @@ import { Badge, Box, Button, HStack, SimpleGrid, Stack, Text } from "@chakra-ui/
 import { EventCard } from "@components/EventCard";
 import { MetricCard } from "@components/MetricCard";
 import { ModuleShell } from "@components/ModuleShell";
-import { faculties, largeEvents, reportMetrics, smallEvents } from "@/data/sipeg";
+import { classrooms, faculties, largeEvents, reportMetrics, smallEvents } from "@/data/sipeg";
 import { useDashboardMetrics } from "@hooks/useDashboardMetrics";
 import { useFacultyPreferenceStore } from "@store/facultyPreference";
 import type { FacultyFilter } from "@utils/eventFilters";
@@ -109,11 +109,14 @@ export function DashboardPage() {
               <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
                 {visibleEvents.map((event) => (
                   <EventCard
+                    classroom={classrooms.find((classroom) => classroom.id === event.classroomId)}
                     event={event}
+                    faculty={faculties.find((faculty) => faculty.id === event.facultyId)}
                     key={event.id}
                     parentEvent={largeEvents.find(
                       (largeEvent) => largeEvent.id === event.parentEventId,
                     )}
+                    showDashboardDetails
                   />
                 ))}
               </SimpleGrid>

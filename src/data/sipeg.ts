@@ -129,6 +129,9 @@ export const smallEvents: SmallEvent[] = [
     classroomId: "auditorium-01",
     collaboratorIds: ["user-1", "user-3"],
     date: "2026-06-15",
+    description:
+      "Una jornada aplicada sobre datos abiertos, sensores y coordinacion academica para convertir los campus universitarios en espacios mas eficientes y medibles.",
+    endTime: "11:30",
     equipment: ["Proyector", "Audio", "QR de asistencia"],
     facultyId: "fisc",
     id: "small-smart-campus",
@@ -137,8 +140,17 @@ export const smallEvents: SmallEvent[] = [
     parentEventId: "large-innovation-week",
     permissionIds: ["permission-3"],
     registeredAttendees: 180,
-    speaker: "Dra. Elena Vargas",
-    time: "09:00",
+    speakers: [
+      {
+        name: "Dra. Elena Vargas",
+        organization: "Centro de Innovacion UTP",
+      },
+      {
+        name: "Ing. Marcos Lee",
+        organization: "Autoridad Nacional para la Innovacion Gubernamental",
+      },
+    ],
+    startTime: "09:00",
     type: "conference",
   },
   {
@@ -146,6 +158,9 @@ export const smallEvents: SmallEvent[] = [
     classroomId: "aula-10",
     collaboratorIds: ["user-2"],
     date: "2026-07-08",
+    description:
+      "Seminario sobre criterios de diseno, inspeccion preventiva y materiales para infraestructura vial expuesta a ambientes costeros.",
+    endTime: "15:00",
     equipment: ["Pizarra", "Mesas tecnicas"],
     facultyId: "fic",
     id: "small-bridge-resilience",
@@ -154,8 +169,13 @@ export const smallEvents: SmallEvent[] = [
     parentEventId: "large-infrastructure-forum",
     permissionIds: [],
     registeredAttendees: 96,
-    speaker: "Ing. Ricardo Batista",
-    time: "13:30",
+    speakers: [
+      {
+        name: "Ing. Ricardo Batista",
+        organization: "Ministerio de Obras Publicas",
+      },
+    ],
+    startTime: "13:30",
     type: "seminar",
   },
   {
@@ -163,6 +183,9 @@ export const smallEvents: SmallEvent[] = [
     classroomId: "lab-01",
     collaboratorIds: ["user-3"],
     date: "2026-05-28",
+    description:
+      "Sesion practica con prototipos de microredes, medicion de carga y criterios de seguridad para laboratorios de energia distribuida.",
+    endTime: "12:30",
     equipment: ["Banco de pruebas", "Proyector"],
     facultyId: "fie",
     id: "small-energy-lab",
@@ -170,8 +193,13 @@ export const smallEvents: SmallEvent[] = [
     name: "Laboratorio abierto de energia distribuida",
     permissionIds: [],
     registeredAttendees: 42,
-    speaker: "MSc. Paola Rivera",
-    time: "10:30",
+    speakers: [
+      {
+        name: "MSc. Paola Rivera",
+        organization: "Instituto de Energia y Ambiente",
+      },
+    ],
+    startTime: "10:30",
     type: "workshop",
   },
 ];

@@ -2,7 +2,7 @@ import { Badge, Box, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 
 import { EventCard } from "@components/EventCard";
 import { ModuleShell } from "@components/ModuleShell";
-import { faculties, largeEvents, smallEvents } from "@/data/sipeg";
+import { classrooms, faculties, largeEvents, smallEvents } from "@/data/sipeg";
 import { useFacultyPreferenceStore } from "@store/facultyPreference";
 import { formatDateRange, getEventsForFaculty } from "@utils/eventFilters";
 
@@ -50,7 +50,9 @@ export function EventsPage() {
         <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={5}>
           {visibleEvents.map((event) => (
             <EventCard
+              classroom={classrooms.find((classroom) => classroom.id === event.classroomId)}
               event={event}
+              faculty={faculties.find((faculty) => faculty.id === event.facultyId)}
               key={event.id}
               parentEvent={largeEvents.find((largeEvent) => largeEvent.id === event.parentEventId)}
             />
