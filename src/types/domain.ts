@@ -57,7 +57,7 @@ export type SmallEvent = {
   description?: string;
   endTime: string;
   equipment: string[];
-  facultyId: Faculty["id"];
+  facultyId?: Faculty["id"];
   id: string;
   inheritedPermissionIds: EventPermission["id"][];
   name: string;

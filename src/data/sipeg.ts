@@ -5,12 +5,13 @@ import type {
   Classroom,
   EventPermission,
   Faculty,
-  LargeEvent,
   ReportMetric,
-  SmallEvent,
   SpeakerProposal,
   User,
 } from "@/types/domain";
+
+export { largeEvents } from "@/data/largeEvents";
+export { smallEvents } from "@/data/smallEvents";
 
 export const faculties: Faculty[] = [
   { id: "fic", name: "Facultad de Ingenieria Civil", shortName: "FIC" },
@@ -68,31 +69,6 @@ export const eventPermissions: EventPermission[] = [
   { eventId: "small-smart-campus", id: "permission-3", label: "Asistencia", userId: "user-3" },
 ];
 
-export const largeEvents: LargeEvent[] = [
-  {
-    banner: "innovation-week.jpg",
-    collaboratorIds: ["user-1", "user-2"],
-    customLabel: "Semana de innovacion",
-    endDate: "2026-06-19",
-    facultyId: "fisc",
-    id: "large-innovation-week",
-    name: "Semana UTP de Innovacion Academica",
-    permissionIds: ["permission-1", "permission-2"],
-    startDate: "2026-06-15",
-  },
-  {
-    banner: "infrastructure-forum.jpg",
-    collaboratorIds: ["user-2"],
-    customLabel: "Foro tecnico",
-    endDate: "2026-07-10",
-    facultyId: "fic",
-    id: "large-infrastructure-forum",
-    name: "Foro de Infraestructura Resiliente",
-    permissionIds: [],
-    startDate: "2026-07-08",
-  },
-];
-
 export const classrooms: Classroom[] = [
   {
     amenities: ["projector", "smart-board", "whiteboard"],
@@ -120,87 +96,6 @@ export const classrooms: Classroom[] = [
     id: "aula-10",
     name: "Aula 10B",
     type: "classroom",
-  },
-];
-
-export const smallEvents: SmallEvent[] = [
-  {
-    banner: "smart-campus.jpg",
-    classroomId: "auditorium-01",
-    collaboratorIds: ["user-1", "user-3"],
-    date: "2026-06-15",
-    description:
-      "Una jornada aplicada sobre datos abiertos, sensores y coordinacion academica para convertir los campus universitarios en espacios mas eficientes y medibles.",
-    endTime: "11:30",
-    equipment: ["Proyector", "Audio", "QR de asistencia"],
-    facultyId: "fisc",
-    id: "small-smart-campus",
-    inheritedPermissionIds: ["permission-1", "permission-2"],
-    name: "Campus inteligente y datos abiertos",
-    parentEventId: "large-innovation-week",
-    permissionIds: ["permission-3"],
-    registeredAttendees: 180,
-    speakers: [
-      {
-        name: "Dra. Elena Vargas",
-        organization: "Centro de Innovacion UTP",
-      },
-      {
-        name: "Ing. Marcos Lee",
-        organization: "Autoridad Nacional para la Innovacion Gubernamental",
-      },
-    ],
-    startTime: "09:00",
-    type: "conference",
-  },
-  {
-    banner: "bridge-resilience.jpg",
-    classroomId: "aula-10",
-    collaboratorIds: ["user-2"],
-    date: "2026-07-08",
-    description:
-      "Seminario sobre criterios de diseno, inspeccion preventiva y materiales para infraestructura vial expuesta a ambientes costeros.",
-    endTime: "15:00",
-    equipment: ["Pizarra", "Mesas tecnicas"],
-    facultyId: "fic",
-    id: "small-bridge-resilience",
-    inheritedPermissionIds: [],
-    name: "Puentes resilientes para zonas costeras",
-    parentEventId: "large-infrastructure-forum",
-    permissionIds: [],
-    registeredAttendees: 96,
-    speakers: [
-      {
-        name: "Ing. Ricardo Batista",
-        organization: "Ministerio de Obras Publicas",
-      },
-    ],
-    startTime: "13:30",
-    type: "seminar",
-  },
-  {
-    banner: "energy-lab.jpg",
-    classroomId: "lab-01",
-    collaboratorIds: ["user-3"],
-    date: "2026-05-28",
-    description:
-      "Sesion practica con prototipos de microredes, medicion de carga y criterios de seguridad para laboratorios de energia distribuida.",
-    endTime: "12:30",
-    equipment: ["Banco de pruebas", "Proyector"],
-    facultyId: "fie",
-    id: "small-energy-lab",
-    inheritedPermissionIds: [],
-    name: "Laboratorio abierto de energia distribuida",
-    permissionIds: [],
-    registeredAttendees: 42,
-    speakers: [
-      {
-        name: "MSc. Paola Rivera",
-        organization: "Instituto de Energia y Ambiente",
-      },
-    ],
-    startTime: "10:30",
-    type: "workshop",
   },
 ];
 
