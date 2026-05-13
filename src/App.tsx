@@ -9,6 +9,7 @@ const CertificatesPage = lazy(() => import("@pages/CertificatesPage"));
 const ClassroomsPage = lazy(() => import("@pages/ClassroomsPage"));
 const DashboardPage = lazy(() => import("@pages/DashboardPage"));
 const EventsPage = lazy(() => import("@pages/EventsPage"));
+const LandingPage = lazy(() => import("@pages/LandingPage"));
 const ReportsPage = lazy(() => import("@pages/ReportsPage"));
 const SpeakersPage = lazy(() => import("@pages/SpeakersPage"));
 const UsersPage = lazy(() => import("@pages/UsersPage"));
@@ -37,8 +38,9 @@ function renderRoute(element: ReactNode) {
 export function App() {
   return (
     <Routes>
+      <Route index element={renderRoute(<LandingPage />)} />
       <Route element={<AppLayout />}>
-        <Route index element={renderRoute(<DashboardPage />)} />
+        <Route path="dashboard" element={renderRoute(<DashboardPage />)} />
         <Route path="eventos" element={renderRoute(<EventsPage />)} />
         <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
         <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
@@ -46,8 +48,8 @@ export function App() {
         <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
         <Route path="reportes" element={renderRoute(<ReportsPage />)} />
         <Route path="usuarios" element={renderRoute(<UsersPage />)} />
-        <Route path="*" element={<Navigate replace to="/" />} />
       </Route>
+      <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>
   );
 }

@@ -2,7 +2,7 @@ import { Box, Container, Flex, HStack, Heading, Stack, Text } from "@chakra-ui/r
 import { NavLink, Outlet } from "react-router";
 
 const navigationItems = [
-  { label: "Inicio", prefix: "00", to: "/" },
+  { label: "Panel", prefix: "00", to: "/dashboard" },
   { label: "Eventos", prefix: "01", to: "/eventos" },
   { label: "Asistencia", prefix: "02", to: "/asistencia" },
   { label: "Certificados", prefix: "03", to: "/certificados" },
