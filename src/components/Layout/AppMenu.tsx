@@ -46,7 +46,7 @@ export function AppMenu() {
       borderBottomWidth="1px"
     >
       <Container maxW="7xl" py={{ base: 4, md: 5 }}>
-        <Flex align="center" gap={{ base: 3, md: 5 }} justify="start" wrap="wrap">
+        <Flex align="center" gap={{ base: 3, md: 5 }} justify="space-between" w="full" wrap="wrap">
           <Link style={{ textDecoration: "none" }} to="/">
             <Heading
               as="p"
@@ -58,7 +58,14 @@ export function AppMenu() {
               SIPEG
             </Heading>
           </Link>
-          <HStack as="nav" aria-label="Navegacion principal" gap={2} wrap="wrap">
+          <HStack
+            as="nav"
+            aria-label="Navegacion principal"
+            gap={2}
+            justify="end"
+            ml="auto"
+            wrap="wrap"
+          >
             {currentUser ? (
               <>
                 <MenuLink to="/dashboard">Panel de administracion</MenuLink>
