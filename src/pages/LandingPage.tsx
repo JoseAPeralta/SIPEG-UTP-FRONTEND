@@ -1,35 +1,23 @@
-import { startTransition, useState, type ChangeEvent } from "react";
+import { startTransition, useState } from "react";
 import {
   Badge,
   Box,
-  Field,
   Flex,
   Heading,
   HStack,
   Image,
-  NativeSelect,
   SimpleGrid,
   Stack,
   Text,
 } from "@chakra-ui/react";
 
 import { EventCard } from "@components/EventCard";
+import { EventFilters, type EventTypeFilter, type FacultyFilter, type SortDirection } from "@components/EventFilters";
 import { PaginationControls } from "@components/PaginationControls";
 import { classrooms, faculties, largeEvents, smallEvents } from "@/data/sipeg";
-import type { EventType, FacultyId, SmallEvent } from "@/types/domain";
+import type { SmallEvent } from "@/types/domain";
 
 const EVENTS_PER_PAGE = 10;
-
-type FacultyFilter = "all" | FacultyId;
-type EventTypeFilter = "all" | EventType;
-type SortDirection = "nearest" | "farthest";
-
-const eventTypeLabels: Record<EventType, string> = {
-  conference: "Conferencia",
-  seminar: "Seminario",
-  talk: "Charla",
-  workshop: "Taller",
-};
 
 const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Agenda academica SIPEG">
@@ -78,14 +66,14 @@ function getFilteredEvents(
     .sort((firstEvent, secondEvent) => {
       const dateDifference = getEventTimestamp(firstEvent) - getEventTimestamp(secondEvent);
 
-      return sortDirection === "nearest" ? dateDifference : -dateDifference;
+      return sortDirection === "desc" ? dateDifference : -dateDifference;
     });
 }
 
 export function LandingPage() {
   const [facultyFilter, setFacultyFilter] = useState<FacultyFilter>("all");
   const [eventTypeFilter, setEventTypeFilter] = useState<EventTypeFilter>("all");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("nearest");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [page, setPage] = useState(1);
   const filteredEvents = getFilteredEvents(facultyFilter, eventTypeFilter, sortDirection);
   const pageCount = Math.max(1, Math.ceil(filteredEvents.length / EVENTS_PER_PAGE));
@@ -95,33 +83,6 @@ export function LandingPage() {
     firstVisibleEventIndex,
     firstVisibleEventIndex + EVENTS_PER_PAGE,
   );
-
-  const handleFacultyChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextFaculty = event.target.value as FacultyFilter;
-
-    startTransition(() => {
-      setFacultyFilter(nextFaculty);
-      setPage(1);
-    });
-  };
-
-  const handleEventTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextEventType = event.target.value as EventTypeFilter;
-
-    startTransition(() => {
-      setEventTypeFilter(nextEventType);
-      setPage(1);
-    });
-  };
-
-  const handleSortChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextSortDirection = event.target.value as SortDirection;
-
-    startTransition(() => {
-      setSortDirection(nextSortDirection);
-      setPage(1);
-    });
-  };
 
   return (
     <Box bg="surface.canvas" color="text.default">
@@ -193,94 +154,31 @@ export function LandingPage() {
           </SimpleGrid>
         </Box>
 
-        <Box
-          as="section"
-          aria-label="Filtros de eventos"
-          bg="surface.raised"
-          borderColor="border.subtle"
-          borderWidth="1px"
-          p={{ base: 5, md: 6 }}
-          rounded="3xl"
-        >
-          <Stack gap={5}>
-            <Flex
-              align={{ base: "start", md: "center" }}
-              gap={4}
-              justify="space-between"
-              wrap="wrap"
-            >
-              <Box>
-                <Text
-                  color="text.muted"
-                  fontSize="sm"
-                  fontWeight="800"
-                  letterSpacing="0.1em"
-                  textTransform="uppercase"
-                >
-                  Explorar agenda
-                </Text>
-                <Text color="text.default" fontFamily="heading" fontSize="3xl" fontWeight="700">
-                  Filtra eventos disponibles
-                </Text>
-              </Box>
-              <Badge colorPalette="red" px={4} py={2} rounded="full" variant="subtle">
-                {filteredEvents.length} resultados
-              </Badge>
-            </Flex>
-            <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
-              <Field.Root>
-                <Field.Label htmlFor="faculty-filter">Facultad</Field.Label>
-                <NativeSelect.Root>
-                  <NativeSelect.Field
-                    id="faculty-filter"
-                    onChange={handleFacultyChange}
-                    value={facultyFilter}
-                  >
-                    <option value="all">Todas las facultades</option>
-                    {faculties.map((faculty) => (
-                      <option key={faculty.id} value={faculty.id}>
-                        {faculty.shortName} - {faculty.name}
-                      </option>
-                    ))}
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-              </Field.Root>
-              <Field.Root>
-                <Field.Label htmlFor="event-type-filter">Tipo de evento</Field.Label>
-                <NativeSelect.Root>
-                  <NativeSelect.Field
-                    id="event-type-filter"
-                    onChange={handleEventTypeChange}
-                    value={eventTypeFilter}
-                  >
-                    <option value="all">Todos los tipos</option>
-                    {Object.entries(eventTypeLabels).map(([eventType, label]) => (
-                      <option key={eventType} value={eventType}>
-                        {label}
-                      </option>
-                    ))}
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-              </Field.Root>
-              <Field.Root>
-                <Field.Label htmlFor="event-sort">Orden</Field.Label>
-                <NativeSelect.Root>
-                  <NativeSelect.Field
-                    id="event-sort"
-                    onChange={handleSortChange}
-                    value={sortDirection}
-                  >
-                    <option value="nearest">Mas proximo primero</option>
-                    <option value="farthest">Mas alejado primero</option>
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-              </Field.Root>
-            </SimpleGrid>
-          </Stack>
-        </Box>
+        <EventFilters
+          currentPage={page}
+          eventTypeFilter={eventTypeFilter}
+          facultyFilter={facultyFilter}
+          filteredCount={filteredEvents.length}
+          onEventTypeChange={(filter) => {
+            startTransition(() => {
+              setEventTypeFilter(filter);
+              setPage(1);
+            });
+          }}
+          onFacultyChange={(filter) => {
+            startTransition(() => {
+              setFacultyFilter(filter);
+              setPage(1);
+            });
+          }}
+          onSortDirectionChange={(direction) => {
+            startTransition(() => {
+              setSortDirection(direction);
+              setPage(1);
+            });
+          }}
+          sortDirection={sortDirection}
+        />
 
         <Box as="section" aria-labelledby="events-title">
           <Stack gap={5}>
