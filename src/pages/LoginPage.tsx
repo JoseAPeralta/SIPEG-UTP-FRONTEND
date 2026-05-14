@@ -1,4 +1,4 @@
-import { Box, Button, Container, Heading, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Heading, Stack, Text } from "@chakra-ui/react";
 import { Navigate, useNavigate } from "react-router";
 
 import { users } from "@/data/sipeg";
@@ -32,7 +32,7 @@ export function LoginPage() {
   };
 
   return (
-    <Container as="main" maxW="lg" py={{ base: 10, md: 16 }}>
+    <Box maxW="lg" mx="auto" py={{ base: 3, md: 6 }}>
       <Box
         bg="surface.raised"
         borderColor="border.subtle"
@@ -65,7 +65,7 @@ export function LoginPage() {
           </Button>
         </Stack>
       </Box>
-    </Container>
+    </Box>
   );
 }
 

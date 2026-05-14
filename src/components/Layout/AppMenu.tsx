@@ -1,5 +1,5 @@
-import { Box, Button, Container, Flex, HStack, Heading, Text } from "@chakra-ui/react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router";
+import { Box, Button, Container, Flex, HStack, Heading } from "@chakra-ui/react";
+import { Link, NavLink, useNavigate } from "react-router";
 
 import { useSessionStore } from "@/store/session";
 
@@ -30,7 +30,7 @@ function MenuLink({ children, to }: MenuLinkProps) {
   );
 }
 
-function Header() {
+export function AppMenu() {
   const currentUser = useSessionStore((state) => state.currentUser);
   const navigate = useNavigate();
 
@@ -44,9 +44,6 @@ function Header() {
       background="radial-gradient(circle at top left, rgba(168, 21, 32, 0.16), transparent 28rem), rgba(248, 241, 231, 0.86)"
       borderBottomColor="border.subtle"
       borderBottomWidth="1px"
-      position="sticky"
-      top="0"
-      zIndex="10"
     >
       <Container maxW="7xl" py={{ base: 4, md: 5 }}>
         <Flex align="center" gap={{ base: 3, md: 5 }} justify="start" wrap="wrap">
@@ -76,34 +73,5 @@ function Header() {
         </Flex>
       </Container>
     </Box>
-  );
-}
-
-function Footer() {
-  return (
-    <Box as="footer" borderTopColor="border.subtle" borderTopWidth="1px" mt="auto">
-      <Container maxW="7xl" py={{ base: 6, md: 7 }}>
-        <Flex align="center" gap={3} justify="space-between" wrap="wrap">
-          <Text color="text.default" fontFamily="heading" fontSize="xl" fontWeight="700">
-            SIPEG
-          </Text>
-          <Text color="text.muted" fontSize="sm" fontWeight="700">
-            Gestion academica de eventos UTP · Centro Regional de Veraguas
-          </Text>
-        </Flex>
-      </Container>
-    </Box>
-  );
-}
-
-export function RootLayout() {
-  return (
-    <Flex bg="surface.canvas" color="text.default" direction="column" minH="100vh">
-      <Header />
-      <Box flex="1">
-        <Outlet />
-      </Box>
-      <Footer />
-    </Flex>
   );
 }

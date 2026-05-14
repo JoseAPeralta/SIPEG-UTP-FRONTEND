@@ -1,9 +1,8 @@
 import { Box, Text } from "@chakra-ui/react";
 import { lazy, Suspense, type ReactNode } from "react";
-import { Navigate, Route, Routes } from "react-router";
+import { Navigate, Outlet, Route, Routes } from "react-router";
 
 import { AppLayout } from "@components/Layout/AppLayout";
-import { RootLayout } from "@components/Layout/RootLayout";
 import { useSessionStore } from "@/store/session";
 
 const AttendancePage = lazy(() => import("@pages/AttendancePage"));
@@ -39,30 +38,24 @@ function renderRoute(element: ReactNode) {
   return <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
 }
 
-function RequireSession({ children }: { children: ReactNode }) {
+function RequireSession() {
   const currentUser = useSessionStore((state) => state.currentUser);
 
   if (!currentUser) {
     return <Navigate replace to="/login" />;
   }
 
-  return children;
+  return <Outlet />;
 }
 
 export function App() {
   return (
     <Routes>
-      <Route element={<RootLayout />}>
+      <Route element={<AppLayout />}>
         <Route index element={renderRoute(<LandingPage />)} />
         <Route path="login" element={renderRoute(<LoginPage />)} />
         <Route path="logout" element={renderRoute(<LogoutPage />)} />
-        <Route
-          element={
-            <RequireSession>
-              <AppLayout />
-            </RequireSession>
-          }
-        >
+        <Route element={<RequireSession />}>
           <Route path="dashboard" element={renderRoute(<DashboardPage />)} />
           <Route path="eventos" element={renderRoute(<EventsPage />)} />
           <Route path="asistencia" element={renderRoute(<AttendancePage />)} />

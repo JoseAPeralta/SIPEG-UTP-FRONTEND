@@ -3,7 +3,6 @@ import {
   Badge,
   Box,
   Button,
-  Container,
   Field,
   Flex,
   Heading,
@@ -126,268 +125,261 @@ export function LandingPage() {
 
   return (
     <Box bg="surface.canvas" color="text.default">
-      <Container as="main" maxW="7xl" py={{ base: 6, md: 10 }}>
-        <Stack gap={{ base: 8, md: 10 }}>
-          <Box as="section" aria-labelledby="landing-title">
-            <SimpleGrid columns={{ base: 1, lg: 2 }} gap={{ base: 7, lg: 10 }} alignItems="center">
-              <Stack gap={6}>
-                <HStack gap={3} wrap="wrap">
-                  <Badge colorPalette="red" px={4} py={2} rounded="full" variant="subtle">
-                    Agenda publica UTP
-                  </Badge>
-                  <Badge colorPalette="orange" px={4} py={2} rounded="full" variant="surface">
-                    Eventos disponibles
-                  </Badge>
-                </HStack>
-                <Stack gap={4}>
-                  <Heading
-                    as="h1"
-                    color="text.default"
-                    fontFamily="heading"
-                    fontSize={{ base: "4xl", md: "6xl" }}
-                    id="landing-title"
-                    lineHeight="0.95"
-                  >
-                    Descubre eventos academicos en SIPEG
-                  </Heading>
-                  <Text color="text.muted" fontSize={{ base: "lg", md: "xl" }} maxW="2xl">
-                    Explora conferencias, talleres, seminarios y charlas de la Universidad
-                    Tecnologica de Panama centro regional de Veraguas en un solo calendario publico.
-                  </Text>
-                </Stack>
-                <HStack gap={5} wrap="wrap">
-                  <Box>
-                    <Text color="accent.solid" fontFamily="heading" fontSize="4xl" fontWeight="700">
-                      {smallEvents.length}
-                    </Text>
-                    <Text color="text.muted" fontSize="sm" fontWeight="800">
-                      eventos publicados
-                    </Text>
-                  </Box>
-                  <Box borderLeftColor="border.subtle" borderLeftWidth="1px" pl={5}>
-                    <Text color="accent.solid" fontFamily="heading" fontSize="4xl" fontWeight="700">
-                      {faculties.length}
-                    </Text>
-                    <Text color="text.muted" fontSize="sm" fontWeight="800">
-                      facultades
-                    </Text>
-                  </Box>
-                </HStack>
+      <Stack gap={{ base: 8, md: 10 }}>
+        <Box as="section" aria-labelledby="landing-title">
+          <SimpleGrid columns={{ base: 1, lg: 2 }} gap={{ base: 7, lg: 10 }} alignItems="center">
+            <Stack gap={6}>
+              <HStack gap={3} wrap="wrap">
+                <Badge colorPalette="red" px={4} py={2} rounded="full" variant="subtle">
+                  Agenda publica UTP
+                </Badge>
+                <Badge colorPalette="orange" px={4} py={2} rounded="full" variant="surface">
+                  Eventos disponibles
+                </Badge>
+              </HStack>
+              <Stack gap={4}>
+                <Heading
+                  as="h1"
+                  color="text.default"
+                  fontFamily="heading"
+                  fontSize={{ base: "4xl", md: "6xl" }}
+                  id="landing-title"
+                  lineHeight="0.95"
+                >
+                  Descubre eventos academicos en SIPEG
+                </Heading>
+                <Text color="text.muted" fontSize={{ base: "lg", md: "xl" }} maxW="2xl">
+                  Explora conferencias, talleres, seminarios y charlas de la Universidad Tecnologica
+                  de Panama centro regional de Veraguas en un solo calendario publico.
+                </Text>
               </Stack>
+              <HStack gap={5} wrap="wrap">
+                <Box>
+                  <Text color="accent.solid" fontFamily="heading" fontSize="4xl" fontWeight="700">
+                    {smallEvents.length}
+                  </Text>
+                  <Text color="text.muted" fontSize="sm" fontWeight="800">
+                    eventos publicados
+                  </Text>
+                </Box>
+                <Box borderLeftColor="border.subtle" borderLeftWidth="1px" pl={5}>
+                  <Text color="accent.solid" fontFamily="heading" fontSize="4xl" fontWeight="700">
+                    {faculties.length}
+                  </Text>
+                  <Text color="text.muted" fontSize="sm" fontWeight="800">
+                    facultades
+                  </Text>
+                </Box>
+              </HStack>
+            </Stack>
+            <Box
+              bg="surface.raised"
+              borderColor="border.subtle"
+              borderWidth="1px"
+              overflow="hidden"
+              p={{ base: 3, md: 4 }}
+              rounded="3xl"
+              shadow="0 30px 90px rgba(65, 31, 20, 0.16)"
+            >
+              <Image
+                alt="Ilustracion de una agenda academica digital para eventos UTP"
+                aspectRatio="4 / 3"
+                objectFit="cover"
+                rounded="2xl"
+                src={heroImageSource}
+                w="full"
+              />
+            </Box>
+          </SimpleGrid>
+        </Box>
+
+        <Box
+          as="section"
+          aria-label="Filtros de eventos"
+          bg="surface.raised"
+          borderColor="border.subtle"
+          borderWidth="1px"
+          p={{ base: 5, md: 6 }}
+          rounded="3xl"
+        >
+          <Stack gap={5}>
+            <Flex
+              align={{ base: "start", md: "center" }}
+              gap={4}
+              justify="space-between"
+              wrap="wrap"
+            >
+              <Box>
+                <Text
+                  color="text.muted"
+                  fontSize="sm"
+                  fontWeight="800"
+                  letterSpacing="0.1em"
+                  textTransform="uppercase"
+                >
+                  Explorar agenda
+                </Text>
+                <Text color="text.default" fontFamily="heading" fontSize="3xl" fontWeight="700">
+                  Filtra eventos disponibles
+                </Text>
+              </Box>
+              <Badge colorPalette="red" px={4} py={2} rounded="full" variant="subtle">
+                {filteredEvents.length} resultados
+              </Badge>
+            </Flex>
+            <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
+              <Field.Root>
+                <Field.Label htmlFor="faculty-filter">Facultad</Field.Label>
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    id="faculty-filter"
+                    onChange={handleFacultyChange}
+                    value={facultyFilter}
+                  >
+                    <option value="all">Todas las facultades</option>
+                    {faculties.map((faculty) => (
+                      <option key={faculty.id} value={faculty.id}>
+                        {faculty.shortName} - {faculty.name}
+                      </option>
+                    ))}
+                  </NativeSelect.Field>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+              <Field.Root>
+                <Field.Label htmlFor="event-type-filter">Tipo de evento</Field.Label>
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    id="event-type-filter"
+                    onChange={handleEventTypeChange}
+                    value={eventTypeFilter}
+                  >
+                    <option value="all">Todos los tipos</option>
+                    {Object.entries(eventTypeLabels).map(([eventType, label]) => (
+                      <option key={eventType} value={eventType}>
+                        {label}
+                      </option>
+                    ))}
+                  </NativeSelect.Field>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+              <Field.Root>
+                <Field.Label htmlFor="event-sort">Orden</Field.Label>
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    id="event-sort"
+                    onChange={handleSortChange}
+                    value={sortDirection}
+                  >
+                    <option value="nearest">Mas proximo primero</option>
+                    <option value="farthest">Mas alejado primero</option>
+                  </NativeSelect.Field>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+            </SimpleGrid>
+          </Stack>
+        </Box>
+
+        <Box as="section" aria-labelledby="events-title">
+          <Stack gap={5}>
+            <Flex align={{ base: "start", md: "end" }} gap={4} justify="space-between" wrap="wrap">
+              <Box>
+                <Text
+                  color="text.muted"
+                  fontSize="sm"
+                  fontWeight="800"
+                  letterSpacing="0.1em"
+                  textTransform="uppercase"
+                >
+                  Calendario publico
+                </Text>
+                <Heading
+                  as="h2"
+                  color="text.default"
+                  fontFamily="heading"
+                  fontSize={{ base: "3xl", md: "4xl" }}
+                  id="events-title"
+                >
+                  Eventos disponibles
+                </Heading>
+              </Box>
+              <Text color="text.muted" fontWeight="700">
+                Pagina {currentPage} de {pageCount} · maximo {EVENTS_PER_PAGE} por pagina
+              </Text>
+            </Flex>
+
+            {visibleEvents.length > 0 ? (
+              <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
+                {visibleEvents.map((event) => (
+                  <EventCard
+                    classroom={classrooms.find((classroom) => classroom.id === event.classroomId)}
+                    event={event}
+                    faculty={faculties.find((faculty) => faculty.id === event.facultyId)}
+                    key={event.id}
+                    parentEvent={largeEvents.find(
+                      (largeEvent) => largeEvent.id === event.parentEventId,
+                    )}
+                  />
+                ))}
+              </SimpleGrid>
+            ) : (
               <Box
                 bg="surface.raised"
                 borderColor="border.subtle"
                 borderWidth="1px"
-                overflow="hidden"
-                p={{ base: 3, md: 4 }}
+                p={{ base: 5, md: 8 }}
                 rounded="3xl"
-                shadow="0 30px 90px rgba(65, 31, 20, 0.16)"
               >
-                <Image
-                  alt="Ilustracion de una agenda academica digital para eventos UTP"
-                  aspectRatio="4 / 3"
-                  objectFit="cover"
-                  rounded="2xl"
-                  src={heroImageSource}
-                  w="full"
-                />
+                <Text color="text.default" fontFamily="heading" fontSize="2xl" fontWeight="700">
+                  No hay eventos con esos filtros
+                </Text>
+                <Text color="text.muted" mt={2}>
+                  Cambia la facultad o el tipo de evento para ver mas opciones disponibles.
+                </Text>
               </Box>
-            </SimpleGrid>
-          </Box>
+            )}
 
-          <Box
-            as="section"
-            aria-label="Filtros de eventos"
-            bg="surface.raised"
-            borderColor="border.subtle"
-            borderWidth="1px"
-            p={{ base: 5, md: 6 }}
-            rounded="3xl"
-          >
-            <Stack gap={5}>
-              <Flex
-                align={{ base: "start", md: "center" }}
-                gap={4}
-                justify="space-between"
-                wrap="wrap"
-              >
-                <Box>
-                  <Text
-                    color="text.muted"
-                    fontSize="sm"
-                    fontWeight="800"
-                    letterSpacing="0.1em"
-                    textTransform="uppercase"
-                  >
-                    Explorar agenda
-                  </Text>
-                  <Text color="text.default" fontFamily="heading" fontSize="3xl" fontWeight="700">
-                    Filtra eventos disponibles
-                  </Text>
-                </Box>
-                <Badge colorPalette="red" px={4} py={2} rounded="full" variant="subtle">
-                  {filteredEvents.length} resultados
-                </Badge>
-              </Flex>
-              <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
-                <Field.Root>
-                  <Field.Label htmlFor="faculty-filter">Facultad</Field.Label>
-                  <NativeSelect.Root>
-                    <NativeSelect.Field
-                      id="faculty-filter"
-                      onChange={handleFacultyChange}
-                      value={facultyFilter}
-                    >
-                      <option value="all">Todas las facultades</option>
-                      {faculties.map((faculty) => (
-                        <option key={faculty.id} value={faculty.id}>
-                          {faculty.shortName} - {faculty.name}
-                        </option>
-                      ))}
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                  </NativeSelect.Root>
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label htmlFor="event-type-filter">Tipo de evento</Field.Label>
-                  <NativeSelect.Root>
-                    <NativeSelect.Field
-                      id="event-type-filter"
-                      onChange={handleEventTypeChange}
-                      value={eventTypeFilter}
-                    >
-                      <option value="all">Todos los tipos</option>
-                      {Object.entries(eventTypeLabels).map(([eventType, label]) => (
-                        <option key={eventType} value={eventType}>
-                          {label}
-                        </option>
-                      ))}
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                  </NativeSelect.Root>
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label htmlFor="event-sort">Orden</Field.Label>
-                  <NativeSelect.Root>
-                    <NativeSelect.Field
-                      id="event-sort"
-                      onChange={handleSortChange}
-                      value={sortDirection}
-                    >
-                      <option value="nearest">Mas proximo primero</option>
-                      <option value="farthest">Mas alejado primero</option>
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                  </NativeSelect.Root>
-                </Field.Root>
-              </SimpleGrid>
-            </Stack>
-          </Box>
-
-          <Box as="section" aria-labelledby="events-title">
-            <Stack gap={5}>
-              <Flex
-                align={{ base: "start", md: "end" }}
-                gap={4}
-                justify="space-between"
-                wrap="wrap"
-              >
-                <Box>
-                  <Text
-                    color="text.muted"
-                    fontSize="sm"
-                    fontWeight="800"
-                    letterSpacing="0.1em"
-                    textTransform="uppercase"
-                  >
-                    Calendario publico
-                  </Text>
-                  <Heading
-                    as="h2"
-                    color="text.default"
-                    fontFamily="heading"
-                    fontSize={{ base: "3xl", md: "4xl" }}
-                    id="events-title"
-                  >
-                    Eventos disponibles
-                  </Heading>
-                </Box>
-                <Text color="text.muted" fontWeight="700">
-                  Pagina {currentPage} de {pageCount} · maximo {EVENTS_PER_PAGE} por pagina
-                </Text>
-              </Flex>
-
-              {visibleEvents.length > 0 ? (
-                <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-                  {visibleEvents.map((event) => (
-                    <EventCard
-                      classroom={classrooms.find((classroom) => classroom.id === event.classroomId)}
-                      event={event}
-                      faculty={faculties.find((faculty) => faculty.id === event.facultyId)}
-                      key={event.id}
-                      parentEvent={largeEvents.find(
-                        (largeEvent) => largeEvent.id === event.parentEventId,
-                      )}
-                    />
-                  ))}
-                </SimpleGrid>
-              ) : (
-                <Box
-                  bg="surface.raised"
-                  borderColor="border.subtle"
-                  borderWidth="1px"
-                  p={{ base: 5, md: 8 }}
-                  rounded="3xl"
+            <Flex align="center" gap={3} justify="space-between" wrap="wrap">
+              <Text color="text.muted" fontSize="sm" fontWeight="700">
+                Mostrando {visibleEvents.length} de {filteredEvents.length} eventos
+              </Text>
+              <HStack gap={2} wrap="wrap">
+                <Button
+                  colorPalette="red"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage((previousPage) => Math.max(1, previousPage - 1))}
+                  rounded="full"
+                  variant="outline"
                 >
-                  <Text color="text.default" fontFamily="heading" fontSize="2xl" fontWeight="700">
-                    No hay eventos con esos filtros
-                  </Text>
-                  <Text color="text.muted" mt={2}>
-                    Cambia la facultad o el tipo de evento para ver mas opciones disponibles.
-                  </Text>
-                </Box>
-              )}
-
-              <Flex align="center" gap={3} justify="space-between" wrap="wrap">
-                <Text color="text.muted" fontSize="sm" fontWeight="700">
-                  Mostrando {visibleEvents.length} de {filteredEvents.length} eventos
-                </Text>
-                <HStack gap={2} wrap="wrap">
+                  Anterior
+                </Button>
+                {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
                   <Button
                     colorPalette="red"
-                    disabled={currentPage === 1}
-                    onClick={() => setPage((previousPage) => Math.max(1, previousPage - 1))}
+                    key={pageNumber}
+                    onClick={() => setPage(pageNumber)}
                     rounded="full"
-                    variant="outline"
+                    variant={currentPage === pageNumber ? "solid" : "outline"}
                   >
-                    Anterior
+                    {pageNumber}
                   </Button>
-                  {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
-                    <Button
-                      colorPalette="red"
-                      key={pageNumber}
-                      onClick={() => setPage(pageNumber)}
-                      rounded="full"
-                      variant={currentPage === pageNumber ? "solid" : "outline"}
-                    >
-                      {pageNumber}
-                    </Button>
-                  ))}
-                  <Button
-                    colorPalette="red"
-                    disabled={currentPage === pageCount}
-                    onClick={() => setPage((previousPage) => Math.min(pageCount, previousPage + 1))}
-                    rounded="full"
-                    variant="outline"
-                  >
-                    Siguiente
-                  </Button>
-                </HStack>
-              </Flex>
-            </Stack>
-          </Box>
-        </Stack>
-      </Container>
+                ))}
+                <Button
+                  colorPalette="red"
+                  disabled={currentPage === pageCount}
+                  onClick={() => setPage((previousPage) => Math.min(pageCount, previousPage + 1))}
+                  rounded="full"
+                  variant="outline"
+                >
+                  Siguiente
+                </Button>
+              </HStack>
+            </Flex>
+          </Stack>
+        </Box>
+      </Stack>
     </Box>
   );
 }
