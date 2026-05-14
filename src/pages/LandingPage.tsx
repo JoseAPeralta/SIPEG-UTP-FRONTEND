@@ -2,7 +2,6 @@ import { startTransition, useState, type ChangeEvent } from "react";
 import {
   Badge,
   Box,
-  Button,
   Field,
   Flex,
   Heading,
@@ -15,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 
 import { EventCard } from "@components/EventCard";
+import { PaginationControls } from "@components/PaginationControls";
 import { classrooms, faculties, largeEvents, smallEvents } from "@/data/sipeg";
 import type { EventType, FacultyId, SmallEvent } from "@/types/domain";
 
@@ -341,42 +341,14 @@ export function LandingPage() {
               </Box>
             )}
 
-            <Flex align="center" gap={3} justify="space-between" wrap="wrap">
-              <Text color="text.muted" fontSize="sm" fontWeight="700">
-                Mostrando {visibleEvents.length} de {filteredEvents.length} eventos
-              </Text>
-              <HStack gap={2} wrap="wrap">
-                <Button
-                  colorPalette="red"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((previousPage) => Math.max(1, previousPage - 1))}
-                  rounded="full"
-                  variant="outline"
-                >
-                  Anterior
-                </Button>
-                {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
-                  <Button
-                    colorPalette="red"
-                    key={pageNumber}
-                    onClick={() => setPage(pageNumber)}
-                    rounded="full"
-                    variant={currentPage === pageNumber ? "solid" : "outline"}
-                  >
-                    {pageNumber}
-                  </Button>
-                ))}
-                <Button
-                  colorPalette="red"
-                  disabled={currentPage === pageCount}
-                  onClick={() => setPage((previousPage) => Math.min(pageCount, previousPage + 1))}
-                  rounded="full"
-                  variant="outline"
-                >
-                  Siguiente
-                </Button>
-              </HStack>
-            </Flex>
+            <PaginationControls
+              currentPage={currentPage}
+              itemLabel="eventos"
+              onPageChange={setPage}
+              pageCount={pageCount}
+              totalItems={filteredEvents.length}
+              visibleItems={visibleEvents.length}
+            />
           </Stack>
         </Box>
       </Stack>
