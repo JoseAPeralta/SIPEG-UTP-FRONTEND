@@ -3,6 +3,8 @@ import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router";
 
 import { AppLayout } from "@components/Layout/AppLayout";
+import { RootLayout } from "@components/Layout/RootLayout";
+import { useSessionStore } from "@/store/session";
 
 const AttendancePage = lazy(() => import("@pages/AttendancePage"));
 const CertificatesPage = lazy(() => import("@pages/CertificatesPage"));
@@ -10,6 +12,8 @@ const ClassroomsPage = lazy(() => import("@pages/ClassroomsPage"));
 const DashboardPage = lazy(() => import("@pages/DashboardPage"));
 const EventsPage = lazy(() => import("@pages/EventsPage"));
 const LandingPage = lazy(() => import("@pages/LandingPage"));
+const LoginPage = lazy(() => import("@pages/LoginPage"));
+const LogoutPage = lazy(() => import("@pages/LogoutPage"));
 const ReportsPage = lazy(() => import("@pages/ReportsPage"));
 const SpeakersPage = lazy(() => import("@pages/SpeakersPage"));
 const UsersPage = lazy(() => import("@pages/UsersPage"));
@@ -35,19 +39,39 @@ function renderRoute(element: ReactNode) {
   return <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
 }
 
+function RequireSession({ children }: { children: ReactNode }) {
+  const currentUser = useSessionStore((state) => state.currentUser);
+
+  if (!currentUser) {
+    return <Navigate replace to="/login" />;
+  }
+
+  return children;
+}
+
 export function App() {
   return (
     <Routes>
-      <Route index element={renderRoute(<LandingPage />)} />
-      <Route element={<AppLayout />}>
-        <Route path="dashboard" element={renderRoute(<DashboardPage />)} />
-        <Route path="eventos" element={renderRoute(<EventsPage />)} />
-        <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
-        <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
-        <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
-        <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
-        <Route path="reportes" element={renderRoute(<ReportsPage />)} />
-        <Route path="usuarios" element={renderRoute(<UsersPage />)} />
+      <Route element={<RootLayout />}>
+        <Route index element={renderRoute(<LandingPage />)} />
+        <Route path="login" element={renderRoute(<LoginPage />)} />
+        <Route path="logout" element={renderRoute(<LogoutPage />)} />
+        <Route
+          element={
+            <RequireSession>
+              <AppLayout />
+            </RequireSession>
+          }
+        >
+          <Route path="dashboard" element={renderRoute(<DashboardPage />)} />
+          <Route path="eventos" element={renderRoute(<EventsPage />)} />
+          <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
+          <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
+          <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
+          <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
+          <Route path="reportes" element={renderRoute(<ReportsPage />)} />
+          <Route path="usuarios" element={renderRoute(<UsersPage />)} />
+        </Route>
       </Route>
       <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>

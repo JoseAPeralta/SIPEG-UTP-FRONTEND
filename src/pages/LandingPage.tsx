@@ -125,7 +125,7 @@ export function LandingPage() {
   };
 
   return (
-    <Box bg="surface.canvas" color="text.default" minH="100vh">
+    <Box bg="surface.canvas" color="text.default">
       <Container as="main" maxW="7xl" py={{ base: 6, md: 10 }}>
         <Stack gap={{ base: 8, md: 10 }}>
           <Box as="section" aria-labelledby="landing-title">
