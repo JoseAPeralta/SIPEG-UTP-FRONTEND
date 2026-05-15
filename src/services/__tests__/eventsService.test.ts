@@ -19,8 +19,9 @@ describe("eventsService", () => {
       }),
     ).resolves.toEqual(eventCatalog);
 
-    expect(fetcher).toHaveBeenCalledWith("http://localhost:3000/api/events", {
-      headers: { Accept: "application/json" },
-    });
+    expect(fetcher.mock.calls[0]?.[0]).toBe("http://localhost:3000/api/events");
+    expect(
+      new Headers((fetcher.mock.calls[0]?.[1] as RequestInit | undefined)?.headers).get("Accept"),
+    ).toBe("application/json");
   });
 });

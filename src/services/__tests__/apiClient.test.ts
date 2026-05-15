@@ -30,10 +30,32 @@ describe("apiClient", () => {
       fetcher,
     });
 
-    expect(fetcher).toHaveBeenCalledWith("https://api.test/events", {
-      headers: { Accept: "application/json" },
-    });
+    expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/events");
+    expect(
+      new Headers((fetcher.mock.calls[0]?.[1] as RequestInit | undefined)?.headers).get("Accept"),
+    ).toBe("application/json");
     expect(response).toEqual({ ok: true });
+  });
+
+  it("should preserve custom request headers", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      }),
+    );
+
+    await apiRequest("/events", {
+      environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
+      fetcher,
+      requestInit: { headers: new Headers({ Authorization: "Bearer token" }) },
+    });
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+    const headers = new Headers(requestInit?.headers);
+
+    expect(headers.get("Accept")).toBe("application/json");
+    expect(headers.get("Authorization")).toBe("Bearer token");
   });
 
   it("should throw a readable error when the response is not ok", async () => {

@@ -33,12 +33,15 @@ export async function apiRequest<TResponse>(
 ) {
   const normalizedPath = normalizePath(path);
   const requestUrl = `${resolveApiBaseUrl(environment)}${normalizedPath}`;
+  const headers = new Headers(requestInit?.headers);
+
+  if (!headers.has("Accept")) {
+    headers.set("Accept", "application/json");
+  }
+
   const response = await fetcher(requestUrl, {
     ...requestInit,
-    headers: {
-      Accept: "application/json",
-      ...(requestInit?.headers as Record<string, string> | undefined),
-    },
+    headers,
   });
 
   if (!response.ok) {
