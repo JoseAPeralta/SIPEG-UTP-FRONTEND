@@ -2,13 +2,13 @@ import { Box, Text } from "@chakra-ui/react";
 import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
+import { AdminLayout } from "@components/Layout/AdminLayout";
 import { AppLayout } from "@components/Layout/AppLayout";
 import { useSessionStore } from "@/store/session";
 
 const AttendancePage = lazy(() => import("@pages/AttendancePage"));
 const CertificatesPage = lazy(() => import("@pages/CertificatesPage"));
 const ClassroomsPage = lazy(() => import("@pages/ClassroomsPage"));
-const DashboardPage = lazy(() => import("@pages/DashboardPage"));
 const EventsPage = lazy(() => import("@pages/EventsPage"));
 const LandingPage = lazy(() => import("@pages/LandingPage"));
 const LoginPage = lazy(() => import("@pages/LoginPage"));
@@ -48,6 +48,14 @@ function RequireSession() {
   return <Outlet />;
 }
 
+function AdminRedirect() {
+  return <Navigate to="/admin/eventos" replace />;
+}
+
+function RedirectToAdminRoute({ path }: { path: string }) {
+  return <Navigate to={`/admin/${path}`} replace />;
+}
+
 export function App() {
   return (
     <Routes>
@@ -56,14 +64,22 @@ export function App() {
         <Route path="login" element={renderRoute(<LoginPage />)} />
         <Route path="logout" element={renderRoute(<LogoutPage />)} />
         <Route element={<RequireSession />}>
-          <Route path="dashboard" element={renderRoute(<DashboardPage />)} />
+          <Route path="eventos" element={<RedirectToAdminRoute path="eventos" />} />
+          <Route path="asistencia" element={<RedirectToAdminRoute path="asistencia" />} />
+          <Route path="certificados" element={<RedirectToAdminRoute path="certificados" />} />
+          <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
+          <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
+          <Route path="reportes" element={<RedirectToAdminRoute path="reportes" />} />
+          <Route path="usuarios" element={renderRoute(<UsersPage />)} />
+        </Route>
+      </Route>
+      <Route element={<RequireSession />}>
+        <Route path="admin" element={<AdminLayout />}>
+          <Route index element={<AdminRedirect />} />
           <Route path="eventos" element={renderRoute(<EventsPage />)} />
           <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
           <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
-          <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
-          <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
           <Route path="reportes" element={renderRoute(<ReportsPage />)} />
-          <Route path="usuarios" element={renderRoute(<UsersPage />)} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate replace to="/" />} />

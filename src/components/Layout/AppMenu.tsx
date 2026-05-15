@@ -48,13 +48,7 @@ export function AppMenu() {
       <Container maxW="7xl" py={{ base: 4, md: 5 }}>
         <Flex align="center" gap={{ base: 3, md: 5 }} justify="space-between" w="full" wrap="wrap">
           <Link style={{ textDecoration: "none" }} to="/">
-            <Heading
-              as="p"
-              color="text.default"
-              fontFamily="heading"
-              fontSize="2xl"
-              lineHeight="1"
-            >
+            <Heading as="p" color="text.default" fontFamily="heading" fontSize="2xl" lineHeight="1">
               SIPEG
             </Heading>
           </Link>
@@ -68,7 +62,7 @@ export function AppMenu() {
           >
             {currentUser ? (
               <>
-                <MenuLink to="/dashboard">Panel de administracion</MenuLink>
+                <MenuLink to="/admin">Panel de administracion</MenuLink>
                 <Button colorPalette="red" onClick={handleLogout} rounded="full" variant="outline">
                   Cerrar sesion
                 </Button>

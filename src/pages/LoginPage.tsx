@@ -23,12 +23,12 @@ export function LoginPage() {
   const navigate = useNavigate();
 
   if (currentUser) {
-    return <Navigate replace to="/dashboard" />;
+    return <Navigate replace to="/admin" />;
   }
 
   const handleLogin = () => {
     login(demoUser);
-    void navigate("/dashboard", { replace: true });
+    void navigate("/admin", { replace: true });
   };
 
   return (

@@ -3,13 +3,9 @@ import { Badge, Box, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 import { EventCard } from "@components/EventCard";
 import { ModuleShell } from "@components/ModuleShell";
 import { classrooms, faculties, largeEvents, smallEvents } from "@/data/sipeg";
-import { useFacultyPreferenceStore } from "@store/facultyPreference";
-import { formatDateRange, getEventsForFaculty } from "@utils/eventFilters";
+import { formatDateRange } from "@utils/eventFilters";
 
 export function EventsPage() {
-  const selectedFacultyId = useFacultyPreferenceStore((state) => state.selectedFacultyId);
-  const visibleEvents = getEventsForFaculty(smallEvents, selectedFacultyId);
-
   return (
     <ModuleShell
       description="Listado preparado para separar eventos grandes, eventos pequenos, permisos heredados y filtros por facultad antes de conectar el cliente API."
@@ -48,7 +44,7 @@ export function EventsPage() {
           ))}
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={5}>
-          {visibleEvents.map((event) => (
+          {smallEvents.map((event) => (
             <EventCard
               classroom={classrooms.find((classroom) => classroom.id === event.classroomId)}
               event={event}
