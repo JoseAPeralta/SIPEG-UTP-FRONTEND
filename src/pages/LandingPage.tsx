@@ -12,7 +12,12 @@ import {
 } from "@chakra-ui/react";
 
 import { EventCard } from "@components/EventCard";
-import { EventFilters, type EventTypeFilter, type FacultyFilter, type SortDirection } from "@components/EventFilters";
+import {
+  EventFilters,
+  type EventTypeFilter,
+  type FacultyFilter,
+  type SortDirection,
+} from "@components/EventFilters";
 import { PaginationControls } from "@components/PaginationControls";
 import { classrooms, faculties, largeEvents, smallEvents } from "@/data/sipeg";
 import type { SmallEvent } from "@/types/domain";
@@ -66,7 +71,7 @@ function getFilteredEvents(
     .sort((firstEvent, secondEvent) => {
       const dateDifference = getEventTimestamp(firstEvent) - getEventTimestamp(secondEvent);
 
-      return sortDirection === "desc" ? dateDifference : -dateDifference;
+      return sortDirection === "asc" ? dateDifference : -dateDifference;
     });
 }
 

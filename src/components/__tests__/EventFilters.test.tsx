@@ -6,7 +6,6 @@ import { describe, expect, it, vi } from "vitest";
 import { EventFilters } from "@components/EventFilters";
 import { renderWithProviders } from "@/test/render";
 
-
 type EventFiltersProps = ComponentProps<typeof EventFilters>;
 
 function renderEventFilters(props: Partial<EventFiltersProps> = {}) {

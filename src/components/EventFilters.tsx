@@ -100,7 +100,7 @@ export function EventFilters({
             </NativeSelect.Root>
           </Field.Root>
           <Field.Root>
-            <Field.Label htmlFor="event-sort">Fecha</Field.Label>
+            <Field.Label htmlFor="event-sort">Orden</Field.Label>
             <NativeSelect.Root>
               <NativeSelect.Field
                 id="event-sort"
