@@ -47,18 +47,18 @@ Leyenda: `X` pendiente, `✓` finalizada.
 ## Requisitos
 
 - Node.js 20 o superior recomendado
-- npm
+- pnpm
 
 ## Instalacion
 
 ```bash
-npm install
+pnpm install
 ```
 
 ## Ejecucion Local
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 La aplicacion queda disponible en:
@@ -69,40 +69,40 @@ http://localhost:5173
 
 ## Scripts Disponibles
 
-| Comando                 | Uso                                                           |
-| ----------------------- | ------------------------------------------------------------- |
-| `npm run dev`           | Inicia el servidor local de desarrollo.                       |
-| `npm run build`         | Ejecuta typecheck y genera el build de produccion en `dist`.  |
-| `npm run preview`       | Sirve localmente el build de produccion.                      |
-| `npm run start`         | Alias para servir el build con `vite preview --host 0.0.0.0`. |
-| `npm run lint`          | Ejecuta ESLint con cero warnings permitidos.                  |
-| `npm run lint:fix`      | Ejecuta ESLint aplicando correcciones automaticas.            |
-| `npm run format`        | Formatea archivos con Prettier.                               |
-| `npm run format:check`  | Verifica formato sin modificar archivos.                      |
-| `npm run typecheck`     | Ejecuta TypeScript sin emitir archivos.                       |
-| `npm test`              | Ejecuta pruebas con Vitest.                                   |
-| `npm run test:watch`    | Ejecuta Vitest en modo watch.                                 |
-| `npm run test:ui`       | Abre la interfaz de Vitest.                                   |
-| `npm run test:coverage` | Genera reporte de cobertura.                                  |
-| `npm run pwa:icons`     | Regenera los iconos basicos de la PWA.                        |
-| `npm run check`         | Ejecuta formato, lint, typecheck, tests y build.              |
+| Comando                  | Uso                                                           |
+| ------------------------ | ------------------------------------------------------------- |
+| `pnpm run dev`           | Inicia el servidor local de desarrollo.                       |
+| `pnpm run build`         | Ejecuta typecheck y genera el build de produccion en `dist`.  |
+| `pnpm run preview`       | Sirve localmente el build de produccion.                      |
+| `pnpm run start`         | Alias para servir el build con `vite preview --host 0.0.0.0`. |
+| `pnpm run lint`          | Ejecuta ESLint con cero warnings permitidos.                  |
+| `pnpm run lint:fix`      | Ejecuta ESLint aplicando correcciones automaticas.            |
+| `pnpm run format`        | Formatea archivos con Prettier.                               |
+| `pnpm run format:check`  | Verifica formato sin modificar archivos.                      |
+| `pnpm run typecheck`     | Ejecuta TypeScript sin emitir archivos.                       |
+| `pnpm test`              | Ejecuta pruebas con Vitest.                                   |
+| `pnpm run test:watch`    | Ejecuta Vitest en modo watch.                                 |
+| `pnpm run test:ui`       | Abre la interfaz de Vitest.                                   |
+| `pnpm run test:coverage` | Genera reporte de cobertura.                                  |
+| `pnpm run pwa:icons`     | Regenera los iconos basicos de la PWA.                        |
+| `pnpm run check`         | Ejecuta formato, lint, typecheck, tests y build.              |
 
 ## Verificacion Recomendada
 
 Antes de considerar una tarea completa, ejecuta:
 
 ```bash
-npm run format:check
-npm run lint
-npm run typecheck
-npm test
-npm run build
+pnpm run format:check
+pnpm run lint
+pnpm run typecheck
+pnpm test
+pnpm run build
 ```
 
 Tambien puedes ejecutar la cadena completa con:
 
 ```bash
-npm run check
+pnpm run check
 ```
 
 ## Estructura Del Proyecto
@@ -150,14 +150,14 @@ La aplicacion esta preparada como PWA basica. Incluye:
 Para regenerar los iconos basicos:
 
 ```bash
-npm run pwa:icons
+pnpm run pwa:icons
 ```
 
 Para probar la PWA, genera el build y sirvelo localmente:
 
 ```bash
-npm run build
-npm run preview
+pnpm run build
+pnpm run preview
 ```
 
 ## Docker

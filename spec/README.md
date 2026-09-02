@@ -60,5 +60,5 @@ or inside the isolated workspace; the runner cannot download it.
 Verify both isolation layers with:
 
 ```bash
-npm run test:harness
+pnpm run test:harness
 ```

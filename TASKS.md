@@ -20,8 +20,8 @@ WCAG 2.2 AA + extras de accesibilidad) a todo el frontend, sin cambiar la lógic
 | completed | Task 6: Hero landing y footer (copy independiente)                 |
 | completed | Task 7: Datos mock sin referencias UTP                             |
 | completed | Task 8: Iconos PWA en terracota                                    |
-| completed | Task 9: Extras de accesibilidad (skip link) |
-| completed | Task 10: Verificación completa |
+| completed | Task 9: Extras de accesibilidad (skip link)                        |
+| completed | Task 10: Verificación completa                                     |
 
 ## Lista de verificación
 
@@ -34,7 +34,7 @@ WCAG 2.2 AA + extras de accesibilidad) a todo el frontend, sin cambiar la lógic
 - [x] **Task 7:** Datos mock visibles sin referencias UTP (`sipeg.ts`, `largeEvents.ts`, `smallEvents.ts`).
 - [x] **Task 8:** `scripts/generate-pwa-icons.mjs` en terracota + regenerar `public/icons/*.png`.
 - [x] **Task 9:** `SkipLink.tsx` + `id="main-content"` en `AppLayout.tsx` y `AdminLayout.tsx`.
-- [x] **Task 10:** `npm run format` + `npm run check` + revisión visual y grep de control.
+- [x] **Task 10:** `pnpm run format` + `pnpm run check` + revisión visual y grep de control.
 
 ## Fuera de alcance
 

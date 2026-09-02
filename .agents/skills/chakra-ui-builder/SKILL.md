@@ -52,9 +52,6 @@ If Chakra UI isn't installed yet, complete setup before building.
 ### Install
 
 ```bash
-# npm
-npm install @chakra-ui/react @emotion/react
-
 # pnpm
 pnpm add @chakra-ui/react @emotion/react
 
@@ -166,7 +163,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
   path and that `Provider` wraps the component tree.
 - **Hydration mismatch** — add `suppressHydrationWarning` to `<html>` in App
   Router.
-- **`next-themes` not found** — install it: `npm install next-themes` (only
+- **`next-themes` not found** — install it: `pnpm add next-themes` (only
   needed for the manual fallback; the CLI handles it automatically).
 - **`extendTheme` not exported** — this is a v2 pattern. Use `createSystem` in
   v3.

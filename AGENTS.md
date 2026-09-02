@@ -24,14 +24,14 @@
 ## Development Commands
 
 ```bash
-npm install
-npm run dev
-npm run build
-npm run lint
-npm test
-npm run test:ui
-npm run test:coverage
-npm run preview
+pnpm install
+pnpm run dev
+pnpm run build
+pnpm run lint
+pnpm test
+pnpm run test:ui
+pnpm run test:coverage
+pnpm run preview
 ```
 
 ## Project Structure
@@ -86,8 +86,8 @@ src/
 - Setup file: `src/setupTests.ts`.
 - Prefer Testing Library for component behavior tests.
 - Add tests for meaningful behavior.
-- Run `npm test` when adding or modifying tested behavior.
-- Run `npm run build` before considering large frontend changes complete.
+- Run `pnpm test` when adding or modifying tested behavior.
+- Run `pnpm run build` before considering large frontend changes complete.
 
 ## Backend Boundary
 

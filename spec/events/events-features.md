@@ -104,7 +104,7 @@ Acceptance criteria:
 - Status and empty-state messages are available to assistive technologies.
 - The layout works on mobile and desktop viewports.
 - Meaningful behavior is covered with Vitest and Testing Library.
-- `npm run check` passes before the feature is considered implemented.
+- `pnpm run check` passes before the feature is considered implemented.
 
 ## Dependencies
 

@@ -3,9 +3,6 @@
 Charts live in a separate package. Install it alongside `@chakra-ui/react`:
 
 ```bash
-# npm
-npm install @chakra-ui/charts recharts
-
 # pnpm
 pnpm add @chakra-ui/charts recharts
 
