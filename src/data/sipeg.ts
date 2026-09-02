@@ -31,7 +31,7 @@ export const careers: Career[] = [
 export const users: User[] = [
   {
     careerId: "software",
-    email: "mariana.rodriguez@utp.ac.pa",
+    email: "mariana.rodriguez@example.edu",
     facultyId: "fisc",
     fullName: "Mariana Rodriguez",
     id: "user-1",
@@ -39,7 +39,7 @@ export const users: User[] = [
   },
   {
     careerId: "civil",
-    email: "carlos.mendez@utp.ac.pa",
+    email: "carlos.mendez@example.edu",
     facultyId: "fic",
     fullName: "Carlos Mendez",
     id: "user-2",
@@ -47,7 +47,7 @@ export const users: User[] = [
   },
   {
     careerId: "electrical",
-    email: "laura.chen@utp.ac.pa",
+    email: "laura.chen@example.edu",
     facultyId: "fie",
     fullName: "Laura Chen",
     id: "user-3",
@@ -55,7 +55,7 @@ export const users: User[] = [
   },
   {
     careerId: "mechanical",
-    email: "jorge.santos@utp.ac.pa",
+    email: "jorge.santos@example.edu",
     facultyId: "fim",
     fullName: "Jorge Santos",
     id: "user-4",

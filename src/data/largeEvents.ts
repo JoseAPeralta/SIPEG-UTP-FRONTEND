@@ -8,7 +8,7 @@ export const largeEvents: LargeEvent[] = [
     endDate: "2026-06-19",
     facultyId: "fisc",
     id: "large-innovation-week",
-    name: "Semana UTP de Innovacion Academica",
+    name: "Semana de Innovacion Academica",
     permissionIds: ["permission-1", "permission-2"],
     startDate: "2026-06-15",
   },

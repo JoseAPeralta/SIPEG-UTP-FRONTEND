@@ -7,15 +7,15 @@ type SmallEventInput = Omit<
   Partial<Pick<SmallEvent, "banner" | "collaboratorIds" | "permissionIds" | "registeredAttendees">>;
 
 const speakers = {
-  ana: { name: "Lic. Ana Perez", organization: "Secretaria Academica UTP" },
+  ana: { name: "Lic. Ana Perez", organization: "Secretaria Academica" },
   carlos: { name: "Dr. Carlos Moreno", organization: "SENACYT" },
-  elena: { name: "Dra. Elena Vargas", organization: "Centro de Innovacion UTP" },
+  elena: { name: "Dra. Elena Vargas", organization: "Centro de Innovacion" },
   ernesto: {
     name: "Ing. Ernesto Vega",
     organization: "Autoridad Nacional de los Servicios Publicos",
   },
-  gabriela: { name: "Mgtr. Gabriela Rios", organization: "Universidad Tecnologica de Panama" },
-  isabel: { name: "Dra. Isabel Torres", organization: "Centro Regional UTP Veraguas" },
+  gabriela: { name: "Mgtr. Gabriela Rios", organization: "Universidad de Ciencias Aplicadas" },
+  isabel: { name: "Dra. Isabel Torres", organization: "Centro de Extension Academica" },
   jorge: { name: "Ing. Jorge Santos", organization: "Cobre Panama" },
   laura: { name: "Ing. Laura Chen", organization: "IEEE Seccion Panama" },
   marcos: {
