@@ -1,6 +1,11 @@
 html {
-  background: #f8f1e7;
+  background: #fbf7f2;
   scrollbar-gutter: stable;
+}
+
+html[data-theme="dark"],
+html.dark {
+  background: #1c1410;
 }
 
 @supports not (scrollbar-gutter: stable) {
@@ -19,6 +24,21 @@ body {
 }
 
 ::selection {
-  background: #a81520;
-  color: #fff7ef;
+  background: #9c3a1e;
+  color: #fffdf9;
+}
+
+#main-content {
+  scroll-margin-top: 88px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
