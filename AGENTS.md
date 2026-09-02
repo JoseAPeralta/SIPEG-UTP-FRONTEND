@@ -179,3 +179,13 @@ src/
 - Do not add libraries unless there is a concrete reason.
 - Prefer clear domain naming for users, faculties, careers, permissions, events, attendance, classrooms, speakers, certificates, and reports.
 - When implementing frontend features, consider future integration with the separate Node.js API.
+
+## Local Harness Safety
+
+- Harness agents must work only in a workspace created by `scripts/prepare-agent-workspace.sh`.
+- Run local agent commands through `scripts/run-agent-sandbox.sh`.
+- Do not provide agents with GitHub connectors, tokens, SSH credentials, MCP servers, credential helpers, or remote repository tools.
+- Harness agents must not access GitHub or any other Git remote under any circumstances.
+- Harness agents must not run Git commands or create commits.
+- A trusted local operator may create a local commit only after an explicit user request.
+- A request to create a local commit never authorizes a push or any other remote operation.

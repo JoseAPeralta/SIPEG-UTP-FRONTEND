@@ -15,6 +15,7 @@
     "start": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:harness": "sh scripts/__tests__/prepare-agent-workspace.test.sh && sh scripts/__tests__/run-agent-sandbox.test.sh",
     "test:ui": "vitest --ui",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit"
