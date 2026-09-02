@@ -1,10 +1,10 @@
 import { Box, HStack, Text } from "@chakra-ui/react";
 
 const toneStyles = {
-  amber: { accent: "#b46715", bg: "rgba(180, 103, 21, 0.12)" },
-  graphite: { accent: "#3c3030", bg: "rgba(60, 48, 48, 0.10)" },
-  red: { accent: "#a81520", bg: "rgba(168, 21, 32, 0.12)" },
-  teal: { accent: "#0f766e", bg: "rgba(15, 118, 110, 0.12)" },
+  primary: { accent: "#9C3A1E", bg: "rgba(156, 58, 30, 0.12)" },
+  neutral: { accent: "#3C3129", bg: "rgba(60, 49, 41, 0.10)" },
+  success: { accent: "#2F6B3A", bg: "rgba(47, 107, 58, 0.12)" },
+  warning: { accent: "#B46715", bg: "rgba(180, 103, 21, 0.12)" },
 } as const;
 
 type MetricCardProps = {

@@ -41,7 +41,7 @@ export function AppMenu() {
   return (
     <Box
       as="header"
-      background="radial-gradient(circle at top left, rgba(168, 21, 32, 0.16), transparent 28rem), rgba(248, 241, 231, 0.86)"
+      background="radial-gradient(circle at top left, rgba(156, 58, 30, 0.16), transparent 28rem), rgba(251, 247, 242, 0.86)"
       borderBottomColor="border.subtle"
       borderBottomWidth="1px"
     >
@@ -63,7 +63,12 @@ export function AppMenu() {
             {currentUser ? (
               <>
                 <MenuLink to="/admin">Panel de administracion</MenuLink>
-                <Button colorPalette="red" onClick={handleLogout} rounded="full" variant="outline">
+                <Button
+                  colorPalette="terracotta"
+                  onClick={handleLogout}
+                  rounded="full"
+                  variant="outline"
+                >
                   Cerrar sesion
                 </Button>
               </>

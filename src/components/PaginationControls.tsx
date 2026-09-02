@@ -27,7 +27,7 @@ export function PaginationControls({
       </Text>
       <HStack as="nav" aria-label="Paginacion" gap={2} wrap="wrap">
         <Button
-          colorPalette="red"
+          colorPalette="terracotta"
           disabled={safeCurrentPage === 1}
           onClick={() => onPageChange(safeCurrentPage - 1)}
           rounded="full"
@@ -38,7 +38,7 @@ export function PaginationControls({
         {Array.from({ length: safePageCount }, (_, index) => index + 1).map((pageNumber) => (
           <Button
             aria-current={safeCurrentPage === pageNumber ? "page" : undefined}
-            colorPalette="red"
+            colorPalette="terracotta"
             key={pageNumber}
             onClick={() => onPageChange(pageNumber)}
             rounded="full"
@@ -48,7 +48,7 @@ export function PaginationControls({
           </Button>
         ))}
         <Button
-          colorPalette="red"
+          colorPalette="terracotta"
           disabled={safeCurrentPage === safePageCount}
           onClick={() => onPageChange(safeCurrentPage + 1)}
           rounded="full"

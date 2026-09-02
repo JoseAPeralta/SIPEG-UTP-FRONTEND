@@ -28,31 +28,31 @@ const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Agenda academica SIPEG">
   <defs>
     <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#5d0912"/>
-      <stop offset="0.52" stop-color="#a81520"/>
-      <stop offset="1" stop-color="#f2b15c"/>
+      <stop offset="0" stop-color="#6E2411"/>
+      <stop offset="0.52" stop-color="#9C3A1E"/>
+      <stop offset="1" stop-color="#E59A72"/>
     </linearGradient>
     <radialGradient id="glow" cx="68%" cy="22%" r="58%">
-      <stop offset="0" stop-color="#fff7ef" stop-opacity="0.82"/>
-      <stop offset="1" stop-color="#fff7ef" stop-opacity="0"/>
+      <stop offset="0" stop-color="#FBF7F2" stop-opacity="0.82"/>
+      <stop offset="1" stop-color="#FBF7F2" stop-opacity="0"/>
     </radialGradient>
   </defs>
   <rect width="960" height="720" rx="52" fill="url(#sky)"/>
   <rect width="960" height="720" rx="52" fill="url(#glow)"/>
-  <g fill="none" stroke="#fff7ef" stroke-opacity="0.42" stroke-width="2">
+  <g fill="none" stroke="#FBF7F2" stroke-opacity="0.42" stroke-width="2">
     <path d="M112 126h736M112 252h736M112 378h736M112 504h736M236 82v568M420 82v568M604 82v568M788 82v568"/>
   </g>
   <g transform="translate(118 116)">
-    <rect width="720" height="454" rx="40" fill="#fff7ef" fill-opacity="0.92"/>
-    <rect x="44" y="54" width="632" height="58" rx="20" fill="#5d0912" fill-opacity="0.12"/>
-    <rect x="44" y="148" width="270" height="208" rx="28" fill="#a81520"/>
-    <rect x="350" y="148" width="326" height="92" rx="26" fill="#efe3d2"/>
-    <rect x="350" y="264" width="326" height="92" rx="26" fill="#efe3d2"/>
-    <circle cx="116" cy="252" r="42" fill="#f2b15c"/>
-    <path d="M178 226h86M178 254h62M178 282h96" stroke="#fff7ef" stroke-linecap="round" stroke-width="18"/>
-    <path d="M394 180h132M394 216h216M394 296h132M394 332h192" stroke="#5d0912" stroke-linecap="round" stroke-opacity="0.72" stroke-width="16"/>
-    <text x="58" y="94" fill="#5d0912" font-family="Georgia, serif" font-size="42" font-weight="700">SIPEG</text>
-    <text x="518" y="94" fill="#a81520" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="4">EVENTOS UTP</text>
+    <rect width="720" height="454" rx="40" fill="#FFFDF9" fill-opacity="0.92"/>
+    <rect x="44" y="54" width="632" height="58" rx="20" fill="#6E2411" fill-opacity="0.12"/>
+    <rect x="44" y="148" width="270" height="208" rx="28" fill="#9C3A1E"/>
+    <rect x="350" y="148" width="326" height="92" rx="26" fill="#F3EAE2"/>
+    <rect x="350" y="264" width="326" height="92" rx="26" fill="#F3EAE2"/>
+    <circle cx="116" cy="252" r="42" fill="#E59A72"/>
+    <path d="M178 226h86M178 254h62M178 282h96" stroke="#FBF7F2" stroke-linecap="round" stroke-width="18"/>
+    <path d="M394 180h132M394 216h216M394 296h132M394 332h192" stroke="#6E2411" stroke-linecap="round" stroke-opacity="0.72" stroke-width="16"/>
+    <text x="58" y="94" fill="#6E2411" font-family="Georgia, serif" font-size="42" font-weight="700">SIPEG</text>
+    <text x="518" y="94" fill="#9C3A1E" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="4">AGENDA ACADEMICA</text>
   </g>
 </svg>`)} `;
 
@@ -96,10 +96,10 @@ export function LandingPage() {
           <SimpleGrid columns={{ base: 1, lg: 2 }} gap={{ base: 7, lg: 10 }} alignItems="center">
             <Stack gap={6}>
               <HStack gap={3} wrap="wrap">
-                <Badge colorPalette="red" px={4} py={2} rounded="full" variant="subtle">
-                  Agenda publica UTP
+                <Badge colorPalette="terracotta" px={4} py={2} rounded="full" variant="subtle">
+                  Agenda publica
                 </Badge>
-                <Badge colorPalette="orange" px={4} py={2} rounded="full" variant="surface">
+                <Badge colorPalette="terracotta" px={4} py={2} rounded="full" variant="surface">
                   Eventos disponibles
                 </Badge>
               </HStack>
@@ -115,8 +115,8 @@ export function LandingPage() {
                   Descubre eventos academicos en SIPEG
                 </Heading>
                 <Text color="text.muted" fontSize={{ base: "lg", md: "xl" }} maxW="2xl">
-                  Explora conferencias, talleres, seminarios y charlas de la Universidad Tecnologica
-                  de Panama centro regional de Veraguas en un solo calendario publico.
+                  Explora conferencias, talleres, seminarios y charlas academicas en un solo
+                  calendario publico.
                 </Text>
               </Stack>
               <HStack gap={5} wrap="wrap">
@@ -148,7 +148,7 @@ export function LandingPage() {
               shadow="0 30px 90px rgba(65, 31, 20, 0.16)"
             >
               <Image
-                alt="Ilustracion de una agenda academica digital para eventos UTP"
+                alt="Ilustracion de una agenda academica digital de eventos"
                 aspectRatio="4 / 3"
                 objectFit="cover"
                 rounded="2xl"

@@ -6,7 +6,7 @@ import { attendanceRecords, certificates, smallEvents } from "@/data/sipeg";
 import { useSelectedEventStore } from "@/store/selectedEvent";
 import { getRelatedSmallEventIds, getSelectedEventLabel } from "@utils/adminEventSelection";
 
-const tones = ["red", "teal", "amber", "graphite"] as const;
+const tones = ["primary", "success", "warning", "neutral"] as const;
 
 export function ReportsPage() {
   const selectedEventId = useSelectedEventStore((state) => state.selectedEventId);
@@ -74,10 +74,10 @@ export function ReportsPage() {
       title="Reportes y estadisticas"
       actions={
         <HStack gap={3} wrap="wrap">
-          <Button colorPalette="red" rounded="full" variant="solid">
+          <Button colorPalette="terracotta" rounded="full" variant="solid">
             Exportar Excel
           </Button>
-          <Button colorPalette="red" rounded="full" variant="outline">
+          <Button colorPalette="terracotta" rounded="full" variant="outline">
             Exportar PDF
           </Button>
         </HStack>
@@ -90,7 +90,7 @@ export function ReportsPage() {
               detail={metric.detail}
               key={metric.id}
               label={metric.label}
-              tone={tones[index] ?? "red"}
+              tone={tones[index] ?? "primary"}
               value={metric.value}
             />
           ))}

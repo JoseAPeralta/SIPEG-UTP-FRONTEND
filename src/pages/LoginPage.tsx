@@ -60,7 +60,7 @@ export function LoginPage() {
               autenticacion.
             </Text>
           </Stack>
-          <Button colorPalette="red" onClick={handleLogin} rounded="full" size="lg">
+          <Button colorPalette="terracotta" onClick={handleLogin} rounded="full" size="lg">
             Iniciar sesion
           </Button>
         </Stack>

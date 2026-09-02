@@ -105,7 +105,11 @@ export function AdminMenu() {
       </Flex>
 
       <Box maxW="7xl" mx="auto" mt={3} px={{ base: 4, md: 6 }}>
-        <Badge colorPalette={selectedEventLabel ? "red" : "gray"} rounded="full" variant="subtle">
+        <Badge
+          colorPalette={selectedEventLabel ? "terracotta" : "gray"}
+          rounded="full"
+          variant="subtle"
+        >
           {selectedEventLabel ?? "Todos los eventos"}
         </Badge>
       </Box>

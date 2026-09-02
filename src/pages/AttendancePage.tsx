@@ -88,7 +88,7 @@ export function AttendancePage() {
                   {event.registeredAttendees} inscritos
                 </Text>
               </Box>
-              <Badge colorPalette="green" rounded="full" variant="subtle">
+              <Badge colorPalette="success" rounded="full" variant="subtle">
                 Activo
               </Badge>
             </HStack>

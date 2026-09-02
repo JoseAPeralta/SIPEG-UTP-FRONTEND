@@ -58,7 +58,7 @@ export function EventFilters({
               Filtra eventos disponibles
             </Text>
           </Box>
-          <Badge colorPalette="red" px={4} py={2} rounded="full" variant="subtle">
+          <Badge colorPalette="terracotta" px={4} py={2} rounded="full" variant="subtle">
             {filteredCount} resultados
           </Badge>
         </Flex>

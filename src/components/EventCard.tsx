@@ -51,20 +51,20 @@ export function EventCard({
       transition="transform 160ms ease, box-shadow 160ms ease"
       _hover={{ boxShadow: "0 28px 80px rgba(65, 31, 20, 0.14)", transform: "translateY(-3px)" }}
     >
-      <Box background="linear-gradient(135deg, #5d0912 0%, #a81520 52%, #f2b15c 100%)" h="10px" />
+      <Box background="linear-gradient(135deg, #6E2411 0%, #9C3A1E 52%, #E59A72 100%)" h="10px" />
       <Stack flex="1" gap={5} p={{ base: 5, md: 6 }}>
         <HStack gap={3} wrap="wrap">
           {parentEvent ? (
-            <Badge colorPalette="orange" rounded="full" variant="surface">
+            <Badge colorPalette="terracotta" rounded="full" variant="surface">
               {parentEvent.customLabel}
             </Badge>
           ) : null}
           {faculty ? (
-            <Badge colorPalette="blue" rounded="full" variant="surface">
+            <Badge colorPalette="gray" rounded="full" variant="surface">
               {faculty.shortName}
             </Badge>
           ) : null}
-          <Badge colorPalette="red" rounded="full" variant="subtle">
+          <Badge colorPalette="terracotta" rounded="full" variant="subtle">
             {eventTypeLabel[event.type]}
           </Badge>
         </HStack>
@@ -90,7 +90,7 @@ export function EventCard({
             </Text>
             {hasLongDescription ? (
               <Button
-                colorPalette="red"
+                colorPalette="terracotta"
                 mt={2}
                 onClick={() => setIsDescriptionExpanded((currentValue) => !currentValue)}
                 px={0}

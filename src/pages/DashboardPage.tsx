@@ -26,7 +26,7 @@ export function DashboardPage() {
       eyebrow="Operacion academica"
       title="Panel operativo SIPEG"
       actions={
-        <Badge colorPalette="green" px={4} py={2} rounded="full" variant="subtle">
+        <Badge colorPalette="success" px={4} py={2} rounded="full" variant="subtle">
           Frontend listo para API futura
         </Badge>
       }
@@ -50,7 +50,7 @@ export function DashboardPage() {
           </Text>
           <HStack gap={3} mt={4} overflowX="auto" pb={1} wrap={{ base: "nowrap", md: "wrap" }}>
             <Button
-              colorPalette="red"
+              colorPalette="terracotta"
               onClick={() => handleFacultyChange("all")}
               rounded="full"
               size="sm"
@@ -60,7 +60,7 @@ export function DashboardPage() {
             </Button>
             {faculties.map((faculty) => (
               <Button
-                colorPalette="red"
+                colorPalette="terracotta"
                 key={faculty.id}
                 onClick={() => handleFacultyChange(faculty.id)}
                 rounded="full"
@@ -77,25 +77,25 @@ export function DashboardPage() {
           <MetricCard
             detail="Eventos visibles con el filtro actual"
             label="Eventos"
-            tone="red"
+            tone="primary"
             value={String(metrics.visibleEvents)}
           />
           <MetricCard
             detail="Registros confirmados en QR o codigo"
             label="Asistencia"
-            tone="teal"
+            tone="success"
             value={String(metrics.confirmedAttendance)}
           />
           <MetricCard
             detail="Certificados generados desde asistencia"
             label="Certificados"
-            tone="amber"
+            tone="warning"
             value={String(metrics.generatedCertificates)}
           />
           <MetricCard
             detail="Capacidad maxima inventariada"
             label="Aulas"
-            tone="graphite"
+            tone="neutral"
             value={String(metrics.availableCapacity)}
           />
         </SimpleGrid>

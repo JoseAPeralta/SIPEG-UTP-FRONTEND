@@ -9,7 +9,7 @@ export function AppFooter() {
             SIPEG
           </Text>
           <Text color="text.muted" fontSize="sm" fontWeight="700">
-            Gestion academica de eventos UTP · Centro Regional de Veraguas
+            Gestion de eventos academicos y asistencia
           </Text>
         </Flex>
       </Container>

@@ -31,7 +31,7 @@ export function ClassroomsPage() {
           >
             <HStack justify="space-between">
               <Badge
-                colorPalette={classroom.type === "laboratory" ? "purple" : "blue"}
+                colorPalette={classroom.type === "laboratory" ? "terracotta" : "gray"}
                 rounded="full"
                 variant="subtle"
               >

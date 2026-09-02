@@ -83,7 +83,7 @@ export function CertificatesPage() {
                 </Text>
               </Box>
               <Badge
-                colorPalette={certificate.status === "generated" ? "green" : "orange"}
+                colorPalette={certificate.status === "generated" ? "success" : "warning"}
                 rounded="full"
                 variant="subtle"
               >
