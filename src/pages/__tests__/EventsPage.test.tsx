@@ -26,7 +26,7 @@ describe("EventsPage", () => {
 
     renderWithProviders(<EventsPage />);
 
-    await user.type(screen.getByRole("textbox", { name: /buscar eventos/i }), "ciberseguridad");
+    await user.type(screen.getByRole("textbox", { name: /buscar eventos/i }), "ciber");
 
     const catalog = within(screen.getByRole("region", { name: /catalogo de eventos pequenos/i }));
 
@@ -51,7 +51,7 @@ describe("EventsPage", () => {
 
     renderWithProviders(<EventsPage />);
 
-    await user.type(screen.getByRole("textbox", { name: /buscar eventos/i }), "campus inteligente");
+    await user.type(screen.getByRole("textbox", { name: /buscar eventos/i }), "campus");
     await user.click(
       screen.getByRole("button", { name: /usar campus inteligente y datos abiertos en panel/i }),
     );

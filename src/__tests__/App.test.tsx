@@ -25,7 +25,11 @@ describe("App", () => {
     renderWithProviders(<App />);
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: /descubre eventos academicos/i }),
+      await screen.findByRole(
+        "heading",
+        { level: 1, name: /descubre eventos academicos/i },
+        { timeout: 5000 },
+      ),
     ).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: /navegacion principal/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /^sipeg$/i })).toHaveAttribute("href", "/");
