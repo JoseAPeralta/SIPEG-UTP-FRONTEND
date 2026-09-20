@@ -5,12 +5,13 @@ import type {
   Classroom,
   EventPermission,
   Faculty,
-  LargeEvent,
   ReportMetric,
-  SmallEvent,
   SpeakerProposal,
   User,
 } from "@/types/domain";
+
+export { largeEvents } from "@/data/largeEvents";
+export { smallEvents } from "@/data/smallEvents";
 
 export const faculties: Faculty[] = [
   { id: "fic", name: "Facultad de Ingenieria Civil", shortName: "FIC" },
@@ -30,7 +31,7 @@ export const careers: Career[] = [
 export const users: User[] = [
   {
     careerId: "software",
-    email: "mariana.rodriguez@utp.ac.pa",
+    email: "mariana.rodriguez@example.edu",
     facultyId: "fisc",
     fullName: "Mariana Rodriguez",
     id: "user-1",
@@ -38,7 +39,7 @@ export const users: User[] = [
   },
   {
     careerId: "civil",
-    email: "carlos.mendez@utp.ac.pa",
+    email: "carlos.mendez@example.edu",
     facultyId: "fic",
     fullName: "Carlos Mendez",
     id: "user-2",
@@ -46,7 +47,7 @@ export const users: User[] = [
   },
   {
     careerId: "electrical",
-    email: "laura.chen@utp.ac.pa",
+    email: "laura.chen@example.edu",
     facultyId: "fie",
     fullName: "Laura Chen",
     id: "user-3",
@@ -54,7 +55,7 @@ export const users: User[] = [
   },
   {
     careerId: "mechanical",
-    email: "jorge.santos@utp.ac.pa",
+    email: "jorge.santos@example.edu",
     facultyId: "fim",
     fullName: "Jorge Santos",
     id: "user-4",
@@ -66,31 +67,6 @@ export const eventPermissions: EventPermission[] = [
   { eventId: "large-innovation-week", id: "permission-1", label: "Coordinacion", userId: "user-1" },
   { eventId: "large-innovation-week", id: "permission-2", label: "Registro", userId: "user-2" },
   { eventId: "small-smart-campus", id: "permission-3", label: "Asistencia", userId: "user-3" },
-];
-
-export const largeEvents: LargeEvent[] = [
-  {
-    banner: "innovation-week.jpg",
-    collaboratorIds: ["user-1", "user-2"],
-    customLabel: "Semana de innovacion",
-    endDate: "2026-06-19",
-    facultyId: "fisc",
-    id: "large-innovation-week",
-    name: "Semana UTP de Innovacion Academica",
-    permissionIds: ["permission-1", "permission-2"],
-    startDate: "2026-06-15",
-  },
-  {
-    banner: "infrastructure-forum.jpg",
-    collaboratorIds: ["user-2"],
-    customLabel: "Foro tecnico",
-    endDate: "2026-07-10",
-    facultyId: "fic",
-    id: "large-infrastructure-forum",
-    name: "Foro de Infraestructura Resiliente",
-    permissionIds: [],
-    startDate: "2026-07-08",
-  },
 ];
 
 export const classrooms: Classroom[] = [
@@ -120,59 +96,6 @@ export const classrooms: Classroom[] = [
     id: "aula-10",
     name: "Aula 10B",
     type: "classroom",
-  },
-];
-
-export const smallEvents: SmallEvent[] = [
-  {
-    banner: "smart-campus.jpg",
-    classroomId: "auditorium-01",
-    collaboratorIds: ["user-1", "user-3"],
-    date: "2026-06-15",
-    equipment: ["Proyector", "Audio", "QR de asistencia"],
-    facultyId: "fisc",
-    id: "small-smart-campus",
-    inheritedPermissionIds: ["permission-1", "permission-2"],
-    name: "Campus inteligente y datos abiertos",
-    parentEventId: "large-innovation-week",
-    permissionIds: ["permission-3"],
-    registeredAttendees: 180,
-    speaker: "Dra. Elena Vargas",
-    time: "09:00",
-    type: "conference",
-  },
-  {
-    banner: "bridge-resilience.jpg",
-    classroomId: "aula-10",
-    collaboratorIds: ["user-2"],
-    date: "2026-07-08",
-    equipment: ["Pizarra", "Mesas tecnicas"],
-    facultyId: "fic",
-    id: "small-bridge-resilience",
-    inheritedPermissionIds: [],
-    name: "Puentes resilientes para zonas costeras",
-    parentEventId: "large-infrastructure-forum",
-    permissionIds: [],
-    registeredAttendees: 96,
-    speaker: "Ing. Ricardo Batista",
-    time: "13:30",
-    type: "seminar",
-  },
-  {
-    banner: "energy-lab.jpg",
-    classroomId: "lab-01",
-    collaboratorIds: ["user-3"],
-    date: "2026-05-28",
-    equipment: ["Banco de pruebas", "Proyector"],
-    facultyId: "fie",
-    id: "small-energy-lab",
-    inheritedPermissionIds: [],
-    name: "Laboratorio abierto de energia distribuida",
-    permissionIds: [],
-    registeredAttendees: 42,
-    speaker: "MSc. Paola Rivera",
-    time: "10:30",
-    type: "workshop",
   },
 ];
 

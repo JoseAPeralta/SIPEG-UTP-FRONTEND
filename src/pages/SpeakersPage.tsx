@@ -25,7 +25,7 @@ export function SpeakersPage() {
               rounded="3xl"
             >
               <HStack gap={3} wrap="wrap">
-                <Badge colorPalette="red" rounded="full" variant="subtle">
+                <Badge colorPalette="terracotta" rounded="full" variant="subtle">
                   {proposal.talkType}
                 </Badge>
                 <Badge rounded="full" variant="surface">

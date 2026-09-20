@@ -34,7 +34,7 @@ export function UsersPage() {
               rounded="3xl"
             >
               <HStack justify="space-between" wrap="wrap">
-                <Badge colorPalette="red" rounded="full" variant="subtle">
+                <Badge colorPalette="terracotta" rounded="full" variant="subtle">
                   {roleLabels[user.role] ?? user.role}
                 </Badge>
                 <Text color="text.muted" fontSize="sm" fontWeight="800">

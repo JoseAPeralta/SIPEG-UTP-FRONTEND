@@ -8,30 +8,30 @@
 - **Product goal**: Event management platform for users, events, attendance, certificates, classrooms, speaker registration, reports, and statistics.
 - **Frontend entry point**: `src/main.tsx`
 - **Main router**: `src/App.tsx`
-- **Package manager**: npm
+- **Package manager**: pnpm 12.5.1
 
 ## Current Frontend Stack
 
 - React 19
-- TypeScript
+- TypeScript 6
 - Vite
 - Vitest
 - Testing Library
 - Chakra UI v3
-- React Router v7
+- React Router v8
 - Zustand
 
 ## Development Commands
 
 ```bash
-npm install
-npm run dev
-npm run build
-npm run lint
-npm test
-npm run test:ui
-npm run test:coverage
-npm run preview
+pnpm install
+pnpm run dev
+pnpm run build
+pnpm run lint
+pnpm test
+pnpm run test:ui
+pnpm run test:coverage
+pnpm run preview
 ```
 
 ## Project Structure
@@ -86,8 +86,8 @@ src/
 - Setup file: `src/setupTests.ts`.
 - Prefer Testing Library for component behavior tests.
 - Add tests for meaningful behavior.
-- Run `npm test` when adding or modifying tested behavior.
-- Run `npm run build` before considering large frontend changes complete.
+- Run `pnpm test` when adding or modifying tested behavior.
+- Run `pnpm run build` before considering large frontend changes complete.
 
 ## Backend Boundary
 
@@ -179,3 +179,13 @@ src/
 - Do not add libraries unless there is a concrete reason.
 - Prefer clear domain naming for users, faculties, careers, permissions, events, attendance, classrooms, speakers, certificates, and reports.
 - When implementing frontend features, consider future integration with the separate Node.js API.
+
+## Local Harness Safety
+
+- Harness agents must work only in a workspace created by `scripts/prepare-agent-workspace.sh`.
+- Run local agent commands through `scripts/run-agent-sandbox.sh`.
+- Do not provide agents with GitHub connectors, tokens, SSH credentials, MCP servers, credential helpers, or remote repository tools.
+- Harness agents must not access GitHub or any other Git remote under any circumstances.
+- Harness agents must not run Git commands or create commits.
+- A trusted local operator may create a local commit only after an explicit user request.
+- A request to create a local commit never authorizes a push or any other remote operation.

@@ -44,21 +44,28 @@ export type LargeEvent = {
 
 export type EventType = "conference" | "seminar" | "talk" | "workshop";
 
+export type EventSpeaker = {
+  name: string;
+  organization: string;
+};
+
 export type SmallEvent = {
   banner: string;
   classroomId: Classroom["id"];
   collaboratorIds: User["id"][];
   date: string;
+  description?: string;
+  endTime: string;
   equipment: string[];
-  facultyId: Faculty["id"];
+  facultyId?: Faculty["id"];
   id: string;
   inheritedPermissionIds: EventPermission["id"][];
   name: string;
   parentEventId?: LargeEvent["id"];
   permissionIds: EventPermission["id"][];
   registeredAttendees: number;
-  speaker: string;
-  time: string;
+  speakers: EventSpeaker[];
+  startTime: string;
   type: EventType;
 };
 

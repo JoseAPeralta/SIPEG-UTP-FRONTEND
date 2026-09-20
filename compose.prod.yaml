@@ -1,0 +1,22 @@
+services:
+  frontend:
+    image: sipeg-utp-frontend:prod
+    build:
+      context: .
+      target: production
+      args:
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-}"
+    ports:
+      - "${FRONTEND_BIND_ADDRESS:-127.0.0.1}:${FRONTEND_PORT:-8080}:8080"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+    stop_grace_period: 10s

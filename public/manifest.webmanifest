@@ -1,13 +1,13 @@
 {
-  "name": "SIPEG UTP",
+  "name": "SIPEG",
   "short_name": "SIPEG",
-  "description": "Gestion de eventos academicos, asistencia, certificados y reportes de la UTP.",
+  "description": "Gestion de eventos academicos, asistencia, certificados y reportes.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f8f1e7",
-  "theme_color": "#a81520",
+  "background_color": "#FBF7F2",
+  "theme_color": "#9C3A1E",
   "categories": ["education", "productivity"],
   "lang": "es-PA",
   "icons": [
