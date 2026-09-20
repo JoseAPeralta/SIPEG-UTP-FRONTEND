@@ -1,4 +1,5 @@
-const CACHE_NAME = "sipeg-utp-v1";
+const CACHE_PREFIX = "sipeg-utp-";
+const CACHE_NAME = `${CACHE_PREFIX}v2`;
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -10,6 +11,33 @@ const APP_SHELL = [
   "/icons/maskable-512.png",
   "/icons/apple-touch-icon.png",
 ];
+const STATIC_PATH_PREFIXES = ["/assets/", "/icons/"];
+
+function isSensitiveRequest(request, url) {
+  return (
+    url.pathname === "/api" ||
+    url.pathname.startsWith("/api/") ||
+    request.headers.has("Authorization")
+  );
+}
+
+function isStaticRequest(url) {
+  return (
+    APP_SHELL.includes(url.pathname) ||
+    STATIC_PATH_PREFIXES.some((pathPrefix) => url.pathname.startsWith(pathPrefix))
+  );
+}
+
+function isCacheableResponse(response) {
+  const cacheControl = response.headers.get("Cache-Control")?.toLowerCase() ?? "";
+
+  return (
+    response.status === 200 &&
+    response.type === "basic" &&
+    !cacheControl.includes("no-store") &&
+    !cacheControl.includes("private")
+  );
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -27,7 +55,7 @@ self.addEventListener("activate", (event) => {
       .then((cacheNames) =>
         Promise.all(
           cacheNames
-            .filter((cacheName) => cacheName !== CACHE_NAME)
+            .filter((cacheName) => cacheName.startsWith(CACHE_PREFIX) && cacheName !== CACHE_NAME)
             .map((cacheName) => caches.delete(cacheName)),
         ),
       )
@@ -48,18 +76,33 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  if (isSensitiveRequest(request, url)) {
+    return;
+  }
+
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
+          if (!isCacheableResponse(response)) {
+            return response;
+          }
+
           const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put("/index.html", responseClone));
-          return response;
+
+          return caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.put("/index.html", responseClone))
+            .then(() => response);
         })
         .catch(() =>
           caches.match("/index.html").then((cached) => cached || caches.match("/offline.html")),
         ),
     );
+    return;
+  }
+
+  if (!isStaticRequest(url)) {
     return;
   }
 
@@ -70,13 +113,16 @@ self.addEventListener("fetch", (event) => {
       }
 
       return fetch(request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== "basic") {
+        if (!response || !isCacheableResponse(response)) {
           return response;
         }
 
         const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
-        return response;
+
+        return caches
+          .open(CACHE_NAME)
+          .then((cache) => cache.put(request, responseClone))
+          .then(() => response);
       });
     }),
   );

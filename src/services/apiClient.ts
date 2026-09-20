@@ -11,7 +11,6 @@ export type ApiClientOptions = {
 };
 
 const DEVELOPMENT_API_BASE_URL = "http://localhost:3000/api";
-const PRODUCTION_API_BASE_URL = "/api";
 
 function normalizePath(path: string) {
   return path.startsWith("/") ? path : `/${path}`;
@@ -24,7 +23,11 @@ export function resolveApiBaseUrl(environment: ApiEnvironment = import.meta.env)
     return configuredBaseUrl.replace(/\/+$/, "");
   }
 
-  return environment.DEV ? DEVELOPMENT_API_BASE_URL : PRODUCTION_API_BASE_URL;
+  if (environment.DEV) {
+    return DEVELOPMENT_API_BASE_URL;
+  }
+
+  throw new Error("VITE_API_BASE_URL es obligatoria en produccion");
 }
 
 export async function apiRequest<TResponse>(

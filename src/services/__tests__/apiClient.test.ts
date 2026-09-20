@@ -13,8 +13,10 @@ describe("apiClient", () => {
     expect(resolveApiBaseUrl({ DEV: true, PROD: false })).toBe("http://localhost:3000/api");
   });
 
-  it("should use the relative API URL in production", () => {
-    expect(resolveApiBaseUrl({ DEV: false, PROD: true })).toBe("/api");
+  it("should require an explicit API URL in production", () => {
+    expect(() => resolveApiBaseUrl({ DEV: false, PROD: true })).toThrow(
+      "VITE_API_BASE_URL es obligatoria en produccion",
+    );
   });
 
   it("should request JSON from the resolved API URL", async () => {
