@@ -32,9 +32,9 @@ Leyenda: `X` pendiente, `✓` finalizada.
 ## Stack
 
 - React 19
-- TypeScript
+- TypeScript 6
 - Vite
-- React Router v7
+- React Router v8
 - Chakra UI v3
 - Zustand
 - Vitest
@@ -42,17 +42,20 @@ Leyenda: `X` pendiente, `✓` finalizada.
 - ESLint flat config
 - Prettier
 - PWA con manifest, service worker, pagina offline e iconos instalables
-- Docker con Nginx para servir el build de produccion
+- Docker Compose con ambientes separados de desarrollo y produccion
+- Nginx estable no privilegiado para servir el build de produccion
 
 ## Requisitos
 
-- Node.js 20 o superior recomendado
-- pnpm
+- Node.js 24.15 o superior dentro de la rama 24 LTS (`.node-version` fija 24.21.0)
+- pnpm 12.5.1 mediante Corepack
+- Docker Engine con Docker Compose para los ambientes contenedorizados
 
 ## Instalacion
 
 ```bash
-pnpm install
+corepack enable
+pnpm install --frozen-lockfile
 ```
 
 ## Ejecucion Local
@@ -71,6 +74,7 @@ http://localhost:5173
 
 | Comando                  | Uso                                                           |
 | ------------------------ | ------------------------------------------------------------- |
+| `pnpm run audit`         | Audita dependencias y falla ante vulnerabilidades altas.      |
 | `pnpm run dev`           | Inicia el servidor local de desarrollo.                       |
 | `pnpm run build`         | Ejecuta typecheck y genera el build de produccion en `dist`.  |
 | `pnpm run preview`       | Sirve localmente el build de produccion.                      |
@@ -85,7 +89,7 @@ http://localhost:5173
 | `pnpm run test:ui`       | Abre la interfaz de Vitest.                                   |
 | `pnpm run test:coverage` | Genera reporte de cobertura.                                  |
 | `pnpm run pwa:icons`     | Regenera los iconos basicos de la PWA.                        |
-| `pnpm run check`         | Ejecuta formato, lint, typecheck, tests y build.              |
+| `pnpm run check`         | Ejecuta formato, lint, tests, typecheck y build.              |
 
 ## Verificacion Recomendada
 
@@ -162,23 +166,62 @@ pnpm run preview
 
 ## Docker
 
-Construir la imagen:
+El Dockerfile multi-stage contiene objetivos independientes para desarrollo y produccion. Las imagenes base estan fijadas por version y digest.
+
+### Desarrollo
+
+Iniciar Vite con hot reload, dependencias aisladas y el puerto limitado a localhost:
 
 ```bash
-docker build -t sipeg-utp-frontend .
+docker compose -f compose.dev.yaml up --build
 ```
 
-Ejecutar el contenedor:
+La aplicacion queda disponible en `http://localhost:5173`. La API de desarrollo usa `http://localhost:3000/api` por defecto. Puede cambiarse antes de iniciar:
 
 ```bash
-docker run -p 8080:80 sipeg-utp-frontend
+VITE_API_BASE_URL=http://localhost:4000/api \
+  docker compose -f compose.dev.yaml up --build
 ```
 
-La aplicacion queda disponible en:
+### Produccion
 
-```txt
-http://localhost:8080
+`VITE_API_BASE_URL` es obligatoria, debe ser absoluta y se incorpora al bundle durante el build. No debe contener secretos porque cualquier variable `VITE_*` es publica en el navegador.
+
+```bash
+VITE_API_BASE_URL=https://api.example.test \
+  docker compose -f compose.prod.yaml up --build -d
 ```
+
+La aplicacion queda disponible por defecto en `http://localhost:8080`. Para publicarla directamente en todas las interfaces, solo cuando no exista un proxy de entrada:
+
+```bash
+FRONTEND_BIND_ADDRESS=0.0.0.0 \
+VITE_API_BASE_URL=https://api.example.test \
+  docker compose -f compose.prod.yaml up --build -d
+```
+
+Detener y eliminar los recursos locales:
+
+```bash
+docker compose -f compose.dev.yaml down --volumes
+docker compose -f compose.prod.yaml down
+```
+
+El runtime de produccion usa un usuario no privilegiado, puerto 8080, filesystem de solo lectura, capabilities eliminadas, `no-new-privileges`, limites de recursos y healthcheck en `/healthz`. El contenedor frontend no sirve ni enruta `/api`; la URL absoluta apunta al backend desplegado por separado.
+
+### Auditoria De Contenedores
+
+Validaciones locales recomendadas:
+
+```bash
+docker buildx build --check --build-arg VITE_API_BASE_URL=https://api.example.test .
+docker run --rm -v "$PWD:/src:ro" hadolint/hadolint:v2.14.0-alpine \
+  hadolint --failure-threshold warning /src/Dockerfile
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.74.0 \
+  image --severity HIGH,CRITICAL --exit-code 1 sipeg-utp-frontend:prod
+```
+
+GitHub Actions repite estos controles, genera un SBOM SPDX y publica resultados SARIF. El informe de la auditoria se encuentra en `docs/security/container-dependency-audit-2026-09-20.md`.
 
 ## Limite Con Backend
 

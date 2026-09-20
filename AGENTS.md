@@ -8,17 +8,17 @@
 - **Product goal**: Event management platform for users, events, attendance, certificates, classrooms, speaker registration, reports, and statistics.
 - **Frontend entry point**: `src/main.tsx`
 - **Main router**: `src/App.tsx`
-- **Package manager**: npm
+- **Package manager**: pnpm 12.5.1
 
 ## Current Frontend Stack
 
 - React 19
-- TypeScript
+- TypeScript 6
 - Vite
 - Vitest
 - Testing Library
 - Chakra UI v3
-- React Router v7
+- React Router v8
 - Zustand
 
 ## Development Commands
