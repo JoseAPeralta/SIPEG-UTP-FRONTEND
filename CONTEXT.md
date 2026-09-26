@@ -40,7 +40,7 @@ Unidad organizadora que agrupa actividades. Pertenece exactamente a una unidad o
 
 ### Actividad
 
-Evento individual que pertenece obligatoriamente a un programa de eventos. Tiene nombre, tipo (`WORKSHOP`, `SEMINAR`, `TALK`, `OTHER`), ponentes, aula, fecha, hora, equipamiento requerido, banner y estado (`DRAFT`, `SCHEDULED`, `ONGOING`, `COMPLETED`, `CANCELLED`).
+Evento individual que pertenece obligatoriamente a un programa de eventos. Tiene nombre, tipo (`WORKSHOP`, `SEMINAR`, `TALK`, `CONFERENCE`, `PANEL`, `COURSE`, `COMPETITION`, `OTHER`), ponentes, aula, fecha, hora, equipamiento requerido, banner y estado (`DRAFT`, `SCHEDULED`, `ONGOING`, `COMPLETED`, `CANCELLED`).
 
 ### Permiso De Colaboracion
 

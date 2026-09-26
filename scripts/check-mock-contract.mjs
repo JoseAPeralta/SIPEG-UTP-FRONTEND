@@ -3,7 +3,16 @@ import { pathToFileURL } from "node:url";
 
 import { DEFAULT_SOURCE, createOperationView, loadOpenApi } from "./query-api-contract.mjs";
 
-const ACTIVITY_TYPES = ["WORKSHOP", "SEMINAR", "TALK", "OTHER"];
+const ACTIVITY_TYPES = [
+  "WORKSHOP",
+  "SEMINAR",
+  "TALK",
+  "CONFERENCE",
+  "PANEL",
+  "COURSE",
+  "COMPETITION",
+  "OTHER",
+];
 const ACTIVITY_STATUSES = ["DRAFT", "SCHEDULED", "ONGOING", "COMPLETED", "CANCELLED"];
 const EVENT_PROGRAM_STATUSES = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED", "ARCHIVED"];
 const ORGANIZATIONAL_UNIT_TYPES = ["FACULTY", "SUBDIRECTORATE"];

@@ -55,7 +55,16 @@ describe("mock activity catalog", () => {
   });
 
   it("should use only activity types allowed by the API contract", () => {
-    const allowedTypes = new Set(["WORKSHOP", "SEMINAR", "TALK", "OTHER"]);
+    const allowedTypes = new Set([
+      "WORKSHOP",
+      "SEMINAR",
+      "TALK",
+      "CONFERENCE",
+      "PANEL",
+      "COURSE",
+      "COMPETITION",
+      "OTHER",
+    ]);
 
     activities.forEach((activity) => {
       expect(allowedTypes.has(activity.type)).toBe(true);

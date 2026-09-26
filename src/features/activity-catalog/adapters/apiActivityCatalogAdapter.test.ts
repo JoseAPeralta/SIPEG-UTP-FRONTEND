@@ -189,7 +189,7 @@ describe("createApiActivityCatalogAdapter", () => {
       if (url.includes("/api/v1/activities/activity-1")) {
         return Promise.resolve(
           jsonResponse({
-            data: { ...activity, type: "CONFERENCE" },
+            data: { ...activity, type: "FESTIVAL" },
             message: "ok",
             success: true,
           }),

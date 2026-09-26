@@ -16,7 +16,7 @@ describe("ActivityCatalogView", () => {
     renderWithProviders(<ActivityCatalogView />);
 
     expect(await screen.findByText("9 programas")).toBeInTheDocument();
-    expect(screen.getByText("32 actividades")).toBeInTheDocument();
+    expect(screen.getByText("36 actividades")).toBeInTheDocument();
     expect(screen.getByText(/personas registradas/i)).toBeInTheDocument();
     expect(screen.getByText("4 unidades")).toBeInTheDocument();
   });

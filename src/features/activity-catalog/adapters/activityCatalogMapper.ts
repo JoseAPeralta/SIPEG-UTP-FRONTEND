@@ -26,7 +26,16 @@ const EVENT_PROGRAM_STATUSES: readonly EventProgramStatus[] = [
   "COMPLETED",
   "DRAFT",
 ];
-const ACTIVITY_TYPES: readonly ActivityType[] = ["OTHER", "SEMINAR", "TALK", "WORKSHOP"];
+const ACTIVITY_TYPES: readonly ActivityType[] = [
+  "COMPETITION",
+  "CONFERENCE",
+  "COURSE",
+  "OTHER",
+  "PANEL",
+  "SEMINAR",
+  "TALK",
+  "WORKSHOP",
+];
 const ACTIVITY_STATUSES: readonly ActivityStatus[] = [
   "CANCELLED",
   "COMPLETED",

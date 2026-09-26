@@ -51,7 +51,8 @@ export type EventProgram = {
   status: EventProgramStatus;
 };
 
-export type ActivityType = "WORKSHOP" | "SEMINAR" | "TALK" | "OTHER";
+export type ActivityType =
+  "WORKSHOP" | "SEMINAR" | "TALK" | "CONFERENCE" | "PANEL" | "COURSE" | "COMPETITION" | "OTHER";
 
 export type ActivityStatus = "DRAFT" | "SCHEDULED" | "ONGOING" | "COMPLETED" | "CANCELLED";
 

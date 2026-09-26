@@ -50,7 +50,8 @@ session.
 
 - Every activity belongs to exactly one event program.
 - Every event program belongs to exactly one organizational unit.
-- Activity types follow the backend contract: `WORKSHOP`, `SEMINAR`, `TALK`, `OTHER`.
+- Activity types follow the backend contract: `WORKSHOP`, `SEMINAR`, `TALK`, `CONFERENCE`,
+  `PANEL`, `COURSE`, `COMPETITION`, `OTHER`.
 - Activity statuses follow the backend contract: `DRAFT`, `SCHEDULED`, `ONGOING`, `COMPLETED`,
   `CANCELLED`.
 - Default event programs have no dates; additional programs include them.

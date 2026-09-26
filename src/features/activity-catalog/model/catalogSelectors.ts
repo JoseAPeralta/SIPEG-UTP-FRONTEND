@@ -55,7 +55,11 @@ export type SelectOption = {
 };
 
 export const activityTypeLabels: Record<ActivityType, string> = {
+  COMPETITION: "Competencia",
+  CONFERENCE: "Conferencia",
+  COURSE: "Curso",
   OTHER: "Otro",
+  PANEL: "Panel",
   SEMINAR: "Seminario",
   TALK: "Charla",
   WORKSHOP: "Taller",

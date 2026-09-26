@@ -198,8 +198,25 @@ describe("mapActivity", () => {
     expect(mapped.description).toBeNull();
   });
 
+  it("should accept every activity type allowed by the contract", () => {
+    const allowedTypes = [
+      "WORKSHOP",
+      "SEMINAR",
+      "TALK",
+      "CONFERENCE",
+      "PANEL",
+      "COURSE",
+      "COMPETITION",
+      "OTHER",
+    ] as const;
+
+    allowedTypes.forEach((type) => {
+      expect(mapActivity({ ...activityPayload, type }).type).toBe(type);
+    });
+  });
+
   it("should reject activity types outside the contract", () => {
-    expect(() => mapActivity({ ...activityPayload, type: "CONFERENCE" })).toThrow(/type/);
+    expect(() => mapActivity({ ...activityPayload, type: "FESTIVAL" })).toThrow(/type/);
   });
 
   it("should reject activities without an event program reference", () => {

@@ -2,7 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import { mockActivityCatalog, mockOperationsReadModel } from "./catalog";
 
-const activityTypes = ["WORKSHOP", "SEMINAR", "TALK", "OTHER"];
+const activityTypes = [
+  "WORKSHOP",
+  "SEMINAR",
+  "TALK",
+  "CONFERENCE",
+  "PANEL",
+  "COURSE",
+  "COMPETITION",
+  "OTHER",
+];
 const activityStatuses = ["DRAFT", "SCHEDULED", "ONGOING", "COMPLETED", "CANCELLED"];
 const eventProgramStatuses = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED", "ARCHIVED"];
 const organizationalUnitTypes = ["FACULTY", "SUBDIRECTORATE"];

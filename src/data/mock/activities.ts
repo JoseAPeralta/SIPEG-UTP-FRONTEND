@@ -171,6 +171,21 @@ export const activities: Activity[] = [
     type: "WORKSHOP",
   }),
   createActivity({
+    classroomId: "auditorium-01",
+    date: "2026-06-18",
+    description:
+      "Panel con especialistas de academia e industria sobre competencias, empleabilidad y el futuro de la formacion en ingenieria.",
+    endTime: "17:00",
+    equipment: ["Audio", "Proyector"],
+    id: "activity-engineering-education-panel",
+    name: "Panel: futuro de la formacion en ingenieria",
+    eventProgramId: "program-innovation-week",
+    enrolledCount: 112,
+    speakers: [speakers.ana, speakers.carlos, speakers.gabriela],
+    startTime: "16:00",
+    type: "PANEL",
+  }),
+  createActivity({
     classroomId: "aula-10",
     date: "2026-07-08",
     description:
@@ -461,6 +476,36 @@ export const activities: Activity[] = [
     startTime: "13:30",
     type: "TALK",
   }),
+  createActivity({
+    classroomId: "lab-01",
+    date: "2026-08-24",
+    description:
+      "Curso de tres sesiones sobre automatizacion industrial, logica de control, sensores y puesta en marcha de celdas didacticas.",
+    endTime: "12:30",
+    equipment: ["Computadoras", "Banco de pruebas"],
+    id: "activity-industrial-automation-course",
+    name: "Curso de fundamentos de automatizacion industrial",
+    eventProgramId: "program-manufacturing-robotics-week",
+    enrolledCount: 33,
+    speakers: [speakers.jorge, speakers.laura],
+    startTime: "09:00",
+    type: "COURSE",
+  }),
+  createActivity({
+    classroomId: "lab-01",
+    date: "2026-08-28",
+    description:
+      "Competencia por equipos de robots autonomos para recorrer un circuito de rescate, con reglas, jueces y premiacion.",
+    endTime: "16:00",
+    equipment: ["Banco de pruebas", "Mesas tecnicas"],
+    id: "activity-rescue-robotics-competition",
+    name: "Competencia de robotica de rescate",
+    eventProgramId: "program-manufacturing-robotics-week",
+    enrolledCount: 70,
+    speakers: [speakers.jorge, speakers.gabriela],
+    startTime: "13:30",
+    type: "COMPETITION",
+  }),
 
   createActivity({
     classroomId: "lab-01",
@@ -537,5 +582,20 @@ export const activities: Activity[] = [
     speakers: [speakers.isabel, speakers.marcos],
     startTime: "09:30",
     type: "WORKSHOP",
+  }),
+  createActivity({
+    classroomId: "auditorium-01",
+    date: "2026-09-14",
+    description:
+      "Conferencia magistral sobre el rol de la universidad en la transferencia de conocimiento y el desarrollo sostenible del pais.",
+    endTime: "11:00",
+    equipment: ["Audio", "Proyector"],
+    id: "activity-university-knowledge-conference",
+    name: "Conferencia magistral: universidad, conocimiento y sociedad",
+    eventProgramId: "program-research-extension-days",
+    enrolledCount: 140,
+    speakers: [speakers.ernesto, speakers.sofia],
+    startTime: "09:30",
+    type: "CONFERENCE",
   }),
 ];
