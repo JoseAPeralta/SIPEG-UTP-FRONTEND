@@ -1,22 +1,25 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "@/App";
+import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";
-import { createUser } from "@/test/factories";
+import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
 
-const demoUser = createUser({ globalRole: "ADMIN" });
+const demoUser = createAuthenticatedUser({ globalRole: "ADMIN" });
+const demoTokens = createAuthTokens();
 
 describe("App", () => {
   beforeEach(() => {
-    useSessionStore.getState().logout();
+    useSessionStore.getState().clearSession();
     useUnitPreferenceStore.getState().setSelectedUnitId("all");
     useWorkingContextStore.getState().clearWorkingContext();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   it("should render the public landing page on the index route", async () => {
@@ -31,7 +34,10 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: /navegacion principal/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /^sipeg$/i })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: /iniciar sesion/i })).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("link", { name: /iniciar sesi[oó]n/i })).toHaveAttribute(
+      "href",
+      "/login",
+    );
     expect(
       screen.queryByRole("link", { name: /panel de administracion/i }),
     ).not.toBeInTheDocument();
@@ -42,13 +48,16 @@ describe("App", () => {
     renderWithProviders(<App />, { route: "/admin" });
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: /iniciar sesion en sipeg/i }),
+      await screen.findByRole("heading", { level: 1, name: /iniciar sesi[oó]n en sipeg/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /iniciar sesion/i })).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("link", { name: /iniciar sesi[oó]n/i })).toHaveAttribute(
+      "href",
+      "/login",
+    );
   });
 
   it("should render the administration menu when a session exists", async () => {
-    useSessionStore.getState().login(demoUser);
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
 
     renderWithProviders(<App />, { route: "/admin" });
 
@@ -81,12 +90,12 @@ describe("App", () => {
       "/admin/reportes",
     );
     expect(screen.getByRole("combobox", { name: /contexto de trabajo/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /cerrar sesion/i })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /iniciar sesion/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /cerrar sesi[oó]n/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /iniciar sesi[oó]n/i })).not.toBeInTheDocument();
   });
 
   it("should redirect legacy administration routes to the admin layout", async () => {
-    useSessionStore.getState().login(demoUser);
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
 
     renderWithProviders(<App />, { route: "/asistencia" });
 
@@ -99,7 +108,7 @@ describe("App", () => {
 
   it("should keep admin modules scoped to the selected event program", async () => {
     const user = userEvent.setup();
-    useSessionStore.getState().login(demoUser);
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
 
     renderWithProviders(<App />, { route: "/admin/asistencia" });
 
@@ -124,14 +133,19 @@ describe("App", () => {
     expect(adminContent.queryByText(/puentes resilientes/i)).not.toBeInTheDocument();
   });
 
-  it("should start and close the demo session from the navigation flow", async () => {
+  it("should start and close a real adapter session from the navigation flow", async () => {
     const user = userEvent.setup();
 
     renderWithProviders(<App />, { route: "/login" });
 
+    await user.type(
+      screen.getByRole("textbox", { name: /correo electronico/i }),
+      "mariana.rodriguez@example.edu",
+    );
+    await user.type(screen.getByLabelText(/contrasena/i), "sipeg-demo");
     await user.click(
       await screen.findByRole("button", {
-        name: /iniciar sesion/i,
+        name: /iniciar sesi[oó]n/i,
       }),
     );
 
@@ -140,18 +154,51 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(useSessionStore.getState().currentUser?.id).toBe(demoUser.id);
 
-    await user.click(screen.getByRole("button", { name: /cerrar sesion/i }));
+    await user.click(screen.getByRole("button", { name: /cerrar sesi[oó]n/i }));
 
     expect(
       await screen.findByRole("heading", { level: 1, name: /descubre actividades academicas/i }),
     ).toBeInTheDocument();
     expect(useSessionStore.getState().currentUser).toBeNull();
-    expect(screen.getByRole("link", { name: /iniciar sesion/i })).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("link", { name: /iniciar sesi[oó]n/i })).toHaveAttribute(
+      "href",
+      "/login",
+    );
+  });
+
+  it("should send standard users to the public landing after login", async () => {
+    const user = userEvent.setup();
+    const adapters = createAppAdapters({ source: "mock" });
+    const standardUserAuth: AuthAdapter = {
+      ...adapters.auth,
+      loadCurrentUser: vi.fn().mockResolvedValue(createAuthenticatedUser({ globalRole: "USER" })),
+      login: vi.fn().mockResolvedValue(demoTokens),
+    };
+
+    renderWithProviders(<App />, {
+      adapters: { ...adapters, auth: standardUserAuth },
+      route: "/login",
+    });
+
+    await user.type(
+      await screen.findByRole("textbox", { name: /correo electronico/i }),
+      "usuario@example.edu",
+    );
+    await user.type(screen.getByLabelText(/contrasena/i), "sipeg-demo");
+    await user.click(await screen.findByRole("button", { name: /iniciar sesi[oó]n/i }));
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /descubre actividades academicas/i }),
+    ).toBeInTheDocument();
+    expect(useSessionStore.getState().currentUser?.globalRole).toBe("USER");
+    expect(
+      screen.queryByRole("link", { name: /panel de administracion/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("should clear the working context when the session closes", async () => {
     const user = userEvent.setup();
-    useSessionStore.getState().login(demoUser);
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
     useWorkingContextStore
       .getState()
       .setWorkingContext({ id: "program-innovation-week", kind: "eventProgram" });
@@ -159,12 +206,29 @@ describe("App", () => {
 
     renderWithProviders(<App />, { route: "/admin" });
 
-    await user.click(await screen.findByRole("button", { name: /cerrar sesion/i }));
+    await user.click(await screen.findByRole("button", { name: /cerrar sesi[oó]n/i }));
 
     expect(
       await screen.findByRole("heading", { level: 1, name: /descubre actividades academicas/i }),
     ).toBeInTheDocument();
     expect(useWorkingContextStore.getState().workingContext).toBeNull();
     expect(useUnitPreferenceStore.getState().selectedUnitId).toBe("all");
+  });
+
+  it("should keep non-admin users outside administrative routes", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+
+    renderWithProviders(<App />, { route: "/admin" });
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /descubre actividades academicas/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /panel de administracion/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /cerrar sesi[oó]n/i })).toBeInTheDocument();
   });
 });

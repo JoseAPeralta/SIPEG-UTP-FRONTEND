@@ -62,18 +62,20 @@ export function AppMenu() {
           >
             {currentUser ? (
               <>
-                <MenuLink to="/admin">Panel de administracion</MenuLink>
+                {currentUser.globalRole === "ADMIN" ? (
+                  <MenuLink to="/admin">Panel de administracion</MenuLink>
+                ) : null}
                 <Button
                   colorPalette="terracotta"
                   onClick={handleLogout}
                   rounded="full"
                   variant="outline"
                 >
-                  Cerrar sesion
+                  Cerrar sesión
                 </Button>
               </>
             ) : (
-              <MenuLink to="/login">Iniciar sesion</MenuLink>
+              <MenuLink to="/login">Iniciar sesión</MenuLink>
             )}
           </HStack>
         </Flex>

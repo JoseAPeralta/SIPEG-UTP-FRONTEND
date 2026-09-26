@@ -2,6 +2,7 @@ import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
 import { AdminLayout, AppLayout, StatusPanel } from "@/components";
+import { useAuthSessionBootstrap } from "@/features/auth";
 import { useSessionStore } from "@/store/session";
 
 const ActivityCatalogPage = lazy(() => import("@pages/ActivityCatalogPage"));
@@ -24,11 +25,15 @@ function renderRoute(element: ReactNode) {
   return <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
 }
 
-function RequireSession() {
+function RequireAdminSession() {
   const currentUser = useSessionStore((state) => state.currentUser);
 
   if (!currentUser) {
     return <Navigate replace to="/login" />;
+  }
+
+  if (currentUser.globalRole !== "ADMIN") {
+    return <Navigate replace to="/" />;
   }
 
   return <Outlet />;
@@ -39,13 +44,20 @@ function RedirectToAdminRoute({ path }: { path: string }) {
 }
 
 export function App() {
+  useAuthSessionBootstrap();
+  const sessionStatus = useSessionStore((state) => state.status);
+
+  if (sessionStatus === "restoring") {
+    return <RouteFallback />;
+  }
+
   return (
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={renderRoute(<LandingPage />)} />
         <Route path="login" element={renderRoute(<LoginPage />)} />
         <Route path="logout" element={renderRoute(<LogoutPage />)} />
-        <Route element={<RequireSession />}>
+        <Route element={<RequireAdminSession />}>
           <Route path="eventos" element={<RedirectToAdminRoute path="eventos" />} />
           <Route path="asistencia" element={<RedirectToAdminRoute path="asistencia" />} />
           <Route path="certificados" element={<RedirectToAdminRoute path="certificados" />} />
@@ -55,7 +67,7 @@ export function App() {
           <Route path="usuarios" element={renderRoute(<UsersPage />)} />
         </Route>
       </Route>
-      <Route element={<RequireSession />}>
+      <Route element={<RequireAdminSession />}>
         <Route path="admin" element={<AdminLayout />}>
           <Route index element={renderRoute(<DashboardPage />)} />
           <Route path="eventos" element={renderRoute(<ActivityCatalogPage />)} />
