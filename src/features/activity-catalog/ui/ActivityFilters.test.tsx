@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -57,6 +57,37 @@ describe("ActivityFilters", () => {
     expect(screen.getByRole("textbox", { name: /buscar actividades/i })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: /programa de eventos/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /limpiar filtros/i })).toBeInTheDocument();
+  });
+
+  it("should list the activity types in the expected order", () => {
+    renderWithProviders(
+      <ActivityFilters
+        filteredCount={12}
+        onSortDirectionChange={vi.fn()}
+        onTypeFilterChange={vi.fn()}
+        onUnitFilterChange={vi.fn()}
+        sortDirection="desc"
+        typeFilter="all"
+        unitFilter="all"
+        unitOptions={unitOptions}
+      />,
+    );
+
+    const options = within(
+      screen.getByRole("combobox", { name: /tipo de actividad/i }),
+    ).getAllByRole("option");
+
+    expect(options.map((option) => option.textContent)).toEqual([
+      "Todos los tipos",
+      "Charla",
+      "Conferencia",
+      "Seminario",
+      "Taller",
+      "Curso",
+      "Panel",
+      "Competencia",
+      "Otro",
+    ]);
   });
 
   it("should report filter changes", async () => {

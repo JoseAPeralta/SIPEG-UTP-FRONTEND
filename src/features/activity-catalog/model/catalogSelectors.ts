@@ -65,6 +65,17 @@ export const activityTypeLabels: Record<ActivityType, string> = {
   WORKSHOP: "Taller",
 };
 
+export const activityTypeFilterOrder: ActivityType[] = [
+  "TALK",
+  "CONFERENCE",
+  "SEMINAR",
+  "WORKSHOP",
+  "COURSE",
+  "PANEL",
+  "COMPETITION",
+  "OTHER",
+];
+
 /**
  * Label for the program badge of a card. Default programs are named
  * "Programa de Eventos - <unidad>" by the backend, so we prefer the custom

@@ -14,6 +14,7 @@ import {
 import { Surface } from "@/components";
 
 import {
+  activityTypeFilterOrder,
   activityTypeLabels,
   type ActivityTypeFilter,
   type ProgramFilter,
@@ -117,9 +118,9 @@ export function ActivityFilters({
                 value={typeFilter}
               >
                 <option value="all">Todos los tipos</option>
-                {Object.entries(activityTypeLabels).map(([type, label]) => (
+                {activityTypeFilterOrder.map((type) => (
                   <option key={type} value={type}>
-                    {label}
+                    {activityTypeLabels[type]}
                   </option>
                 ))}
               </NativeSelect.Field>
