@@ -1,11 +1,19 @@
 import { Button, HStack, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 
-import { AsyncStateView, MetricCard, ModuleShell, SectionHeader, Surface } from "@/components";
+import {
+  AsyncStateView,
+  MetricCard,
+  ModuleShell,
+  SectionHeader,
+  StatusPanel,
+  Surface,
+} from "@/components";
 import { ActivityCard } from "@/features/activity-catalog";
 import { useDashboardOverview } from "@/features/dashboard";
 
 export function DashboardPage() {
   const dashboard = useDashboardOverview();
+  const operationalValue = (value: number) => (dashboard.operationsError ? "—" : String(value));
 
   return (
     <ModuleShell
@@ -63,14 +71,14 @@ export function DashboardPage() {
               detail="Registros confirmados en QR o codigo"
               label="Asistencia"
               tone="success"
-              value={String(dashboard.confirmedAttendanceCount)}
+              value={operationalValue(dashboard.confirmedAttendanceCount)}
             />
             <MetricCard
               appearance="standard"
               detail="Certificados generados desde asistencia"
               label="Certificados"
               tone="warning"
-              value={String(dashboard.generatedCertificatesCount)}
+              value={operationalValue(dashboard.generatedCertificatesCount)}
             />
             <MetricCard
               appearance="standard"
@@ -80,6 +88,13 @@ export function DashboardPage() {
               value={String(dashboard.totalCapacity)}
             />
           </SimpleGrid>
+
+          {dashboard.operationsError ? (
+            <StatusPanel role="alert">
+              Las metricas de asistencia y certificados no estan disponibles mientras el backend
+              publique sus contratos. El catalogo y las aulas siguen operativos.
+            </StatusPanel>
+          ) : null}
 
           <Stack gap={4}>
             <SectionHeader title="Proximas actividades priorizadas" />

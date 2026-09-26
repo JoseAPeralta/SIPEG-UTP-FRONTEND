@@ -57,10 +57,12 @@ export function useDashboardOverview() {
 
   return {
     confirmedAttendanceCount,
-    error: catalogError ?? operationsError,
+    error: catalogError,
     generatedCertificatesCount,
-    isLoading: isCatalogLoading || isOperationsLoading,
+    isLoading: isCatalogLoading,
+    isOperationsLoading,
     onUnitChange: setSelectedUnitId,
+    operationsError,
     recentRows: visibleRows.slice(0, 3),
     selectedUnitId,
     totalCapacity:
