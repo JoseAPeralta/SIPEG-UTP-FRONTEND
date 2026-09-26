@@ -1,25 +1,14 @@
 import { Box, Button, Heading, Stack, Text } from "@chakra-ui/react";
 import { Navigate, useNavigate } from "react-router";
 
-import { users } from "@/data/sipeg";
+import { Surface } from "@/components";
+import { useDemoAdminAccount } from "@/features/auth";
 import { useSessionStore } from "@/store/session";
-import type { User } from "@/types/domain";
-
-function getDemoUser(): User {
-  const demoUser = users.find((user) => user.role === "admin");
-
-  if (!demoUser) {
-    throw new Error("Demo administrator user was not found");
-  }
-
-  return demoUser;
-}
-
-const demoUser = getDemoUser();
 
 export function LoginPage() {
   const currentUser = useSessionStore((state) => state.currentUser);
   const login = useSessionStore((state) => state.login);
+  const { account, isLoading } = useDemoAdminAccount();
   const navigate = useNavigate();
 
   if (currentUser) {
@@ -27,20 +16,17 @@ export function LoginPage() {
   }
 
   const handleLogin = () => {
-    login(demoUser);
+    if (!account) {
+      return;
+    }
+
+    login(account);
     void navigate("/admin", { replace: true });
   };
 
   return (
     <Box maxW="lg" mx="auto" py={{ base: 3, md: 6 }}>
-      <Box
-        bg="surface.raised"
-        borderColor="border.subtle"
-        borderWidth="1px"
-        p={{ base: 6, md: 8 }}
-        rounded="3xl"
-        shadow="0 24px 80px rgba(65, 31, 20, 0.14)"
-      >
+      <Surface elevation="overlay" padding="roomy">
         <Stack gap={6}>
           <Stack gap={3}>
             <Text
@@ -60,11 +46,22 @@ export function LoginPage() {
               autenticacion.
             </Text>
           </Stack>
-          <Button colorPalette="terracotta" onClick={handleLogin} rounded="full" size="lg">
-            Iniciar sesion
+          <Button
+            colorPalette="terracotta"
+            disabled={isLoading || !account}
+            onClick={handleLogin}
+            rounded="full"
+            size="lg"
+          >
+            {isLoading ? "Cargando cuenta demo..." : "Iniciar sesion"}
           </Button>
+          {!isLoading && !account ? (
+            <Text color="text.muted" fontSize="sm" role="alert">
+              No hay una cuenta administrativa disponible en el origen de datos actual.
+            </Text>
+          ) : null}
         </Stack>
-      </Box>
+      </Surface>
     </Box>
   );
 }

@@ -1,15 +1,14 @@
-import { Box, Text } from "@chakra-ui/react";
 import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
-import { AdminLayout } from "@components/Layout/AdminLayout";
-import { AppLayout } from "@components/Layout/AppLayout";
+import { AdminLayout, AppLayout, StatusPanel } from "@/components";
 import { useSessionStore } from "@/store/session";
 
+const ActivityCatalogPage = lazy(() => import("@pages/ActivityCatalogPage"));
 const AttendancePage = lazy(() => import("@pages/AttendancePage"));
 const CertificatesPage = lazy(() => import("@pages/CertificatesPage"));
 const ClassroomsPage = lazy(() => import("@pages/ClassroomsPage"));
-const EventsPage = lazy(() => import("@pages/EventsPage"));
+const DashboardPage = lazy(() => import("@pages/DashboardPage"));
 const LandingPage = lazy(() => import("@pages/LandingPage"));
 const LoginPage = lazy(() => import("@pages/LoginPage"));
 const LogoutPage = lazy(() => import("@pages/LogoutPage"));
@@ -18,20 +17,7 @@ const SpeakersPage = lazy(() => import("@pages/SpeakersPage"));
 const UsersPage = lazy(() => import("@pages/UsersPage"));
 
 function RouteFallback() {
-  return (
-    <Box
-      bg="surface.raised"
-      borderColor="border.subtle"
-      borderWidth="1px"
-      p={6}
-      rounded="3xl"
-      role="status"
-    >
-      <Text color="text.muted" fontWeight="800">
-        Cargando modulo SIPEG...
-      </Text>
-    </Box>
-  );
+  return <StatusPanel>Cargando modulo SIPEG...</StatusPanel>;
 }
 
 function renderRoute(element: ReactNode) {
@@ -46,10 +32,6 @@ function RequireSession() {
   }
 
   return <Outlet />;
-}
-
-function AdminRedirect() {
-  return <Navigate to="/admin/eventos" replace />;
 }
 
 function RedirectToAdminRoute({ path }: { path: string }) {
@@ -75,8 +57,8 @@ export function App() {
       </Route>
       <Route element={<RequireSession />}>
         <Route path="admin" element={<AdminLayout />}>
-          <Route index element={<AdminRedirect />} />
-          <Route path="eventos" element={renderRoute(<EventsPage />)} />
+          <Route index element={renderRoute(<DashboardPage />)} />
+          <Route path="eventos" element={renderRoute(<ActivityCatalogPage />)} />
           <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
           <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
           <Route path="reportes" element={renderRoute(<ReportsPage />)} />

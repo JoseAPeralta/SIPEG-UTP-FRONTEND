@@ -1,114 +1,131 @@
-export type FacultyId = "fic" | "fie" | "fim" | "fisc";
+export type OrganizationalUnitType = "FACULTY" | "SUBDIRECTORATE";
 
-export type Faculty = {
-  id: FacultyId;
+export type OrganizationalUnitHead = {
+  firstName: string;
+  id: string;
+  lastName: string;
+};
+
+export type OrganizationalUnit = {
+  code: string;
+  description: string | null;
+  head: OrganizationalUnitHead | null;
+  id: string;
+  isActive: boolean;
   name: string;
-  shortName: string;
+  type: OrganizationalUnitType;
 };
 
 export type Career = {
+  code: string;
   id: string;
-  facultyId: Faculty["id"];
   name: string;
+  unitId: string | null;
 };
 
-export type UserRole = "admin" | "organizer" | "collaborator" | "attendee" | "speaker";
+export type GlobalRole = "ADMIN" | "USER";
 
 export type User = {
-  careerId: Career["id"];
+  careerId: string | null;
   email: string;
-  facultyId: Faculty["id"];
-  fullName: string;
+  firstName: string;
+  globalRole: GlobalRole;
   id: string;
-  role: UserRole;
+  isActive: boolean;
+  lastName: string;
+  unitId: string | null;
 };
 
-export type EventPermission = {
-  id: string;
-  eventId: string;
-  label: string;
-  userId: User["id"];
-};
+export type EventProgramStatus = "DRAFT" | "ACTIVE" | "COMPLETED" | "CANCELLED" | "ARCHIVED";
 
-export type LargeEvent = {
-  banner: string;
-  collaboratorIds: User["id"][];
-  customLabel: string;
-  endDate: string;
-  facultyId: Faculty["id"];
+export type EventProgram = {
+  bannerUrl: string | null;
+  description: string | null;
+  endDate: string | null;
   id: string;
+  isDefault: boolean;
+  label: string | null;
   name: string;
-  permissionIds: EventPermission["id"][];
-  startDate: string;
+  organizationalUnitId: string;
+  startDate: string | null;
+  status: EventProgramStatus;
 };
 
-export type EventType = "conference" | "seminar" | "talk" | "workshop";
+export type ActivityType = "WORKSHOP" | "SEMINAR" | "TALK" | "OTHER";
 
-export type EventSpeaker = {
-  name: string;
-  organization: string;
+export type ActivityStatus = "DRAFT" | "SCHEDULED" | "ONGOING" | "COMPLETED" | "CANCELLED";
+
+export type ActivitySpeaker = {
+  firstName: string;
+  id: string;
+  lastName: string;
 };
 
-export type SmallEvent = {
-  banner: string;
-  classroomId: Classroom["id"];
-  collaboratorIds: User["id"][];
+export type Activity = {
+  bannerUrl: string | null;
+  cancelReason: string | null;
+  capacity: number | null;
+  checkedInCount: number;
+  classroomId: string | null;
   date: string;
-  description?: string;
+  description: string | null;
   endTime: string;
+  enrolledCount: number;
   equipment: string[];
-  facultyId?: Faculty["id"];
+  eventProgramId: string;
   id: string;
-  inheritedPermissionIds: EventPermission["id"][];
   name: string;
-  parentEventId?: LargeEvent["id"];
-  permissionIds: EventPermission["id"][];
-  registeredAttendees: number;
-  speakers: EventSpeaker[];
+  speakers: ActivitySpeaker[];
   startTime: string;
-  type: EventType;
+  status: ActivityStatus;
+  type: ActivityType;
 };
 
-export type AttendanceRecord = {
-  code: string;
-  eventId: SmallEvent["id"];
-  id: string;
-  method: "manual" | "qr";
-  present: boolean;
-  userId: User["id"];
-};
-
-export type Certificate = {
-  eventId: SmallEvent["id"];
-  generatedAt: string;
-  id: string;
-  status: "generated" | "pending";
-  userId: User["id"];
-};
-
-export type ClassroomAmenity = "desks" | "projector" | "smart-board" | "tables" | "whiteboard";
+export type ClassroomType = "LABORATORY" | "CLASSROOM";
 
 export type Classroom = {
-  amenities: ClassroomAmenity[];
-  availableDays: string[];
-  availableHours: string;
+  amenities: string[];
+  building: string | null;
   capacity: number;
+  floor: number | null;
   id: string;
+  isActive: boolean;
   name: string;
-  type: "classroom" | "laboratory";
+  type: ClassroomType;
+};
+
+export type AttendanceMethod = "QR" | "MANUAL";
+
+export type AttendanceRecord = {
+  activityId: string;
+  code: string;
+  id: string;
+  method: AttendanceMethod;
+  present: boolean;
+  userId: string;
+};
+
+export type CertificateStatus = "GENERATED" | "PENDING";
+
+export type Certificate = {
+  activityId: string;
+  generatedAt: string;
+  id: string;
+  status: CertificateStatus;
+  userId: string;
 };
 
 export type SpeakerProposal = {
   approximateDuration: string;
   content: string;
   email: string;
-  eventId: SmallEvent["id"];
+  eventProgramId: string;
   firstName: string;
   id: string;
   lastName: string;
   proposalTitle: string;
   submittedAt: string;
-  talkType: EventType;
+  talkType: ActivityType;
 };
 
 export type ReportMetric = {
@@ -118,3 +135,22 @@ export type ReportMetric = {
   trend: "down" | "stable" | "up";
   value: string;
 };
+
+export type ActivityCatalog = {
+  activities: Activity[];
+  classrooms: Classroom[];
+  eventPrograms: EventProgram[];
+  organizationalUnits: OrganizationalUnit[];
+};
+
+export type OperationsReadModel = {
+  attendanceRecords: AttendanceRecord[];
+  careers: Career[];
+  certificates: Certificate[];
+  reportMetrics: ReportMetric[];
+  speakerProposals: SpeakerProposal[];
+  users: User[];
+};
+
+export type WorkingContext =
+  { id: string; kind: "eventProgram" } | { id: string; kind: "activity" };

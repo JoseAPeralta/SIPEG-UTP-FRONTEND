@@ -20,6 +20,26 @@ const config = defineConfig({
         "text.default": { value: { base: "#33261F", _dark: "#F7EFE8" } },
         "text.muted": { value: { base: "#6B5A4F", _dark: "#C9B8AC" } },
       },
+      shadows: {
+        interactive: {
+          value: {
+            base: "0 28px 80px rgba(65, 31, 20, 0.14)",
+            _dark: "0 28px 80px rgba(0, 0, 0, 0.52)",
+          },
+        },
+        overlay: {
+          value: {
+            base: "0 30px 90px rgba(65, 31, 20, 0.16)",
+            _dark: "0 30px 90px rgba(0, 0, 0, 0.58)",
+          },
+        },
+        raised: {
+          value: {
+            base: "0 20px 70px rgba(65, 31, 20, 0.08)",
+            _dark: "0 24px 70px rgba(0, 0, 0, 0.45)",
+          },
+        },
+      },
     },
     tokens: {
       colors: {

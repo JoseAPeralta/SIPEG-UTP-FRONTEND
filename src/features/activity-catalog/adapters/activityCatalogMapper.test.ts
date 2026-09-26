@@ -1,0 +1,210 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  ActivityCatalogMappingError,
+  mapActivity,
+  mapActivityId,
+  mapClassroom,
+  mapEventProgram,
+  mapOrganizationalUnit,
+  readPaginatedPage,
+} from "./activityCatalogMapper";
+
+const unitPayload = {
+  code: "FIC",
+  description: null,
+  head: { firstName: "Mariana", id: "user-1", lastName: "Rodriguez" },
+  id: "fic",
+  isActive: true,
+  name: "Facultad de Ingenieria Civil",
+  type: "FACULTY",
+};
+
+const programPayload = {
+  bannerUrl: null,
+  description: null,
+  endDate: "2026-06-19",
+  id: "program-1",
+  isDefault: false,
+  label: "Semana de innovacion",
+  name: "Semana de Innovacion Academica",
+  organizationalUnit: { id: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
+  startDate: "2026-06-15",
+  status: "ACTIVE",
+};
+
+const activityPayload = {
+  bannerUrl: null,
+  cancelReason: null,
+  capacity: 40,
+  checkedInCount: 3,
+  classroom: { building: "Edificio de Aulas", id: "classroom-1", name: "Aula 101" },
+  date: "2026-06-15",
+  description: "Actividad de prueba",
+  endTime: "11:00",
+  enrolledCount: 20,
+  equipment: ["Proyector"],
+  eventProgram: { id: "program-1", label: "Semana de innovacion", name: "Semana" },
+  id: "activity-1",
+  name: "Actividad de prueba",
+  organizationalUnit: { id: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
+  speakers: [{ firstName: "Ana", id: "speaker-1", lastName: "Perez" }],
+  startTime: "09:00",
+  status: "SCHEDULED",
+  type: "TALK",
+};
+
+describe("readPaginatedPage", () => {
+  it("should read items and total pages from a valid envelope", () => {
+    const payload = {
+      data: { items: [unitPayload], limit: 20, page: 1, total: 1, totalPages: 3 },
+      message: "ok",
+      success: true,
+    };
+
+    expect(readPaginatedPage(payload, "units")).toEqual({
+      items: [unitPayload],
+      totalPages: 3,
+    });
+  });
+
+  it("should reject payloads without the paginated envelope", () => {
+    expect(() => readPaginatedPage({ items: [] }, "units")).toThrow(ActivityCatalogMappingError);
+    expect(() => readPaginatedPage(null, "units")).toThrow(/units/);
+  });
+});
+
+describe("mapActivityId", () => {
+  it("should read the activity identifier from a list item", () => {
+    expect(mapActivityId({ id: "activity-1" })).toBe("activity-1");
+  });
+
+  it("should reject list items without an identifier", () => {
+    expect(() => mapActivityId({ id: "" })).toThrow(/id/);
+  });
+});
+
+describe("mapClassroom", () => {
+  it("should map a contract classroom", () => {
+    expect(
+      mapClassroom({
+        amenities: ["projector"],
+        building: "Edificio de Aulas",
+        capacity: 60,
+        floor: 1,
+        id: "classroom-1",
+        isActive: true,
+        name: "Aula 101",
+        type: "CLASSROOM",
+      }),
+    ).toEqual({
+      amenities: ["projector"],
+      building: "Edificio de Aulas",
+      capacity: 60,
+      floor: 1,
+      id: "classroom-1",
+      isActive: true,
+      name: "Aula 101",
+      type: "CLASSROOM",
+    });
+  });
+
+  it("should reject unknown classroom types", () => {
+    expect(() =>
+      mapClassroom({
+        amenities: [],
+        building: null,
+        capacity: 10,
+        floor: null,
+        id: "c",
+        isActive: true,
+        name: "Aula",
+        type: "HALL",
+      }),
+    ).toThrow(/type/);
+  });
+});
+
+describe("mapOrganizationalUnit", () => {
+  it("should map a contract unit", () => {
+    expect(mapOrganizationalUnit(unitPayload)).toEqual({
+      code: "FIC",
+      description: null,
+      head: { firstName: "Mariana", id: "user-1", lastName: "Rodriguez" },
+      id: "fic",
+      isActive: true,
+      name: "Facultad de Ingenieria Civil",
+      type: "FACULTY",
+    });
+  });
+
+  it("should reject unknown unit types", () => {
+    expect(() => mapOrganizationalUnit({ ...unitPayload, type: "DEPARTMENT" })).toThrow(/type/);
+  });
+
+  it("should reject units without an identifier", () => {
+    expect(() => mapOrganizationalUnit({ ...unitPayload, id: "" })).toThrow(/id/);
+  });
+});
+
+describe("mapEventProgram", () => {
+  it("should resolve the owning unit from the nested object", () => {
+    expect(mapEventProgram(programPayload)).toMatchObject({
+      id: "program-1",
+      organizationalUnitId: "fic",
+      status: "ACTIVE",
+    });
+  });
+
+  it("should accept default programs without dates", () => {
+    expect(mapEventProgram({ ...programPayload, endDate: null, startDate: null })).toMatchObject({
+      endDate: null,
+      startDate: null,
+    });
+  });
+
+  it("should reject unknown program statuses", () => {
+    expect(() => mapEventProgram({ ...programPayload, status: "PAUSED" })).toThrow(/status/);
+  });
+});
+
+describe("mapActivity", () => {
+  it("should map a contract activity detail", () => {
+    expect(mapActivity(activityPayload)).toEqual({
+      bannerUrl: null,
+      cancelReason: null,
+      capacity: 40,
+      checkedInCount: 3,
+      classroomId: "classroom-1",
+      date: "2026-06-15",
+      description: "Actividad de prueba",
+      endTime: "11:00",
+      enrolledCount: 20,
+      equipment: ["Proyector"],
+      eventProgramId: "program-1",
+      id: "activity-1",
+      name: "Actividad de prueba",
+      speakers: [{ firstName: "Ana", id: "speaker-1", lastName: "Perez" }],
+      startTime: "09:00",
+      status: "SCHEDULED",
+      type: "TALK",
+    });
+  });
+
+  it("should keep a null classroom and null description", () => {
+    const mapped = mapActivity({ ...activityPayload, classroom: null, description: null });
+
+    expect(mapped.classroomId).toBeNull();
+    expect(mapped.description).toBeNull();
+  });
+
+  it("should reject activity types outside the contract", () => {
+    expect(() => mapActivity({ ...activityPayload, type: "CONFERENCE" })).toThrow(/type/);
+  });
+
+  it("should reject activities without an event program reference", () => {
+    expect(() => mapActivity({ ...activityPayload, eventProgram: { id: "" } })).toThrow(
+      /eventProgram/,
+    );
+  });
+});

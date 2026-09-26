@@ -4,10 +4,11 @@ import type { ReactNode } from "react";
 
 import { system } from "@theme/index";
 
-type ProviderProps = {
+export type ProviderProps = {
   children: ReactNode;
 };
 
+/** Installs the SIPEG Chakra system and color-mode provider. */
 export function Provider({ children }: ProviderProps) {
   return (
     <ChakraProvider value={system}>

@@ -1,98 +1,89 @@
-import { Badge, Box, HStack, Stack, Text } from "@chakra-ui/react";
+import { Badge, Box, Stack, Text } from "@chakra-ui/react";
 
-import { ModuleShell } from "@components/ModuleShell";
-import { certificates, smallEvents, users } from "@/data/sipeg";
-import { useSelectedEventStore } from "@/store/selectedEvent";
-import { getRelatedSmallEventIds, getSelectedEventLabel } from "@utils/adminEventSelection";
+import {
+  AsyncStateView,
+  FeedbackState,
+  MetricCard,
+  ModuleShell,
+  SelectionRequiredState,
+  Surface,
+} from "@/components";
+import { certificateStatusLabels, useCertificatesOverview } from "@/features/certificates";
 
 export function CertificatesPage() {
-  const selectedEventId = useSelectedEventStore((state) => state.selectedEventId);
-  const selectedEventLabel = getSelectedEventLabel(selectedEventId);
-  const relatedEventIds = getRelatedSmallEventIds(selectedEventId);
-  const selectedCertificates = certificates.filter((certificate) =>
-    relatedEventIds.includes(certificate.eventId),
-  );
+  const { error, generatedCount, isLoading, rows, scope } = useCertificatesOverview();
 
-  if (!selectedEventId) {
+  if (!isLoading && !error && !scope) {
     return (
       <ModuleShell
-        description="Selecciona un evento de trabajo para consultar certificados generados o pendientes."
-        eyebrow="Evidencia academica"
+        description="Selecciona un contexto de trabajo para consultar certificados generados o pendientes."
+        headingLabel="Evidencia academica"
         title="Certificados"
       >
-        <Box bg="surface.raised" borderColor="border.subtle" borderWidth="1px" p={6} rounded="3xl">
-          <Text color="text.default" fontFamily="heading" fontSize="3xl" fontWeight="700">
-            Selecciona un evento
-          </Text>
-          <Text color="text.muted" mt={2}>
-            Los certificados se muestran solo para el evento elegido en el menu de administracion.
-          </Text>
-        </Box>
+        <SelectionRequiredState
+          message="Los certificados se muestran para el programa o la actividad elegidos en el panel de administracion."
+          title="Selecciona un contexto de trabajo"
+        />
       </ModuleShell>
     );
   }
 
   return (
     <ModuleShell
-      description={`Certificados asociados a ${selectedEventLabel ?? "el evento seleccionado"}.`}
-      eyebrow="Evidencia academica"
+      description={
+        scope
+          ? `Certificados asociados a ${scope.label}.`
+          : "Certificados del contexto seleccionado."
+      }
+      headingLabel="Evidencia academica"
       title="Certificados"
     >
-      <Stack gap={4}>
-        {selectedCertificates.length === 0 ? (
-          <Box
-            bg="surface.raised"
-            borderColor="border.subtle"
-            borderWidth="1px"
-            p={6}
-            rounded="3xl"
-          >
-            <Text color="text.default" fontFamily="heading" fontSize="2xl" fontWeight="700">
-              No hay certificados para este evento
-            </Text>
-            <Text color="text.muted" mt={2}>
-              Cuando haya asistencia confirmada, los certificados del evento apareceran aqui.
-            </Text>
-          </Box>
-        ) : null}
+      <AsyncStateView error={error} isLoading={isLoading}>
+        <Stack gap={4}>
+          <MetricCard
+            appearance="operational"
+            detail="Certificados listos para descarga."
+            label="Generados"
+            value={String(generatedCount)}
+          />
 
-        {selectedCertificates.map((certificate) => {
-          const event = smallEvents.find((smallEvent) => smallEvent.id === certificate.eventId);
-          const user = users.find((candidate) => candidate.id === certificate.userId);
+          {rows.length === 0 ? (
+            <FeedbackState
+              description="Cuando haya asistencia confirmada, los certificados apareceran aqui."
+              title="No hay certificados para este contexto"
+            />
+          ) : null}
 
-          return (
-            <HStack
-              align="start"
-              bg="surface.raised"
-              borderColor="border.subtle"
-              borderWidth="1px"
+          {rows.map((row) => (
+            <Surface
+              alignItems="start"
+              display="flex"
+              flexWrap="wrap"
               gap={5}
-              justify="space-between"
-              key={certificate.id}
-              p={5}
-              rounded="3xl"
-              wrap="wrap"
+              justifyContent="space-between"
+              key={row.certificate.id}
+              padding="normal"
             >
               <Box>
                 <Text color="text.default" fontFamily="heading" fontSize="2xl" fontWeight="700">
-                  {event?.name ?? "Evento sin asignar"}
+                  {row.activityName ?? "Actividad sin asignar"}
                 </Text>
                 <Text color="text.muted">
-                  {user?.fullName ?? "Usuario pendiente"} ·{" "}
-                  {new Date(certificate.generatedAt).toLocaleDateString("es-PA")}
+                  {row.userName ?? "Usuario pendiente"} ·{" "}
+                  {new Date(row.certificate.generatedAt).toLocaleDateString("es-PA")}
                 </Text>
               </Box>
               <Badge
-                colorPalette={certificate.status === "generated" ? "success" : "warning"}
+                colorPalette={row.certificate.status === "GENERATED" ? "success" : "warning"}
                 rounded="full"
                 variant="subtle"
               >
-                {certificate.status === "generated" ? "Generado" : "Pendiente"}
+                {certificateStatusLabels[row.certificate.status]}
               </Badge>
-            </HStack>
-          );
-        })}
-      </Stack>
+            </Surface>
+          ))}
+        </Stack>
+      </AsyncStateView>
     </ModuleShell>
   );
 }
