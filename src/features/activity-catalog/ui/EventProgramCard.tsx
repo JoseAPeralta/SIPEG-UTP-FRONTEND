@@ -1,10 +1,11 @@
 import { Badge, Box, Button, HStack, Stack, Text } from "@chakra-ui/react";
 
 import { Surface } from "@/components";
+import { getUnitColorKey } from "@theme/index";
 import type { EventProgram } from "@/types/domain";
 import { formatProgramDateRange } from "@/utils/dateFormatting";
 
-import type { ProgramSummary } from "../model/catalogSelectors";
+import { getProgramBadgeLabel, type ProgramSummary } from "../model/catalogSelectors";
 
 export type EventProgramCardProps = {
   isSelected?: boolean;
@@ -15,17 +16,15 @@ export type EventProgramCardProps = {
 /** Summarizes an event program and optionally selects it as the working context. */
 export function EventProgramCard({ isSelected = false, onSelect, summary }: EventProgramCardProps) {
   const { activityCount, enrolledCount, program, unit } = summary;
+  const unitColorKey = getUnitColorKey(unit);
   const dateRange = formatProgramDateRange(program);
 
   return (
     <Surface as="article" padding="normal" selected={isSelected}>
       <Stack gap={4}>
         <HStack gap={3} wrap="wrap">
-          <Badge colorPalette="terracotta" rounded="full" variant="surface">
-            {program.label ?? program.name}
-          </Badge>
-          <Badge colorPalette="gray" rounded="full" variant="surface">
-            {unit.code}
+          <Badge bg={`unit.bg.${unitColorKey}`} color={`unit.fg.${unitColorKey}`} rounded="full">
+            {getProgramBadgeLabel(program, unit)}
           </Badge>
           {program.isDefault ? (
             <Badge rounded="full" variant="subtle">

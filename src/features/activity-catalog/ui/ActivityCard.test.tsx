@@ -36,14 +36,28 @@ function renderCard(overrides: Partial<Parameters<typeof ActivityCard>[0]> = {})
 }
 
 describe("ActivityCard", () => {
-  it("should show program, unit, type, date and classroom", () => {
+  it("should show program, type, date and classroom", () => {
     renderCard();
 
     expect(screen.getByText("Semana de innovacion")).toBeInTheDocument();
-    expect(screen.getByText("FISC")).toBeInTheDocument();
     expect(screen.getByText("Charla")).toBeInTheDocument();
+    expect(screen.queryByText("FISC")).not.toBeInTheDocument();
     expect(screen.getByText(/auditorio roberto barraza/i)).toBeInTheDocument();
     expect(screen.getByText(/ana perez/i)).toBeInTheDocument();
+  });
+
+  it("should show the unit name without the default program prefix", () => {
+    renderCard({
+      program: createEventProgram({
+        isDefault: true,
+        label: null,
+        name: "Programa de Eventos - Facultad de Ingenieria Civil",
+      }),
+      unit: createOrganizationalUnit({ code: "FIC", name: "Facultad de Ingenieria Civil" }),
+    });
+
+    expect(screen.getByText("Facultad de Ingenieria Civil")).toBeInTheDocument();
+    expect(screen.queryByText(/programa de eventos/i)).not.toBeInTheDocument();
   });
 
   it("should expand and collapse a long description", async () => {

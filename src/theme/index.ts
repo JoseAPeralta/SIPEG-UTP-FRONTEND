@@ -1,9 +1,32 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 
+import { activityTypeColorTokens, type DomainColorToken, unitColorTokens } from "./domainColors";
+
+function buildDomainSemanticColors() {
+  const colors: Record<string, { value: { base: string; _dark: string } }> = {};
+
+  const register = (namespace: "type" | "unit", key: string, token: DomainColorToken) => {
+    colors[`${namespace}.bg.${key}`] = { value: { base: token.bg, _dark: token.darkBg } };
+    colors[`${namespace}.fg.${key}`] = { value: { base: token.fg, _dark: token.darkFg } };
+    colors[`${namespace}.solid.${key}`] = { value: { base: token.base, _dark: token.base } };
+  };
+
+  for (const [key, token] of Object.entries(unitColorTokens)) {
+    register("unit", key, token);
+  }
+
+  for (const [key, token] of Object.entries(activityTypeColorTokens)) {
+    register("type", key, token);
+  }
+
+  return colors;
+}
+
 const config = defineConfig({
   theme: {
     semanticTokens: {
       colors: {
+        ...buildDomainSemanticColors(),
         "accent.contrast": { value: { base: "#FFFFFF", _dark: "#2B1209" } },
         "accent.muted": {
           value: { base: "{colors.terracotta.50}", _dark: "{colors.terracotta.950}" },
@@ -102,3 +125,11 @@ const config = defineConfig({
 });
 
 export const system = createSystem(defaultConfig, config);
+
+export {
+  activityTypeColorTokens,
+  getActivityTypeColorKey,
+  getUnitColorKey,
+  unitColorTokens,
+} from "./domainColors";
+export type { ActivityTypeColorKey, DomainColorToken, UnitColorKey } from "./domainColors";

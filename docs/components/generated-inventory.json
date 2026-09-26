@@ -9,6 +9,11 @@
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
+          "id": "features-activity-catalog-activitycard--new-activity-types",
+          "name": "New Activity Types",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
           "id": "features-activity-catalog-activitycard--public",
           "name": "Public",
           "tags": ["autodocs", "dev", "manifest", "test"]

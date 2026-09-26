@@ -9,6 +9,9 @@ Este documento define la identidad visual de SIPEG: una plataforma web de gesti�
 SIPEG es un producto **independiente**. No está afiliado a ninguna institución y debe poder usarse en cualquier contexto académico, universitario o de otra organización sin arrastrar identidad de terceros. Por lo tanto:
 
 - No se usa ningún logo, paleta, tipografía ni referencia visual institucional ajena.
+  - Única excepción deliberada: los colores representativos de las facultades de la UTP se
+    usan como identidad de unidad organizativa y se adaptan a esta paleta (§3.4). El resto
+    del producto mantiene la identidad SIPEG.
 - El nombre de producto es **SIPEG**, sin sufijos de institución.
 
 Este documento es la fuente de verdad visual del proyecto. Mientras el código no esté alineado (tema Chakra, estilos globales, PWA), esta guía manda sobre el aspecto deseado de la interfaz.
@@ -67,6 +70,60 @@ Paleta **terracota cálida** sobre neutros crema. Monocromática en terracota + 
 - **Nunca** usar terracota 500/300 (o equivalentes claros) para texto pequeño sobre fondo claro.
 - **El color nunca es el único medio** de transmitir información (WCAG 1.4.1): errores llevan icono y texto; estados llevan etiqueta; gráficos no dependen solo del tono.
 - El modo oscuro no usa negro puro ni superficies demasiado claras: se respeta el contraste AA en todas las elevaciones (Material Design).
+
+### 3.4 Colores de unidad organizativa y tipo de actividad
+
+Las tarjetas de actividad y de programa distinguen su unidad organizativa y el tipo de
+actividad con un color propio. La fuente única de verdad es `src/theme/domainColors.ts`;
+sus tokens se registran como semánticos en `src/theme/index.ts` (`unit.bg.*`, `unit.fg.*`,
+`unit.solid.*`, `type.bg.*`, `type.fg.*`) para reutilizarlos desde cualquier componente, por
+ejemplo `bg="unit.bg.fic"` y `color="unit.fg.fic"`.
+
+En cada token, `base` es el color representativo, `bg` es el fondo del badge (base mezclado
+sobre la superficie del tema) y `fg` es el texto, oscurecido/aclarado para cumplir AA
+(≥4.5:1) sobre `bg` en modo claro y oscuro.
+
+**Facultades** (`base` = paleta oficial de facultades de la UTP, recibida en RGB):
+
+| Facultad                              | Código | base      | bg        | fg        |
+| ------------------------------------- | ------ | --------- | --------- | --------- |
+| Facultad de Ingeniería Civil          | FIC    | `#59005C` | `#E4D4DD` | `#59005C` |
+| Facultad de Ingeniería Eléctrica      | FIE    | `#0099E6` | `#D8EAF0` | `#006BA1` |
+| Facultad de Ingeniería Industrial     | FII    | `#FFD000` | `#FCF2D0` | `#856C00` |
+| Facultad de Ingeniería Mecánica       | FIM    | `#670032` | `#E6D4D7` | `#670032` |
+| Facultad de Ingeniería Sistemas Comp. | FISC   | `#00722E` | `#D8E4D7` | `#00722E` |
+| Facultad de Ciencias y Tecnología     | FCYT   | `#FF7E00` | `#FCE6D0` | `#A35100` |
+
+**Subdirecciones** (sin color oficial; familia desaturada propia para leerse como grupo
+administrativo):
+
+| Unidad                                          | Código    | base      | bg        | fg        |
+| ----------------------------------------------- | --------- | --------- | --------- | --------- |
+| Subdirección Académica                          | SUB-ACAD  | `#4E6E6A` | `#E3E4DF` | `#4B6A66` |
+| Subdirección Administrativa                     | SUB-ADMIN | `#566072` | `#E4E2E0` | `#566072` |
+| Subdirección de Vida Universitaria              | SUB-VIDA  | `#6B7A4B` | `#E7E6DB` | `#5E6B42` |
+| Subdirección de Investigación, Postgrado y Ext. | SUB-IPE   | `#7A5568` | `#E9E0DF` | `#7A5568` |
+| Otras / desconocidas                            | default   | `#9C3A1E` | `#FBF0EA` | `#7E2F18` |
+
+**Tipos de actividad:**
+
+| Tipo        | Clave       | base      | bg        | fg        |
+| ----------- | ----------- | --------- | --------- | --------- |
+| Taller      | WORKSHOP    | `#9C3A1E` | `#EEDDD4` | `#9C3A1E` |
+| Seminario   | SEMINAR     | `#3B4C9B` | `#E0DFE6` | `#3B4C9B` |
+| Charla      | TALK        | `#0E6E6E` | `#DAE4E0` | `#0E6E6E` |
+| Conferencia | CONFERENCE  | `#7A1F6B` | `#E9D9DF` | `#7A1F6B` |
+| Panel       | PANEL       | `#1F5C8A` | `#DCE1E3` | `#1F5C8A` |
+| Curso       | COURSE      | `#4F6B1F` | `#E3E3D4` | `#4F6B1F` |
+| Competencia | COMPETITION | `#8A4A00` | `#EBDFD0` | `#8A4A00` |
+| Otro        | OTHER       | `#6E5F55` | `#E7E2DC` | `#6E5F55` |
+
+Reglas:
+
+- El color nunca es el único indicador: cada badge conserva su etiqueta de texto (WCAG 1.4.1).
+- Los códigos de unidad desconocidos caen en `unit.default`.
+- El backend hoy siembra la Facultad de Ciencias y Tecnología con el código `FCT`; el mapeo
+  actual solo reconoce `FCYT`, por lo que `FCT` cae en `default` hasta alinear el backend.
 
 ## 4. Tipografía
 
@@ -169,6 +226,8 @@ Dos familias máximo, tres tamaños visuales aproximados para jerarquía clara (
 - `border.subtle` → `#D8CCC2` (claro) / tono cálido oscuro (oscuro); borde de inputs con token ≥3:1.
 - PWA `theme-color` (meta `theme-color`, manifest) → `#9C3A1E` en claro.
 - Sustituir `colorPalette="red"`, `colorPalette="purple"`, `colorPalette="green"`, `colorPalette="blue"` de Chakra por tokens semánticos propios (error, éxito, facultad/filtro) en una sesión de implementación.
+- Colores de unidad organizativa y tipo de actividad → `src/theme/domainColors.ts` y tokens
+  `unit.bg.*`, `unit.fg.*`, `unit.solid.*`, `type.bg.*`, `type.fg.*`, `type.solid.*` (§3.4).
 
 ## 12. Fuentes
 

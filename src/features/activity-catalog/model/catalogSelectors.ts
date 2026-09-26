@@ -65,6 +65,20 @@ export const activityTypeLabels: Record<ActivityType, string> = {
   WORKSHOP: "Taller",
 };
 
+/**
+ * Label for the program badge of a card. Default programs are named
+ * "Programa de Eventos - <unidad>" by the backend, so we prefer the custom
+ * label, fall back to the owning unit name for default programs (avoiding the
+ * prefix) and use the program name for additional programs without a label.
+ */
+export function getProgramBadgeLabel(program: EventProgram, unit: OrganizationalUnit): string {
+  if (program.label) {
+    return program.label;
+  }
+
+  return program.isDefault ? unit.name : program.name;
+}
+
 export function buildActivityRows(catalog: ActivityCatalog): ActivityRow[] {
   const programById = new Map(catalog.eventPrograms.map((program) => [program.id, program]));
   const unitById = new Map(catalog.organizationalUnits.map((unit) => [unit.id, unit]));

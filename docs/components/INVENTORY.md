@@ -6,7 +6,7 @@ Fuente: `storybook-static/index.json`. Componentes: 11.
 
 | Componente                                   | Implementacion                                          | Stories                                                         | Variantes |
 | -------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------- | --------: |
-| `Features/Activity Catalog/ActivityCard`     | `src/features/activity-catalog/ui/ActivityCard.tsx`     | `src/features/activity-catalog/ui/ActivityCard.stories.tsx`     |         5 |
+| `Features/Activity Catalog/ActivityCard`     | `src/features/activity-catalog/ui/ActivityCard.tsx`     | `src/features/activity-catalog/ui/ActivityCard.stories.tsx`     |         6 |
 | `Features/Activity Catalog/ActivityFilters`  | `src/features/activity-catalog/ui/ActivityFilters.tsx`  | `src/features/activity-catalog/ui/ActivityFilters.stories.tsx`  |         2 |
 | `Features/Activity Catalog/EventProgramCard` | `src/features/activity-catalog/ui/EventProgramCard.tsx` | `src/features/activity-catalog/ui/EventProgramCard.stories.tsx` |         3 |
 | `Shared/UI/AsyncStateView`                   | `src/components/ui/AsyncStateView.tsx`                  | `src/components/ui/AsyncStateView.stories.tsx`                  |         4 |
@@ -21,6 +21,7 @@ Fuente: `storybook-static/index.json`. Componentes: 11.
 ## Features/Activity Catalog/ActivityCard
 
 - `features-activity-catalog-activitycard--long-description`: Long Description (`autodocs`, `dev`, `manifest`, `play-fn`, `test`)
+- `features-activity-catalog-activitycard--new-activity-types`: New Activity Types (`autodocs`, `dev`, `manifest`, `test`)
 - `features-activity-catalog-activitycard--public`: Public (`autodocs`, `dev`, `manifest`, `test`)
 - `features-activity-catalog-activitycard--selectable`: Selectable (`autodocs`, `dev`, `manifest`, `play-fn`, `test`)
 - `features-activity-catalog-activitycard--selected`: Selected (`autodocs`, `dev`, `manifest`, `test`)

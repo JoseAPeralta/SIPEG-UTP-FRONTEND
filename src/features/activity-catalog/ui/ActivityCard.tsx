@@ -2,10 +2,11 @@ import { Badge, Box, Button, HStack, Stack, Text } from "@chakra-ui/react";
 import { useState } from "react";
 
 import { Surface } from "@/components";
+import { getActivityTypeColorKey, getUnitColorKey } from "@theme/index";
 import type { Activity, Classroom, EventProgram, OrganizationalUnit } from "@/types/domain";
 import { formatActivityDate } from "@/utils/dateFormatting";
 
-import { activityTypeLabels } from "../model/catalogSelectors";
+import { activityTypeLabels, getProgramBadgeLabel } from "../model/catalogSelectors";
 
 const DESCRIPTION_PREVIEW_LENGTH = 128;
 
@@ -30,6 +31,8 @@ export function ActivityCard({
   unit,
 }: ActivityCardProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const unitColorKey = getUnitColorKey(unit);
+  const typeColorKey = getActivityTypeColorKey(activity.type);
   const description = activity.description?.trim() ?? "";
   const hasDescription = description.length > 0;
   const hasLongDescription = description.length > DESCRIPTION_PREVIEW_LENGTH;
@@ -51,13 +54,10 @@ export function ActivityCard({
       <Box background="linear-gradient(135deg, #6E2411 0%, #9C3A1E 52%, #E59A72 100%)" h="10px" />
       <Stack flex="1" gap={5} p={{ base: 5, md: 6 }}>
         <HStack gap={3} wrap="wrap">
-          <Badge colorPalette="terracotta" rounded="full" variant="surface">
-            {program.label ?? program.name}
+          <Badge bg={`unit.bg.${unitColorKey}`} color={`unit.fg.${unitColorKey}`} rounded="full">
+            {getProgramBadgeLabel(program, unit)}
           </Badge>
-          <Badge colorPalette="gray" rounded="full" variant="surface">
-            {unit.code}
-          </Badge>
-          <Badge colorPalette="terracotta" rounded="full" variant="subtle">
+          <Badge bg={`type.bg.${typeColorKey}`} color={`type.fg.${typeColorKey}`} rounded="full">
             {activityTypeLabels[activity.type]}
           </Badge>
         </HStack>

@@ -5,6 +5,7 @@ import {
   buildProgramSummaries,
   buildUnitOptions,
   filterActivityRows,
+  getProgramBadgeLabel,
   paginateActivityRows,
   summarizeCatalog,
 } from "./catalogSelectors";
@@ -198,5 +199,35 @@ describe("buildUnitOptions", () => {
     expect(buildUnitOptions(catalog)).toEqual([
       { id: "fic", label: "FIC - Facultad de Ingenieria Civil" },
     ]);
+  });
+});
+
+describe("getProgramBadgeLabel", () => {
+  const unit = createOrganizationalUnit({ code: "FIC", name: "Facultad de Ingenieria Civil" });
+
+  it("should prefer the custom program label", () => {
+    const program = createEventProgram({ label: "Semana de innovacion" });
+
+    expect(getProgramBadgeLabel(program, unit)).toBe("Semana de innovacion");
+  });
+
+  it("should use the unit name for default programs without a label", () => {
+    const program = createEventProgram({
+      isDefault: true,
+      label: null,
+      name: "Programa de Eventos - Facultad de Ingenieria Civil",
+    });
+
+    expect(getProgramBadgeLabel(program, unit)).toBe("Facultad de Ingenieria Civil");
+  });
+
+  it("should use the program name for additional programs without a label", () => {
+    const program = createEventProgram({
+      isDefault: false,
+      label: null,
+      name: "Foro de Infraestructura Resiliente",
+    });
+
+    expect(getProgramBadgeLabel(program, unit)).toBe("Foro de Infraestructura Resiliente");
   });
 });

@@ -27,6 +27,24 @@ describe("EventProgramCard", () => {
     expect(screen.getByText(/3/)).toBeInTheDocument();
     expect(screen.getByText(/120/)).toBeInTheDocument();
     expect(screen.getByText(/15/)).toBeInTheDocument();
+    expect(screen.getByText("Semana de innovacion")).toBeInTheDocument();
+    expect(screen.queryByText("FISC")).not.toBeInTheDocument();
+  });
+
+  it("should show the unit name for default programs without a label", () => {
+    renderWithProviders(
+      <EventProgramCard
+        summary={createSummary({
+          program: createEventProgram({
+            isDefault: true,
+            label: null,
+            name: "Programa de Eventos - Facultad de Ingenieria de Sistemas Computacionales",
+          }),
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Facultad de Ingenieria Civil", { exact: true })).toBeInTheDocument();
   });
 
   it("should label default programs without dates", () => {

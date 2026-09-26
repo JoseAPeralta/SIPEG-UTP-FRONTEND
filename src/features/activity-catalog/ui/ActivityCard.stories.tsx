@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Stack } from "@chakra-ui/react";
 import { expect, fn, userEvent, within } from "storybook/test";
 
 import {
@@ -15,6 +16,33 @@ const activity = createActivity({
     "Una sesion practica para explorar herramientas digitales aplicadas a la docencia universitaria.",
   speakers: [{ firstName: "Ana", id: "speaker-ana", lastName: "Perez" }],
 });
+
+const newTypeActivities = [
+  createActivity({
+    description: "Exposicion magistral de un experto invitado ante un auditorio amplio.",
+    id: "activity-conference",
+    name: "Conferencia magistral: universidad y sociedad",
+    type: "CONFERENCE",
+  }),
+  createActivity({
+    description: "Especialistas debaten un tema guiados por un moderador y el publico.",
+    id: "activity-panel",
+    name: "Panel: futuro de la formacion en ingenieria",
+    type: "PANEL",
+  }),
+  createActivity({
+    description: "Formacion estructurada de varias sesiones con objetivos y evaluacion.",
+    id: "activity-course",
+    name: "Curso de fundamentos de automatizacion industrial",
+    type: "COURSE",
+  }),
+  createActivity({
+    description: "Reto con reglas, jueces y ranking entre equipos participantes.",
+    id: "activity-competition",
+    name: "Competencia de robotica de rescate",
+    type: "COMPETITION",
+  }),
+];
 
 const meta = {
   args: {
@@ -86,4 +114,21 @@ export const LongDescription: Story = {
 
     await expect(canvas.getByRole("button", { name: /leer menos/i })).toBeVisible();
   },
+};
+
+export const NewActivityTypes: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Stack gap="6">
+      {newTypeActivities.map((newTypeActivity) => (
+        <ActivityCard
+          activity={newTypeActivity}
+          classroom={createClassroom({ name: "Auditorio Roberto Barraza" })}
+          key={newTypeActivity.id}
+          program={createEventProgram({ label: "Semana de innovacion" })}
+          unit={createOrganizationalUnit({ code: "FISC" })}
+        />
+      ))}
+    </Stack>
+  ),
 };
