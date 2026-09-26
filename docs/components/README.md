@@ -41,6 +41,24 @@ intencional:
 pnpm run test:storybook:update
 ```
 
+## Checklist De Storybook
+
+El widget _Guide_ de Storybook propone pasos de onboarding que este proyecto ya cubre con su propio
+pipeline, por lo que no se adoptan sus addons de testing:
+
+- Accesibilidad: `parameters.a11y.test = "error"` en `.storybook/preview.tsx` y `axe-playwright`
+  sobre cada story en `.storybook/storybook.visual.ts`.
+- Visuales: baselines de Playwright en `.storybook/__image_snapshots__` (`pnpm run storybook:test:visual`).
+- Interacciones: `play` functions ejecutadas por `@storybook/test-runner` en `pnpm run test:storybook`.
+- Cobertura: `pnpm run test:coverage`; automatizacion en CI: `pnpm run check` en `.github/workflows/ci.yml`.
+
+No se instala `@storybook/addon-vitest` porque su peer exige `vitest ^3 || ^4` y el proyecto usa
+Vitest 5, y no se instala el addon Visual Tests porque depende de un servicio externo rechazado en
+[ADR-0004](../adr/adr-0004-component-catalog-storybook.md). Por eso el widget lateral y la pagina
+_Guide_ se desactivan de forma explicita con `sidebarOnboardingChecklist` y
+`menuOnboardingChecklist` en `.storybook/main.ts`; su estado interno vive en ajustes de usuario y en
+la cache del proyecto, no en el repositorio.
+
 ## UI Compartida
 
 | Modulo                   | Import publico | Usar cuando                                                                                           | Evitar cuando                                                                | Requisitos                                        | Story                                                                                      |
