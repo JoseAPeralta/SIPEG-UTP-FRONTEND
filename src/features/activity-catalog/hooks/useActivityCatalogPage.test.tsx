@@ -18,6 +18,7 @@ describe("useActivityCatalogPage", () => {
 
     expect(result.current.summary?.activityCount).toBeGreaterThan(0);
     expect(result.current.pagination.rows.length).toBeLessThanOrEqual(9);
+    expect(result.current.pageSize).toBe(9);
     expect(result.current.programSummaries.length).toBeGreaterThan(0);
   });
 

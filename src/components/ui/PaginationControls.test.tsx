@@ -15,8 +15,8 @@ function renderPaginationControls(props: Partial<ComponentProps<typeof Paginatio
       itemLabel="eventos"
       onPageChange={onPageChange}
       pageCount={5}
+      pageSize={10}
       totalItems={48}
-      visibleItems={10}
       {...props}
     />,
   );
@@ -25,10 +25,10 @@ function renderPaginationControls(props: Partial<ComponentProps<typeof Paginatio
 }
 
 describe("PaginationControls", () => {
-  it("should show the visible and total item count", () => {
+  it("should show the visible item range and total count", () => {
     renderPaginationControls();
 
-    expect(screen.getByText(/mostrando 10 de 48 eventos/i)).toBeInTheDocument();
+    expect(screen.getByText(/11–20 de 48 eventos/i)).toBeInTheDocument();
   });
 
   it("should disable previous and keep next enabled on the first page", async () => {
@@ -75,12 +75,25 @@ describe("PaginationControls", () => {
     expect(onPageChange).toHaveBeenCalledWith(4);
   });
 
+  it("should clamp the range on a partial last page", () => {
+    renderPaginationControls({ currentPage: 5, pageCount: 5, totalItems: 48, pageSize: 10 });
+
+    expect(screen.getByText(/41–48 de 48 eventos/i)).toBeInTheDocument();
+  });
+
+  it("should hide the pagination when there are no items", () => {
+    renderPaginationControls({ totalItems: 0 });
+
+    expect(screen.queryByRole("navigation", { name: /paginacion/i })).not.toBeInTheDocument();
+  });
+
   it("should disable previous and next when there is only one page", () => {
-    renderPaginationControls({ currentPage: 1, pageCount: 1, totalItems: 8, visibleItems: 8 });
+    renderPaginationControls({ currentPage: 1, pageCount: 1, totalItems: 8, pageSize: 8 });
 
     expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /siguiente/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: "1" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "2" })).not.toBeInTheDocument();
+    expect(screen.getByText(/1–8 de 8 eventos/i)).toBeInTheDocument();
   });
 });

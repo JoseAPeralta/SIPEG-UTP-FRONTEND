@@ -24,6 +24,7 @@ describe("useCatalogFilters", () => {
     expect(result.current.pagination.pageCount).toBe(2);
     expect(result.current.pagination.rows[0]?.activity.id).toBe("activity-new");
     expect(result.current.filteredCount).toBe(2);
+    expect(result.current.pageSize).toBe(1);
   });
 
   it("should reset the page whenever a filter changes", () => {

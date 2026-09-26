@@ -13,6 +13,7 @@ describe("usePublicActivities", () => {
 
     const [first, second] = result.current.pagination.rows;
 
+    expect(result.current.pageSize).toBe(10);
     expect(first).toBeDefined();
     expect(second).toBeDefined();
     expect(first?.activity.date && second?.activity.date).toBeTruthy();

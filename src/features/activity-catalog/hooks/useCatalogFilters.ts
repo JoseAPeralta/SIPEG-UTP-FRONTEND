@@ -100,6 +100,7 @@ export function useCatalogFilters(
     onSortDirectionChange,
     onTypeFilterChange,
     onUnitFilterChange: onUnitFilterChangeHandler,
+    pageSize: perPage,
     pagination,
     programFilter,
     searchTerm,

@@ -134,8 +134,8 @@ export function ActivityCatalogView() {
                 itemLabel="actividades"
                 onPageChange={page.onPageChange}
                 pageCount={page.pagination.pageCount}
+                pageSize={page.pageSize}
                 totalItems={page.filteredCount}
-                visibleItems={page.pagination.rows.length}
               />
             </Stack>
           </Box>
