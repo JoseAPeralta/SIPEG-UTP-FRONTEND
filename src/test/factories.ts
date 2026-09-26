@@ -1,6 +1,8 @@
 import type {
   Activity,
   ActivityCatalog,
+  AuthenticatedUser,
+  AuthTokens,
   AttendanceRecord,
   Career,
   Certificate,
@@ -11,6 +13,33 @@ import type {
   SpeakerProposal,
   User,
 } from "@/types/domain";
+
+export function createAuthenticatedUser(
+  overrides: Partial<AuthenticatedUser> = {},
+): AuthenticatedUser {
+  return {
+    career: null,
+    email: "admin@example.edu",
+    firstName: "Mariana",
+    globalRole: "ADMIN",
+    id: "user-1",
+    identificationNumber: "8-123-456",
+    lastName: "Rodriguez",
+    unit: null,
+    ...overrides,
+  };
+}
+
+export function createAuthTokens(overrides: Partial<AuthTokens> = {}): AuthTokens {
+  return {
+    accessToken: "access-token",
+    accessTokenExpiresAt: "2099-01-01T00:00:00.000Z",
+    refreshToken: "refresh-token",
+    refreshTokenExpiresAt: "2099-02-01T00:00:00.000Z",
+    tokenType: "Bearer",
+    ...overrides,
+  };
+}
 
 export function createUser(overrides: Partial<User> = {}): User {
   return {

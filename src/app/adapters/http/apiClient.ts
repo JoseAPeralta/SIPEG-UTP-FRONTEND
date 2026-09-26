@@ -7,6 +7,7 @@ export type ApiEnvironment = {
 export type ApiClientOptions = {
   environment?: ApiEnvironment;
   fetcher?: typeof fetch;
+  getAccessToken?: () => string | null | undefined;
   requestInit?: RequestInit;
 };
 
@@ -63,14 +64,24 @@ export function resolveApiBaseUrl(environment: ApiEnvironment = import.meta.env)
 
 export async function apiRequest<TResponse>(
   path: string,
-  { environment = import.meta.env, fetcher = fetch, requestInit }: ApiClientOptions = {},
+  {
+    environment = import.meta.env,
+    fetcher = fetch,
+    getAccessToken,
+    requestInit,
+  }: ApiClientOptions = {},
 ) {
   const normalizedPath = normalizePath(path);
   const requestUrl = `${resolveApiBaseUrl(environment)}${normalizedPath}`;
   const headers = new Headers(requestInit?.headers);
+  const accessToken = getAccessToken?.();
 
   if (!headers.has("Accept")) {
     headers.set("Accept", "application/json");
+  }
+
+  if (accessToken && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
   let response: Response;

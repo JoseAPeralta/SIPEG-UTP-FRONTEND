@@ -16,7 +16,10 @@ import {
 
 const PAGE_LIMIT = 50;
 
-export type ApiActivityCatalogAdapterOptions = Pick<ApiClientOptions, "environment" | "fetcher">;
+export type ApiActivityCatalogAdapterOptions = Pick<
+  ApiClientOptions,
+  "environment" | "fetcher" | "getAccessToken"
+>;
 
 async function loadAllItems(
   path: string,

@@ -87,7 +87,8 @@ function toUrl(input: RequestInfo | URL) {
 }
 
 function createFetcher() {
-  return vi.fn((input: RequestInfo | URL) => {
+  return vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+    void init;
     const url = toUrl(input);
 
     if (url.includes("/api/v1/event-programs/program-1/activities")) {
@@ -164,6 +165,26 @@ describe("createApiActivityCatalogAdapter", () => {
     const catalog = await createApiActivityCatalogAdapter({ environment, fetcher }).loadCatalog();
 
     expect(catalog.organizationalUnits.map((candidate) => candidate.id)).toEqual(["fic", "fie"]);
+  });
+
+  it("should send the bearer token provided by the session", async () => {
+    const fetcher = createFetcher();
+
+    await createApiActivityCatalogAdapter({
+      environment,
+      fetcher,
+      getAccessToken: () => "access-token",
+    }).loadCatalog();
+
+    const authorizedRequests = fetcher.mock.calls.filter(([, requestInit]) =>
+      new Headers(requestInit?.headers).has("Authorization"),
+    );
+
+    expect(authorizedRequests.length).toBe(fetcher.mock.calls.length);
+
+    for (const [, requestInit] of fetcher.mock.calls) {
+      expect(new Headers(requestInit?.headers).get("Authorization")).toBe("Bearer access-token");
+    }
   });
 
   it("should fail when an activity payload is outside the contract", async () => {

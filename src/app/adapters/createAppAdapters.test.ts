@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, resolveDataSource } from "./createAppAdapters";
 import { OPERATIONS_CONTRACT_PENDING_MESSAGE } from "@/features/operations/adapters";
+import { useSessionStore } from "@/store/session";
+import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
 
 describe("resolveDataSource", () => {
   it("should default to the api source", () => {
@@ -15,19 +17,53 @@ describe("resolveDataSource", () => {
 });
 
 describe("createAppAdapters", () => {
+  afterEach(() => {
+    useSessionStore.getState().clearSession();
+  });
+
   it("should wire mock adapters when the mock source is explicit", async () => {
     const adapters = createAppAdapters({ source: "mock" });
     const catalog = await adapters.activityCatalog.loadCatalog();
 
     expect(catalog.activities.length).toBeGreaterThan(0);
+    expect(adapters.auth.login).toBeTypeOf("function");
     await expect(adapters.operations.loadOperations()).resolves.toBeTruthy();
   });
 
   it("should keep operations unavailable while the API source lacks contracts", async () => {
     const adapters = createAppAdapters({ source: "api" });
 
+    expect(adapters.auth.login).toBeTypeOf("function");
     await expect(adapters.operations.loadOperations()).rejects.toThrow(
       OPERATIONS_CONTRACT_PENDING_MESSAGE,
     );
+  });
+
+  it("should authenticate API requests with the in-memory session token", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens({ accessToken: "session-access-token" }),
+    });
+    const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
+
+    await expect(adapters.activityCatalog.loadCatalog()).rejects.toThrow(/conectar/i);
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBe(
+      "Bearer session-access-token",
+    );
+  });
+
+  it("should omit the bearer token without an authenticated session", async () => {
+    const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
+
+    await expect(adapters.activityCatalog.loadCatalog()).rejects.toThrow(/conectar/i);
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBeNull();
   });
 });

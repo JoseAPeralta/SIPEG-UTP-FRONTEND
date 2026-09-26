@@ -60,6 +60,64 @@ describe("apiClient", () => {
     expect(headers.get("Authorization")).toBe("Bearer token");
   });
 
+  it("should attach the bearer token provided by the session", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      }),
+    );
+
+    await apiRequest("/api/v1/users/me", {
+      environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
+      fetcher,
+      getAccessToken: () => "access-token",
+    });
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBe("Bearer access-token");
+  });
+
+  it("should omit the bearer token when the session has none", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      }),
+    );
+
+    await apiRequest("/api/v1/organizational-units", {
+      environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
+      fetcher,
+      getAccessToken: () => null,
+    });
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBeNull();
+  });
+
+  it("should not override an explicit Authorization header", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      }),
+    );
+
+    await apiRequest("/api/v1/users/me", {
+      environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
+      fetcher,
+      getAccessToken: () => "session-token",
+      requestInit: { headers: new Headers({ Authorization: "Bearer explicit-token" }) },
+    });
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBe("Bearer explicit-token");
+  });
+
   it("should throw a Spanish error when the response is not ok", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response("Server error", { status: 500 }));
 

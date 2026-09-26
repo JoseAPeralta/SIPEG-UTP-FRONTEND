@@ -25,6 +25,31 @@ export type Career = {
 
 export type GlobalRole = "ADMIN" | "USER";
 
+export type OrganizationReference = {
+  code: string;
+  id: string;
+  name: string;
+};
+
+export type AuthenticatedUser = {
+  career: OrganizationReference | null;
+  email: string;
+  firstName: string;
+  globalRole: GlobalRole;
+  id: string;
+  identificationNumber: string;
+  lastName: string;
+  unit: OrganizationReference | null;
+};
+
+export type AuthTokens = {
+  accessToken: string;
+  accessTokenExpiresAt: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: string;
+  tokenType: "Bearer";
+};
+
 export type User = {
   careerId: string | null;
   email: string;
