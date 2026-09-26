@@ -1,0 +1,242 @@
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+
+import { DEFAULT_SOURCE, createOperationView, loadOpenApi } from "./query-api-contract.mjs";
+
+const ACTIVITY_TYPES = ["WORKSHOP", "SEMINAR", "TALK", "OTHER"];
+const ACTIVITY_STATUSES = ["DRAFT", "SCHEDULED", "ONGOING", "COMPLETED", "CANCELLED"];
+const EVENT_PROGRAM_STATUSES = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED", "ARCHIVED"];
+const ORGANIZATIONAL_UNIT_TYPES = ["FACULTY", "SUBDIRECTORATE"];
+const CLASSROOM_TYPES = ["LABORATORY", "CLASSROOM"];
+
+export const CONTRACT_EXPECTATIONS = [
+  {
+    method: "GET",
+    path: "/api/v1/activities",
+    schema: "ActivityListItem",
+    required: [
+      "id",
+      "name",
+      "description",
+      "type",
+      "date",
+      "startTime",
+      "endTime",
+      "capacity",
+      "bannerUrl",
+      "speakers",
+      "classroom",
+      "eventProgram",
+      "organizationalUnit",
+    ],
+    enums: { type: ACTIVITY_TYPES },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/event-programs/{id}/activities",
+    schema: "EventProgramActivityItem",
+    required: [
+      "id",
+      "name",
+      "description",
+      "type",
+      "date",
+      "startTime",
+      "endTime",
+      "capacity",
+      "bannerUrl",
+      "speakers",
+      "classroom",
+      "eventProgram",
+      "organizationalUnit",
+      "status",
+    ],
+    enums: { type: ACTIVITY_TYPES, status: ACTIVITY_STATUSES },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/activities/{id}",
+    schema: "ActivityDetail",
+    required: [
+      "id",
+      "name",
+      "description",
+      "type",
+      "date",
+      "startTime",
+      "endTime",
+      "capacity",
+      "bannerUrl",
+      "status",
+      "cancelReason",
+      "equipment",
+      "enrolledCount",
+      "checkedInCount",
+      "speakers",
+      "classroom",
+      "eventProgram",
+      "organizationalUnit",
+    ],
+    enums: { type: ACTIVITY_TYPES, status: ACTIVITY_STATUSES },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/event-programs",
+    schema: "EventProgramDetail",
+    required: [
+      "id",
+      "name",
+      "description",
+      "label",
+      "bannerUrl",
+      "isDefault",
+      "status",
+      "startDate",
+      "endDate",
+      "organizationalUnit",
+    ],
+    enums: { status: EVENT_PROGRAM_STATUSES },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/organizational-units",
+    schema: "OrganizationalUnitSummary",
+    required: ["id", "name", "code", "description", "type", "isActive", "head"],
+    enums: { type: ORGANIZATIONAL_UNIT_TYPES },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/classrooms",
+    schema: "ClassroomSummary",
+    required: ["id", "name", "type", "capacity", "building", "floor", "isActive", "amenities"],
+    enums: { type: CLASSROOM_TYPES },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/careers",
+    schema: "CareerSummary",
+    required: ["id", "name", "code", "description", "unit"],
+    enums: {},
+  },
+];
+
+const USAGE = `Usage:
+  pnpm run api:mocks-check [--source <path-or-url>]`;
+
+export function compareContract(document, expectations = CONTRACT_EXPECTATIONS) {
+  const issues = [];
+  let checks = 0;
+
+  for (const expectation of expectations) {
+    const label = `${expectation.method} ${expectation.path}`;
+    const registeredSchemas = document.components?.schemas ?? {};
+
+    if (!registeredSchemas[expectation.schema]) {
+      issues.push(`${label}: el schema ${expectation.schema} ya no existe en el contrato.`);
+      continue;
+    }
+
+    let view;
+
+    try {
+      view = createOperationView(document, expectation.method, expectation.path);
+    } catch {
+      issues.push(`${label}: la operacion ya no existe en el contrato OpenAPI.`);
+      continue;
+    }
+
+    const schema =
+      view.components.schemas?.[expectation.schema] ?? registeredSchemas[expectation.schema];
+
+    const required = Array.isArray(schema.required) ? schema.required : [];
+
+    for (const field of expectation.required) {
+      checks += 1;
+      if (!required.includes(field)) {
+        issues.push(`${label} (${expectation.schema}): falta el campo requerido ${field}.`);
+      }
+    }
+
+    for (const [field, expectedValues] of Object.entries(expectation.enums)) {
+      const property = schema.properties?.[field];
+      const actualValues = Array.isArray(property?.enum) ? property.enum : undefined;
+      checks += 1;
+
+      if (!actualValues) {
+        issues.push(`${label} (${expectation.schema}).${field}: el campo ya no declara enum.`);
+        continue;
+      }
+
+      for (const value of expectedValues) {
+        if (!actualValues.includes(value)) {
+          issues.push(
+            `${label} (${expectation.schema}).${field}: el contrato ya no incluye ${value}; actualiza dominio, mappers, mocks y tests.`,
+          );
+        }
+      }
+
+      for (const value of actualValues) {
+        if (!expectedValues.includes(value)) {
+          issues.push(
+            `${label} (${expectation.schema}).${field}: nuevo valor ${value} en el contrato; actualiza dominio, mappers, mocks y tests.`,
+          );
+        }
+      }
+    }
+  }
+
+  return { checks, issues };
+}
+
+export function parseSource(argumentsList) {
+  let source;
+
+  for (let index = 0; index < argumentsList.length; index += 1) {
+    const argument = argumentsList[index];
+
+    if (argument === "--source") {
+      source = argumentsList[index + 1];
+      if (!source || source.startsWith("--")) {
+        throw new Error(USAGE);
+      }
+      index += 1;
+      continue;
+    }
+
+    throw new Error(`${USAGE}\n\nOpcion desconocida: ${argument}`);
+  }
+
+  return source;
+}
+
+export async function main(argumentsList = process.argv.slice(2)) {
+  const source = parseSource(argumentsList) ?? process.env.SIPEG_OPENAPI_SOURCE ?? DEFAULT_SOURCE;
+  const document = await loadOpenApi(source);
+  const { checks, issues } = compareContract(document);
+
+  if (issues.length > 0) {
+    console.error(
+      `El contrato OpenAPI cambio respecto a los mocks y mappers (${issues.length} problema(s) de ${checks} verificaciones):`,
+    );
+    issues.forEach((issue) => console.error(`  - ${issue}`));
+    console.error(
+      "Actualiza src/types/domain.ts, los mappers de cada feature, src/data/mock y sus tests antes de continuar.",
+    );
+    process.exitCode = 1;
+    return { checks, issues };
+  }
+
+  console.log(
+    `Mocks compatibles con el contrato OpenAPI (${checks} verificaciones en ${CONTRACT_EXPECTATIONS.length} operaciones).`,
+  );
+
+  return { checks, issues };
+}
+
+const entryPoint = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : undefined;
+if (entryPoint === import.meta.url) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
+}
