@@ -22,6 +22,8 @@ const stories = Object.values(storybookIndex.entries)
   .filter((entry): entry is StoryEntry => entry.type === "story")
   .sort((first, second) => first.id.localeCompare(second.id));
 
+const PLAY_FINISHED_GLOBAL = "__SIPEG_PLAY_FINISHED__";
+
 async function checkStoryAccessibility(page: Parameters<typeof injectAxe>[0]) {
   for (let attempt = 0; attempt < 20; attempt += 1) {
     try {
@@ -42,12 +44,39 @@ async function checkStoryAccessibility(page: Parameters<typeof injectAxe>[0]) {
 }
 
 test.describe("Storybook visual and accessibility", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript((globalName: string) => {
+      const globals = globalThis as typeof globalThis & Record<string, unknown>;
+
+      globals[globalName] = new Promise<void>((resolve) => {
+        const subscribe = () => {
+          const channel = globals["__STORYBOOK_ADDONS_CHANNEL__"] as
+            { once: (event: string, listener: () => void) => void } | undefined;
+
+          if (!channel) {
+            window.setTimeout(subscribe, 10);
+            return;
+          }
+
+          channel.once("storyFinished", () => resolve());
+        };
+
+        subscribe();
+      });
+    }, PLAY_FINISHED_GLOBAL);
+  });
+
   for (const story of stories) {
     test(`${story.title} / ${story.name}`, async ({ page }) => {
       await page.goto(`/iframe.html?id=${story.id}&viewMode=story`);
 
       const storyRoot = page.locator("#storybook-root");
       await expect(storyRoot).toBeVisible();
+      await page.evaluate(async (globalName: string) => {
+        const globals = globalThis as typeof globalThis & Record<string, unknown>;
+
+        await (globals[globalName] as Promise<void> | undefined);
+      }, PLAY_FINISHED_GLOBAL);
       await page.evaluate(async () => {
         await document.fonts.ready;
       });
