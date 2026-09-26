@@ -1,6 +1,7 @@
 import { act, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { createAppAdapters } from "@/app/adapters";
 import { useWorkingContextStore } from "@/store/workingContext";
 import { renderHookWithProviders } from "@/test/render";
 
@@ -67,6 +68,7 @@ describe("useActivityCatalogPage", () => {
 
   it("should expose a retry action after a load failure", async () => {
     const failingAdapters = {
+      ...createAppAdapters({ source: "mock" }),
       activityCatalog: { loadCatalog: () => Promise.reject(new Error("sin conexion")) },
       operations: { loadOperations: () => Promise.reject(new Error("sin conexion")) },
     };

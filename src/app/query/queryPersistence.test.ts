@@ -46,7 +46,8 @@ describe("resolveQueryPersistence", () => {
 
 describe("isPersistedQueryKey", () => {
   it("should persist only public catalog keys", () => {
-    expect(isPersistedQueryKey(queryKeys.activityCatalog)).toBe(true);
+    expect(isPersistedQueryKey(queryKeys.publicActivityCatalog)).toBe(true);
+    expect(isPersistedQueryKey(queryKeys.administrativeActivityCatalog)).toBe(false);
     expect(isPersistedQueryKey(queryKeys.operations)).toBe(false);
     expect(isPersistedQueryKey(["unknown"])).toBe(false);
   });
@@ -58,9 +59,12 @@ describe("createPersistenceOptions", () => {
     const options = createPersistenceOptions(persister, { VITE_APP_VERSION: "2026.09.25" });
     const shouldDehydrate = options.dehydrateOptions?.shouldDehydrateQuery;
 
-    expect(shouldDehydrate?.(fakeQuery(queryKeys.activityCatalog, "success"))).toBe(true);
+    expect(shouldDehydrate?.(fakeQuery(queryKeys.publicActivityCatalog, "success"))).toBe(true);
+    expect(shouldDehydrate?.(fakeQuery(queryKeys.administrativeActivityCatalog, "success"))).toBe(
+      false,
+    );
     expect(shouldDehydrate?.(fakeQuery(queryKeys.operations, "success"))).toBe(false);
-    expect(shouldDehydrate?.(fakeQuery(queryKeys.activityCatalog, "pending"))).toBe(false);
+    expect(shouldDehydrate?.(fakeQuery(queryKeys.publicActivityCatalog, "pending"))).toBe(false);
     expect(options.buster).toBe("2026.09.25");
     expect(options.maxAge).toBe(QUERY_CACHE_MAX_AGE_MS);
   });
@@ -78,7 +82,7 @@ describe("queryCacheStorage", () => {
     const persister = createQueryPersister(storage, 0);
     const client = createQueryClient();
 
-    client.setQueryData(queryKeys.activityCatalog, { restored: true });
+    client.setQueryData(queryKeys.publicActivityCatalog, { restored: true });
     await persister.persistClient({
       buster: "dev",
       clientState: dehydrate(client),

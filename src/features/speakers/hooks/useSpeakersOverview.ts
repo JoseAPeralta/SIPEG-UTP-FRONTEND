@@ -4,7 +4,11 @@ import { useActivityCatalog } from "@/features/activity-catalog";
 import { useOperations } from "@/features/operations";
 
 export function useSpeakersOverview() {
-  const { catalog, error: catalogError, isLoading: isCatalogLoading } = useActivityCatalog();
+  const {
+    catalog,
+    error: catalogError,
+    isLoading: isCatalogLoading,
+  } = useActivityCatalog("administrative");
   const { error: operationsError, isLoading: isOperationsLoading, operations } = useOperations();
 
   const rows = useMemo(() => {

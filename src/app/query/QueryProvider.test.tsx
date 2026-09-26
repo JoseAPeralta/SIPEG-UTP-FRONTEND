@@ -36,7 +36,7 @@ describe("QueryProvider", () => {
     const client = createQueryClient();
     const source = createQueryClient();
 
-    source.setQueryData(queryKeys.activityCatalog, { restored: true });
+    source.setQueryData(queryKeys.publicActivityCatalog, { restored: true });
 
     const persister = createQueryPersister(window.localStorage, 0);
 
@@ -57,7 +57,7 @@ describe("QueryProvider", () => {
     );
 
     await waitFor(() =>
-      expect(client.getQueryData(queryKeys.activityCatalog)).toEqual({ restored: true }),
+      expect(client.getQueryData(queryKeys.publicActivityCatalog)).toEqual({ restored: true }),
     );
   });
 

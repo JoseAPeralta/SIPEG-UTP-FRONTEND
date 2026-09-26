@@ -7,7 +7,7 @@ import { useCatalogFilters } from "./useCatalogFilters";
 export const PUBLIC_ACTIVITIES_PER_PAGE = 10;
 
 export function usePublicActivities() {
-  const { catalog, error, isLoading, refetch } = useActivityCatalog();
+  const { catalog, error, isLoading, refetch } = useActivityCatalog("public");
   const {
     filteredCount,
     onPageChange,

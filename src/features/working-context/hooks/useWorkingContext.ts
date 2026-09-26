@@ -13,7 +13,7 @@ import {
 const EMPTY_OPTIONS = { activities: [], programs: [] };
 
 export function useWorkingContext() {
-  const { catalog, error, isLoading, refetch } = useActivityCatalog();
+  const { catalog, error, isLoading, refetch } = useActivityCatalog("administrative");
   const workingContext = useWorkingContextStore((state) => state.workingContext);
   const setWorkingContext = useWorkingContextStore((state) => state.setWorkingContext);
   const clearWorkingContext = useWorkingContextStore((state) => state.clearWorkingContext);

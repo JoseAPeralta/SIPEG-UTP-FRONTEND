@@ -16,7 +16,7 @@ import { useCatalogFilters } from "./useCatalogFilters";
 export const ADMIN_ACTIVITIES_PER_PAGE = 9;
 
 export function useActivityCatalogPage() {
-  const { catalog, error, isLoading, refetch } = useActivityCatalog();
+  const { catalog, error, isLoading, refetch } = useActivityCatalog("administrative");
   const selectedUnitId = useUnitPreferenceStore((state) => state.selectedUnitId);
   const setSelectedUnitId = useUnitPreferenceStore((state) => state.setSelectedUnitId);
   const workingContext = useWorkingContextStore((state) => state.workingContext);
