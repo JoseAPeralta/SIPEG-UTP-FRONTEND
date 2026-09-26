@@ -10,7 +10,7 @@ export type ApiClientOptions = {
   requestInit?: RequestInit;
 };
 
-const DEVELOPMENT_API_BASE_URL = "http://localhost:3000/api";
+const DEVELOPMENT_API_BASE_URL = "http://localhost:3000";
 
 const STATUS_MESSAGES: Record<number, string> = {
   400: "La solicitud no es valida.",

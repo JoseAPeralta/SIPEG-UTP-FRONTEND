@@ -194,11 +194,12 @@ usan en tests, Storybook y trabajo offline:
 ```bash
 VITE_DATA_SOURCE=api    # valor por defecto: catalogo desde el contrato OpenAPI
 VITE_DATA_SOURCE=mock   # override explicito para offline o demos
-VITE_API_BASE_URL=https://api.utp.ac.pa/api   # obligatorio en produccion
+VITE_API_BASE_URL=https://api.utp.ac.pa   # origin del API; obligatorio en produccion
 ```
 
-En desarrollo la API se resuelve contra `http://localhost:3000/api`, asi que `pnpm run dev`
-requiere el backend levantado. Con `api`, el catalogo de unidades organizativas, programas,
+En desarrollo la API se resuelve contra `http://localhost:3000`, asi que `pnpm run dev`
+requiere el backend levantado. La URL debe ser el origin del API, sin sufijo `/api`, porque los
+endpoints ya incluyen el prefijo `/api/v1`. Con `api`, el catalogo de unidades organizativas, programas,
 actividades y aulas se carga desde el backend. Asistencia, certificados, ponentes y reportes
 permanecen no disponibles con un error explicito hasta que el backend publique sus contratos.
 Cuando el OpenAPI cambie, actualiza dominio, mappers, `src/data/mock` y sus tests en el mismo
@@ -252,10 +253,10 @@ Iniciar Vite con hot reload, dependencias aisladas y el puerto limitado a localh
 docker compose -f compose.dev.yaml up --build
 ```
 
-La aplicacion queda disponible en `http://localhost:5173`. La API de desarrollo usa `http://localhost:3000/api` por defecto. Puede cambiarse antes de iniciar:
+La aplicacion queda disponible en `http://localhost:5173`. La API de desarrollo usa `http://localhost:3000` por defecto (solo origin, sin `/api`). Puede cambiarse antes de iniciar:
 
 ```bash
-VITE_API_BASE_URL=http://localhost:4000/api \
+VITE_API_BASE_URL=http://localhost:4000 \
   docker compose -f compose.dev.yaml up --build
 ```
 

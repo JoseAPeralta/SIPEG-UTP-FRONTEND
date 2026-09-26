@@ -10,7 +10,7 @@ describe("apiClient", () => {
   });
 
   it("should use the local API URL in development", () => {
-    expect(resolveApiBaseUrl({ DEV: true, PROD: false })).toBe("http://localhost:3000/api");
+    expect(resolveApiBaseUrl({ DEV: true, PROD: false })).toBe("http://localhost:3000");
   });
 
   it("should require an explicit API URL in production", () => {
