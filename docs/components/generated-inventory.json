@@ -1,0 +1,278 @@
+{
+  "components": [
+    {
+      "componentPath": "src/features/activity-catalog/ui/ActivityCard.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-activitycard--long-description",
+          "name": "Long Description",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--public",
+          "name": "Public",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--selectable",
+          "name": "Selectable",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--selected",
+          "name": "Selected",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--with-enrollment-count",
+          "name": "With Enrollment Count",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ActivityCard.stories.tsx",
+      "title": "Features/Activity Catalog/ActivityCard"
+    },
+    {
+      "componentPath": "src/features/activity-catalog/ui/ActivityFilters.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-activityfilters--administrative",
+          "name": "Administrative",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activityfilters--public",
+          "name": "Public",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ActivityFilters.stories.tsx",
+      "title": "Features/Activity Catalog/ActivityFilters"
+    },
+    {
+      "componentPath": "src/features/activity-catalog/ui/EventProgramCard.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-eventprogramcard--selectable",
+          "name": "Selectable",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-eventprogramcard--selected",
+          "name": "Selected",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-eventprogramcard--summary",
+          "name": "Summary",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/EventProgramCard.stories.tsx",
+      "title": "Features/Activity Catalog/EventProgramCard"
+    },
+    {
+      "componentPath": "src/components/ui/AsyncStateView.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-asyncstateview--error-with-retry",
+          "name": "Error With Retry",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "shared-ui-asyncstateview--error-without-retry",
+          "name": "Error Without Retry",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-asyncstateview--loading",
+          "name": "Loading",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-asyncstateview--ready",
+          "name": "Ready",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/AsyncStateView.stories.tsx",
+      "title": "Shared/UI/AsyncStateView"
+    },
+    {
+      "componentPath": "src/components/ui/FeedbackState.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-feedbackstate--empty",
+          "name": "Empty",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-feedbackstate--error-with-action",
+          "name": "Error With Action",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "shared-ui-feedbackstate--prominent-title",
+          "name": "Prominent Title",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/FeedbackState.stories.tsx",
+      "title": "Shared/UI/FeedbackState"
+    },
+    {
+      "componentPath": "src/components/ui/MetricCard.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-metriccard--neutral",
+          "name": "Neutral",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--operational",
+          "name": "Operational",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--primary",
+          "name": "Primary",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--success",
+          "name": "Success",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--summary",
+          "name": "Summary",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--warning",
+          "name": "Warning",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/MetricCard.stories.tsx",
+      "title": "Shared/UI/MetricCard"
+    },
+    {
+      "componentPath": "src/components/ui/ModuleShell.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-moduleshell--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-moduleshell--with-actions",
+          "name": "With Actions",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/ModuleShell.stories.tsx",
+      "title": "Shared/UI/ModuleShell"
+    },
+    {
+      "componentPath": "src/components/ui/PaginationControls.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-paginationcontrols--first-page",
+          "name": "First Page",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-paginationcontrols--middle-page",
+          "name": "Middle Page",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "shared-ui-paginationcontrols--only-page",
+          "name": "Only Page",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/PaginationControls.stories.tsx",
+      "title": "Shared/UI/PaginationControls"
+    },
+    {
+      "componentPath": "src/components/ui/SectionHeader.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-sectionheader--with-description",
+          "name": "With Description",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-sectionheader--with-heading-label",
+          "name": "With Heading Label",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-sectionheader--with-status",
+          "name": "With Status",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/SectionHeader.stories.tsx",
+      "title": "Shared/UI/SectionHeader"
+    },
+    {
+      "componentPath": "src/components/ui/StatusPanel.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-statuspanel--alert",
+          "name": "Alert",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-statuspanel--loading",
+          "name": "Loading",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/StatusPanel.stories.tsx",
+      "title": "Shared/UI/StatusPanel"
+    },
+    {
+      "componentPath": "src/components/ui/Surface.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-surface--control-radius",
+          "name": "Control Radius",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--interactive",
+          "name": "Interactive",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--overlay",
+          "name": "Overlay",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--panel",
+          "name": "Panel",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--raised",
+          "name": "Raised",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--selected",
+          "name": "Selected",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/Surface.stories.tsx",
+      "title": "Shared/UI/Surface"
+    }
+  ],
+  "schemaVersion": 1,
+  "source": "storybook-static/index.json"
+}
