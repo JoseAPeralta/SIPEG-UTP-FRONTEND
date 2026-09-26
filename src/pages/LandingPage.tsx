@@ -135,6 +135,7 @@ export function LandingPage() {
                         classroom={row.classroom}
                         key={row.activity.id}
                         program={row.program}
+                        showEquipment={false}
                         unit={row.unit}
                       />
                     ))}

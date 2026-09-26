@@ -17,6 +17,7 @@ export type ActivityCardProps = {
   onSelect?: ((activity: Activity) => void) | undefined;
   program: EventProgram;
   showEnrolledCount?: boolean;
+  showEquipment?: boolean;
   unit: OrganizationalUnit;
 };
 
@@ -28,6 +29,7 @@ export function ActivityCard({
   onSelect,
   program,
   showEnrolledCount = false,
+  showEquipment = true,
   unit,
 }: ActivityCardProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -132,7 +134,7 @@ export function ActivityCard({
               </Text>
             </Box>
           ) : null}
-          {activity.equipment.length > 0 ? (
+          {showEquipment && activity.equipment.length > 0 ? (
             <Box>
               <Text
                 color="text.muted"

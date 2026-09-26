@@ -46,6 +46,23 @@ describe("ActivityCard", () => {
     expect(screen.getByText(/ana perez/i)).toBeInTheDocument();
   });
 
+  it("should show equipment by default", () => {
+    renderCard({ activity: createActivity({ equipment: ["Proyector"] }) });
+
+    expect(screen.getByText("Equipamiento")).toBeInTheDocument();
+    expect(screen.getByText("Proyector")).toBeInTheDocument();
+  });
+
+  it("should hide equipment when disabled", () => {
+    renderCard({
+      activity: createActivity({ equipment: ["Proyector"] }),
+      showEquipment: false,
+    });
+
+    expect(screen.queryByText("Equipamiento")).not.toBeInTheDocument();
+    expect(screen.queryByText("Proyector")).not.toBeInTheDocument();
+  });
+
   it("should show the unit name without the default program prefix", () => {
     renderCard({
       program: createEventProgram({
