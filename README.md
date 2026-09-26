@@ -2,7 +2,7 @@
 
 SIPEG UTP es el frontend de una plataforma para gestionar eventos academicos de la Universidad Tecnologica de Panama. La aplicacion busca centralizar la administracion de eventos grandes, actividades individuales, asistencia, certificados, aulas, ponentes, usuarios, reportes y estadisticas operativas.
 
-Este repositorio contiene solo la interfaz web. El backend sera un proyecto separado y, cuando exista, este frontend debera consumirlo mediante una capa clara de cliente/API. Por ahora, las pantallas trabajan con datos de demostracion ubicados en `src/data`.
+Este repositorio contiene solo la interfaz web. El backend vive en el repositorio hermano `../SIPEG-UTP-BACKEND` y el frontend debe consumirlo mediante una capa clara de cliente/API. Algunas pantallas todavia trabajan con datos de demostracion ubicados en `src/data/mock`.
 
 Actualmente el proyecto incluye la base tecnica, navegacion principal, vistas iniciales por modulo, datos mock, configuracion de calidad, PWA e infraestructura de build. Las funcionalidades de negocio todavia no estan finalizadas.
 
@@ -10,24 +10,25 @@ Actualmente el proyecto incluye la base tecnica, navegacion principal, vistas in
 
 Leyenda: `X` pendiente, `✓` finalizada.
 
-| Estado | Funcionalidad            | Descripcion                                                                                               |
-| ------ | ------------------------ | --------------------------------------------------------------------------------------------------------- |
-| X      | Gestion de usuarios      | Crear usuarios, seleccionar facultad y carrera, modificar datos y asignar permisos en eventos.            |
-| X      | Notificaciones por email | Enviar avisos a usuarios o asistentes registrados cuando se creen, modifiquen o eliminen eventos.         |
-| X      | Eventos grandes          | Crear series de eventos con nombre, fechas, etiqueta personalizada, banner, colaboradores y permisos.     |
-| X      | Eventos pequenos         | Crear actividades individuales con nombre, tipo, ponente, aula, fecha, hora, equipo requerido y banner.   |
-| X      | Herencia de permisos     | Heredar colaboradores y permisos desde eventos grandes hacia eventos pequenos por defecto.                |
-| X      | Listado de eventos       | Mostrar eventos disponibles y pasados, con priorizacion por facultad seleccionada.                        |
-| X      | Filtros por facultad     | Filtrar eventos por facultad y destacar los relacionados con la facultad activa.                          |
-| X      | Modificacion de eventos  | Modificar eventos y preguntar si se debe notificar a asistentes registrados.                              |
-| X      | Eliminacion de eventos   | Eliminar eventos grandes o pequenos y confirmar si los asistentes deben ser notificados.                  |
-| X      | Registro de asistencia   | Registrar asistencia para eventos mediante QR o codigos manuales.                                         |
-| X      | Certificados             | Generar certificados automaticamente o desde la lista de asistencia.                                      |
-| X      | Inventario de aulas      | Administrar aulas y laboratorios con horarios, dias disponibles, capacidad maxima y amenidades.           |
-| X      | Registro de ponentes     | Capturar propuestas con nombre, email, CV, duracion, tipo de charla, titulo, contenido y evento asociado. |
-| X      | Reportes y estadisticas  | Mostrar metricas de asistencia, certificados, ocupacion de aulas, eventos activos y eventos pasados.      |
-| X      | Exportaciones            | Preparar exportacion de reportes a Excel y PDF.                                                           |
-| X      | Integracion backend      | Consumir la futura API Node.js mediante una capa de cliente/API aislada de los componentes.               |
+| Estado | Funcionalidad              | Descripcion                                                                                                 |
+| ------ | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| X      | Gestion de usuarios        | Crear usuarios, seleccionar unidad organizativa y carrera, modificar datos y asignar permisos.              |
+| X      | Notificaciones por email   | Enviar avisos a usuarios o asistentes registrados cuando se creen, modifiquen o cancelen actividades.       |
+| X      | Programas de eventos       | Crear programas con nombre, fechas, etiqueta personalizada, banner, colaboradores y permisos.               |
+| X      | Actividades                | Crear actividades con nombre, tipo, ponentes, aula, fecha, hora, equipamiento requerido y banner.           |
+| X      | Herencia de permisos       | Heredar colaboradores y permisos desde programas de eventos hacia sus actividades por defecto.              |
+| ✓      | Catalogo de actividades    | Mostrar actividades disponibles y pasadas, con filtros por unidad organizativa, tipo y programa.            |
+| ✓      | Filtros por unidad         | Filtrar actividades por unidad organizativa y tipo de actividad.                                            |
+| X      | Modificacion de eventos    | Modificar programas y actividades, y preguntar si se debe notificar a asistentes registrados.               |
+| X      | Archivado de programas     | Archivar programas de eventos en lugar de eliminarlos fisicamente.                                          |
+| X      | Cancelacion de actividades | Cancelar actividades segun la regla de retencion aplicable y notificar a los inscritos.                     |
+| X      | Registro de asistencia     | Registrar asistencia para actividades mediante QR o codigos manuales.                                       |
+| X      | Certificados               | Generar certificados automaticamente o desde la lista de asistencia.                                        |
+| ✓      | Inventario de aulas        | Consultar aulas y laboratorios con capacidad, ubicacion y amenidades.                                       |
+| X      | Registro de ponentes       | Capturar propuestas con nombre, email, CV, duracion, tipo de charla, titulo, contenido y programa asociado. |
+| X      | Reportes y estadisticas    | Mostrar metricas de asistencia, certificados, ocupacion de aulas y actividades activas o pasadas.           |
+| X      | Exportaciones              | Preparar exportacion de reportes a Excel y PDF.                                                             |
+| ✓      | Adaptadores de datos       | Separar mocks del API real mediante puertos y adapters con `VITE_DATA_SOURCE`.                              |
 
 ## Stack
 
@@ -39,6 +40,7 @@ Leyenda: `X` pendiente, `✓` finalizada.
 - Zustand
 - Vitest
 - Testing Library
+- Storybook con Autodocs, pruebas de interaccion y accesibilidad
 - ESLint flat config
 - Prettier
 - PWA con manifest, service worker, pagina offline e iconos instalables
@@ -72,55 +74,62 @@ http://localhost:5173
 
 ## Scripts Disponibles
 
-| Comando                  | Uso                                                           |
-| ------------------------ | ------------------------------------------------------------- |
-| `pnpm run audit`         | Audita dependencias y falla ante vulnerabilidades altas.      |
-| `pnpm run dev`           | Inicia el servidor local de desarrollo.                       |
-| `pnpm run build`         | Ejecuta typecheck y genera el build de produccion en `dist`.  |
-| `pnpm run preview`       | Sirve localmente el build de produccion.                      |
-| `pnpm run start`         | Alias para servir el build con `vite preview --host 0.0.0.0`. |
-| `pnpm run lint`          | Ejecuta ESLint con cero warnings permitidos.                  |
-| `pnpm run lint:fix`      | Ejecuta ESLint aplicando correcciones automaticas.            |
-| `pnpm run format`        | Formatea archivos con Prettier.                               |
-| `pnpm run format:check`  | Verifica formato sin modificar archivos.                      |
-| `pnpm run typecheck`     | Ejecuta TypeScript sin emitir archivos.                       |
-| `pnpm test`              | Ejecuta pruebas con Vitest.                                   |
-| `pnpm run test:watch`    | Ejecuta Vitest en modo watch.                                 |
-| `pnpm run test:ui`       | Abre la interfaz de Vitest.                                   |
-| `pnpm run test:coverage` | Genera reporte de cobertura.                                  |
-| `pnpm run pwa:icons`     | Regenera los iconos basicos de la PWA.                        |
-| `pnpm run check`         | Ejecuta formato, lint, tests, typecheck y build.              |
+| Comando                    | Uso                                                           |
+| -------------------------- | ------------------------------------------------------------- |
+| `pnpm run api:contract`    | Consulta operaciones puntuales del contrato OpenAPI.          |
+| `pnpm run audit`           | Audita dependencias y falla ante vulnerabilidades altas.      |
+| `pnpm run dev`             | Inicia el servidor local de desarrollo.                       |
+| `pnpm run build`           | Ejecuta typecheck y genera el build de produccion en `dist`.  |
+| `pnpm run preview`         | Sirve localmente el build de produccion.                      |
+| `pnpm run start`           | Alias para servir el build con `vite preview --host 0.0.0.0`. |
+| `pnpm run storybook`       | Abre el catalogo interactivo de componentes.                  |
+| `pnpm run storybook:build` | Valida y genera el catalogo estatico en `storybook-static`.   |
+| `pnpm run test:storybook`  | Ejecuta stories, interacciones y auditorias axe en Chromium.  |
+| `pnpm run lint`            | Ejecuta ESLint con cero warnings permitidos.                  |
+| `pnpm run lint:fix`        | Ejecuta ESLint aplicando correcciones automaticas.            |
+| `pnpm run format`          | Formatea archivos con Prettier.                               |
+| `pnpm run format:check`    | Verifica formato sin modificar archivos.                      |
+| `pnpm run typecheck`       | Ejecuta TypeScript sin emitir archivos.                       |
+| `pnpm test`                | Ejecuta pruebas con Vitest.                                   |
+| `pnpm run test:watch`      | Ejecuta Vitest en modo watch.                                 |
+| `pnpm run test:ui`         | Abre la interfaz de Vitest.                                   |
+| `pnpm run test:coverage`   | Genera reporte de cobertura.                                  |
+| `pnpm run pwa:icons`       | Regenera los iconos basicos de la PWA.                        |
+| `pnpm run verify:quick`    | Ejecuta formato, lint, typecheck y tests (loop interno).      |
+| `pnpm run check`           | Ejecuta formato, lint, tests y builds de app y Storybook.     |
 
 ## Verificacion Recomendada
 
-Antes de considerar una tarea completa, ejecuta:
+Para el loop interno del agente (sin build ni Storybook) usa:
 
 ```bash
-pnpm run format:check
-pnpm run lint
-pnpm run typecheck
-pnpm test
-pnpm run build
+pnpm run verify:quick
 ```
 
-Tambien puedes ejecutar la cadena completa con:
+Antes de integrar cambios, ejecuta la cadena completa con builds de app y Storybook, auditorias de
+stories y `components:inventory:check`:
 
 ```bash
 pnpm run check
 ```
 
+Cuando cambies scripts del harness o su aislamiento, añade `pnpm run test:harness`.
+
 ## Estructura Del Proyecto
 
 ```txt
 src/
-├── components/       # Componentes reutilizables y layout
-├── data/             # Datos mock mientras no exista backend
-├── hooks/            # Hooks personalizados
+├── app/adapters/     # Puertos, contexto, http/ y composition root de adapters
+├── app/query/        # TanStack Query: cliente, claves y persistencia offline opcional
+├── components/       # Componentes compartidos (ui/ y layout/)
+├── data/mock/        # Datos de demostracion agrupados por dominio
+├── features/         # Modulos por dominio (model, adapters, hooks, ui)
+├── hooks/            # Hooks transversales (si no pertenecen a una feature)
 ├── pages/            # Vistas de nivel ruta
-├── pwa/              # Registro y pruebas de PWA
+├── pwa/              # Registro y fuente del service worker
 ├── store/            # Estado compartido con Zustand
 ├── styles/           # Estilos globales
-├── test/             # Utilidades de testing
+├── test/             # Factories y render con providers
 ├── theme/            # Sistema Chakra UI v3
 ├── types/            # Tipos de dominio frontend
 ├── utils/            # Utilidades puras
@@ -128,6 +137,73 @@ src/
 ├── main.tsx          # Punto de entrada
 └── setupTests.ts     # Setup global de Vitest
 ```
+
+Cada prueba vive junto al archivo que prueba (por ejemplo `catalogSelectors.ts` y
+`catalogSelectors.test.ts`), sin carpetas `__tests__`.
+
+## Catalogo De Componentes
+
+`docs/components/README.md` explica las decisiones de reutilizacion y
+`docs/components/INVENTORY.md` enumera automaticamente los componentes, stories y variantes
+publicadas. Antes de crear UI nueva, consulte esos indices, el barrel publico correspondiente y
+los archivos `*.stories.tsx` colocados junto al componente.
+
+Para explorar el catalogo visual:
+
+```bash
+pnpm run storybook
+```
+
+Con Storybook activo en `http://127.0.0.1:6006`, OpenCode puede consultar el catalogo mediante el
+servidor MCP configurado en `opencode.json`:
+
+```txt
+http://127.0.0.1:6006/mcp
+```
+
+Reinicie OpenCode despues de cambiar su configuracion MCP. El build tambien emite
+`storybook-static/manifests/components.json` para consumidores automaticos. Para regenerar el
+inventario versionado despues de cambiar stories:
+
+```bash
+pnpm run components:inventory
+pnpm run components:inventory:check
+```
+
+Antes de ejecutar las pruebas de Storybook por primera vez, instale Chromium y sus dependencias
+del sistema en el entorno de desarrollo o CI:
+
+```bash
+pnpm exec playwright install --with-deps chromium
+pnpm run test:storybook
+```
+
+`test:storybook` valida las `play` functions, accesibilidad con axe y los baselines visuales
+versionados en `.storybook/__image_snapshots__`. Cuando un cambio visual sea intencional, revise
+el resultado y actualice los baselines explicitamente:
+
+```bash
+pnpm run test:storybook:update
+```
+
+## Origen De Datos
+
+`createAppAdapters` es el unico composition root. Por defecto usa la API real; los mocks solo se
+usan en tests, Storybook y trabajo offline:
+
+```bash
+VITE_DATA_SOURCE=api    # valor por defecto: catalogo desde el contrato OpenAPI
+VITE_DATA_SOURCE=mock   # override explicito para offline o demos
+VITE_API_BASE_URL=https://api.utp.ac.pa/api   # obligatorio en produccion
+```
+
+En desarrollo la API se resuelve contra `http://localhost:3000/api`, asi que `pnpm run dev`
+requiere el backend levantado. Con `api`, el catalogo de unidades organizativas, programas,
+actividades y aulas se carga desde el backend. Asistencia, certificados, ponentes y reportes
+permanecen no disponibles con un error explicito hasta que el backend publique sus contratos.
+Cuando el OpenAPI cambie, actualiza dominio, mappers, `src/data/mock` y sus tests en el mismo
+cambio y valida con `pnpm run api:mocks-check` (requiere backend vivo). Los componentes de UI
+nunca importan `src/data/mock`: solo los adapters de cada feature y sus tests lo hacen.
 
 ## Aliases De Importacion
 
@@ -146,7 +222,7 @@ src/
 La aplicacion esta preparada como PWA basica. Incluye:
 
 - `public/manifest.webmanifest`
-- `public/sw.js`
+- `src/pwa/serviceWorker.js` (el build lo emite como `/sw.js`)
 - `public/offline.html`
 - Iconos instalables en `public/icons`
 - Registro del service worker desde `src/pwa/registerServiceWorker.ts`
@@ -227,4 +303,23 @@ GitHub Actions repite estos controles, genera un SBOM SPDX y publica resultados 
 
 Este repositorio debe mantenerse frontend-only. No se deben crear controladores, modelos de base de datos, migraciones, colas, mailers ni rutas de servidor aqui.
 
-Cuando exista backend, las llamadas HTTP deben concentrarse en una capa de cliente/API futura y no deben hardcodearse dentro de componentes de UI.
+Las llamadas HTTP deben concentrarse en la capa de adapters (`features/*/adapters` + `src/app/adapters/http/apiClient.ts`) y no deben hardcodearse dentro de componentes de UI. El backend se mantiene en el repositorio hermano `../SIPEG-UTP-BACKEND`.
+
+### Consulta Del Contrato API
+
+El contrato OpenAPI puede consultarse sin cargar la documentacion completa de Scalar:
+
+```bash
+pnpm run api:contract -- search "user profile"
+pnpm run api:contract -- get GET /api/v1/users/me
+pnpm run api:contract -- get GET /api/v1/users/me --pretty
+```
+
+Por defecto se consulta el contrato expuesto por el backend en ejecucion en `http://localhost:3000/api/openapi.json`; inicia el backend antes de consultar. Para usar un documento OpenAPI local u otro backend loopback:
+
+```bash
+pnpm run api:contract -- get GET /api/v1/users/me \
+  --source ./openapi.json
+```
+
+Tambien puede configurarse la fuente mediante `SIPEG_OPENAPI_SOURCE`. Por seguridad, las fuentes HTTP solo permiten el endpoint `/api/openapi.json` en direcciones loopback. El frontend nunca modifica el backend: solo lee el contrato en vivo, sin copias locales que puedan quedar desactualizadas.

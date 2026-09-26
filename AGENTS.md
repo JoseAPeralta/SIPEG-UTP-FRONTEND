@@ -2,24 +2,12 @@
 
 ## Project Overview
 
-- **Type**: Frontend web application.
-- **Scope of this repository**: React frontend only.
-- **Backend**: A separate Node.js API will be developed in its own repository/folder.
-- **Product goal**: Event management platform for users, events, attendance, certificates, classrooms, speaker registration, reports, and statistics.
-- **Frontend entry point**: `src/main.tsx`
-- **Main router**: `src/App.tsx`
-- **Package manager**: pnpm 12.5.1
-
-## Current Frontend Stack
-
-- React 19
-- TypeScript 6
-- Vite
-- Vitest
-- Testing Library
-- Chakra UI v3
-- React Router v8
-- Zustand
+- **Type/Scope**: React frontend web application only.
+- **Backend**: separate Node.js API in the sibling `../SIPEG-UTP-BACKEND` repository/folder.
+- **Product goal**: event management platform for users, events, attendance, certificates, classrooms, speaker registration, reports, and statistics.
+- **Entry point**: `src/main.tsx`; main router: `src/App.tsx`.
+- **Stack**: React 19, TypeScript 6, Vite, Vitest, Testing Library, Chakra UI v3, React Router v8, Zustand, TanStack Query v5.
+- **Package manager**: pnpm 12.5.1.
 
 ## Development Commands
 
@@ -27,24 +15,25 @@
 pnpm install
 pnpm run dev
 pnpm run build
-pnpm run lint
-pnpm test
-pnpm run test:ui
-pnpm run test:coverage
-pnpm run preview
+pnpm run verify:quick
+pnpm run check
+pnpm run test:storybook
+pnpm run test:harness
 ```
 
 ## Project Structure
 
 ```txt
 src/
-├── components/
-│   └── Layout/
-├── pages/
-├── store/
-├── hooks/
-├── utils/
-├── theme/
+├── app/adapters/       # Puertos, contexto, cliente HTTP (http/) y composition root
+├── app/query/          # Cliente TanStack Query, claves, persistencia offline y provider
+├── components/         # ui/ y layout/
+├── data/mock/          # Datos de demostracion por dominio
+├── features/<dominio>/ # model, adapters, hooks, ui y barrel
+├── hooks/              # Hooks transversales (si aparece uno que no pertenece a una feature)
+├── pages/  pwa/  store/  styles/
+├── test/               # Factories y render con providers
+├── theme/  types/  utils/
 ├── App.tsx
 ├── main.tsx
 └── setupTests.ts
@@ -52,132 +41,80 @@ src/
 
 ## Import Aliases
 
-```txt
-@           -> src/
-@components -> src/components/
-@pages      -> src/pages/
-@store      -> src/store/
-@hooks      -> src/hooks/
-@utils      -> src/utils/
-@theme      -> src/theme/
-```
+`@` -> `src/`, `@components` -> `src/components/`, `@pages` -> `src/pages/`, `@store` -> `src/store/`, `@hooks` -> `src/hooks/`, `@utils` -> `src/utils/`, `@theme` -> `src/theme/`.
 
 ## Frontend Rules
 
-- This repository must stay frontend-only.
-- Do not add backend API code to this repo.
-- Do not create Node.js controllers, database models, migrations, queues, mailers, or server routes here.
-- Backend integration should be isolated in future frontend service/API client files.
+- This repository must stay frontend-only: do not add backend API code, Node.js controllers, database models, migrations, queues, mailers, or server routes here.
 - Keep UI components separate from API request logic.
 - Use TypeScript for all frontend code.
-- Use Chakra UI v3 patterns.
-- Use `gap` instead of `spacing` in Chakra stack components.
-- Use Zustand only for shared frontend state.
-- Prefer local component state when the state is not global.
+- Use Chakra UI v3 patterns; use `gap` instead of `spacing` in Chakra stack components.
+- Use Zustand only for shared frontend state (session, unit preference, working context); prefer local component state otherwise.
 - Keep route-level views in `src/pages`.
-- Keep reusable UI and layout components in `src/components`.
-- Keep helpers in `src/utils`.
-- Keep custom hooks in `src/hooks`.
+- Keep reusable UI and layout components in `src/components` (`ui/` and `layout/`).
+- Keep pure helpers in `src/utils` and domain logic in `features/<dominio>/model`.
+- Keep custom hooks with their feature; `src/hooks` is only for cross-cutting hooks.
+- Use the backend vocabulary: `OrganizationalUnit`, `EventProgram`, `Activity`. The official resource is `activities`; there is no `/events` resource.
+- UI copy is Spanish: render the typed label maps in `features/<dominio>/model/*Labels.ts` for contract enums and never show raw API codes or backend error messages. Free-text backend content (names, descriptions, equipment) is shown as-is.
+- Every activity belongs to exactly one event program, and every event program belongs to exactly one organizational unit.
+
+## Architecture Rules
+
+- Adapter ports live in `src/app/adapters/contracts.ts`; `createAppAdapters` is the only composition root and selects mock or API through `VITE_DATA_SOURCE` (`api` by default; `mock` is reserved for tests, Storybook and offline work).
+- Server state lives in TanStack Query: `src/app/query` owns the client, the query keys and the optional persistence, and feature hooks call `useQuery`/`useMutation` over the injected adapters. Components never call adapters directly and never inline query keys.
+- Only `PERSISTED_QUERY_KEY_ROOTS` keys may be dehydrated to `localStorage`; never persist session, user or operations read models. Review the list before adding a persisted key. Logout must clear the query client and the persisted cache.
+- Only adapters and their tests may import `src/data/mock`; pages, components and hooks must not. `src/architecture.test.ts` enforces this.
+- The HTTP adapter must follow the OpenAPI contract and validate payloads before exposing them.
+- Hooks own loading, filtering, pagination and selection logic; UI components receive props and callbacks.
+- Connected feature views may call a feature hook; pages stay thin.
+- Use explicit barrels (`src/components`, `features/*`) for public imports; cross-feature imports always use the other feature's barrel. Internal files import their direct neighbor to avoid cycles. Lazy-loaded pages keep direct imports.
+- Do not create a global `src/index.ts` barrel.
+
+## Component Reuse Workflow
+
+- Before creating UI, consult `docs/components/README.md` and the generated `docs/components/INVENTORY.md`, then prefer composing an existing component over copying markup or creating a near-duplicate.
+- Keep cross-domain UI in `src/components`; keep domain-specific UI in `src/features/<domain>/ui` even when several pages reuse it.
+- Import reusable components through `@/components` or the owning feature barrel; files inside the same component module may import direct neighbors.
+- Public props use an exported TypeScript type; document intent, invariants, defaults and provider requirements rather than obvious syntax.
+- A new reusable component needs a catalog entry and a colocated `*.stories.tsx`, plus a `play` assertion when it has meaningful interaction; update contract, stories, tests and catalog together when behavior changes.
+- After changing stories, run `pnpm run components:inventory`; keep visual changes explicit by inspecting the result before `pnpm run test:storybook:update` and committing the updated baselines.
+- Do not add a new abstraction only to satisfy the catalog; private, single-use composition may remain local to its parent.
 
 ## Testing Rules
 
-- Test runner: Vitest.
-- Test environment: jsdom.
-- Setup file: `src/setupTests.ts`.
-- Prefer Testing Library for component behavior tests.
-- Add tests for meaningful behavior.
-- Run `pnpm test` when adding or modifying tested behavior.
+- Test runner: Vitest; environment: jsdom; setup file: `src/setupTests.ts`.
+- Colocate every test next to the file it tests; do not create `__tests__` directories.
+- Use `src/test/factories.ts` for data and `renderWithProviders` / `renderHookWithProviders` from `src/test/render.tsx` for providers.
+- Prefer Testing Library with semantic queries; add tests for meaningful behavior: pure functions, mappers, adapters, hooks and UI.
+- Run `pnpm run verify:quick` in the agent inner loop and `pnpm run check` before integration; both include `pnpm test` for new or modified behavior.
+- Run `pnpm run test:storybook` when adding or modifying component stories or visual behavior; `pnpm run storybook:build` validates Autodocs, the MCP manifest and the static component catalog.
+- Run `pnpm run components:inventory:check` after building Storybook to detect stale generated documentation.
 - Run `pnpm run build` before considering large frontend changes complete.
+- Run `pnpm run test:harness` when changing harness scripts or isolation behavior; the `harness-isolation` CI job runs it too.
 
 ## Backend Boundary
 
-- The backend will be a separate Node.js API project.
+- The backend is a separate Node.js API project in `../SIPEG-UTP-BACKEND`.
+- The frontend never modifies the backend: it only reads the live API contract.
 - Backend-specific instructions belong in the backend repository/folder.
 - This frontend should later consume the backend through a clear API client layer.
-- Do not assume the backend framework until it is chosen.
 - Do not hardcode backend URLs directly inside components.
 
-## Expected Product Features
+## API Contract Workflow
 
-## User Management
-
-- Create users.
-- Send email notifications.
-- Select faculty.
-- Select career.
-- Modify user data.
-- Assign permissions in events.
-
-## Events
-
-- Create large events or event series.
-- Large events include name, dates, custom label, and banner.
-- Add collaborators and permissions to large events.
-- Large event collaborators and permissions should be inherited by child events by default.
-- Create small events.
-- Small events include name, type, speaker, classroom, date, time, required equipment, and banner.
-- Small events can belong to a larger event series.
-- Add collaborators and permissions to small events.
-- If a small event belongs to a large event, show users who already have inherited permissions.
-- Delete large events.
-- Deleting a large event deletes all associated small events.
-- Ask whether registered attendees should be notified before deleting large events.
-- Delete small events.
-- Ask whether registered attendees should be notified before deleting small events.
-- Modify events.
-- Ask whether registered attendees should be notified before modifying events.
-- Show an event list view.
-- Show available and past events.
-- Allow filtering by faculty.
-- Prioritize events related to the selected faculty.
-
-## Attendance
-
-- Register attendance for a specific event.
-- Support QR code attendance.
-- Support manual attendance codes.
-
-## Certificates
-
-- Generate attendance certificates automatically.
-- Generate certificates from the attendance list.
-
-## Classroom Inventory
-
-- Manage available classrooms.
-- Classroom types include laboratory and classroom.
-- Store available hours.
-- Store available days.
-- Store maximum capacity.
-- Store amenities such as projector, desks, tables, smart board, and whiteboard.
-
-## Speaker Registration
-
-- Provide a speaker registration form.
-- Capture first name and last name.
-- Capture email.
-- Capture CV.
-- Capture approximate duration.
-- Capture talk type such as workshop, seminar, or similar.
-- Capture proposal title and content.
-- Capture submission date.
-- Optionally forward the form to a specific email.
-- Specify the event the speaker is applying to.
-
-## Reports And Statistics
-
-- Show attendance numbers.
-- Export reports to Excel.
-- Export reports to PDF.
+- Before adding or changing frontend HTTP integration, consult the relevant OpenAPI operation with `pnpm run api:contract -- search <text>` and `pnpm run api:contract -- get <METHOD> <PATH>`.
+- The default source is the running backend at `http://localhost:3000/api/openapi.json`; override with `--source` or `SIPEG_OPENAPI_SOURCE` only for a local OpenAPI document or a different loopback backend.
+- Query only the relevant operation; do not fetch `/api/docs` or load the complete OpenAPI document into model context.
+- Treat OpenAPI as the contract source; do not invent request fields, response fields, authentication requirements or status codes.
+- When OpenAPI changes, update `src/types/domain.ts`, the feature mappers, `src/data/mock` and their tests in the same change; validate with `pnpm run api:mocks-check` against the running backend (it is not part of CI).
+- The backend is read-only from this repository: never modify backend files, only read the contract. Make backend changes only in a separate backend task and repository context.
+- Do not execute state-changing API requests unless the user explicitly asks.
 
 ## Agent Guidelines
 
-- Inspect existing files before editing.
-- Preserve existing user changes.
-- Make the smallest correct change.
-- Keep frontend and backend concerns separated.
+- Inspect existing files before editing; preserve existing user changes; make the smallest correct change; keep frontend and backend concerns separated.
 - Do not add libraries unless there is a concrete reason.
-- Prefer clear domain naming for users, faculties, careers, permissions, events, attendance, classrooms, speakers, certificates, and reports.
+- Prefer clear domain naming for users, organizational units, careers, permissions, event programs, activities, attendance, classrooms, speakers, certificates, and reports.
 - When implementing frontend features, consider future integration with the separate Node.js API.
 
 ## Local Harness Safety
@@ -189,3 +126,10 @@ src/
 - Harness agents must not run Git commands or create commits.
 - A trusted local operator may create a local commit only after an explicit user request.
 - A request to create a local commit never authorizes a push or any other remote operation.
+
+## Documentation Map
+
+- Index: `docs/README.md`; product features: `docs/product/features.md`.
+- Component catalog: `docs/components/README.md`; visual identity: `DESIGN.md`.
+- Domain: `CONTEXT.md`; architecture decisions: `docs/adr/`; security: `docs/security/`.
+- Harness workflow: `harness/README.md` and `spec/README.md`.

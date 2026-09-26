@@ -55,9 +55,9 @@ pnpm analyze-component <path> --review
 
 ### File Naming
 
-- Test files: `ComponentName.spec.tsx` inside a same-level `__tests__/` directory
-- Placement rule: Component, hook, and utility tests must live in a sibling `__tests__/` folder at the same level as the source under test. For example, `foo/index.tsx` maps to `foo/__tests__/index.spec.tsx`, and `foo/bar.ts` maps to `foo/__tests__/bar.spec.ts`.
-- Integration tests: `web/__tests__/` directory
+- Test files: `ComponentName.test.tsx` colocated next to the source file
+- Placement rule: Component, hook, and utility tests live in the same folder as the source under test. For example, `foo/index.tsx` maps to `foo/index.test.tsx`, and `foo/bar.ts` maps to `foo/bar.test.ts`. Do not create `__tests__` directories.
+- Script tests: `scripts/<name>.test.sh` or `scripts/<name>.test.mjs` next to the script under test
 
 ## Test Structure Template
 

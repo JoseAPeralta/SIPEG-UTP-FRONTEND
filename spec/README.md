@@ -31,7 +31,9 @@ Unknown requirements remain open questions instead of being invented.
 - Agents must not receive GitHub connectors, tokens, SSH keys, credential helpers, or MCP tools.
 - Agents must not access, fetch, clone, pull, push, or otherwise communicate with a Git remote.
 - Agent workspaces must not contain `.git`, `.env*`, private keys, dependency directories, build
-  outputs, coverage reports, or local agent configuration.
+  outputs (`dist/`, `storybook-static/`), test artifacts (`coverage/`, `test-results/`,
+  `playwright-report/`, `*.tsbuildinfo`), editor metadata (`.DS_Store`), or local agent
+  configuration.
 - Agents must not run `git commit`. A trusted local operator may create a commit only after an
   explicit user request.
 - A request to commit never authorizes a push or any other remote operation.
@@ -62,3 +64,11 @@ Verify both isolation layers with:
 ```bash
 pnpm run test:harness
 ```
+
+## Continuous Integration
+
+The `harness-isolation` job runs `pnpm run test:harness` on `ubuntu-latest`. The runner must allow
+unprivileged user namespaces; the job enables them with
+`sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0`. If the runner blocks `unshare --user`,
+run `pnpm run test:harness` locally before integrating. This check is mandatory and has no silent
+exclusion (`continue-on-error`).
