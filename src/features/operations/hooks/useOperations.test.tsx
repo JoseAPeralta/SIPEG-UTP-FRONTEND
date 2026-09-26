@@ -1,7 +1,7 @@
 import { act, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { AppAdapters } from "@/app/adapters";
+import { createAppAdapters, type AppAdapters } from "@/app/adapters";
 import { createCatalog, createOperationsReadModel } from "@/test/factories";
 import { renderHookWithProviders } from "@/test/render";
 
@@ -9,6 +9,7 @@ import { useOperations } from "./useOperations";
 
 function buildAdapters(overrides: Partial<AppAdapters> = {}): AppAdapters {
   return {
+    ...createAppAdapters({ source: "mock" }),
     activityCatalog: { loadCatalog: vi.fn().mockResolvedValue(createCatalog()) },
     operations: { loadOperations: vi.fn().mockResolvedValue(createOperationsReadModel()) },
     ...overrides,
