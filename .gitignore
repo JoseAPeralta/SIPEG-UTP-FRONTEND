@@ -8,3 +8,7 @@
 /build/
 /coverage/
 /dist/
+/playwright-report/
+/storybook-static/
+/test-results/
+/.storybook/__image_snapshots__/__diff_output__/

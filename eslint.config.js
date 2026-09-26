@@ -22,6 +22,7 @@ export default tseslint.config(
       "coverage/",
       "dist/",
       "node_modules/",
+      "storybook-static/",
       "*.config.d.ts",
     ],
   },
@@ -76,11 +77,35 @@ export default tseslint.config(
     },
   },
   {
-    files: ["public/sw.js"],
+    files: ["src/pwa/serviceWorker.js"],
     languageOptions: {
       globals: {
         ...globals.serviceworker,
       },
+    },
+  },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/App.tsx", "src/main.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [{ caseSensitive: true, group: ["@/pages/*", "@pages/*"] }],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/App.tsx", "src/main.tsx", "**/*.test.*"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [{ caseSensitive: true, group: ["@/pages/*", "@pages/*", "@/App"] }],
+        },
+      ],
     },
   },
   prettierConfig,
