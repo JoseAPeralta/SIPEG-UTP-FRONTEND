@@ -84,11 +84,13 @@ components compartidos + types + utils
 
 ### Adapters
 
-- `src/app/adapters/contracts.ts` define los puertos del frontend: `ActivityCatalogAdapter` y `OperationsAdapter`.
-- `src/app/adapters/createAppAdapters.ts` es el unico composition root; usa la API por defecto (`VITE_DATA_SOURCE=api`) y deja `mock` como override explicito para pruebas, Storybook y modo offline.
+- `src/app/adapters/contracts.ts` define los puertos del frontend: `ActivityCatalogAdapter`, `AuthAdapter` y `OperationsAdapter`.
+- `src/app/adapters/createAppAdapters.ts` es el unico composition root; usa la API por defecto (`VITE_DATA_SOURCE=api`) y deja `mock` como override explicito para pruebas, Storybook y modo offline. Para el origen `api` inyecta el access token de la sesion en memoria como `Authorization: Bearer`.
 - `src/app/adapters/http/apiClient.ts` concentra el cliente HTTP; ningun componente hardcodea URLs.
-- `src/app/query` concentra el estado de servidor con TanStack Query: el cliente, las claves, la persistencia offline opcional y el provider. Los hooks de cada feature llaman `useQuery`/`useMutation` sobre los adapters inyectados y conservan su forma publica; `useActivityCatalog` y `useOperations` son la puerta de entrada al catalogo y a operaciones.
-- La persistencia offline es opcional (`VITE_QUERY_PERSISTENCE=on`), guarda solo el catalogo publico en `localStorage` y se invalida con `VITE_APP_VERSION`; nunca persiste sesion ni el read model de operaciones. El cierre de sesion limpia el cliente y la cache persistida.
+- `src/app/query` concentra el estado de servidor con TanStack Query: el cliente, las claves, la persistencia offline opcional y el provider. Los hooks de cada feature llaman `useQuery`/`useMutation` sobre los adapters inyectados y conservan su forma publica; `useActivityCatalog(access)` exige declarar la frontera `public` o `administrative`, y `useOperations` es la puerta de entrada a operaciones.
+- La sesion vive en Zustand: perfil y access token solo en memoria, refresh token y expiracion en `sessionStorage`; al recargar se rota el refresh token y se carga `users/me` antes de renderizar rutas protegidas. El cierre de sesion revoca el refresh token, limpia el store, el contexto de trabajo, la preferencia de unidad, la cache de Query y la cache publica persistida (ADR-0009).
+- Las rutas administrativas exigen sesion y rol `ADMIN`; la autorizacion efectiva sigue siendo del backend.
+- La persistencia offline es opcional (`VITE_QUERY_PERSISTENCE=on`), guarda solo el catalogo publico en `localStorage` y se invalida con `VITE_APP_VERSION`; nunca persiste sesion, tokens ni el read model de operaciones (ADR-0010).
 - Los adapters concretos viven en cada feature (`features/*/adapters`).
 - Solo los adapters (y sus pruebas) importan desde `src/data/mock`; paginas, componentes y hooks no conocen los mocks.
 - Cuando el OpenAPI cambia, se actualizan dominio, mappers, `src/data/mock` y tests en el mismo cambio, y se valida con `pnpm run api:mocks-check` (backend vivo, no CI).

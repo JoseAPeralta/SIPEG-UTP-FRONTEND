@@ -77,6 +77,50 @@
       "title": "Features/Activity Catalog/EventProgramCard"
     },
     {
+      "componentPath": "src/features/auth/ui/LoginForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-loginform--authentication-error",
+          "name": "Authentication Error",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-loginform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-loginform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/LoginForm.stories.tsx",
+      "title": "Features/Auth/LoginForm"
+    },
+    {
+      "componentPath": "src/components/layout/AppMenu.tsx",
+      "stories": [
+        {
+          "id": "layout-appmenu--administrator",
+          "name": "Administrator",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-appmenu--logged-out",
+          "name": "Logged Out",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-appmenu--standard-user",
+          "name": "Standard User",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AppMenu.stories.tsx",
+      "title": "Layout/AppMenu"
+    },
+    {
       "componentPath": "src/components/ui/AsyncStateView.tsx",
       "stories": [
         {

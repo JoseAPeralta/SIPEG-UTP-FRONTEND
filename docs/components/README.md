@@ -76,17 +76,25 @@ la cache del proyecto, no en el repositorio.
 
 ## Layout Compartido
 
-| Modulo        | Import publico | Uso                                                             | Requisitos                                                |
-| ------------- | -------------- | --------------------------------------------------------------- | --------------------------------------------------------- |
-| `AppLayout`   | `@/components` | Marco de rutas publicas con menu, contenido y footer.           | Debe renderizarse dentro de React Router por su `Outlet`. |
-| `AdminLayout` | `@/components` | Marco de rutas administrativas con selector de contexto.        | Router, adapters, sesion y working context.               |
-| `AppMenu`     | `@/components` | Navegacion principal cuando el layout completo no es apropiado. | Router y store de sesion.                                 |
-| `AdminMenu`   | `@/components` | Navegacion del panel y selector de contexto.                    | Router, adapters y working context.                       |
-| `AppFooter`   | `@/components` | Footer compartido de SIPEG.                                     | `Provider`.                                               |
-| `SkipLink`    | `@/components` | Enlace inicial para saltar a `#main-content`.                   | La pagina debe exponer ese destino.                       |
+| Modulo        | Import publico | Uso                                                             | Requisitos                                                | Story                                                                    |
+| ------------- | -------------- | --------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `AppLayout`   | `@/components` | Marco de rutas publicas con menu, contenido y footer.           | Debe renderizarse dentro de React Router por su `Outlet`. | Pendiente                                                                |
+| `AdminLayout` | `@/components` | Marco de rutas administrativas con selector de contexto.        | Router, adapters, sesion y working context.               | Pendiente                                                                |
+| `AppMenu`     | `@/components` | Navegacion principal cuando el layout completo no es apropiado. | Router y store de sesion.                                 | [`AppMenu.stories.tsx`](../../src/components/layout/AppMenu.stories.tsx) |
+| `AdminMenu`   | `@/components` | Navegacion del panel y selector de contexto.                    | Router, adapters y working context.                       | Pendiente                                                                |
+| `AppFooter`   | `@/components` | Footer compartido de SIPEG.                                     | `Provider`.                                               | Pendiente                                                                |
+| `SkipLink`    | `@/components` | Enlace inicial para saltar a `#main-content`.                   | La pagina debe exponer ese destino.                       | Pendiente                                                                |
 
-Los layouts se validan actualmente mediante las pruebas de integracion de `App`. Sus stories se
-incorporaran cuando existan fixtures estables para sesion y rutas completas.
+Los layouts se validan mediante las pruebas de integracion de `App`; `AppMenu` tambien cubre sus
+estados anonimo, administrativo y de usuario estandar en Storybook.
+
+## Autenticacion
+
+Import publico: `@/features/auth`.
+
+| Modulo      | Usar cuando                                         | Evitar cuando                                       | Requisitos                  | Story                                                                       |
+| ----------- | --------------------------------------------------- | --------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------- |
+| `LoginForm` | Se solicitan credenciales para una sesion API real. | La identidad ya esta autenticada o en restauracion. | `Provider`; callback async. | [`LoginForm.stories.tsx`](../../src/features/auth/ui/LoginForm.stories.tsx) |
 
 ## Catalogo De Actividades
 

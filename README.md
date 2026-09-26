@@ -18,6 +18,7 @@ Leyenda: `X` pendiente, `✓` finalizada.
 | X      | Actividades                | Crear actividades con nombre, tipo, ponentes, aula, fecha, hora, equipamiento requerido y banner.           |
 | X      | Herencia de permisos       | Heredar colaboradores y permisos desde programas de eventos hacia sus actividades por defecto.              |
 | ✓      | Catalogo de actividades    | Mostrar actividades disponibles y pasadas, con filtros por unidad organizativa, tipo y programa.            |
+| ✓      | Autenticacion y sesion     | Iniciar sesion con la API real, restaurar la sesion, cerrar sesion y proteger rutas administrativas.        |
 | ✓      | Filtros por unidad         | Filtrar actividades por unidad organizativa y tipo de actividad.                                            |
 | X      | Modificacion de eventos    | Modificar programas y actividades, y preguntar si se debe notificar a asistentes registrados.               |
 | X      | Archivado de programas     | Archivar programas de eventos en lugar de eliminarlos fisicamente.                                          |
@@ -200,11 +201,34 @@ VITE_API_BASE_URL=https://api.utp.ac.pa   # origin del API; obligatorio en produ
 En desarrollo la API se resuelve contra `http://localhost:3000`, asi que `pnpm run dev`
 requiere el backend levantado. La URL debe ser el origin del API, sin sufijo `/api`, porque los
 endpoints ya incluyen el prefijo `/api/v1`. Con `api`, el catalogo de unidades organizativas, programas,
-actividades y aulas se carga desde el backend. Asistencia, certificados, ponentes y reportes
-permanecen no disponibles con un error explicito hasta que el backend publique sus contratos.
+actividades y aulas se carga desde el backend, y el inicio de sesion usa `POST /api/v1/auth/login`.
+Asistencia, certificados, ponentes y reportes permanecen no disponibles con un error explicito hasta
+que el backend publique sus contratos; el dashboard conserva las metricas del catalogo y avisa de
+las que dependen de esas operaciones.
 Cuando el OpenAPI cambie, actualiza dominio, mappers, `src/data/mock` y sus tests en el mismo
 cambio y valida con `pnpm run api:mocks-check` (requiere backend vivo). Los componentes de UI
 nunca importan `src/data/mock`: solo los adapters de cada feature y sus tests lo hacen.
+
+## Autenticacion Y Sesion
+
+El flujo de autenticacion consume el contrato OpenAPI real (`auth/login`, `auth/refresh`,
+`auth/logout` y `users/me`) y sigue las decisiones de
+[ADR-0009](docs/adr/adr-0009-auth-session-token-storage.md):
+
+- El perfil autenticado y el access token viven solo en memoria (Zustand); nunca se persisten.
+- El refresh token y su expiracion viven en `sessionStorage` y se rotan al restaurar la sesion.
+- Al recargar, la aplicacion rota el refresh token y consulta `users/me` antes de renderizar rutas
+  protegidas; si falla, limpia la sesion y vuelve al estado anonimo.
+- El access token se adjunta como `Authorization: Bearer` a las peticiones del API mientras exista
+  sesion; el composition root lo lee del store, por lo que los adapters no conocen la sesion.
+- `POST /api/v1/auth/logout` revoca el refresh token y, aunque la red falle, el cierre local limpia
+  sesion, contexto de trabajo, preferencia de unidad, cache de TanStack Query y cache publica
+  persistida.
+- Las rutas administrativas exigen sesion y rol `ADMIN`; el backend conserva la autoridad final.
+
+Con `VITE_DATA_SOURCE=mock`, el adapter de autenticacion acepta la cuenta de demostracion
+`mariana.rodriguez@example.edu` con la contrasena `sipeg-demo`. Con la API real usa las credenciales
+de tu cuenta institucional.
 
 ## Aliases De Importacion
 
