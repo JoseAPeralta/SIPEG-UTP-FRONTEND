@@ -36,6 +36,7 @@ function createAuthAdapter(overrides: Partial<AuthAdapter> = {}): AuthAdapter {
     login: vi.fn().mockResolvedValue(tokens),
     logout: vi.fn().mockResolvedValue(undefined),
     refresh: vi.fn().mockResolvedValue(tokens),
+    verifyEmail: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
