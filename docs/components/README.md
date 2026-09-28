@@ -61,32 +61,33 @@ la cache del proyecto, no en el repositorio.
 
 ## UI Compartida
 
-| Modulo                   | Import publico | Usar cuando                                                                                           | Evitar cuando                                                                | Requisitos                                        | Story                                                                                      |
-| ------------------------ | -------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `Surface`                | `@/components` | Se necesita un panel con borde, elevacion, padding o seleccion consistentes.                          | Un primitivo Chakra ya expresa la estructura sin repetir tratamiento visual. | `Provider`                                        | [`Surface.stories.tsx`](../../src/components/ui/Surface.stories.tsx)                       |
-| `AsyncStateView`         | `@/components` | Una carga asincrona alterna entre loading, error y contenido listo.                                   | El estado es estatico o requiere una composicion de dominio mas especifica.  | `Provider`                                        | [`AsyncStateView.stories.tsx`](../../src/components/ui/AsyncStateView.stories.tsx)         |
-| `FeedbackState`          | `@/components` | Se explica un estado vacio, bloqueado o fallido con una accion opcional.                              | Solo se necesita anunciar una linea corta de estado.                         | `Provider`                                        | [`FeedbackState.stories.tsx`](../../src/components/ui/FeedbackState.stories.tsx)           |
-| `StatusPanel`            | `@/components` | Se anuncia un mensaje corto con rol `status` o `alert`.                                               | Se necesita titulo, descripcion y accion.                                    | `Provider`                                        | [`StatusPanel.stories.tsx`](../../src/components/ui/StatusPanel.stories.tsx)               |
-| `SelectionRequiredState` | `@/components` | Una vista administrativa exige seleccionar programa o actividad.                                      | La ausencia no depende del contexto de trabajo.                              | `Provider`                                        | Pendiente                                                                                  |
-| `MetricCard`             | `@/components` | Se muestra una metrica en jerarquia standard, operational o summary.                                  | El contenido no es una cifra resumida.                                       | `Provider`; `tone` solo afecta a `standard`       | [`MetricCard.stories.tsx`](../../src/components/ui/MetricCard.stories.tsx)                 |
-| `ModuleShell`            | `@/components` | Una pagina necesita encabezado principal, descripcion, acciones y contenido.                          | Se introduce una seccion interna de una pagina.                              | Debe ser el encabezado `h1` de la vista           | [`ModuleShell.stories.tsx`](../../src/components/ui/ModuleShell.stories.tsx)               |
-| `SectionHeader`          | `@/components` | Se introduce una seccion dentro de un modulo.                                                         | Se necesita el encabezado principal de la ruta.                              | Mantener jerarquia desde el `h1` de `ModuleShell` | [`SectionHeader.stories.tsx`](../../src/components/ui/SectionHeader.stories.tsx)           |
-| `PaginationControls`     | `@/components` | Una coleccion paginada conoce pagina, tamaño y total; muestra el rango visible y se oculta sin items. | La coleccion usa scroll infinito o carga incremental.                        | Estado de pagina controlado por el caller         | [`PaginationControls.stories.tsx`](../../src/components/ui/PaginationControls.stories.tsx) |
-| `Provider`               | `@/components` | Se compone la raiz de aplicacion, pruebas o herramientas de UI.                                       | Dentro de componentes de producto ya envueltos por la raiz.                  | Chakra system y `next-themes`                     | Configurado globalmente en Storybook                                                       |
+| Modulo                   | Import publico | Usar cuando                                                                                           | Evitar cuando                                                                | Requisitos                                        | Story                                                                                              |
+| ------------------------ | -------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `Surface`                | `@/components` | Se necesita un panel con borde, elevacion, padding o seleccion consistentes.                          | Un primitivo Chakra ya expresa la estructura sin repetir tratamiento visual. | `Provider`                                        | [`Surface.stories.tsx`](../../src/components/ui/Surface.stories.tsx)                               |
+| `AsyncStateView`         | `@/components` | Una carga asincrona alterna entre loading, error y contenido listo.                                   | El estado es estatico o requiere una composicion de dominio mas especifica.  | `Provider`                                        | [`AsyncStateView.stories.tsx`](../../src/components/ui/AsyncStateView.stories.tsx)                 |
+| `FeedbackState`          | `@/components` | Se explica un estado vacio, bloqueado o fallido con una accion opcional.                              | Solo se necesita anunciar una linea corta de estado.                         | `Provider`                                        | [`FeedbackState.stories.tsx`](../../src/components/ui/FeedbackState.stories.tsx)                   |
+| `StatusPanel`            | `@/components` | Se anuncia un mensaje corto con rol `status` o `alert`.                                               | Se necesita titulo, descripcion y accion.                                    | `Provider`                                        | [`StatusPanel.stories.tsx`](../../src/components/ui/StatusPanel.stories.tsx)                       |
+| `SelectionRequiredState` | `@/components` | Una vista administrativa exige seleccionar programa o actividad.                                      | La ausencia no depende del contexto de trabajo.                              | `Provider`                                        | [`SelectionRequiredState.stories.tsx`](../../src/components/ui/SelectionRequiredState.stories.tsx) |
+| `MetricCard`             | `@/components` | Se muestra una metrica en jerarquia standard, operational o summary.                                  | El contenido no es una cifra resumida.                                       | `Provider`; `tone` solo afecta a `standard`       | [`MetricCard.stories.tsx`](../../src/components/ui/MetricCard.stories.tsx)                         |
+| `ModuleShell`            | `@/components` | Una pagina necesita encabezado principal, descripcion, acciones y contenido.                          | Se introduce una seccion interna de una pagina.                              | Debe ser el encabezado `h1` de la vista           | [`ModuleShell.stories.tsx`](../../src/components/ui/ModuleShell.stories.tsx)                       |
+| `SectionHeader`          | `@/components` | Se introduce una seccion dentro de un modulo.                                                         | Se necesita el encabezado principal de la ruta.                              | Mantener jerarquia desde el `h1` de `ModuleShell` | [`SectionHeader.stories.tsx`](../../src/components/ui/SectionHeader.stories.tsx)                   |
+| `PaginationControls`     | `@/components` | Una coleccion paginada conoce pagina, tamaño y total; muestra el rango visible y se oculta sin items. | La coleccion usa scroll infinito o carga incremental.                        | Estado de pagina controlado por el caller         | [`PaginationControls.stories.tsx`](../../src/components/ui/PaginationControls.stories.tsx)         |
+| `Provider`               | `@/components` | Se compone la raiz de aplicacion, pruebas o herramientas de UI.                                       | Dentro de componentes de producto ya envueltos por la raiz.                  | Chakra system y `next-themes`                     | Configurado globalmente en Storybook                                                               |
 
 ## Layout Compartido
 
-| Modulo        | Import publico | Uso                                                             | Requisitos                                                | Story                                                                    |
-| ------------- | -------------- | --------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `AppLayout`   | `@/components` | Marco de rutas publicas con menu, contenido y footer.           | Debe renderizarse dentro de React Router por su `Outlet`. | Pendiente                                                                |
-| `AdminLayout` | `@/components` | Marco de rutas administrativas con selector de contexto.        | Router, adapters, sesion y working context.               | Pendiente                                                                |
-| `AppMenu`     | `@/components` | Navegacion principal cuando el layout completo no es apropiado. | Router y store de sesion.                                 | [`AppMenu.stories.tsx`](../../src/components/layout/AppMenu.stories.tsx) |
-| `AdminMenu`   | `@/components` | Navegacion del panel y selector de contexto.                    | Router, adapters y working context.                       | Pendiente                                                                |
-| `AppFooter`   | `@/components` | Footer compartido de SIPEG.                                     | `Provider`.                                               | Pendiente                                                                |
-| `SkipLink`    | `@/components` | Enlace inicial para saltar a `#main-content`.                   | La pagina debe exponer ese destino.                       | Pendiente                                                                |
+| Modulo        | Import publico | Uso                                                              | Requisitos                                                | Story                                                                            |
+| ------------- | -------------- | ---------------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `AppLayout`   | `@/components` | Marco de rutas publicas con menu, contenido y footer.            | Debe renderizarse dentro de React Router por su `Outlet`. | [`AppLayout.stories.tsx`](../../src/components/layout/AppLayout.stories.tsx)     |
+| `AdminLayout` | `@/components` | Marco de rutas administrativas con selector de contexto.         | Router, adapters, sesion y working context.               | [`AdminLayout.stories.tsx`](../../src/components/layout/AdminLayout.stories.tsx) |
+| `AppMenu`     | `@/components` | Navegacion principal cuando el layout completo no es apropiado.  | Router y store de sesion.                                 | [`AppMenu.stories.tsx`](../../src/components/layout/AppMenu.stories.tsx)         |
+| `AdminMenu`   | `@/components` | Navegacion de todos los modulos `/admin` y selector de contexto. | Router, adapters, working context y sesion `ADMIN`.       | [`AdminMenu.stories.tsx`](../../src/components/layout/AdminMenu.stories.tsx)     |
+| `AppFooter`   | `@/components` | Footer compartido de SIPEG.                                      | `Provider`.                                               | [`AppFooter.stories.tsx`](../../src/components/layout/AppFooter.stories.tsx)     |
+| `SkipLink`    | `@/components` | Enlace inicial para saltar a `#main-content`.                    | La pagina debe exponer ese destino.                       | [`SkipLink.stories.tsx`](../../src/components/layout/SkipLink.stories.tsx)       |
 
-Los layouts se validan mediante las pruebas de integracion de `App`; `AppMenu` tambien cubre sus
-estados anonimo, administrativo y de usuario estandar en Storybook.
+Los layouts se validan mediante las pruebas de integracion de `App` y sus propias stories. `AppMenu`
+cubre sus estados anonimo, administrativo y de usuario estandar; `AdminMenu` cubre la navegacion
+completa del panel y los estados de contexto de trabajo.
 
 ## Autenticacion
 
@@ -95,6 +96,14 @@ Import publico: `@/features/auth`.
 | Modulo      | Usar cuando                                         | Evitar cuando                                       | Requisitos                  | Story                                                                       |
 | ----------- | --------------------------------------------------- | --------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------- |
 | `LoginForm` | Se solicitan credenciales para una sesion API real. | La identidad ya esta autenticada o en restauracion. | `Provider`; callback async. | [`LoginForm.stories.tsx`](../../src/features/auth/ui/LoginForm.stories.tsx) |
+
+## Registro
+
+Import publico: `@/features/registration`.
+
+| Modulo         | Usar cuando                                                   | Evitar cuando                           | Requisitos                                      | Story                                                                                     |
+| -------------- | ------------------------------------------------------------- | --------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `RegisterForm` | Se crea una cuenta publica con unidad y carrera relacionadas. | Un administrador crea o edita usuarios. | `Provider`; catalogos publicos; callback async. | [`RegisterForm.stories.tsx`](../../src/features/registration/ui/RegisterForm.stories.tsx) |
 
 ## Catalogo De Actividades
 
@@ -109,9 +118,9 @@ Import publico: `@/features/activity-catalog`.
 
 ## Contexto De Trabajo
 
-| Modulo                 | Import publico               | Uso                                                    | Requisitos                           | Story     |
-| ---------------------- | ---------------------------- | ------------------------------------------------------ | ------------------------------------ | --------- |
-| `WorkingContextSelect` | `@/features/working-context` | Seleccionar programa o actividad activa para el panel. | Adapters y store de working context. | Pendiente |
+| Modulo                 | Import publico               | Uso                                                    | Requisitos                                  | Story                                                                                                        |
+| ---------------------- | ---------------------------- | ------------------------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `WorkingContextSelect` | `@/features/working-context` | Seleccionar programa o actividad activa para el panel. | Adapters, sesion `ADMIN` y working context. | [`WorkingContextSelect.stories.tsx`](../../src/features/working-context/ui/WorkingContextSelect.stories.tsx) |
 
 ## Definicion De Terminado
 

@@ -2,6 +2,7 @@ import type { Preview } from "@storybook/react-vite";
 import { MemoryRouter } from "react-router";
 
 import { AppAdaptersProvider, createAppAdapters } from "../src/app/adapters";
+import { QueryProvider } from "../src/app/query";
 import { Provider } from "../src/components/ui/provider";
 import "../src/styles/global.css";
 
@@ -12,9 +13,11 @@ const preview: Preview = {
     (Story) => (
       <Provider>
         <AppAdaptersProvider adapters={adapters}>
-          <MemoryRouter>
-            <Story />
-          </MemoryRouter>
+          <QueryProvider persist={false}>
+            <MemoryRouter>
+              <Story />
+            </MemoryRouter>
+          </QueryProvider>
         </AppAdaptersProvider>
       </Provider>
     ),

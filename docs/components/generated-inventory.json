@@ -99,6 +99,118 @@
       "title": "Features/Auth/LoginForm"
     },
     {
+      "componentPath": "src/features/registration/ui/RegisterForm.tsx",
+      "stories": [
+        {
+          "id": "features-registration-registerform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-registration-registerform--registration-error",
+          "name": "Registration Error",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-registration-registerform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/registration/ui/RegisterForm.stories.tsx",
+      "title": "Features/Registration/RegisterForm"
+    },
+    {
+      "componentPath": "src/features/working-context/ui/WorkingContextSelect.tsx",
+      "stories": [
+        {
+          "id": "features-working-context-workingcontextselect--activity-selected",
+          "name": "Activity Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-working-context-workingcontextselect--change-selection",
+          "name": "Change Selection",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-working-context-workingcontextselect--program-selected",
+          "name": "Program Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-working-context-workingcontextselect--without-selection",
+          "name": "Without Selection",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/working-context/ui/WorkingContextSelect.stories.tsx",
+      "title": "Features/Working Context/WorkingContextSelect"
+    },
+    {
+      "componentPath": "src/components/layout/AdminLayout.tsx",
+      "stories": [
+        {
+          "id": "layout-adminlayout--with-outlet",
+          "name": "With Outlet",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-adminlayout--without-working-context",
+          "name": "Without Working Context",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AdminLayout.stories.tsx",
+      "title": "Layout/AdminLayout"
+    },
+    {
+      "componentPath": "src/components/layout/AdminMenu.tsx",
+      "stories": [
+        {
+          "id": "layout-adminmenu--administrator",
+          "name": "Administrator",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-adminmenu--with-context-selected",
+          "name": "With Context Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-adminmenu--without-context-selected",
+          "name": "Without Context Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AdminMenu.stories.tsx",
+      "title": "Layout/AdminMenu"
+    },
+    {
+      "componentPath": "src/components/layout/AppFooter.tsx",
+      "stories": [
+        {
+          "id": "layout-appfooter--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AppFooter.stories.tsx",
+      "title": "Layout/AppFooter"
+    },
+    {
+      "componentPath": "src/components/layout/AppLayout.tsx",
+      "stories": [
+        {
+          "id": "layout-applayout--with-outlet",
+          "name": "With Outlet",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AppLayout.stories.tsx",
+      "title": "Layout/AppLayout"
+    },
+    {
       "componentPath": "src/components/layout/AppMenu.tsx",
       "stories": [
         {
@@ -119,6 +231,18 @@
       ],
       "storyPath": "src/components/layout/AppMenu.stories.tsx",
       "title": "Layout/AppMenu"
+    },
+    {
+      "componentPath": "src/components/layout/SkipLink.tsx",
+      "stories": [
+        {
+          "id": "layout-skiplink--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/SkipLink.stories.tsx",
+      "title": "Layout/SkipLink"
     },
     {
       "componentPath": "src/components/ui/AsyncStateView.tsx",
@@ -266,6 +390,18 @@
       ],
       "storyPath": "src/components/ui/SectionHeader.stories.tsx",
       "title": "Shared/UI/SectionHeader"
+    },
+    {
+      "componentPath": "src/components/ui/SelectionRequiredState.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-selectionrequiredstate--selection-required",
+          "name": "Selection Required",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/SelectionRequiredState.stories.tsx",
+      "title": "Shared/UI/SelectionRequiredState"
     },
     {
       "componentPath": "src/components/ui/StatusPanel.tsx",
