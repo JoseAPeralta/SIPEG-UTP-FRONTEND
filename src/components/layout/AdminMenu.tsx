@@ -6,6 +6,9 @@ import { WorkingContextSelect } from "@/features/working-context";
 const menuOptions = [
   { label: "Panel", path: "/admin" },
   { label: "Eventos", path: "/admin/eventos" },
+  { label: "Aulas", path: "/admin/aulas" },
+  { label: "Ponentes", path: "/admin/ponentes" },
+  { label: "Usuarios", path: "/admin/usuarios" },
   { label: "Asistencia", path: "/admin/asistencia" },
   { label: "Certificados", path: "/admin/certificados" },
   { label: "Reportes", path: "/admin/reportes" },

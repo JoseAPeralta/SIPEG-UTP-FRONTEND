@@ -65,16 +65,19 @@ export function App() {
           <Route path="eventos" element={<RedirectToAdminRoute path="eventos" />} />
           <Route path="asistencia" element={<RedirectToAdminRoute path="asistencia" />} />
           <Route path="certificados" element={<RedirectToAdminRoute path="certificados" />} />
-          <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
-          <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
+          <Route path="aulas" element={<RedirectToAdminRoute path="aulas" />} />
+          <Route path="ponentes" element={<RedirectToAdminRoute path="ponentes" />} />
           <Route path="reportes" element={<RedirectToAdminRoute path="reportes" />} />
-          <Route path="usuarios" element={renderRoute(<UsersPage />)} />
+          <Route path="usuarios" element={<RedirectToAdminRoute path="usuarios" />} />
         </Route>
       </Route>
       <Route element={<RequireAdminSession />}>
         <Route path="admin" element={<AdminLayout />}>
           <Route index element={renderRoute(<DashboardPage />)} />
           <Route path="eventos" element={renderRoute(<ActivityCatalogPage />)} />
+          <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
+          <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
+          <Route path="usuarios" element={renderRoute(<UsersPage />)} />
           <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
           <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
           <Route path="reportes" element={renderRoute(<ReportsPage />)} />

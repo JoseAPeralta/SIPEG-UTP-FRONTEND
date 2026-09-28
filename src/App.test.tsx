@@ -115,6 +115,32 @@ describe("App", () => {
     expect(screen.getByRole("navigation", { name: /navegacion del panel/i })).toBeInTheDocument();
   });
 
+  it.each([
+    ["aulas", /aulas disponibles/i],
+    ["ponentes", /registro de ponentes/i],
+    ["usuarios", /usuarios y permisos/i],
+  ])("should render /admin/%s inside the admin layout", async (path, heading) => {
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
+
+    renderWithProviders(<App />, { route: `/admin/${path}` });
+
+    expect(await screen.findByRole("heading", { level: 1, name: heading })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /navegacion del panel/i })).toBeInTheDocument();
+  });
+
+  it.each([
+    ["aulas", /aulas disponibles/i],
+    ["ponentes", /registro de ponentes/i],
+    ["usuarios", /usuarios y permisos/i],
+  ])("should redirect the legacy /%s route to the admin layout", async (path, heading) => {
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
+
+    renderWithProviders(<App />, { route: `/${path}` });
+
+    expect(await screen.findByRole("heading", { level: 1, name: heading })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /navegacion del panel/i })).toBeInTheDocument();
+  });
+
   it("should keep admin modules scoped to the selected event program", async () => {
     const user = userEvent.setup();
     useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
