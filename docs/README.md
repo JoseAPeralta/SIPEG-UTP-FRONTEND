@@ -19,7 +19,14 @@ documento es el punto de entrada al detalle.
 
 ## Producto
 
-- [`product/features.md`](./product/features.md) — capacidades esperadas del producto.
+- [`product/features.md`](./product/features.md) — indice trazable de capacidades, IDs estables y
+  especificacion primaria.
+- [`product/information-architecture.md`](./product/information-architecture.md) — areas de
+  navegacion, rutas canonicas y aliases heredados.
+- [`../spec/README.md`](../spec/README.md) — indice de especificaciones por dominio y reglas de
+  propiedad.
+- [`superpowers/plans/plan-maestro-frontend.md`](./superpowers/plans/plan-maestro-frontend.md)
+  — roadmap maestro y dependencias entre fases.
 
 ## Seguridad
 
@@ -41,6 +48,14 @@ documento es el punto de entrada al detalle.
   el API y la UI.
 - [ADR-0008](./adr/adr-0008-tanstack-query-server-state.md) — TanStack Query como capa de estado de
   servidor (cache, claves y persistencia offline opcional).
+- [ADR-0009](./adr/adr-0009-auth-session-token-storage.md) — sesion de autenticacion y
+  almacenamiento de tokens.
+- [ADR-0010](./adr/adr-0010-public-administrative-query-boundaries.md) — fronteras separadas para
+  consultas publicas y administrativas.
+- [ADR-0011](./adr/adr-0011-domain-adapter-strangler-migration.md) — migracion incremental del
+  agregado de operaciones hacia adapters por dominio.
+- [ADR-0012](./adr/adr-0012-explicit-http-authentication-policy.md) — politica explicita de
+  autenticacion HTTP y aislamiento de cache privada.
 
 ## Planes
 
@@ -50,4 +65,4 @@ documento es el punto de entrada al detalle.
 
 - [`harness/README.md`](../harness/README.md) — flujo local `Features -> Spec -> Plan -> Implementation`.
 - [`harness/observability.md`](./harness/observability.md) — metricas manuales y cadencia de revision.
-- [`spec/README.md`](../spec/README.md) — fuentes de verdad y politica de aislamiento.
+- [`spec/README.md`](../spec/README.md) — fuentes de verdad, trazabilidad y politica de aislamiento.

@@ -26,3 +26,5 @@ inmutable: una decisión se reemplaza creando un ADR nuevo que la sucede.
 | [ADR-0008](./adr-0008-tanstack-query-server-state.md)            | TanStack Query as the server-state layer                       | Accepted | 2026-09-25 |
 | [ADR-0009](./adr-0009-auth-session-token-storage.md)             | Auth session and token storage                                 | Accepted | 2026-09-26 |
 | [ADR-0010](./adr-0010-public-administrative-query-boundaries.md) | Separate public and administrative query boundaries            | Accepted | 2026-09-26 |
+| [ADR-0011](./adr-0011-domain-adapter-strangler-migration.md)     | Strangler migration from the operations aggregate              | Accepted | 2026-09-27 |
+| [ADR-0012](./adr-0012-explicit-http-authentication-policy.md)    | Explicit HTTP authentication policy                            | Accepted | 2026-09-28 |

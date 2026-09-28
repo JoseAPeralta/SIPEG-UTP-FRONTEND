@@ -1,5 +1,9 @@
 # Authentication And Session - Features
 
+> Ownership note: this supporting spec records the implemented authentication and session design.
+> The primary capability owner for `ACC-001` through `ACC-008` is
+> `spec/accounts/accounts-features.md`.
+
 ## Problem
 
 The administrative panel must only be reachable by users the backend can identify and authorize.
@@ -28,7 +32,8 @@ the authenticated profile allows it.
 - Revoke the refresh token on logout through `POST /api/v1/auth/logout`.
 - Clear session data, working context, unit preference, query cache, and persisted public cache on
   logout or failed restoration.
-- Attach the access token as a Bearer credential to API requests while a session exists.
+- Attach the access token as a Bearer credential only to requests explicitly declared
+  authenticated while a session exists.
 - Restrict administrative routes to authenticated users with the `ADMIN` global role.
 - Remove legacy sessions persisted by previous versions.
 

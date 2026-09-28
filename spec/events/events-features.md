@@ -1,5 +1,9 @@
 # Activity Catalog And Working Context - Features
 
+> Ownership note: this supporting spec records the existing cross-domain catalog and working
+> context implementation. Primary ownership belongs to `spec/event-programs/event-programs-features.md`
+> (`EPG`) and `spec/activities/activities-features.md` (`ACT`).
+
 ## Problem
 
 Administrators need one place to understand the academic activity catalog and select the event

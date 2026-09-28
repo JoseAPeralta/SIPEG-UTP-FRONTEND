@@ -8,7 +8,7 @@ Actualmente el proyecto incluye la base tecnica, navegacion principal, vistas in
 
 ## Estado De Funcionalidades
 
-Leyenda: `X` pendiente, `✓` finalizada.
+Leyenda: `X` pendiente, `~` parcial, `✓` finalizada.
 
 | Estado | Funcionalidad              | Descripcion                                                                                                 |
 | ------ | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -17,17 +17,18 @@ Leyenda: `X` pendiente, `✓` finalizada.
 | X      | Programas de eventos       | Crear programas con nombre, fechas, etiqueta personalizada, banner, colaboradores y permisos.               |
 | X      | Actividades                | Crear actividades con nombre, tipo, ponentes, aula, fecha, hora, equipamiento requerido y banner.           |
 | X      | Herencia de permisos       | Heredar colaboradores y permisos desde programas de eventos hacia sus actividades por defecto.              |
-| ✓      | Catalogo de actividades    | Mostrar actividades disponibles y pasadas, con filtros por unidad organizativa, tipo y programa.            |
+| ~      | Catalogo de actividades    | Lectura integrada disponible; faltan limites publicos definitivos, detalle y reduccion del fan-out.         |
 | ✓      | Autenticacion y sesion     | Iniciar sesion con la API real, restaurar la sesion, cerrar sesion y proteger rutas administrativas.        |
-| ✓      | Filtros por unidad         | Filtrar actividades por unidad organizativa y tipo de actividad.                                            |
+| ~      | Filtros por unidad         | Filtra por unidad, tipo de actividad y programa; faltan tipo de unidad y prioridad por unidad seleccionada. |
 | X      | Modificacion de eventos    | Modificar programas y actividades, y preguntar si se debe notificar a asistentes registrados.               |
 | X      | Archivado de programas     | Archivar programas de eventos en lugar de eliminarlos fisicamente.                                          |
 | X      | Cancelacion de actividades | Cancelar actividades segun la regla de retencion aplicable y notificar a los inscritos.                     |
 | X      | Registro de asistencia     | Registrar asistencia para actividades mediante QR o codigos manuales.                                       |
 | X      | Certificados               | Generar certificados automaticamente o desde la lista de asistencia.                                        |
-| ✓      | Inventario de aulas        | Consultar aulas y laboratorios con capacidad, ubicacion y amenidades.                                       |
+| ~      | Inventario de aulas        | Consulta aulas y laboratorios; faltan administracion y disponibilidad semanal reutilizable.                 |
 | X      | Registro de ponentes       | Capturar propuestas con nombre, email, CV, duracion, tipo de charla, titulo, contenido y programa asociado. |
 | X      | Reportes y estadisticas    | Mostrar metricas de asistencia, certificados, ocupacion de aulas y actividades activas o pasadas.           |
+| X      | Exportaciones              | Preparar exportacion de reportes a Excel y PDF.                                                             |
 | ✓      | Adaptadores de datos       | Separar mocks del API real mediante puertos y adapters con `VITE_DATA_SOURCE`.                              |
 
 ## Stack

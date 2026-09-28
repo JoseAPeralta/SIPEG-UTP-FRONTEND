@@ -11,6 +11,11 @@ SIPEG es un producto independiente. Este repositorio implementa una instancia mo
 - Separar vistas de pagina, componentes reutilizables, datos mock, estado compartido y utilidades.
 - No incluir controladores, modelos de base de datos, rutas de servidor, migraciones, colas ni mailers.
 
+La arquitectura de informacion vigente se documenta en
+[`docs/product/information-architecture.md`](docs/product/information-architecture.md). La Fase 0
+mantiene los modulos implementados bajo `/admin` y conserva aliases heredados; `/operaciones` se
+aplaza hasta que la Fase 3 resuelva el descubrimiento de scopes y los guards por capacidad efectiva.
+
 ## Alineacion Con El Backend
 
 El vocabulario del frontend sigue el contrato OpenAPI versionado en `../SIPEG-UTP-BACKEND/openapi.json`.
@@ -85,18 +90,21 @@ components compartidos + types + utils
 ### Adapters
 
 - `src/app/adapters/contracts.ts` define los puertos del frontend: `ActivityCatalogAdapter`, `AuthAdapter` y `OperationsAdapter`.
-- `src/app/adapters/createAppAdapters.ts` es el unico composition root; usa la API por defecto (`VITE_DATA_SOURCE=api`) y deja `mock` como override explicito para pruebas, Storybook y modo offline. Para el origen `api` inyecta el access token de la sesion en memoria como `Authorization: Bearer`.
-- `src/app/adapters/http/apiClient.ts` concentra el cliente HTTP; ningun componente hardcodea URLs.
+- `src/app/adapters/createAppAdapters.ts` es el unico composition root; usa la API por defecto (`VITE_DATA_SOURCE=api`) y deja `mock` como override explicito para pruebas, Storybook y modo offline. Para el catalogo administrativo inyecta de forma privada el lector del access token de la sesion.
+- `src/app/adapters/http/apiClient.ts` concentra el cliente HTTP; cada request declara modo `none` o `bearer`, solo el cliente construye `Authorization` y ningun componente hardcodea URLs (ADR-0012).
 - `src/app/query` concentra el estado de servidor con TanStack Query: el cliente, las claves, la persistencia offline opcional y el provider. Los hooks de cada feature llaman `useQuery`/`useMutation` sobre los adapters inyectados y conservan su forma publica; `useActivityCatalog(access)` exige declarar la frontera `public` o `administrative`, y `useOperations` es la puerta de entrada a operaciones.
 - La sesion vive en Zustand: perfil y access token solo en memoria, refresh token y expiracion en `sessionStorage`; al recargar se rota el refresh token y se carga `users/me` antes de renderizar rutas protegidas. El cierre de sesion revoca el refresh token, limpia el store, el contexto de trabajo, la preferencia de unidad, la cache de Query y la cache publica persistida (ADR-0009).
 - Las rutas administrativas exigen sesion y rol `ADMIN`; la autorizacion efectiva sigue siendo del backend.
-- La persistencia offline es opcional (`VITE_QUERY_PERSISTENCE=on`), guarda solo el catalogo publico en `localStorage` y se invalida con `VITE_APP_VERSION`; nunca persiste sesion, tokens ni el read model de operaciones (ADR-0010).
+- La persistencia offline es opcional (`VITE_QUERY_PERSISTENCE=on`), guarda solo el catalogo publico exitoso en `localStorage` y se invalida con una version de esquema mas `VITE_APP_VERSION`; nunca persiste sesion, tokens ni claves privadas por usuario (ADR-0010, ADR-0012).
 - Los adapters concretos viven en cada feature (`features/*/adapters`).
 - Solo los adapters (y sus pruebas) importan desde `src/data/mock`; paginas, componentes y hooks no conocen los mocks.
 - Cuando el OpenAPI cambia, se actualizan dominio, mappers, `src/data/mock` y tests en el mismo cambio, y se valida con `pnpm run api:mocks-check` (backend vivo, no CI).
 - El adapter HTTP consume los contratos OpenAPI documentados y valida la respuesta antes de exponerla; no inventa campos ni endpoints.
 - Las metricas de alcance de reportes viven en `features/reports/model/scopeMetrics.ts` y las consumen asistencia, certificados, reportes y dashboard.
 - Mientras el backend no publique contratos de asistencia, certificados, ponentes y reportes, el origen `api` mantiene esas operaciones no disponibles con un error explicito.
+- `OperationsAdapter` es un agregado legado congelado: no admite consumidores nuevos y se extrae en
+  orden carreras, usuarios, propuestas, asistencia, certificados y reportes. Cada puerto se crea
+  solo al integrar su contrato; no se mezclan respuestas API con fallback mock (ADR-0011).
 
 ### Separacion De Presentacion
 
@@ -125,7 +133,10 @@ components compartidos + types + utils
 - `src/components/layout/AdminMenu` puede importar el barrel `@/features/working-context`; es un edge permitido, no una regla general para `components/layout`.
 - `src/store/**` no importa `@/features/**`; los tipos compartidos viven en `src/types/domain.ts`.
 - `src/components/ui/**` no importa `@/features/**`; solo los adapters y sus pruebas importan `src/data/mock`.
-- `src/architecture.test.ts` verifica estas reglas (R1 mocks, R2 UI pura, R3 cross-feature, R4 store).
+- `src/architecture.test.ts` verifica estas reglas: R1 limita mocks, R2 mantiene UI compartida pura,
+  R3 exige barrels de features tambien desde paginas y componentes, R4 aisla stores, R5 limita el
+  cliente HTTP a adapters, R6 limita `fetch` y endpoints `/api/v1`, y R7 congela los consumidores de
+  `OperationsAdapter`.
 
 ## Decisiones De Trabajo
 
@@ -148,3 +159,7 @@ components compartidos + types + utils
 - [ADR-0006: API real como origen de desarrollo y mocks para pruebas](./docs/adr/adr-0006-api-first-data-source.md)
 - [ADR-0007: Capa de presentacion en espanol entre el API y la UI](./docs/adr/adr-0007-capa-presentacion-espanol.md)
 - [ADR-0008: TanStack Query como capa de estado de servidor](./docs/adr/adr-0008-tanstack-query-server-state.md)
+- [ADR-0009: Sesion de autenticacion y almacenamiento de tokens](./docs/adr/adr-0009-auth-session-token-storage.md)
+- [ADR-0010: Fronteras separadas para consultas publicas y administrativas](./docs/adr/adr-0010-public-administrative-query-boundaries.md)
+- [ADR-0011: Migracion strangler del agregado de operaciones](./docs/adr/adr-0011-domain-adapter-strangler-migration.md)
+- [ADR-0012: Politica explicita de autenticacion HTTP](./docs/adr/adr-0012-explicit-http-authentication-policy.md)
