@@ -5,7 +5,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { QueryProvider } from "./QueryProvider";
 import { createQueryClient } from "./queryClient";
 import { queryKeys } from "./queryKeys";
-import { QUERY_CACHE_STORAGE_KEY, createQueryPersister } from "./queryPersistence";
+import {
+  createPersistenceOptions,
+  createQueryPersister,
+  QUERY_CACHE_STORAGE_KEY,
+} from "./queryPersistence";
 
 afterEach(() => {
   window.localStorage.clear();
@@ -39,9 +43,14 @@ describe("QueryProvider", () => {
     source.setQueryData(queryKeys.publicActivityCatalog, { restored: true });
 
     const persister = createQueryPersister(window.localStorage, 0);
+    const buster = createPersistenceOptions(persister).buster;
+
+    if (!buster) {
+      throw new Error("Expected a persistence buster");
+    }
 
     await persister.persistClient({
-      buster: "dev",
+      buster,
       clientState: dehydrate(source),
       timestamp: Date.now(),
     });

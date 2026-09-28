@@ -1,6 +1,7 @@
 export const queryKeys = {
-  administrativeActivityCatalog: ["administrative-activity-catalog"],
-  operations: ["operations"],
+  administrativeActivityCatalog: (userId: string) =>
+    ["administrative-activity-catalog", userId] as const,
+  operations: (userId: string) => ["operations", userId] as const,
   publicActivityCatalog: ["public-activity-catalog"],
   registrationCatalog: ["registration-catalog"],
 } as const;

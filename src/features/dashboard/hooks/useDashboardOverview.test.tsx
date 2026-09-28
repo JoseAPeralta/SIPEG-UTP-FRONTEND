@@ -1,8 +1,9 @@
 import { waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AppAdapters } from "@/app/adapters";
-import { createCatalog } from "@/test/factories";
+import { useSessionStore } from "@/store/session";
+import { createAuthenticatedUser, createAuthTokens, createCatalog } from "@/test/factories";
 import { renderHookWithProviders } from "@/test/render";
 
 import { useDashboardOverview } from "./useDashboardOverview";
@@ -17,6 +18,17 @@ function buildAdapters(overrides: Partial<AppAdapters> = {}): AppAdapters {
 }
 
 describe("useDashboardOverview", () => {
+  beforeEach(() => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens(),
+    });
+  });
+
+  afterEach(() => {
+    useSessionStore.getState().clearSession();
+  });
+
   it("should keep catalog metrics when operations are unavailable", async () => {
     const adapters = buildAdapters();
     const { result } = renderHookWithProviders(() => useDashboardOverview(), { adapters });

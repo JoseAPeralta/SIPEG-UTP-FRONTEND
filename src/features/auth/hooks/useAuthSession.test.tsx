@@ -43,6 +43,7 @@ function createAuthAdapter(overrides: Partial<AuthAdapter> = {}): AuthAdapter {
     login: vi.fn().mockResolvedValue(tokens),
     logout: vi.fn().mockResolvedValue(undefined),
     refresh: vi.fn().mockResolvedValue(tokens),
+    verifyEmail: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -172,7 +173,9 @@ describe("auth session hooks", () => {
     const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
     useSessionStore.getState().setSession({ currentUser, tokens });
     writeStoredRefreshSession(tokens);
-    queryClient.setQueryData(queryKeys.administrativeActivityCatalog, { private: true });
+    queryClient.setQueryData(queryKeys.administrativeActivityCatalog(currentUser.id), {
+      private: true,
+    });
     const { result } = renderHookWithProviders(() => useLogout(), {
       adapters: createAdapters(auth),
       queryClient,
@@ -185,7 +188,9 @@ describe("auth session hooks", () => {
     expect(auth.logout).toHaveBeenCalledWith(tokens.refreshToken);
     expect(useSessionStore.getState().status).toBe("anonymous");
     expect(sessionStorage.getItem(AUTH_REFRESH_STORAGE_KEY)).toBeNull();
-    expect(queryClient.getQueryData(queryKeys.administrativeActivityCatalog)).toBeUndefined();
+    expect(
+      queryClient.getQueryData(queryKeys.administrativeActivityCatalog(currentUser.id)),
+    ).toBeUndefined();
   });
 
   it("should expose login errors without creating a session", async () => {

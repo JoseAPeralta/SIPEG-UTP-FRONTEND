@@ -4,6 +4,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { isPersistedQueryKey } from "./queryKeys";
 
 export const QUERY_CACHE_STORAGE_KEY = "sipeg-query-cache";
+export const QUERY_CACHE_SCHEMA_VERSION = "1";
 export const QUERY_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 export const QUERY_CACHE_THROTTLE_MS = 1000;
 
@@ -27,10 +28,10 @@ function resolvePersistenceBuster(
   const configuredVersion = environment.VITE_APP_VERSION?.trim();
 
   if (configuredVersion) {
-    return configuredVersion;
+    return `${QUERY_CACHE_SCHEMA_VERSION}:${configuredVersion}`;
   }
 
-  return "dev";
+  return `${QUERY_CACHE_SCHEMA_VERSION}:dev`;
 }
 
 export function createQueryPersister(

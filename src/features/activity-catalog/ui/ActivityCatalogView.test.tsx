@@ -1,8 +1,10 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { useSessionStore } from "@/store/session";
 import { useWorkingContextStore } from "@/store/workingContext";
+import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
 
 import { ActivityCatalogView } from "./ActivityCatalogView";
@@ -10,6 +12,14 @@ import { ActivityCatalogView } from "./ActivityCatalogView";
 describe("ActivityCatalogView", () => {
   beforeEach(() => {
     useWorkingContextStore.getState().clearWorkingContext();
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens(),
+    });
+  });
+
+  afterEach(() => {
+    useSessionStore.getState().clearSession();
   });
 
   it("should summarize the catalog before listing programs", async () => {

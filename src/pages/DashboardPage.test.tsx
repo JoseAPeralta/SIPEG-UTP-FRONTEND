@@ -1,13 +1,25 @@
 import { screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters } from "@/app/adapters";
-import { createCatalog } from "@/test/factories";
+import { useSessionStore } from "@/store/session";
+import { createAuthenticatedUser, createAuthTokens, createCatalog } from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
 
 import { DashboardPage } from "./DashboardPage";
 
 describe("DashboardPage", () => {
+  beforeEach(() => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens(),
+    });
+  });
+
+  afterEach(() => {
+    useSessionStore.getState().clearSession();
+  });
+
   it("should keep catalog metrics and warn when operations are unavailable", async () => {
     const adapters = createAppAdapters({ source: "mock" });
 

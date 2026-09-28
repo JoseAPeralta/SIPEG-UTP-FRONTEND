@@ -13,6 +13,7 @@ export {
   createPersistenceOptions,
   createQueryPersister,
   QUERY_CACHE_MAX_AGE_MS,
+  QUERY_CACHE_SCHEMA_VERSION,
   QUERY_CACHE_STORAGE_KEY,
   QUERY_CACHE_THROTTLE_MS,
   resolveQueryPersistence,

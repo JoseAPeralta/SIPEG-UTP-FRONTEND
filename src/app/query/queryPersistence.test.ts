@@ -8,6 +8,7 @@ import {
   createPersistenceOptions,
   createQueryPersister,
   QUERY_CACHE_MAX_AGE_MS,
+  QUERY_CACHE_SCHEMA_VERSION,
   QUERY_CACHE_STORAGE_KEY,
   resolveQueryPersistence,
 } from "./queryPersistence";
@@ -47,8 +48,8 @@ describe("resolveQueryPersistence", () => {
 describe("isPersistedQueryKey", () => {
   it("should persist only public catalog keys", () => {
     expect(isPersistedQueryKey(queryKeys.publicActivityCatalog)).toBe(true);
-    expect(isPersistedQueryKey(queryKeys.administrativeActivityCatalog)).toBe(false);
-    expect(isPersistedQueryKey(queryKeys.operations)).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.administrativeActivityCatalog("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.operations("user-1"))).toBe(false);
     expect(isPersistedQueryKey(["unknown"])).toBe(false);
   });
 });
@@ -60,19 +61,21 @@ describe("createPersistenceOptions", () => {
     const shouldDehydrate = options.dehydrateOptions?.shouldDehydrateQuery;
 
     expect(shouldDehydrate?.(fakeQuery(queryKeys.publicActivityCatalog, "success"))).toBe(true);
-    expect(shouldDehydrate?.(fakeQuery(queryKeys.administrativeActivityCatalog, "success"))).toBe(
-      false,
-    );
-    expect(shouldDehydrate?.(fakeQuery(queryKeys.operations, "success"))).toBe(false);
+    expect(
+      shouldDehydrate?.(fakeQuery(queryKeys.administrativeActivityCatalog("user-1"), "success")),
+    ).toBe(false);
+    expect(shouldDehydrate?.(fakeQuery(queryKeys.operations("user-1"), "success"))).toBe(false);
     expect(shouldDehydrate?.(fakeQuery(queryKeys.publicActivityCatalog, "pending"))).toBe(false);
-    expect(options.buster).toBe("2026.09.25");
+    expect(options.buster).toBe(`${QUERY_CACHE_SCHEMA_VERSION}:2026.09.25`);
     expect(options.maxAge).toBe(QUERY_CACHE_MAX_AGE_MS);
   });
 
   it("should fall back to a development buster without a version", () => {
     const persister = createQueryPersister(createMemoryStorage());
 
-    expect(createPersistenceOptions(persister, {}).buster).toBe("dev");
+    expect(createPersistenceOptions(persister, {}).buster).toBe(
+      `${QUERY_CACHE_SCHEMA_VERSION}:dev`,
+    );
   });
 });
 
