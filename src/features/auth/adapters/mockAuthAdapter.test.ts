@@ -29,4 +29,16 @@ describe("createMockAuthAdapter", () => {
       tokenType: "Bearer",
     });
   });
+
+  it("should verify an email with a non-empty token", async () => {
+    const adapter = createMockAuthAdapter();
+
+    await expect(adapter.verifyEmail("verify-token")).resolves.toBeUndefined();
+  });
+
+  it("should reject an empty verification token", async () => {
+    const adapter = createMockAuthAdapter();
+
+    await expect(adapter.verifyEmail("")).rejects.toMatchObject({ status: 400 });
+  });
 });

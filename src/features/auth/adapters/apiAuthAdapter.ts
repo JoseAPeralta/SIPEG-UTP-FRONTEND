@@ -18,7 +18,7 @@ export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthA
     async loadCurrentUser(accessToken: string) {
       const payload = await apiRequest<unknown>("/api/v1/users/me", {
         ...options,
-        requestInit: { headers: { Authorization: `Bearer ${accessToken}` } },
+        auth: { accessToken, mode: "bearer" },
       });
 
       return mapAuthenticatedUser(readAuthEnvelopeData(payload, "users.me"), "users.me.data");
@@ -27,6 +27,7 @@ export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthA
     async login(credentials: AuthCredentials) {
       const payload = await apiRequest<unknown>("/api/v1/auth/login", {
         ...options,
+        auth: { mode: "none" },
         requestInit: jsonRequest(credentials),
       });
 
@@ -36,6 +37,7 @@ export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthA
     async logout(refreshToken: string) {
       const payload = await apiRequest<unknown>("/api/v1/auth/logout", {
         ...options,
+        auth: { mode: "none" },
         requestInit: jsonRequest({ refreshToken }),
       });
 
@@ -45,10 +47,19 @@ export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthA
     async refresh(refreshToken: string) {
       const payload = await apiRequest<unknown>("/api/v1/auth/refresh", {
         ...options,
+        auth: { mode: "none" },
         requestInit: jsonRequest({ refreshToken }),
       });
 
       return mapAuthTokens(readAuthEnvelopeData(payload, "auth.refresh"), "auth.refresh.data");
+    },
+
+    async verifyEmail(token: string) {
+      await apiRequest<unknown>("/api/v1/auth/verify-email", {
+        ...options,
+        auth: { mode: "none" },
+        requestInit: jsonRequest({ token }),
+      });
     },
   };
 }

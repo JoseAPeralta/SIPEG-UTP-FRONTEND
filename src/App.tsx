@@ -14,8 +14,10 @@ const LandingPage = lazy(() => import("@pages/LandingPage"));
 const LoginPage = lazy(() => import("@pages/LoginPage"));
 const LogoutPage = lazy(() => import("@pages/LogoutPage"));
 const ReportsPage = lazy(() => import("@pages/ReportsPage"));
+const RegisterPage = lazy(() => import("@pages/RegisterPage"));
 const SpeakersPage = lazy(() => import("@pages/SpeakersPage"));
 const UsersPage = lazy(() => import("@pages/UsersPage"));
+const VerifyEmailPage = lazy(() => import("@pages/VerifyEmailPage"));
 
 function RouteFallback() {
   return <StatusPanel>Cargando modulo SIPEG...</StatusPanel>;
@@ -56,6 +58,8 @@ export function App() {
       <Route element={<AppLayout />}>
         <Route index element={renderRoute(<LandingPage />)} />
         <Route path="login" element={renderRoute(<LoginPage />)} />
+        <Route path="registro" element={renderRoute(<RegisterPage />)} />
+        <Route path="verify-email" element={renderRoute(<VerifyEmailPage />)} />
         <Route path="logout" element={renderRoute(<LogoutPage />)} />
         <Route element={<RequireAdminSession />}>
           <Route path="eventos" element={<RedirectToAdminRoute path="eventos" />} />

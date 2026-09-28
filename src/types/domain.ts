@@ -23,6 +23,25 @@ export type Career = {
   unitId: string | null;
 };
 
+export type RegistrationCatalog = {
+  careers: Career[];
+  organizationalUnits: OrganizationalUnit[];
+};
+
+export type RegistrationPayload = {
+  careerId?: string;
+  email: string;
+  firstName: string;
+  identificationNumber: string;
+  lastName: string;
+  password: string;
+  unitId?: string;
+};
+
+export type RegistrationResult = {
+  userId: string;
+};
+
 export type GlobalRole = "ADMIN" | "USER";
 
 export type OrganizationReference = {

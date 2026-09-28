@@ -21,6 +21,7 @@ export const LoggedOut: Story = {
     useSessionStore.getState().clearSession();
   },
   play: async ({ canvas }) => {
+    await expect(canvas.getByRole("link", { name: /registrarse/i })).toBeVisible();
     await expect(canvas.getByRole("link", { name: /iniciar sesi[oó]n/i })).toBeVisible();
   },
 };

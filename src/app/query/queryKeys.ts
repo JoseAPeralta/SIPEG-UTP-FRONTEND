@@ -2,6 +2,7 @@ export const queryKeys = {
   administrativeActivityCatalog: ["administrative-activity-catalog"],
   operations: ["operations"],
   publicActivityCatalog: ["public-activity-catalog"],
+  registrationCatalog: ["registration-catalog"],
 } as const;
 
 export const PERSISTED_QUERY_KEY_ROOTS: readonly string[] = [queryKeys.publicActivityCatalog[0]];

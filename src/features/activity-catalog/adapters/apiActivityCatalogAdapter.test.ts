@@ -120,7 +120,7 @@ describe("createApiActivityCatalogAdapter", () => {
     const catalog = await createApiActivityCatalogAdapter({
       environment,
       fetcher: createFetcher(),
-    }).loadCatalog();
+    }).loadCatalog("public");
 
     expect(catalog.organizationalUnits).toEqual([
       expect.objectContaining({ id: "fic", type: "FACULTY" }),
@@ -162,26 +162,38 @@ describe("createApiActivityCatalogAdapter", () => {
       return Promise.resolve(jsonResponse({ message: "not found", success: false }, 404));
     });
 
-    const catalog = await createApiActivityCatalogAdapter({ environment, fetcher }).loadCatalog();
+    const catalog = await createApiActivityCatalogAdapter({ environment, fetcher }).loadCatalog(
+      "public",
+    );
 
     expect(catalog.organizationalUnits.map((candidate) => candidate.id)).toEqual(["fic", "fie"]);
   });
 
-  it("should send the bearer token provided by the session", async () => {
+  it("should never send a bearer token for public access even when a session exists", async () => {
     const fetcher = createFetcher();
+    const readAccessToken = vi.fn(() => "access-token");
 
-    await createApiActivityCatalogAdapter({
-      environment,
-      fetcher,
-      getAccessToken: () => "access-token",
-    }).loadCatalog();
-
-    const authorizedRequests = fetcher.mock.calls.filter(([, requestInit]) =>
-      new Headers(requestInit?.headers).has("Authorization"),
+    await createApiActivityCatalogAdapter({ environment, fetcher }, readAccessToken).loadCatalog(
+      "public",
     );
 
-    expect(authorizedRequests.length).toBe(fetcher.mock.calls.length);
+    expect(readAccessToken).not.toHaveBeenCalled();
 
+    for (const [, requestInit] of fetcher.mock.calls) {
+      expect(new Headers(requestInit?.headers).get("Authorization")).toBeNull();
+    }
+  });
+
+  it("should resolve the token once and authorize every administrative request", async () => {
+    const fetcher = createFetcher();
+    const readAccessToken = vi.fn(() => "access-token");
+
+    await createApiActivityCatalogAdapter({ environment, fetcher }, readAccessToken).loadCatalog(
+      "administrative",
+    );
+
+    expect(readAccessToken).toHaveBeenCalledTimes(1);
+    expect(fetcher).toHaveBeenCalled();
     for (const [, requestInit] of fetcher.mock.calls) {
       expect(new Headers(requestInit?.headers).get("Authorization")).toBe("Bearer access-token");
     }
@@ -221,7 +233,7 @@ describe("createApiActivityCatalogAdapter", () => {
     });
 
     await expect(
-      createApiActivityCatalogAdapter({ environment, fetcher }).loadCatalog(),
+      createApiActivityCatalogAdapter({ environment, fetcher }).loadCatalog("public"),
     ).rejects.toThrow(/type/);
   });
 
@@ -231,7 +243,7 @@ describe("createApiActivityCatalogAdapter", () => {
     );
 
     await expect(
-      createApiActivityCatalogAdapter({ environment, fetcher }).loadCatalog(),
-    ).rejects.toThrow("Ocurrio un error en el servidor. Intenta de nuevo.");
+      createApiActivityCatalogAdapter({ environment, fetcher }).loadCatalog("public"),
+    ).rejects.toThrow("Ocurrio un error en el servidor. Intente de nuevo.");
   });
 });

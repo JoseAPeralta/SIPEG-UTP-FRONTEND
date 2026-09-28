@@ -44,6 +44,15 @@ describe("App", () => {
     expect(screen.getByRole("contentinfo")).toHaveTextContent(/sipeg/i);
   });
 
+  it("should render public registration without an active session", async () => {
+    renderWithProviders(<App />, { route: "/registro" });
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /crea tu cuenta en sipeg/i }),
+    ).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /crear cuenta/i })).toBeEnabled();
+  });
+
   it("should redirect protected admin routes to login when there is no session", async () => {
     renderWithProviders(<App />, { route: "/admin" });
 

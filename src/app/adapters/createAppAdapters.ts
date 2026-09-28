@@ -8,6 +8,10 @@ import { createApiAuthAdapter } from "@/features/auth/adapters/apiAuthAdapter";
 import { createMockAuthAdapter } from "@/features/auth/adapters/mockAuthAdapter";
 import { createMockOperationsAdapter } from "@/features/operations/adapters/mockOperationsAdapter";
 import { createUnavailableOperationsAdapter } from "@/features/operations/adapters/unavailableOperationsAdapter";
+import {
+  createApiRegistrationAdapter,
+  createMockRegistrationAdapter,
+} from "@/features/registration/adapters";
 import { useSessionStore } from "@/store/session";
 
 export type DataSource = "mock" | "api";
@@ -33,12 +37,15 @@ export function createAppAdapters({
 }: CreateAppAdaptersOptions = {}): AppAdapters {
   if (source === "api") {
     return {
-      activityCatalog: createApiActivityCatalogAdapter({
-        getAccessToken: readSessionAccessToken,
-        ...apiOptions,
-      }),
+      activityCatalog: createApiActivityCatalogAdapter(
+        {
+          ...apiOptions,
+        },
+        readSessionAccessToken,
+      ),
       auth: createApiAuthAdapter(apiOptions),
       operations: createUnavailableOperationsAdapter(),
+      registration: createApiRegistrationAdapter(apiOptions),
     };
   }
 
@@ -46,5 +53,6 @@ export function createAppAdapters({
     activityCatalog: createMockActivityCatalogAdapter(),
     auth: createMockAuthAdapter(),
     operations: createMockOperationsAdapter(),
+    registration: createMockRegistrationAdapter(),
   };
 }

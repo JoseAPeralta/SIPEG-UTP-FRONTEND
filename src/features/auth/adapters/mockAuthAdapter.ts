@@ -35,5 +35,13 @@ export function createMockAuthAdapter(): AuthAdapter {
 
       return Promise.resolve(mockAuthTokens);
     },
+
+    verifyEmail(token) {
+      if (!token.trim()) {
+        return Promise.reject(new ApiError("El token de verificacion es invalido.", 400));
+      }
+
+      return Promise.resolve();
+    },
   };
 }

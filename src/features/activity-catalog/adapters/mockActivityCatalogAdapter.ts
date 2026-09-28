@@ -8,7 +8,7 @@ export function createMockActivityCatalogAdapter(): ActivityCatalogAdapter {
     loadCatalog: () => {
       assertCatalogIntegrity(mockActivityCatalog);
 
-      return Promise.resolve(mockActivityCatalog);
+      return Promise.resolve(structuredClone(mockActivityCatalog));
     },
   };
 }

@@ -1,5 +1,9 @@
-import type { ActivityCatalogAdapter } from "@/app/adapters/contracts";
-import { apiRequest, type ApiClientOptions } from "@/app/adapters/http/apiClient";
+import type { ActivityCatalogAccess, ActivityCatalogAdapter } from "@/app/adapters/contracts";
+import {
+  apiRequest,
+  type ApiClientOptions,
+  type ApiRequestAuth,
+} from "@/app/adapters/http/apiClient";
 import type { ActivityCatalog } from "@/types/domain";
 
 import { assertCatalogIntegrity } from "../model/catalogIntegrity";
@@ -16,21 +20,24 @@ import {
 
 const PAGE_LIMIT = 50;
 
-export type ApiActivityCatalogAdapterOptions = Pick<
-  ApiClientOptions,
-  "environment" | "fetcher" | "getAccessToken"
->;
+export type ApiActivityCatalogAdapterOptions = Pick<ApiClientOptions, "environment" | "fetcher">;
+
+type AccessTokenReader = () => string | null | undefined;
 
 async function loadAllItems(
   path: string,
   options: ApiActivityCatalogAdapterOptions,
+  auth: ApiRequestAuth,
 ): Promise<unknown[]> {
   const items: unknown[] = [];
   let page = 1;
   let totalPages: number;
 
   do {
-    const payload = await apiRequest<unknown>(`${path}?page=${page}&limit=${PAGE_LIMIT}`, options);
+    const payload = await apiRequest<unknown>(`${path}?page=${page}&limit=${PAGE_LIMIT}`, {
+      ...options,
+      auth,
+    });
     const parsedPage = readPaginatedPage(payload, path);
 
     items.push(...parsedPage.items);
@@ -41,11 +48,15 @@ async function loadAllItems(
   return items;
 }
 
-async function loadActivity(activityId: string, options: ApiActivityCatalogAdapterOptions) {
+async function loadActivity(
+  activityId: string,
+  options: ApiActivityCatalogAdapterOptions,
+  auth: ApiRequestAuth,
+) {
   const context = `activities/${activityId}`;
   const payload = await apiRequest<unknown>(
     `/api/v1/activities/${encodeURIComponent(activityId)}`,
-    options,
+    { ...options, auth },
   );
 
   return mapActivity(readEnvelopeData(payload, context), context);
@@ -53,13 +64,18 @@ async function loadActivity(activityId: string, options: ApiActivityCatalogAdapt
 
 export function createApiActivityCatalogAdapter(
   options: ApiActivityCatalogAdapterOptions = {},
+  readAccessToken: AccessTokenReader = () => null,
 ): ActivityCatalogAdapter {
   return {
-    async loadCatalog() {
+    async loadCatalog(access: ActivityCatalogAccess) {
+      const auth: ApiRequestAuth =
+        access === "administrative"
+          ? { accessToken: readAccessToken(), mode: "bearer" }
+          : { mode: "none" };
       const [unitPayloads, programPayloads, classroomPayloads] = await Promise.all([
-        loadAllItems("/api/v1/organizational-units", options),
-        loadAllItems("/api/v1/event-programs", options),
-        loadAllItems("/api/v1/classrooms", options),
+        loadAllItems("/api/v1/organizational-units", options, auth),
+        loadAllItems("/api/v1/event-programs", options, auth),
+        loadAllItems("/api/v1/classrooms", options, auth),
       ]);
 
       const organizationalUnits = unitPayloads.map((unit, index) =>
@@ -80,6 +96,7 @@ export function createApiActivityCatalogAdapter(
           const items = await loadAllItems(
             `/api/v1/event-programs/${encodeURIComponent(program.id)}/activities`,
             options,
+            auth,
           );
 
           return items.map((item, index) =>
@@ -89,7 +106,7 @@ export function createApiActivityCatalogAdapter(
       );
 
       const activities = await Promise.all(
-        activityIdLists.flat().map((activityId) => loadActivity(activityId, options)),
+        activityIdLists.flat().map((activityId) => loadActivity(activityId, options, auth)),
       );
 
       const catalog: ActivityCatalog = {

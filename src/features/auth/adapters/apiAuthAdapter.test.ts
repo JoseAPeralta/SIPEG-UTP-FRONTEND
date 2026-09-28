@@ -95,4 +95,16 @@ describe("createApiAuthAdapter", () => {
     expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/api/v1/auth/logout");
     expect(readJsonBody(request)).toEqual({ refreshToken: "refresh-token" });
   });
+
+  it("should verify an email with the contracted request body", async () => {
+    const fetcher = vi.fn().mockResolvedValue(jsonResponse({}));
+    const adapter = createApiAuthAdapter({ environment, fetcher });
+
+    await expect(adapter.verifyEmail("verify-token")).resolves.toBeUndefined();
+
+    const request = fetcher.mock.calls[0]?.[1] as RequestInit;
+    expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/api/v1/auth/verify-email");
+    expect(new Headers(request.headers).get("Content-Type")).toBe("application/json");
+    expect(readJsonBody(request)).toEqual({ token: "verify-token" });
+  });
 });

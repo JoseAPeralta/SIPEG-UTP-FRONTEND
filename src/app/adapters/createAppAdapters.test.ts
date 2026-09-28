@@ -23,10 +23,12 @@ describe("createAppAdapters", () => {
 
   it("should wire mock adapters when the mock source is explicit", async () => {
     const adapters = createAppAdapters({ source: "mock" });
-    const catalog = await adapters.activityCatalog.loadCatalog();
+    const catalog = await adapters.activityCatalog.loadCatalog("public");
 
     expect(catalog.activities.length).toBeGreaterThan(0);
     expect(adapters.auth.login).toBeTypeOf("function");
+    expect(adapters.registration.register).toBeTypeOf("function");
+    await expect(adapters.registration.loadCatalog()).resolves.toBeTruthy();
     await expect(adapters.operations.loadOperations()).resolves.toBeTruthy();
   });
 
@@ -34,6 +36,7 @@ describe("createAppAdapters", () => {
     const adapters = createAppAdapters({ source: "api" });
 
     expect(adapters.auth.login).toBeTypeOf("function");
+    expect(adapters.registration.register).toBeTypeOf("function");
     await expect(adapters.operations.loadOperations()).rejects.toThrow(
       OPERATIONS_CONTRACT_PENDING_MESSAGE,
     );
@@ -47,7 +50,9 @@ describe("createAppAdapters", () => {
     const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
     const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
 
-    await expect(adapters.activityCatalog.loadCatalog()).rejects.toThrow(/conectar/i);
+    await expect(adapters.activityCatalog.loadCatalog("administrative")).rejects.toThrow(
+      /conectar/i,
+    );
 
     const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
 
@@ -56,11 +61,15 @@ describe("createAppAdapters", () => {
     );
   });
 
-  it("should omit the bearer token without an authenticated session", async () => {
+  it("should keep public catalog requests anonymous even with an authenticated session", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens({ accessToken: "session-access-token" }),
+    });
     const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
     const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
 
-    await expect(adapters.activityCatalog.loadCatalog()).rejects.toThrow(/conectar/i);
+    await expect(adapters.activityCatalog.loadCatalog("public")).rejects.toThrow(/conectar/i);
 
     const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
 

@@ -7,7 +7,13 @@ export type ApiEnvironment = {
 export type ApiClientOptions = {
   environment?: ApiEnvironment;
   fetcher?: typeof fetch;
-  getAccessToken?: () => string | null | undefined;
+};
+
+export type ApiRequestAuth =
+  { mode: "none" } | { accessToken: string | null | undefined; mode: "bearer" };
+
+export type ApiRequestOptions = ApiClientOptions & {
+  auth: ApiRequestAuth;
   requestInit?: RequestInit;
 };
 
@@ -15,8 +21,8 @@ const DEVELOPMENT_API_BASE_URL = "http://localhost:3000";
 
 const STATUS_MESSAGES: Record<number, string> = {
   400: "La solicitud no es valida.",
-  401: "Tu sesion no esta autorizada.",
-  403: "No tienes permisos para esta accion.",
+  401: "Su sesion no esta autorizada.",
+  403: "No tiene permisos para esta accion.",
   404: "No se encontro el recurso solicitado.",
   409: "La operacion entra en conflicto con el estado actual.",
   422: "Los datos enviados no son validos.",
@@ -40,7 +46,7 @@ function messageForStatus(status: number) {
   }
 
   return status >= 500
-    ? "Ocurrio un error en el servidor. Intenta de nuevo."
+    ? "Ocurrio un error en el servidor. Intente de nuevo."
     : "No se pudo completar la solicitud.";
 }
 
@@ -64,23 +70,27 @@ export function resolveApiBaseUrl(environment: ApiEnvironment = import.meta.env)
 
 export async function apiRequest<TResponse>(
   path: string,
-  {
-    environment = import.meta.env,
-    fetcher = fetch,
-    getAccessToken,
-    requestInit,
-  }: ApiClientOptions = {},
+  { auth, environment = import.meta.env, fetcher = fetch, requestInit }: ApiRequestOptions,
 ) {
   const normalizedPath = normalizePath(path);
   const requestUrl = `${resolveApiBaseUrl(environment)}${normalizedPath}`;
   const headers = new Headers(requestInit?.headers);
-  const accessToken = getAccessToken?.();
+
+  if (headers.has("Authorization")) {
+    throw new ApiError("La cabecera Authorization se administra internamente.", 400);
+  }
 
   if (!headers.has("Accept")) {
     headers.set("Accept", "application/json");
   }
 
-  if (accessToken && !headers.has("Authorization")) {
+  if (auth.mode === "bearer") {
+    const accessToken = auth.accessToken?.trim();
+
+    if (!accessToken) {
+      throw new ApiError(messageForStatus(401), 401);
+    }
+
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
@@ -93,7 +103,7 @@ export async function apiRequest<TResponse>(
     });
   } catch {
     throw new ApiError(
-      "No se pudo conectar con el servidor. Verifica que el backend este disponible.",
+      "No se pudo conectar con el servidor. Verifique que el backend este disponible.",
       0,
     );
   }

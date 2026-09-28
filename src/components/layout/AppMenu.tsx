@@ -75,7 +75,10 @@ export function AppMenu() {
                 </Button>
               </>
             ) : (
-              <MenuLink to="/login">Iniciar sesión</MenuLink>
+              <>
+                <MenuLink to="/login">Iniciar sesión</MenuLink>
+                <MenuLink to="/registro">Registrarse</MenuLink>
+              </>
             )}
           </HStack>
         </Flex>
