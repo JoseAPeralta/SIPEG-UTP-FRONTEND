@@ -16,13 +16,13 @@ export function CertificatesPage() {
   if (!isLoading && !error && !scope) {
     return (
       <ModuleShell
-        description="Selecciona un contexto de trabajo para consultar certificados generados o pendientes."
+        description="Seleccione un contexto de trabajo para consultar certificados generados o pendientes."
         headingLabel="Evidencia academica"
         title="Certificados"
       >
         <SelectionRequiredState
           message="Los certificados se muestran para el programa o la actividad elegidos en el panel de administracion."
-          title="Selecciona un contexto de trabajo"
+          title="Seleccione un contexto de trabajo"
         />
       </ModuleShell>
     );

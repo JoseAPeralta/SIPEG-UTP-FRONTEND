@@ -57,5 +57,5 @@ export const Submitting: Story = {
 };
 
 export const RegistrationError: Story = {
-  args: { errorMessage: "No se pudo completar el registro. Intenta de nuevo." },
+  args: { errorMessage: "No se pudo completar el registro. Intente de nuevo." },
 };

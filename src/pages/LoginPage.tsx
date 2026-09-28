@@ -38,13 +38,13 @@ export function LoginPage() {
           p={4}
           role="status"
         >
-          Tu cuenta ha sido activada. Inicia sesion para continuar.
+          Su cuenta ha sido activada. Inicie sesion para continuar.
         </Box>
       ) : null}
       <LoginForm
         errorMessage={
           error
-            ? "No fue posible iniciar sesion. Verifica tus credenciales e intenta de nuevo."
+            ? "No fue posible iniciar sesion. Verifique sus credenciales e intente de nuevo."
             : null
         }
         isSubmitting={isPending}

@@ -67,10 +67,10 @@ export function LandingPage() {
                   id="landing-title"
                   lineHeight="0.95"
                 >
-                  Descubre actividades academicas en SIPEG
+                  Descubra actividades academicas en SIPEG
                 </Heading>
                 <Text color="text.muted" fontSize={{ base: "lg", md: "xl" }} maxW="2xl">
-                  Explora talleres, seminarios, charlas y otras actividades academicas en un solo
+                  Explore talleres, seminarios, charlas y otras actividades academicas en un solo
                   calendario publico.
                 </Text>
               </Stack>
@@ -142,7 +142,7 @@ export function LandingPage() {
                   </SimpleGrid>
                 ) : (
                   <FeedbackState
-                    description="Cambia la unidad o el tipo de actividad para ver mas opciones disponibles."
+                    description="Cambie la unidad o el tipo de actividad para ver mas opciones disponibles."
                     padding="roomy"
                     title="No hay actividades con esos filtros"
                   />

@@ -104,4 +104,22 @@ describe("RegisterForm", () => {
 
     expect(screen.getByText(/al menos 12 caracteres/i)).toBeInTheDocument();
   });
+
+  it("should present registration guidance with formal language", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <RegisterForm careers={careers} onSubmit={vi.fn()} organizationalUnits={[faculty]} />,
+    );
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /unidad \/ facultad/i }),
+      faculty.id,
+    );
+    expect(screen.getByRole("option", { name: /seleccione una carrera/i })).toBeInTheDocument();
+
+    await user.type(screen.getByRole("textbox", { name: /correo electr[oó]nico/i }), "invalid");
+    await user.click(screen.getByRole("button", { name: /crear cuenta/i }));
+
+    expect(screen.getByText("Ingrese un correo electrónico válido.")).toBeInTheDocument();
+  });
 });

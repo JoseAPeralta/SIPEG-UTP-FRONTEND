@@ -21,12 +21,30 @@ describe("createMockAuthAdapter", () => {
     ).rejects.toMatchObject({ status: 401 });
   });
 
+  it("should reject an invalid access token with formal language", async () => {
+    const adapter = createMockAuthAdapter();
+
+    await expect(adapter.loadCurrentUser("invalid-token")).rejects.toMatchObject({
+      message: "Su sesion no esta autorizada.",
+      status: 401,
+    });
+  });
+
   it("should rotate a valid mock refresh token", async () => {
     const adapter = createMockAuthAdapter();
     const tokens = await adapter.login({ email: MOCK_AUTH_EMAIL, password: MOCK_AUTH_PASSWORD });
 
     await expect(adapter.refresh(tokens.refreshToken)).resolves.toMatchObject({
       tokenType: "Bearer",
+    });
+  });
+
+  it("should reject an invalid refresh token with formal language", async () => {
+    const adapter = createMockAuthAdapter();
+
+    await expect(adapter.refresh("invalid-token")).rejects.toMatchObject({
+      message: "Su sesion no esta autorizada.",
+      status: 401,
     });
   });
 

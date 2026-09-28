@@ -12,6 +12,10 @@ describe("LoginForm", () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(<LoginForm onSubmit={onSubmit} />);
 
+    expect(
+      screen.getByText(/use las credenciales de su cuenta institucional/i),
+    ).toBeInTheDocument();
+
     await user.type(
       screen.getByRole("textbox", { name: /correo electronico/i }),
       " admin@example.edu ",

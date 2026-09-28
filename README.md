@@ -1,6 +1,6 @@
-# SIPEG UTP Frontend
+# SIPEG Frontend
 
-SIPEG UTP es el frontend de una plataforma para gestionar eventos academicos de la Universidad Tecnologica de Panama. La aplicacion busca centralizar la administracion de eventos grandes, actividades individuales, asistencia, certificados, aulas, ponentes, usuarios, reportes y estadisticas operativas.
+SIPEG es un producto independiente. Este repositorio implementa una instancia monoorganizacion configurada para la Universidad Tecnologica de Panama (UTP). No se implementa multitenancy. La aplicacion busca centralizar la administracion de eventos grandes, actividades individuales, asistencia, certificados, aulas, ponentes, usuarios, reportes y estadisticas operativas.
 
 Este repositorio contiene solo la interfaz web. El backend vive en el repositorio hermano `../SIPEG-UTP-BACKEND` y el frontend debe consumirlo mediante una capa clara de cliente/API. Algunas pantallas todavia trabajan con datos de demostracion ubicados en `src/data/mock`.
 
@@ -28,7 +28,6 @@ Leyenda: `X` pendiente, `✓` finalizada.
 | ✓      | Inventario de aulas        | Consultar aulas y laboratorios con capacidad, ubicacion y amenidades.                                       |
 | X      | Registro de ponentes       | Capturar propuestas con nombre, email, CV, duracion, tipo de charla, titulo, contenido y programa asociado. |
 | X      | Reportes y estadisticas    | Mostrar metricas de asistencia, certificados, ocupacion de aulas y actividades activas o pasadas.           |
-| X      | Exportaciones              | Preparar exportacion de reportes a Excel y PDF.                                                             |
 | ✓      | Adaptadores de datos       | Separar mocks del API real mediante puertos y adapters con `VITE_DATA_SOURCE`.                              |
 
 ## Stack
@@ -227,8 +226,8 @@ El flujo de autenticacion consume el contrato OpenAPI real (`auth/login`, `auth/
 - Las rutas administrativas exigen sesion y rol `ADMIN`; el backend conserva la autoridad final.
 
 Con `VITE_DATA_SOURCE=mock`, el adapter de autenticacion acepta la cuenta de demostracion
-`mariana.rodriguez@example.edu` con la contrasena `sipeg-demo`. Con la API real usa las credenciales
-de tu cuenta institucional.
+`mariana.rodriguez@example.edu` con la contrasena `sipeg-demo`. Con la API real use las credenciales
+de su cuenta institucional.
 
 ## Aliases De Importacion
 

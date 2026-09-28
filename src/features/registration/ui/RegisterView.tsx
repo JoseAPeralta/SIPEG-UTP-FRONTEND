@@ -20,7 +20,7 @@ export function RegisterView() {
             <Link to="/login">Ir a iniciar sesión</Link>
           </Button>
         }
-        description="Revisa tu correo electrónico y verifica tu cuenta antes de iniciar sesión."
+        description="Revise su correo electrónico y verifique su cuenta antes de iniciar sesión."
         padding="roomy"
         title="Cuenta creada correctamente"
         titleSize="lg"
@@ -39,7 +39,7 @@ export function RegisterView() {
           careers={catalogQuery.catalog.careers}
           errorMessage={
             registration.error
-              ? "No fue posible crear la cuenta. Verifica los datos e intenta de nuevo."
+              ? "No fue posible crear la cuenta. Verifique los datos e intente de nuevo."
               : null
           }
           isSubmitting={registration.isPending}

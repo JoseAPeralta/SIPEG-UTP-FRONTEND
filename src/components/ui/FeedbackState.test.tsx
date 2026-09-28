@@ -10,7 +10,7 @@ describe("FeedbackState", () => {
   it("should present the title as a section heading with its description", () => {
     renderWithProviders(
       <FeedbackState
-        description="Cambia los filtros para ver resultados."
+        description="Cambie los filtros para ver resultados."
         title="No hay actividades"
       />,
     );
@@ -18,7 +18,7 @@ describe("FeedbackState", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: /no hay actividades/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/cambia los filtros para ver resultados/i)).toBeInTheDocument();
+    expect(screen.getByText(/cambie los filtros para ver resultados/i)).toBeInTheDocument();
   });
 
   it("should announce errors and offer the recovery action", async () => {

@@ -28,7 +28,7 @@ describe("App", () => {
     expect(
       await screen.findByRole(
         "heading",
-        { level: 1, name: /descubre actividades academicas/i },
+        { level: 1, name: /descubra actividades academicas/i },
         { timeout: 5000 },
       ),
     ).toBeInTheDocument();
@@ -38,6 +38,7 @@ describe("App", () => {
       "href",
       "/login",
     );
+    expect(screen.getByRole("link", { name: /registrarse/i })).toHaveAttribute("href", "/registro");
     expect(
       screen.queryByRole("link", { name: /panel de administracion/i }),
     ).not.toBeInTheDocument();
@@ -48,7 +49,7 @@ describe("App", () => {
     renderWithProviders(<App />, { route: "/registro" });
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: /crea tu cuenta en sipeg/i }),
+      await screen.findByRole("heading", { level: 1, name: /cree su cuenta en sipeg/i }),
     ).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: /crear cuenta/i })).toBeEnabled();
   });
@@ -81,6 +82,7 @@ describe("App", () => {
       "href",
       "/admin",
     );
+    expect(screen.queryByRole("link", { name: /registrarse/i })).not.toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: /navegacion del panel/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /eventos/i })).toHaveAttribute(
       "href",
@@ -151,7 +153,7 @@ describe("App", () => {
       await screen.findByRole("heading", { level: 1, name: /asistencia/i }),
     ).toBeInTheDocument();
     expect(
-      await within(screen.getByRole("main")).findByText(/^selecciona un contexto de trabajo$/i),
+      await within(screen.getByRole("main")).findByText(/^seleccione un contexto de trabajo$/i),
     ).toBeInTheDocument();
 
     await user.selectOptions(
@@ -192,7 +194,7 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: /cerrar sesi[oó]n/i }));
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: /descubre actividades academicas/i }),
+      await screen.findByRole("heading", { level: 1, name: /descubra actividades academicas/i }),
     ).toBeInTheDocument();
     expect(useSessionStore.getState().currentUser).toBeNull();
     expect(screen.getByRole("link", { name: /iniciar sesi[oó]n/i })).toHaveAttribute(
@@ -223,7 +225,7 @@ describe("App", () => {
     await user.click(await screen.findByRole("button", { name: /iniciar sesi[oó]n/i }));
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: /descubre actividades academicas/i }),
+      await screen.findByRole("heading", { level: 1, name: /descubra actividades academicas/i }),
     ).toBeInTheDocument();
     expect(useSessionStore.getState().currentUser?.globalRole).toBe("USER");
     expect(
@@ -244,7 +246,7 @@ describe("App", () => {
     await user.click(await screen.findByRole("button", { name: /cerrar sesi[oó]n/i }));
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: /descubre actividades academicas/i }),
+      await screen.findByRole("heading", { level: 1, name: /descubra actividades academicas/i }),
     ).toBeInTheDocument();
     expect(useWorkingContextStore.getState().workingContext).toBeNull();
     expect(useUnitPreferenceStore.getState().selectedUnitId).toBe("all");
@@ -259,7 +261,7 @@ describe("App", () => {
     renderWithProviders(<App />, { route: "/admin" });
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: /descubre actividades academicas/i }),
+      await screen.findByRole("heading", { level: 1, name: /descubra actividades academicas/i }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: /panel de administracion/i }),

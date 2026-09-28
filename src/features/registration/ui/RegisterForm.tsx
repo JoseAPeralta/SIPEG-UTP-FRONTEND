@@ -206,7 +206,7 @@ export function RegisterForm({
                   onChange={(event) => updateValue("careerId", event.currentTarget.value)}
                   value={values.careerId}
                 >
-                  <option value="">Selecciona una carrera</option>
+                  <option value="">Seleccione una carrera</option>
                   {localCareers.map((career) => (
                     <option key={career.id} value={career.id}>
                       {career.name}

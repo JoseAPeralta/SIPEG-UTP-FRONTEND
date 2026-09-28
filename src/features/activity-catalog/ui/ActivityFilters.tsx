@@ -72,7 +72,7 @@ export function ActivityFilters({
               Explorar agenda
             </Text>
             <Text color="text.default" fontFamily="heading" fontSize="3xl" fontWeight="700">
-              Filtra actividades disponibles
+              Filtre actividades disponibles
             </Text>
           </Box>
           <Badge colorPalette="terracotta" px={4} py={2} rounded="full" variant="subtle">

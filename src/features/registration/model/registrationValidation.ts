@@ -43,7 +43,7 @@ export function validateRegistrationPayload(payload: RegistrationPayload): Regis
   if (lastNameError) errors.lastName = lastNameError;
 
   if (!EMAIL_PATTERN.test(payload.email.trim())) {
-    errors.email = "Ingresa un correo electrónico válido.";
+    errors.email = "Ingrese un correo electrónico válido.";
   }
 
   if (payload.password.length < 12) {

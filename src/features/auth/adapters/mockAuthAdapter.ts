@@ -9,7 +9,7 @@ export function createMockAuthAdapter(): AuthAdapter {
   return {
     loadCurrentUser(accessToken) {
       if (accessToken !== mockAuthTokens.accessToken) {
-        return Promise.reject(new ApiError("Tu sesion no esta autorizada.", 401));
+        return Promise.reject(new ApiError("Su sesion no esta autorizada.", 401));
       }
 
       return Promise.resolve(mockAuthenticatedUser);
@@ -30,7 +30,7 @@ export function createMockAuthAdapter(): AuthAdapter {
 
     refresh(refreshToken) {
       if (refreshToken !== mockAuthTokens.refreshToken) {
-        return Promise.reject(new ApiError("Tu sesion no esta autorizada.", 401));
+        return Promise.reject(new ApiError("Su sesion no esta autorizada.", 401));
       }
 
       return Promise.resolve(mockAuthTokens);

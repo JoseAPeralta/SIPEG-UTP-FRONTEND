@@ -2,7 +2,7 @@
 
 ## Producto
 
-La aplicacion es el frontend de una plataforma de gestion de eventos academicos. Este repositorio contiene solo la interfaz web; el backend es un proyecto separado en `../SIPEG-UTP-BACKEND` y se consume mediante una capa de cliente/API.
+SIPEG es un producto independiente. Este repositorio implementa una instancia monoorganizacion configurada para la Universidad Tecnologica de Panama (UTP). No se implementa multitenancy. La aplicacion es el frontend de una plataforma de gestion de eventos academicos; el backend es un proyecto separado en `../SIPEG-UTP-BACKEND` y se consume mediante una capa de cliente/API.
 
 ## Alcance Del Frontend
 

@@ -34,7 +34,7 @@ export function VerifyEmailPage() {
   if (!token) {
     return (
       <ModuleShell
-        description="El enlace de activacion no incluye un token valido. Solicita un nuevo correo de verificacion."
+        description="El enlace de activacion no incluye un token valido. Solicite un nuevo correo de verificacion."
         headingLabel="Activacion de cuenta"
         title="Enlace invalido"
       >
@@ -46,11 +46,11 @@ export function VerifyEmailPage() {
   if (isPending) {
     return (
       <ModuleShell
-        description="Estamos verificando tu correo electronico. Este proceso toma solo unos segundos."
+        description="Estamos verificando su correo electronico. Este proceso toma solo unos segundos."
         headingLabel="Activacion de cuenta"
-        title="Verificando tu correo"
+        title="Verificando su correo"
       >
-        <StatusPanel>Verificando tu correo electronico...</StatusPanel>
+        <StatusPanel>Verificando su correo electronico...</StatusPanel>
       </ModuleShell>
     );
   }
@@ -58,12 +58,12 @@ export function VerifyEmailPage() {
   if (error) {
     return (
       <ModuleShell
-        description="No fue posible activar tu cuenta. El enlace puede haber expirado o haber sido utilizado anteriormente."
+        description="No fue posible activar su cuenta. El enlace puede haber expirado o haber sido utilizado anteriormente."
         headingLabel="Activacion de cuenta"
         title="Error de activacion"
       >
         <StatusPanel role="alert">
-          No fue posible activar tu cuenta. Solicita un nuevo correo de verificacion.
+          No fue posible activar su cuenta. Solicite un nuevo correo de verificacion.
         </StatusPanel>
       </ModuleShell>
     );
@@ -71,7 +71,7 @@ export function VerifyEmailPage() {
 
   return (
     <ModuleShell
-      description="Tu cuenta ha sido activada. Redirigiendo al inicio de sesion..."
+      description="Su cuenta ha sido activada. Redirigiendo al inicio de sesion..."
       headingLabel="Activacion de cuenta"
       title="Cuenta activada"
     >

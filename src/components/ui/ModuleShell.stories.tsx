@@ -12,7 +12,7 @@ const meta = {
       </Surface>
     ),
     description:
-      "Consulta indicadores y administra las acciones principales de este espacio de trabajo.",
+      "Consulte indicadores y administre las acciones principales de este espacio de trabajo.",
     headingLabel: "Gestion academica",
     title: "Resumen operativo",
   },

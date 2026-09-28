@@ -38,7 +38,7 @@ export function LoginForm({ errorMessage = null, isSubmitting = false, onSubmit 
               Iniciar sesion en SIPEG
             </Heading>
             <Text color="text.muted" lineHeight="1.7">
-              Usa las credenciales de tu cuenta institucional para acceder al panel operativo.
+              Use las credenciales de su cuenta institucional para acceder al panel operativo.
             </Text>
           </Stack>
 

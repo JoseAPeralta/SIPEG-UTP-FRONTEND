@@ -28,11 +28,17 @@ describe("VerifyEmailPage", () => {
       route: "/verify-email",
     });
 
-    expect(screen.getByRole("alert")).toHaveTextContent(/enlace de activacion es invalido/i);
+    expect(
+      screen.getByText(
+        /el enlace de activacion no incluye un token valido.*solicite un nuevo correo/i,
+      ),
+    ).toBeInTheDocument();
   });
 
   it("should call verifyEmail with the token from the url", async () => {
-    const auth = createAuthSpy();
+    const auth = createAuthSpy({
+      verifyEmail: vi.fn(() => new Promise<void>(() => undefined)),
+    });
 
     renderWithProviders(<VerifyEmailPage />, {
       adapters: createAdaptersWithAuth(auth),
@@ -42,6 +48,7 @@ describe("VerifyEmailPage", () => {
     await waitFor(() => {
       expect(auth.verifyEmail).toHaveBeenCalledWith("valid-token");
     });
+    expect(screen.getByRole("status")).toHaveTextContent("Verificando su correo electronico...");
   });
 
   it("should show an error when verification fails", async () => {
@@ -55,7 +62,9 @@ describe("VerifyEmailPage", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent(/no fue posible activar/i);
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        /no fue posible activar su cuenta.*solicite un nuevo correo/i,
+      );
     });
   });
 });

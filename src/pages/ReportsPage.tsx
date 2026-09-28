@@ -11,13 +11,13 @@ export function ReportsPage() {
   if (!isLoading && !error && !scope) {
     return (
       <ModuleShell
-        description="Selecciona un contexto de trabajo para consultar estadisticas y exportaciones."
+        description="Seleccione un contexto de trabajo para consultar estadisticas y exportaciones."
         headingLabel="Analitica"
         title="Reportes y estadisticas"
       >
         <SelectionRequiredState
           message="Los reportes se calculan para el programa o la actividad elegidos en el panel de administracion."
-          title="Selecciona un contexto de trabajo"
+          title="Seleccione un contexto de trabajo"
         />
       </ModuleShell>
     );

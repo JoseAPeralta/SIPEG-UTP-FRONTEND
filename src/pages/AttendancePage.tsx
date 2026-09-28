@@ -17,13 +17,13 @@ export function AttendancePage() {
   if (!isLoading && !error && !scope) {
     return (
       <ModuleShell
-        description="Selecciona un contexto de trabajo para revisar registros por QR o codigo manual."
+        description="Seleccione un contexto de trabajo para revisar registros por QR o codigo manual."
         headingLabel="Control de entrada"
         title="Asistencia"
       >
         <SelectionRequiredState
           message="La asistencia se muestra para el programa o la actividad elegidos en el panel de administracion."
-          title="Selecciona un contexto de trabajo"
+          title="Seleccione un contexto de trabajo"
         />
       </ModuleShell>
     );

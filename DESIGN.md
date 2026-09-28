@@ -6,7 +6,7 @@
 
 Este documento define la identidad visual de SIPEG: una plataforma web de gestión de eventos académicos (eventos, asistencia, certificados, aulas, ponentes, usuarios, reportes y estadísticas).
 
-SIPEG es un producto **independiente**. No está afiliado a ninguna institución y debe poder usarse en cualquier contexto académico, universitario o de otra organización sin arrastrar identidad de terceros. Por lo tanto:
+SIPEG es un producto independiente. Este repositorio implementa una instancia monoorganización configurada para la Universidad Tecnológica de Panamá (UTP). No se implementa multitenancy. La identidad base del producto no incorpora marcas institucionales de terceros. Por lo tanto:
 
 - No se usa ningún logo, paleta, tipografía ni referencia visual institucional ajena.
   - Única excepción deliberada: los colores representativos de las facultades de la UTP se
@@ -176,7 +176,7 @@ Dos familias máximo, tres tamaños visuales aproximados para jerarquía clara (
 
 - Español claro, frases cortas, **verbo primero**: "Registrar asistencia", "Exportar reporte", "Crear evento". Evitar títulos nominales tipo "Módulo de administración de…".
 - Trato de **usted** (contexto institucional público).
-- **Estados vacíos**: dicen que no hay datos y ofrecen el siguiente paso ("Aún no hay eventos. Crea el primero.").
+- **Estados vacíos**: dicen que no hay datos y ofrecen el siguiente paso ("Aún no hay eventos. Cree el primero.").
 - **Errores**: dicen qué pasó y qué hacer al respecto. Nunca solo "Error".
 - Sin jerga interna en vistas de estudiante o ponente; el lenguaje del dominio (eventos, asistencia, certificados, aulas, ponentes) se usa de forma consistente en todas las pantallas.
 

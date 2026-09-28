@@ -19,7 +19,7 @@ export function ActivityCatalogView() {
 
   return (
     <ModuleShell
-      description="Organiza programas de eventos, filtra actividades y define el contexto de trabajo usado por asistencia, certificados y reportes."
+      description="Organice programas de eventos, filtre actividades y defina el contexto de trabajo usado por asistencia, certificados y reportes."
       headingLabel="Agenda institucional"
       title="Actividades academicas"
     >
@@ -123,7 +123,7 @@ export function ActivityCatalogView() {
                 </SimpleGrid>
               ) : (
                 <FeedbackState
-                  description="Cambia la unidad, el tipo o el programa para ver mas opciones disponibles."
+                  description="Cambie la unidad, el tipo o el programa para ver mas opciones disponibles."
                   padding="roomy"
                   title="No hay actividades con esos filtros"
                 />
