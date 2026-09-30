@@ -61,7 +61,6 @@ describe("useChangePassword", () => {
 
     expect(auth.changePassword).toHaveBeenCalledWith(tokens.accessToken, {
       ...request,
-      refreshToken: tokens.refreshToken,
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.failure).toBeNull();
@@ -91,10 +90,9 @@ describe("useChangePassword", () => {
       await result.current.changePassword(request);
     });
 
-    expect(auth.changePassword).toHaveBeenCalledWith(
-      rotatedTokens.accessToken,
-      expect.objectContaining({ refreshToken: rotatedTokens.refreshToken }),
-    );
+    // Lee el token en el momento del envio, no en el primer render: para entonces
+    // la rotacion proactiva ya lo habia cambiado. El refresh token ya no viaja.
+    expect(auth.changePassword).toHaveBeenCalledWith(rotatedTokens.accessToken, request);
   });
 
   it("should keep the current session and its caches after a successful change", async () => {

@@ -10,7 +10,6 @@ import {
 const tokenPayload = {
   accessToken: "access-token",
   accessTokenExpiresAt: "2026-09-26T12:00:00.000Z",
-  refreshToken: "refresh-token",
   refreshTokenExpiresAt: "2026-10-03T12:00:00.000Z",
   tokenType: "Bearer",
 };

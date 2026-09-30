@@ -119,7 +119,6 @@ describe("useProfile", () => {
       .getState()
       .setWorkingContext({ id: "program-innovation-week", kind: "eventProgram" });
     useUnitPreferenceStore.getState().setSelectedUnitId("fisc");
-    sessionStorage.setItem("sipeg-auth-refresh", JSON.stringify(tokens));
 
     const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
     queryClient.setQueryData(["catalog", "public"], { activities: [] });
@@ -141,7 +140,9 @@ describe("useProfile", () => {
     });
     expect(useUnitPreferenceStore.getState().selectedUnitId).toBe("fisc");
     expect(queryClient.getQueryData(["catalog", "public"])).toEqual({ activities: [] });
-    expect(sessionStorage.getItem("sipeg-auth-refresh")).not.toBeNull();
+    // El refresh token vive en una cookie HttpOnly: actualizar el perfil no debe
+    // escribir ni dejar credenciales en Web Storage.
+    expect(sessionStorage.length).toBe(0);
   });
 
   it("should discard the returned profile when the session was closed while in flight", async () => {

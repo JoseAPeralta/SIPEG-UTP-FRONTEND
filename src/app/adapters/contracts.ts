@@ -29,9 +29,12 @@ export type PasswordChangeRequest = {
   newPassword: string;
 };
 
-export type PasswordChangePayload = PasswordChangeRequest & {
-  refreshToken: string;
-};
+/**
+ * El refresh token no viaja en el cuerpo: el backend lo toma de la cookie
+ * `HttpOnly` para identificar la sesion que debe conservar mientras revoca las
+ * demas. Enviarlo aqui lo expondría a JavaScript sin ganar nada.
+ */
+export type PasswordChangePayload = PasswordChangeRequest;
 
 /**
  * Editable subset of the authenticated profile. `unitId: null` selects the "Otro" option and makes
@@ -49,8 +52,17 @@ export type AuthAdapter = {
   changePassword: (accessToken: string, payload: PasswordChangePayload) => Promise<void>;
   loadCurrentUser: (accessToken: string) => Promise<AuthenticatedUser>;
   login: (credentials: AuthCredentials) => Promise<AuthTokens>;
-  logout: (refreshToken: string) => Promise<void>;
-  refresh: (refreshToken: string) => Promise<AuthTokens>;
+  /**
+   * Cierra la sesion. Sin argumentos: el refresh token viaja en una cookie
+   * `HttpOnly` que el navegador envia sola y que este codigo no puede leer.
+   */
+  logout: () => Promise<void>;
+  /**
+   * Rota el refresh token de la cookie y devuelve un access token nuevo. Sin
+   * argumentos por la misma razon, y ademas porque es lo que permite que una
+   * pestana nueva se autentique sola: si hay cookie, hay sesion.
+   */
+  refresh: () => Promise<AuthTokens>;
   requestPasswordReset: (request: PasswordResetRequest) => Promise<void>;
   resetPassword: (payload: PasswordResetPayload) => Promise<void>;
   updateCurrentUser: (

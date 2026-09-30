@@ -13,7 +13,6 @@ const environment = {
 const tokens = {
   accessToken: "access-token",
   accessTokenExpiresAt: "2026-09-26T12:00:00.000Z",
-  refreshToken: "refresh-token",
   refreshTokenExpiresAt: "2026-10-03T12:00:00.000Z",
   tokenType: "Bearer",
 };
@@ -37,6 +36,12 @@ function jsonResponse(data: unknown) {
 }
 
 function readJsonBody(request: RequestInit): unknown {
+  // `undefined` es valido: login, refresh y logout ya no envian cuerpo porque la
+  // sesion viaja en la cookie HttpOnly.
+  if (request.body === undefined) {
+    return undefined;
+  }
+
   if (typeof request.body !== "string") {
     throw new Error("Expected a JSON string request body");
   }
@@ -65,15 +70,19 @@ describe("createApiAuthAdapter", () => {
     });
   });
 
-  it("should rotate the refresh token", async () => {
+  it("should renew the session without sending a body", async () => {
     const fetcher = vi.fn().mockResolvedValue(jsonResponse(tokens));
     const adapter = createApiAuthAdapter({ environment, fetcher });
 
-    await expect(adapter.refresh("old-refresh-token")).resolves.toEqual(tokens);
+    await expect(adapter.refresh()).resolves.toEqual(tokens);
 
     const request = fetcher.mock.calls[0]?.[1] as RequestInit;
     expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/api/v1/auth/refresh");
-    expect(readJsonBody(request)).toEqual({ refreshToken: "old-refresh-token" });
+    // Sin cuerpo y con `credentials: include`: la cookie HttpOnly es lo unico que
+    // identifica la sesion, y solo se envia si el navegador la adjunta.
+    expect(readJsonBody(request)).toBeUndefined();
+    expect(request.credentials).toBe("include");
+    expect(new Headers(request.headers).has("Content-Type")).toBe(false);
   });
 
   it("should load the authenticated profile with a bearer token", async () => {
@@ -87,15 +96,18 @@ describe("createApiAuthAdapter", () => {
     expect(new Headers(request.headers).get("Authorization")).toBe("Bearer access-token");
   });
 
-  it("should revoke the refresh token during logout", async () => {
+  it("should close the session during logout without sending a body", async () => {
     const fetcher = vi.fn().mockResolvedValue(jsonResponse({}));
     const adapter = createApiAuthAdapter({ environment, fetcher });
 
-    await expect(adapter.logout("refresh-token")).resolves.toBeUndefined();
+    await expect(adapter.logout()).resolves.toBeUndefined();
 
     const request = fetcher.mock.calls[0]?.[1] as RequestInit;
     expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/api/v1/auth/logout");
-    expect(readJsonBody(request)).toEqual({ refreshToken: "refresh-token" });
+    // Sin cuerpo y con `credentials: include`: la cookie identifica la sesion y la
+    // respuesta la borra.
+    expect(request.body).toBeUndefined();
+    expect(request.credentials).toBe("include");
   });
 
   it("should verify an email with the contracted request body", async () => {
@@ -159,7 +171,6 @@ describe("createApiAuthAdapter", () => {
       adapter.changePassword("access-token", {
         currentPassword: "sipeg-demo",
         newPassword: "Nueva clave 2026",
-        refreshToken: "refresh-token",
       }),
     ).resolves.toBeUndefined();
 
@@ -171,8 +182,24 @@ describe("createApiAuthAdapter", () => {
     expect(readJsonBody(request)).toEqual({
       currentPassword: "sipeg-demo",
       newPassword: "Nueva clave 2026",
-      refreshToken: "refresh-token",
     });
+  });
+
+  it("should reject a password change that carries a refresh token in the body", async () => {
+    // El backend lo toma de la cookie. Si el cliente lo enviara, estaria
+    // expadiendo la credencial a JavaScript sin necesidad.
+    const fetcher = vi.fn().mockResolvedValue(jsonResponse({}));
+    const adapter = createApiAuthAdapter({ environment, fetcher });
+
+    await adapter
+      .changePassword("access-token", {
+        currentPassword: "sipeg-demo",
+        newPassword: "Nueva clave 2026",
+      })
+      .catch(() => undefined);
+
+    const request = fetcher.mock.calls[0]?.[1] as RequestInit;
+    expect(JSON.stringify(request.body)).not.toContain("refreshToken");
   });
 
   it("should reject a password change response that leaks data", async () => {
@@ -183,7 +210,6 @@ describe("createApiAuthAdapter", () => {
       adapter.changePassword("access-token", {
         currentPassword: "sipeg-demo",
         newPassword: "Nueva clave 2026",
-        refreshToken: "refresh-token",
       }),
     ).rejects.toThrow(/auth\.changePassword\.data/);
   });

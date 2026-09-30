@@ -61,10 +61,14 @@ export type AuthenticatedUser = {
   unit: OrganizationReference | null;
 };
 
+/**
+ * `refreshToken` ya no existe en el cliente: viaja en una cookie `HttpOnly` que el
+ * navegador envia sola y que JavaScript no puede leer. Se conserva el campo de
+ * expiracion porque no es secreto y sirve para saber cuanto vive la sesion.
+ */
 export type AuthTokens = {
   accessToken: string;
   accessTokenExpiresAt: string;
-  refreshToken: string;
   refreshTokenExpiresAt: string;
   tokenType: "Bearer";
 };

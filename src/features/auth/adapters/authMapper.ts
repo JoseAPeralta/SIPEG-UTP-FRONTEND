@@ -103,7 +103,6 @@ export function mapAuthTokens(value: unknown, path: string): AuthTokens {
   return {
     accessToken: readString(record, "accessToken", path),
     accessTokenExpiresAt: readDateTime(record, "accessTokenExpiresAt", path),
-    refreshToken: readString(record, "refreshToken", path),
     refreshTokenExpiresAt: readDateTime(record, "refreshTokenExpiresAt", path),
     tokenType,
   };

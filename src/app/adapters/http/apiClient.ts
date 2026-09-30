@@ -12,9 +12,17 @@ export type ApiClientOptions = {
 export type ApiRequestAuth =
   { mode: "none" } | { accessToken: string | null | undefined; mode: "bearer" };
 
+/**
+ * Recupera un access token nuevo. Lo inyecta el modulo de sesion, de modo que
+ * esta capa no conoce como se renueva la credencial ni como se coordina entre
+ * pestanas.
+ */
+export type SessionRefresh = () => Promise<{ getAccessToken: () => string | null }>;
+
 export type ApiRequestOptions = ApiClientOptions & {
   auth: ApiRequestAuth;
   requestInit?: RequestInit;
+  sessionRefresh?: SessionRefresh;
 };
 
 const DEVELOPMENT_API_BASE_URL = "http://localhost:3000";
@@ -68,12 +76,30 @@ export function resolveApiBaseUrl(environment: ApiEnvironment = import.meta.env)
   throw new Error("VITE_API_BASE_URL es obligatoria en produccion");
 }
 
-export async function apiRequest<TResponse>(
-  path: string,
-  { auth, environment = import.meta.env, fetcher = fetch, requestInit }: ApiRequestOptions,
-) {
-  const normalizedPath = normalizePath(path);
-  const requestUrl = `${resolveApiBaseUrl(environment)}${normalizedPath}`;
+/**
+ * Rutas donde un 401 significa "tu sesion termino" y no "este token se quedo
+ * viejo". Refrescarlas otra vez seria un bucle: el propio refresh devuelve 401
+ * cuando la sesion ya no existe.
+ */
+const NON_REFRESHABLE_PATHS = new Set(["/api/v1/auth/refresh", "/api/v1/auth/login"]);
+
+async function send(
+  requestUrl: string,
+  {
+    auth,
+    environment,
+    fetcher,
+    requestInit,
+    accessTokenOverride,
+  }: {
+    auth: ApiRequestAuth;
+    environment: ApiEnvironment;
+    fetcher: typeof fetch;
+    requestInit: RequestInit | undefined;
+    accessTokenOverride?: string;
+  },
+): Promise<unknown> {
+  void environment;
   const headers = new Headers(requestInit?.headers);
 
   if (headers.has("Authorization")) {
@@ -84,13 +110,13 @@ export async function apiRequest<TResponse>(
     headers.set("Accept", "application/json");
   }
 
-  if (auth.mode === "bearer") {
-    const accessToken = auth.accessToken?.trim();
+  const accessToken =
+    accessTokenOverride ?? (auth.mode === "bearer" ? auth.accessToken?.trim() : undefined);
 
+  if (auth.mode === "bearer" || accessTokenOverride !== undefined) {
     if (!accessToken) {
       throw new ApiError(messageForStatus(401), 401);
     }
-
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
@@ -100,6 +126,9 @@ export async function apiRequest<TResponse>(
     response = await fetcher(requestUrl, {
       ...requestInit,
       headers,
+      // La sesion viaja en una cookie HttpOnly: sin esto el navegador no la
+      // adjuntaria a una peticion entre orígenes, y cada pestana seria anonima.
+      credentials: "include",
     });
   } catch {
     throw new ApiError(
@@ -113,8 +142,58 @@ export async function apiRequest<TResponse>(
   }
 
   if (response.status === 204) {
-    return undefined as TResponse;
+    return undefined;
   }
 
-  return (await response.json()) as TResponse;
+  return response.json();
+}
+
+export async function apiRequest<TResponse>(
+  path: string,
+  {
+    auth,
+    environment = import.meta.env,
+    fetcher = fetch,
+    requestInit,
+    sessionRefresh,
+  }: ApiRequestOptions,
+): Promise<TResponse> {
+  const normalizedPath = normalizePath(path);
+  const requestUrl = `${resolveApiBaseUrl(environment)}${normalizedPath}`;
+
+  try {
+    return (await send(requestUrl, { auth, environment, fetcher, requestInit })) as TResponse;
+  } catch (error) {
+    const canRecover =
+      sessionRefresh !== undefined &&
+      error instanceof ApiError &&
+      error.status === 401 &&
+      auth.mode === "bearer" &&
+      !NON_REFRESHABLE_PATHS.has(normalizedPath);
+
+    if (!canRecover) {
+      throw error;
+    }
+
+    // Un solo reintento. Si el token nuevo tambien falla, el 401 sube al
+    // llamador: repetirlo mas veces solo gastaria cuota de rotacion.
+    let renewed: string | null;
+    try {
+      renewed = (await sessionRefresh()).getAccessToken();
+    } catch {
+      throw new ApiError(messageForStatus(401), 401);
+    }
+
+    if (!renewed) {
+      throw new ApiError(messageForStatus(401), 401);
+    }
+
+    return (await send(requestUrl, {
+      auth,
+      environment,
+      fetcher,
+      requestInit,
+      accessTokenOverride: renewed,
+    })) as TResponse;
+  }
 }

@@ -1,18 +1,20 @@
 ---
 title: "ADR-0009: Auth Session and Token Storage"
-status: "Accepted"
+status: "Superseded"
 date: "2026-09-26"
 authors: "SIPEG-UTP Team"
 tags: ["architecture", "decision", "authentication", "security", "session"]
 supersedes: ""
-superseded_by: ""
+superseded_by: "adr-0013-httponly-refresh-cookie-cross-tab"
 ---
 
 # ADR-0009: Auth Session and Token Storage
 
 ## Status
 
-**Accepted**
+**Superseded** by [ADR-0013](./adr-0013-httponly-refresh-cookie-cross-tab.md). The `sessionStorage`
+compromise described here was conditional on the backend contract; that contract now ships the
+`HttpOnly` cookie that this ADR identified as the preferred end state.
 
 ## Context
 

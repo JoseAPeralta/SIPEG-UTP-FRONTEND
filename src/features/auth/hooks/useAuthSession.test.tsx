@@ -15,9 +15,13 @@ import { renderHookWithProviders } from "@/test/render";
 import type { AuthenticatedUser, AuthTokens } from "@/types/domain";
 
 import { AuthError } from "../adapters/authFailure";
-import { AUTH_REFRESH_STORAGE_KEY, writeStoredRefreshSession } from "../model/authSessionStorage";
 
-import { useAuthSessionBootstrap, useLogin, useLogout } from "./useAuthSession";
+import {
+  useAuthSessionBootstrap,
+  useLogin,
+  useLogout,
+  useProactiveTokenRenewal,
+} from "./useAuthSession";
 
 const currentUser: AuthenticatedUser = {
   career: null,
@@ -33,7 +37,6 @@ const currentUser: AuthenticatedUser = {
 const tokens: AuthTokens = {
   accessToken: "access-token",
   accessTokenExpiresAt: "2099-01-01T00:00:00.000Z",
-  refreshToken: "refresh-token",
   refreshTokenExpiresAt: "2099-02-01T00:00:00.000Z",
   tokenType: "Bearer",
 };
@@ -98,16 +101,15 @@ describe("auth session hooks", () => {
     expect(localStorage.getItem("sipeg-session")).toBeNull();
     expect(useUnitPreferenceStore.getState().selectedUnitId).toBe("all");
     expect(useWorkingContextStore.getState().workingContext).toBeNull();
-    expect(JSON.parse(String(sessionStorage.getItem(AUTH_REFRESH_STORAGE_KEY)))).toEqual({
-      refreshToken: tokens.refreshToken,
-      refreshTokenExpiresAt: tokens.refreshTokenExpiresAt,
-    });
+    // La cookie HttpOnly la guarda el navegador; el codigo no escribe nada.
+    expect(sessionStorage.length).toBe(0);
   });
 
-  it("should restore a session with a rotated refresh token", async () => {
-    const rotatedTokens = { ...tokens, refreshToken: "rotated-refresh-token" };
-    const auth = createAuthAdapter({ refresh: vi.fn().mockResolvedValue(rotatedTokens) });
-    writeStoredRefreshSession(tokens);
+  it("should restore the session from the cookie on load", async () => {
+    // No hay nada que leer del almacenamiento: la cookie la envio el navegador y
+    // el backend responde con la sesion. Esto es lo que hace que una pestana
+    // nueva quede autenticada sin volver a iniciar sesion.
+    const auth = createAuthAdapter();
     useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
 
     renderHookWithProviders(() => useAuthSessionBootstrap(), {
@@ -116,10 +118,8 @@ describe("auth session hooks", () => {
 
     await waitFor(() => expect(useSessionStore.getState().status).toBe("authenticated"));
 
-    expect(auth.refresh).toHaveBeenCalledWith(tokens.refreshToken);
-    expect(JSON.parse(String(sessionStorage.getItem(AUTH_REFRESH_STORAGE_KEY)))).toMatchObject({
-      refreshToken: "rotated-refresh-token",
-    });
+    expect(auth.refresh).toHaveBeenCalledWith();
+    expect(sessionStorage.length).toBe(0);
   });
 
   it("should rotate tokens before the access token expires", async () => {
@@ -133,26 +133,48 @@ describe("auth session hooks", () => {
       ...tokens,
       accessToken: "rotated-access-token",
       accessTokenExpiresAt: "2026-09-26T12:20:00.000Z",
-      refreshToken: "rotated-refresh-token",
     };
-    const auth = createAuthAdapter({ refresh: vi.fn().mockResolvedValue(rotatedTokens) });
-    useSessionStore.getState().setSession({ currentUser, tokens: expiringTokens });
-    writeStoredRefreshSession(expiringTokens);
+    const auth = createAuthAdapter({
+      login: vi.fn().mockResolvedValue(expiringTokens),
+      refresh: vi.fn().mockResolvedValue(rotatedTokens),
+    });
 
-    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+    // Se entra por el login porque el coordinador es quien calcula cuando
+    // renovar, y solo conoce la sesion que el login le entrego. Escribir el store
+    // a mano dejaria al coordinador sin saber que hay algo que renovar.
+    const { result } = renderHookWithProviders(() => useLogin(), {
       adapters: createAdapters(auth),
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(60 * 1000);
+      await result.current.login({ email: "admin@example.edu", password: "secret" });
     });
 
-    expect(auth.refresh).toHaveBeenCalledWith(expiringTokens.refreshToken);
-    expect(useSessionStore.getState().tokens).toEqual(rotatedTokens);
+    renderHookWithProviders(() => useProactiveTokenRenewal(), {
+      adapters: createAdapters(auth),
+    });
+
+    // El margen es de 60 s, asi que a las 12:01:30 todavia no toca: se comprueba
+    // que espera y no renueva antes de tiempo.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30 * 1000);
+    });
+    expect(auth.refresh).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30 * 1000);
+    });
+
+    expect(auth.refresh).toHaveBeenCalledWith();
+    expect(useSessionStore.getState().tokens?.accessToken).toBe(rotatedTokens.accessToken);
   });
 
-  it("should finish restoration anonymously without a stored refresh token", async () => {
-    const auth = createAuthAdapter();
+  it("should finish restoration anonymously when there is no session", async () => {
+    // Sin cookie, `refresh` responde 401. Es el caso normal de un visitante
+    // anonimo: se llega a la pantalla de login sin mostrar ningun error.
+    const auth = createAuthAdapter({
+      refresh: vi.fn().mockRejectedValue(Object.assign(new Error("unauthorized"), { status: 401 })),
+    });
     localStorage.setItem("sipeg-session", "legacy-user-profile");
     useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
 
@@ -161,28 +183,33 @@ describe("auth session hooks", () => {
     });
 
     await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
-    expect(auth.refresh).not.toHaveBeenCalled();
+    expect(auth.refresh).toHaveBeenCalledWith();
     expect(localStorage.getItem("sipeg-session")).toBeNull();
+    expect(sessionStorage.length).toBe(0);
   });
 
-  it("should clear invalid restoration state", async () => {
-    const auth = createAuthAdapter({ refresh: vi.fn().mockRejectedValue(new Error("expired")) });
-    writeStoredRefreshSession(tokens);
+  it("should keep the session when the bootstrap refresh fails transiently", async () => {
+    // Un 429 o una caida de red no terminan la sesion: el usuario volveria a
+    // tenerla al minuto sin haber hecho nada.
+    const auth = createAuthAdapter({
+      refresh: vi.fn().mockRejectedValue(new AuthError("throttled")),
+    });
     useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
 
     renderHookWithProviders(() => useAuthSessionBootstrap(), {
       adapters: createAdapters(auth),
     });
 
-    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
-    expect(sessionStorage.getItem(AUTH_REFRESH_STORAGE_KEY)).toBeNull();
+    // Un limite de cuota se avisa, pero no se revoca nada en el servidor: el
+    // usuario conserva su sesion.
+    await waitFor(() => expect(useSessionStore.getState().sessionEndReason).toBe("throttled"));
+    expect(auth.logout).not.toHaveBeenCalled();
   });
 
   it("should clear local state even when remote logout fails", async () => {
     const auth = createAuthAdapter({ logout: vi.fn().mockRejectedValue(new Error("offline")) });
     const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
     useSessionStore.getState().setSession({ currentUser, tokens });
-    writeStoredRefreshSession(tokens);
     queryClient.setQueryData(queryKeys.administrativeActivityCatalog(currentUser.id), {
       private: true,
     });
@@ -195,9 +222,9 @@ describe("auth session hooks", () => {
       await result.current.logout();
     });
 
-    expect(auth.logout).toHaveBeenCalledWith(tokens.refreshToken);
+    expect(auth.logout).toHaveBeenCalled();
     expect(useSessionStore.getState().status).toBe("anonymous");
-    expect(sessionStorage.getItem(AUTH_REFRESH_STORAGE_KEY)).toBeNull();
+    expect(sessionStorage.length).toBe(0);
     expect(
       queryClient.getQueryData(queryKeys.administrativeActivityCatalog(currentUser.id)),
     ).toBeUndefined();
@@ -254,66 +281,48 @@ describe("auth session hooks", () => {
     await waitFor(() => expect(result.current.failure).toBe("throttled"));
   });
 
-  it("should explain an expired stored session instead of a first visit", async () => {
-    const auth = createAuthAdapter();
-    writeStoredRefreshSession({ ...tokens, refreshTokenExpiresAt: "2020-01-01T00:00:00.000Z" });
-    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
-
-    renderHookWithProviders(() => useAuthSessionBootstrap(), {
-      adapters: createAdapters(auth),
-    });
-
-    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
-    expect(useSessionStore.getState().sessionEndReason).toBe("expired");
-    expect(auth.refresh).not.toHaveBeenCalled();
-  });
-
   it("should raise no notice on a first visit", async () => {
-    const auth = createAuthAdapter();
-    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
-
-    renderHookWithProviders(() => useAuthSessionBootstrap(), {
-      adapters: createAdapters(auth),
-    });
-
-    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
-    expect(useSessionStore.getState().sessionEndReason).toBeNull();
-  });
-
-  it("should raise no notice for a malformed stored session", async () => {
-    const auth = createAuthAdapter();
-    sessionStorage.setItem(AUTH_REFRESH_STORAGE_KEY, "not-json");
-    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
-
-    renderHookWithProviders(() => useAuthSessionBootstrap(), {
-      adapters: createAdapters(auth),
-    });
-
-    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
-    expect(useSessionStore.getState().sessionEndReason).toBeNull();
-  });
-
-  it("should report a rejected refresh as an expired session", async () => {
+    // El unico modo de "no hay sesion" ahora es que el backend responda 401, y
+    // eso se resuelve sin dejar rastro en el almacenamiento.
     const auth = createAuthAdapter({
       refresh: vi.fn().mockRejectedValue(new AuthError("rejected")),
     });
-    writeStoredRefreshSession(tokens);
     useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
 
     renderHookWithProviders(() => useAuthSessionBootstrap(), {
       adapters: createAdapters(auth),
     });
 
-    await waitFor(() => expect(useSessionStore.getState().sessionEndReason).toBe("expired"));
+    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
+    expect(useSessionStore.getState().sessionEndReason).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it("should land on a plain login screen when the cookie no longer holds a session", async () => {
+    // Con la cookie, "nunca se inicio sesion" y "la sesion caduco" producen el
+    // mismo 401: el cliente no puede leer la cookie para distinguirlas. Al cargar
+    // la pagina se muestra el login sin explicar nada, que es lo que corresponde
+    // a una sesion que ya no existe. El caso "mi sesion caduco mientras la
+    // usaba" si se explica, porque ahi sabemos que habia una sesion viva.
+    const auth = createAuthAdapter({
+      refresh: vi.fn().mockRejectedValue(new AuthError("rejected")),
+    });
+    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
+
+    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+      adapters: createAdapters(auth),
+    });
+
+    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
+    expect(useSessionStore.getState().sessionEndReason).toBeNull();
     expect(useSessionStore.getState().currentUser).toBeNull();
-    expect(sessionStorage.getItem(AUTH_REFRESH_STORAGE_KEY)).toBeNull();
+    expect(sessionStorage.length).toBe(0);
   });
 
   it("should report a throttled refresh as a temporary limit", async () => {
     const auth = createAuthAdapter({
       refresh: vi.fn().mockRejectedValue(new AuthError("throttled")),
     });
-    writeStoredRefreshSession(tokens);
     useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
 
     renderHookWithProviders(() => useAuthSessionBootstrap(), {
@@ -327,7 +336,6 @@ describe("auth session hooks", () => {
     const auth = createAuthAdapter({
       refresh: vi.fn().mockRejectedValue(new AuthError("unavailable")),
     });
-    writeStoredRefreshSession(tokens);
     useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
 
     renderHookWithProviders(() => useAuthSessionBootstrap(), {
@@ -347,7 +355,6 @@ describe("auth session hooks", () => {
           }),
       ),
     });
-    writeStoredRefreshSession(tokens);
     useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
 
     renderHookWithProviders(() => useAuthSessionBootstrap(), {

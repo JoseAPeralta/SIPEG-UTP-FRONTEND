@@ -16,7 +16,12 @@ export {
   type PersonalAreaSectionId,
 } from "./model/personalAreaSections";
 export { SESSION_END_MESSAGES } from "./model/sessionEnd";
-export { useAuthSessionBootstrap, useLogin, useLogout } from "./hooks/useAuthSession";
+export {
+  useAuthSessionBootstrap,
+  useLogin,
+  useLogout,
+  useProactiveTokenRenewal,
+} from "./hooks/useAuthSession";
 export { useChangePassword } from "./hooks/useChangePassword";
 export { useProfile } from "./hooks/useProfile";
 export { useRequestPasswordReset, useResetPassword } from "./hooks/usePasswordRecovery";

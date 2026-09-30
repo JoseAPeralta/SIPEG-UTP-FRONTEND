@@ -112,13 +112,9 @@ export function createMockAuthAdapter(): AuthAdapter {
   let profile: AuthenticatedUser = { ...mockAuthenticatedUser };
 
   return {
-    changePassword(accessToken, { currentPassword: providedPassword, newPassword, refreshToken }) {
+    changePassword(accessToken, { currentPassword: providedPassword, newPassword }) {
       if (accessToken !== mockAuthTokens.accessToken) {
         return Promise.reject(new ApiError("Su sesion no esta autorizada.", 401));
-      }
-
-      if (refreshToken !== mockAuthTokens.refreshToken) {
-        return Promise.reject(new ApiError("La solicitud no es valida.", 400));
       }
 
       if (
@@ -155,11 +151,9 @@ export function createMockAuthAdapter(): AuthAdapter {
 
     logout: () => Promise.resolve(),
 
-    refresh(refreshToken) {
-      if (refreshToken !== mockAuthTokens.refreshToken) {
-        return Promise.reject(new ApiError("Su sesion no esta autorizada.", 401));
-      }
-
+    refresh() {
+      // Sin token que comprobar: la cookie es la que autoriza y, como en el
+      // adaptador real, este codigo no puede leerla.
       return Promise.resolve(mockAuthTokens);
     },
 

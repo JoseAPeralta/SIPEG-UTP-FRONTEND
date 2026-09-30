@@ -80,7 +80,6 @@ describe("ChangePasswordPage", () => {
     expect(auth.changePassword).toHaveBeenCalledWith(tokens.accessToken, {
       currentPassword: "sipeg-demo",
       newPassword: "Nueva clave 2026",
-      refreshToken: tokens.refreshToken,
     });
   });
 
@@ -175,7 +174,8 @@ describe("ChangePasswordPage", () => {
     });
 
     expect(container.innerHTML).not.toContain(tokens.accessToken);
-    expect(container.innerHTML).not.toContain(tokens.refreshToken);
+    expect(container.innerHTML).not.toContain(tokens.accessToken);
+    expect(sessionStorage.length).toBe(0);
   });
 
   it("should render the password form without its own route heading", () => {

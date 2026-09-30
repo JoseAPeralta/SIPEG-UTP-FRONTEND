@@ -84,21 +84,24 @@ export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthA
       return mapAuthTokens(readAuthEnvelopeData(payload, "auth.login"), "auth.login.data");
     },
 
-    async logout(refreshToken: string) {
+    async logout() {
+      // Sin cuerpo: el backend lee el refresh token de la cookie HttpOnly y la
+      // borra en la respuesta. `credentials: include` lo hace `apiRequest`.
       const payload = await apiRequest<unknown>("/api/v1/auth/logout", {
         ...options,
         auth: { mode: "none" },
-        requestInit: jsonRequest({ refreshToken }),
       });
 
       readAuthEnvelopeData(payload, "auth.logout");
     },
 
-    async refresh(refreshToken: string) {
+    async refresh() {
+      // Igual que logout: sin cuerpo. Como la cookie es del origen, cualquier
+      // pestana puede renewar la sesion, y una pestana recien abierta se
+      // autentica con una sola llamada a este endpoint.
       const payload = await apiRequest<unknown>("/api/v1/auth/refresh", {
         ...options,
         auth: { mode: "none" },
-        requestInit: jsonRequest({ refreshToken }),
       });
 
       return mapAuthTokens(readAuthEnvelopeData(payload, "auth.refresh"), "auth.refresh.data");

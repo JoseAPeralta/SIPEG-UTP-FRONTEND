@@ -6,6 +6,7 @@ import {
   PersonalAreaLayout,
   resolveAuthLandingPath,
   useAuthSessionBootstrap,
+  useProactiveTokenRenewal,
 } from "@/features/auth";
 import { useSessionStore } from "@/store/session";
 
@@ -66,7 +67,11 @@ function RedirectToAdminRoute({ path }: { path: string }) {
 }
 
 export function App() {
+  // El arranque restaura la sesion una vez, al cargar. La renovacion es otra
+  // cosa: corre cada vez que se acerca el vencimiento del access token, y por
+  // eso va en su propio hook.
   useAuthSessionBootstrap();
+  useProactiveTokenRenewal();
   const sessionStatus = useSessionStore((state) => state.status);
 
   if (sessionStatus === "restoring") {

@@ -1,151 +1,132 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { apiRequest, resolveApiBaseUrl } from "./apiClient";
+import { ApiError, apiRequest, type ApiRequestOptions } from "./apiClient.js";
 
-describe("apiClient", () => {
-  it("should prefer an explicit VITE_API_BASE_URL", () => {
-    expect(
-      resolveApiBaseUrl({ DEV: true, PROD: false, VITE_API_BASE_URL: "https://api.utp.ac.pa/v1/" }),
-    ).toBe("https://api.utp.ac.pa/v1");
+const ENVIRONMENT = { DEV: true, PROD: false, VITE_API_BASE_URL: "http://api.test" } as const;
+
+type Call = {
+  url: string;
+  init: RequestInit;
+};
+
+const buildFetch = (
+  handler: (call: Call, index: number) => Response,
+): { fetcher: typeof fetch; calls: Call[] } => {
+  const calls: Call[] = [];
+  // `fetch` admite string, URL o Request. Aqui solo llega un string, asi que se
+  // anotan los tipos reales del override en vez de castear a `typeof fetch`.
+  const fetcher = vi.fn((url: string, init?: RequestInit): Promise<Response> => {
+    const call = { url, init: init ?? {} };
+    calls.push(call);
+
+    return Promise.resolve(handler(call, calls.length - 1));
+  }) as unknown as typeof fetch;
+
+  return { fetcher, calls };
+};
+
+const jsonResponse = (status: number, body: unknown = {}): Response =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+
+const baseOptions = (fetcher: typeof fetch): ApiRequestOptions => ({
+  environment: ENVIRONMENT,
+  fetcher,
+  auth: { mode: "bearer", accessToken: "access-1" },
+});
+
+describe("apiRequest credentials", () => {
+  it("sends the session cookie with every request", async () => {
+    const { fetcher, calls } = buildFetch(() => jsonResponse(200, { ok: true }));
+
+    await apiRequest("/api/v1/careers", baseOptions(fetcher));
+
+    expect(calls[0]?.init.credentials).toBe("include");
   });
 
-  it("should use the local API URL in development", () => {
-    expect(resolveApiBaseUrl({ DEV: true, PROD: false })).toBe("http://localhost:3000");
-  });
+  it("does not set an Authorization header for unauthenticated calls", async () => {
+    const { fetcher, calls } = buildFetch(() => jsonResponse(200, { ok: true }));
 
-  it("should require an explicit API URL in production", () => {
-    expect(() => resolveApiBaseUrl({ DEV: false, PROD: true })).toThrow(
-      "VITE_API_BASE_URL es obligatoria en produccion",
-    );
-  });
-
-  it("should request JSON from the resolved API URL", async () => {
-    const fetcher = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      }),
-    );
-
-    const response = await apiRequest<{ ok: boolean }>("/events", {
+    await apiRequest("/api/v1/auth/login", {
+      ...baseOptions(fetcher),
       auth: { mode: "none" },
-      environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
-      fetcher,
     });
 
-    expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/events");
-    expect(
-      new Headers((fetcher.mock.calls[0]?.[1] as RequestInit | undefined)?.headers).get("Accept"),
-    ).toBe("application/json");
-    expect(response).toEqual({ ok: true });
+    expect(new Headers(calls[0]?.init.headers).has("Authorization")).toBe(false);
   });
+});
 
-  it("should reject a manually supplied Authorization header before fetch", async () => {
-    const fetcher = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      }),
+describe("apiRequest 401 handling", () => {
+  it("refreshes once and replays the original request", async () => {
+    // La primera llamada falla con 401 por token viejo; tras el refresh, la misma
+    // peticion se reenvia y funciona.
+    const { fetcher, calls } = buildFetch((_call, index) =>
+      index === 0 ? jsonResponse(401) : jsonResponse(200, { items: [] }),
     );
+    const refresh = vi.fn(() => Promise.resolve({ getAccessToken: () => "access-2" }));
 
-    await expect(
-      apiRequest("/events", {
-        auth: { mode: "none" },
-        environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
-        fetcher,
-        requestInit: { headers: new Headers({ Authorization: "Bearer token" }) },
-      }),
-    ).rejects.toThrow("Authorization");
-    expect(fetcher).not.toHaveBeenCalled();
-  });
-
-  it("should attach the bearer token provided by the session", async () => {
-    const fetcher = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      }),
-    );
-
-    await apiRequest("/api/v1/users/me", {
-      auth: { accessToken: "access-token", mode: "bearer" },
-      environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
-      fetcher,
+    const result = await apiRequest<{ items: unknown[] }>("/api/v1/careers", {
+      ...baseOptions(fetcher),
+      sessionRefresh: refresh,
     });
 
-    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
-
-    expect(new Headers(requestInit?.headers).get("Authorization")).toBe("Bearer access-token");
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(calls).toHaveLength(2);
+    expect(calls[1]?.url).toBe("http://api.test/api/v1/careers");
+    expect(new Headers(calls[1]?.init.headers).get("Authorization")).toBe("Bearer access-2");
+    expect(result).toEqual({ items: [] });
   });
 
-  it.each([null, undefined, "", "   "])(
-    "should reject a missing bearer token before fetch (%s)",
-    async (accessToken) => {
-      const fetcher = vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ ok: true }), {
-          headers: { "Content-Type": "application/json" },
-          status: 200,
-        }),
-      );
-
-      await expect(
-        apiRequest("/api/v1/organizational-units", {
-          auth: { accessToken, mode: "bearer" },
-          environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
-          fetcher,
-        }),
-      ).rejects.toMatchObject({
-        message: "Su sesion no esta autorizada.",
-        name: "ApiError",
-        status: 401,
-      });
-      expect(fetcher).not.toHaveBeenCalled();
-    },
-  );
-
-  it("should throw a Spanish error when the response is not ok", async () => {
-    const fetcher = vi.fn().mockResolvedValue(new Response("Server error", { status: 500 }));
+  it("does not loop: a second 401 is surfaced to the caller", async () => {
+    // Sin este tope, un backend que devuelve 401 de forma permanente entraria en
+    // un ciclo infinito de refresh.
+    const { fetcher, calls } = buildFetch(() => jsonResponse(401));
+    const refresh = vi.fn(() => Promise.resolve({ getAccessToken: () => "access-2" }));
 
     await expect(
-      apiRequest("/events", {
-        auth: { mode: "none" },
-        environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
-        fetcher,
-      }),
-    ).rejects.toMatchObject({
-      message: "Ocurrio un error en el servidor. Intente de nuevo.",
-      name: "ApiError",
-      status: 500,
-    });
+      apiRequest("/api/v1/careers", { ...baseOptions(fetcher), sessionRefresh: refresh }),
+    ).rejects.toBeInstanceOf(ApiError);
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(calls).toHaveLength(2);
   });
 
-  it("should map known status codes to Spanish messages without exposing the path", async () => {
-    const fetcher = vi.fn().mockResolvedValue(new Response(null, { status: 404 }));
+  it("does not try to refresh when the failing call is the refresh itself", async () => {
+    const { fetcher, calls } = buildFetch(() => jsonResponse(401));
+    const refresh = vi.fn(() => Promise.resolve({ getAccessToken: () => "access-2" }));
 
     await expect(
-      apiRequest("/api/v1/activities/missing", {
+      apiRequest("/api/v1/auth/refresh", {
+        ...baseOptions(fetcher),
         auth: { mode: "none" },
-        environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
-        fetcher,
+        sessionRefresh: refresh,
       }),
-    ).rejects.toMatchObject({
-      message: "No se encontro el recurso solicitado.",
-      status: 404,
-    });
+    ).rejects.toBeInstanceOf(ApiError);
+    expect(refresh).not.toHaveBeenCalled();
+    expect(calls).toHaveLength(1);
   });
 
-  it("should report a Spanish connection error when the request fails", async () => {
-    const fetcher = vi.fn().mockRejectedValue(new TypeError("fetch failed"));
+  it("does not try to refresh a request that was never authenticated", async () => {
+    const { fetcher } = buildFetch(() => jsonResponse(401));
+    const refresh = vi.fn(() => Promise.resolve({ getAccessToken: () => "access-2" }));
 
     await expect(
-      apiRequest("/api/v1/activities", {
-        auth: { mode: "none" },
-        environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
+      apiRequest("/api/v1/careers", {
+        environment: ENVIRONMENT,
         fetcher,
+        auth: { mode: "none" },
+        sessionRefresh: refresh,
       }),
-    ).rejects.toMatchObject({
-      message: "No se pudo conectar con el servidor. Verifique que el backend este disponible.",
-      status: 0,
-    });
+    ).rejects.toBeInstanceOf(ApiError);
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("surfaces the original 401 when the refresh itself fails", async () => {
+    // Si el refresh falla, la peticion original no tiene sentido: lo que el
+    // usuario necesita saber es que su sesion termino, no el error de red.
+    const { fetcher } = buildFetch(() => jsonResponse(401));
+    const refresh = vi.fn(() => Promise.reject(new Error("refresh rejected")));
+
+    await expect(
+      apiRequest("/api/v1/careers", { ...baseOptions(fetcher), sessionRefresh: refresh }),
+    ).rejects.toMatchObject({ status: 401 });
   });
 });

@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AuthAdapter, type RegistrationAdapter } from "@/app/adapters";
 import { ProfileUpdateError } from "@/features/auth";
-import { AUTH_REFRESH_STORAGE_KEY } from "@/features/auth/model/authSessionStorage";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";
@@ -187,7 +186,7 @@ describe("ProfileView", () => {
     await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
     expect(useSessionStore.getState().tokens).toBeNull();
     expect(useSessionStore.getState().sessionEndReason).toBe("expired");
-    expect(sessionStorage.getItem(AUTH_REFRESH_STORAGE_KEY)).toBeNull();
+    expect(sessionStorage.length).toBe(0);
   });
 
   it("should stop rendering the form once the session is gone", async () => {
@@ -229,6 +228,9 @@ describe("ProfileView", () => {
     await screen.findByLabelText(/nombre/i);
 
     expect(container.innerHTML).not.toContain(tokens.accessToken);
-    expect(container.innerHTML).not.toContain(tokens.refreshToken);
+    // El refresh token no existe en el cliente (vive en la cookie HttpOnly), y el
+    // access token tampoco puede quedar renderizado.
+    expect(container.innerHTML).not.toContain(tokens.accessToken);
+    expect(sessionStorage.length).toBe(0);
   });
 });

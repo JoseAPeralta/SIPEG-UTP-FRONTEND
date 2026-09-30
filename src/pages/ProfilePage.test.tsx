@@ -95,6 +95,7 @@ describe("ProfilePage", () => {
     const { container } = renderWithProviders(<ProfilePage />, { route: "/perfil/datos" });
 
     expect(container.innerHTML).not.toContain(tokens.accessToken);
-    expect(container.innerHTML).not.toContain(tokens.refreshToken);
+    expect(container.innerHTML).not.toContain(tokens.accessToken);
+    expect(sessionStorage.length).toBe(0);
   });
 });

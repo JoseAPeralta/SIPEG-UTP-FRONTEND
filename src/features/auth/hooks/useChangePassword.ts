@@ -32,10 +32,7 @@ export function useChangePassword() {
       }
 
       try {
-        await auth.changePassword(tokens.accessToken, {
-          ...request,
-          refreshToken: tokens.refreshToken,
-        });
+        await auth.changePassword(tokens.accessToken, request);
       } catch (error) {
         const failure = toPasswordChangeError(error);
 

@@ -34,7 +34,6 @@ export function createAuthTokens(overrides: Partial<AuthTokens> = {}): AuthToken
   return {
     accessToken: "access-token",
     accessTokenExpiresAt: "2099-01-01T00:00:00.000Z",
-    refreshToken: "refresh-token",
     refreshTokenExpiresAt: "2099-02-01T00:00:00.000Z",
     tokenType: "Bearer",
     ...overrides,

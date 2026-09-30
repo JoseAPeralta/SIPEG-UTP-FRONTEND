@@ -33,22 +33,13 @@ describe("createMockAuthAdapter", () => {
     });
   });
 
-  it("should rotate a valid mock refresh token", async () => {
+  it("should renew the session without a refresh token argument", async () => {
     const adapter = createMockAuthAdapter();
-    const tokens = await adapter.login({ email: MOCK_AUTH_EMAIL, password: MOCK_AUTH_PASSWORD });
+    await adapter.login({ email: MOCK_AUTH_EMAIL, password: MOCK_AUTH_PASSWORD });
 
-    await expect(adapter.refresh(tokens.refreshToken)).resolves.toMatchObject({
-      tokenType: "Bearer",
-    });
-  });
-
-  it("should reject an invalid refresh token with formal language", async () => {
-    const adapter = createMockAuthAdapter();
-
-    await expect(adapter.refresh("invalid-token")).rejects.toMatchObject({
-      message: "Su sesion no esta autorizada.",
-      status: 401,
-    });
+    // La cookie es la que autoriza y no se puede pasar ni leer desde aqui, igual
+    // que con el adaptador real.
+    await expect(adapter.refresh()).resolves.toMatchObject({ tokenType: "Bearer" });
   });
 
   it("should verify an email with a non-empty token", async () => {
@@ -124,7 +115,6 @@ describe("createMockAuthAdapter", () => {
       adapter.changePassword(mockAuthTokens.accessToken, {
         currentPassword: MOCK_AUTH_PASSWORD,
         newPassword: "Nueva clave 2026",
-        refreshToken: mockAuthTokens.refreshToken,
       }),
     ).resolves.toBeUndefined();
   });
@@ -136,7 +126,6 @@ describe("createMockAuthAdapter", () => {
       adapter.changePassword(mockAuthTokens.accessToken, {
         currentPassword: "Otra clave 2026",
         newPassword: "Nueva clave 2026",
-        refreshToken: mockAuthTokens.refreshToken,
       }),
     ).rejects.toMatchObject({ status: 400 });
   });
@@ -148,22 +137,14 @@ describe("createMockAuthAdapter", () => {
       adapter.changePassword("otro-access-token", {
         currentPassword: MOCK_AUTH_PASSWORD,
         newPassword: "Nueva clave 2026",
-        refreshToken: mockAuthTokens.refreshToken,
       }),
     ).rejects.toMatchObject({ status: 401 });
   });
 
-  it("should reject a password change with a refresh token from another session", async () => {
-    const adapter = createMockAuthAdapter();
-
-    await expect(
-      adapter.changePassword(mockAuthTokens.accessToken, {
-        currentPassword: MOCK_AUTH_PASSWORD,
-        newPassword: "Nueva clave 2026",
-        refreshToken: "otro-refresh-token",
-      }),
-    ).rejects.toMatchObject({ status: 400 });
-  });
+  // La comprobacion "el refresh token pertenece a este usuario" ya no puede vivir
+  // en el mock: la credencial llega en una cookie HttpOnly que el adaptador no
+  // lee. La verifica el backend filtrando por `userId`, con tests en
+  // `auth.service.test.ts`.
 
   it("should reject a new password outside the product limits", async () => {
     const adapter = createMockAuthAdapter();
@@ -172,7 +153,6 @@ describe("createMockAuthAdapter", () => {
       adapter.changePassword(mockAuthTokens.accessToken, {
         currentPassword: MOCK_AUTH_PASSWORD,
         newPassword: "a".repeat(21),
-        refreshToken: mockAuthTokens.refreshToken,
       }),
     ).rejects.toMatchObject({ status: 400 });
   });
@@ -183,7 +163,6 @@ describe("createMockAuthAdapter", () => {
     await adapter.changePassword(mockAuthTokens.accessToken, {
       currentPassword: MOCK_AUTH_PASSWORD,
       newPassword: "Nueva clave 2026",
-      refreshToken: mockAuthTokens.refreshToken,
     });
 
     await expect(
@@ -201,7 +180,6 @@ describe("createMockAuthAdapter", () => {
     await firstAdapter.changePassword(mockAuthTokens.accessToken, {
       currentPassword: MOCK_AUTH_PASSWORD,
       newPassword: "Nueva clave 2026",
-      refreshToken: mockAuthTokens.refreshToken,
     });
 
     await expect(
