@@ -77,6 +77,80 @@
       "title": "Features/Activity Catalog/EventProgramCard"
     },
     {
+      "componentPath": "src/features/auth/ui/ChangePasswordForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-changepasswordform--current-password-required",
+          "name": "Current Password Required",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--invalid-credentials",
+          "name": "Invalid Credentials",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--password-mismatch",
+          "name": "Password Mismatch",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--password-too-short",
+          "name": "Password Too Short",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--password-visible",
+          "name": "Password Visible",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--throttled",
+          "name": "Throttled",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/ChangePasswordForm.stories.tsx",
+      "title": "Features/Auth/ChangePasswordForm"
+    },
+    {
+      "componentPath": "src/features/auth/ui/ForgotPasswordForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-forgotpasswordform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-forgotpasswordform--invalid-email",
+          "name": "Invalid Email",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-forgotpasswordform--service-error",
+          "name": "Service Error",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-forgotpasswordform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/ForgotPasswordForm.stories.tsx",
+      "title": "Features/Auth/ForgotPasswordForm"
+    },
+    {
       "componentPath": "src/features/auth/ui/LoginForm.tsx",
       "stories": [
         {
@@ -93,10 +167,106 @@
           "id": "features-auth-loginform--submitting",
           "name": "Submitting",
           "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-loginform--throttled",
+          "name": "Throttled",
+          "tags": ["autodocs", "dev", "manifest", "test"]
         }
       ],
       "storyPath": "src/features/auth/ui/LoginForm.stories.tsx",
       "title": "Features/Auth/LoginForm"
+    },
+    {
+      "componentPath": "src/features/auth/ui/PersonalAreaLayout.tsx",
+      "stories": [
+        {
+          "id": "features-auth-personalarealayout--desktop-data-section",
+          "name": "Desktop Data Section",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-personalarealayout--desktop-security-section",
+          "name": "Desktop Security Section",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/PersonalAreaLayout.stories.tsx",
+      "title": "Features/Auth/PersonalAreaLayout"
+    },
+    {
+      "componentPath": "src/features/auth/ui/ProfileForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-profileform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-profileform--inactive-current-assignment",
+          "name": "Inactive Current Assignment",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-profileform--other-unit",
+          "name": "Other Unit",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-profileform--service-error",
+          "name": "Service Error",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-profileform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-profileform--validation-error",
+          "name": "Validation Error",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/ProfileForm.stories.tsx",
+      "title": "Features/Auth/ProfileForm"
+    },
+    {
+      "componentPath": "src/features/auth/ui/ResetPasswordForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-resetpasswordform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--expired-link",
+          "name": "Expired Link",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--password-mismatch",
+          "name": "Password Mismatch",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--password-too-short",
+          "name": "Password Too Short",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--password-visible",
+          "name": "Password Visible",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/ResetPasswordForm.stories.tsx",
+      "title": "Features/Auth/ResetPasswordForm"
     },
     {
       "componentPath": "src/features/registration/ui/RegisterForm.tsx",
@@ -107,6 +277,11 @@
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
+          "id": "features-registration-registerform--password-policy",
+          "name": "Password Policy",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
           "id": "features-registration-registerform--registration-error",
           "name": "Registration Error",
           "tags": ["autodocs", "dev", "manifest", "test"]
@@ -114,6 +289,11 @@
         {
           "id": "features-registration-registerform--submitting",
           "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-registration-registerform--throttled",
+          "name": "Throttled",
           "tags": ["autodocs", "dev", "manifest", "test"]
         }
       ],
@@ -274,6 +454,11 @@
     {
       "componentPath": "src/components/ui/FeedbackState.tsx",
       "stories": [
+        {
+          "id": "shared-ui-feedbackstate--confirmed-outcome",
+          "name": "Confirmed Outcome",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
         {
           "id": "shared-ui-feedbackstate--empty",
           "name": "Empty",
