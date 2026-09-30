@@ -75,29 +75,31 @@ http://localhost:5173
 
 ## Scripts Disponibles
 
-| Comando                    | Uso                                                           |
-| -------------------------- | ------------------------------------------------------------- |
-| `pnpm run api:contract`    | Consulta operaciones puntuales del contrato OpenAPI.          |
-| `pnpm run audit`           | Audita dependencias y falla ante vulnerabilidades altas.      |
-| `pnpm run dev`             | Inicia el servidor local de desarrollo.                       |
-| `pnpm run build`           | Ejecuta typecheck y genera el build de produccion en `dist`.  |
-| `pnpm run preview`         | Sirve localmente el build de produccion.                      |
-| `pnpm run start`           | Alias para servir el build con `vite preview --host 0.0.0.0`. |
-| `pnpm run storybook`       | Abre el catalogo interactivo de componentes.                  |
-| `pnpm run storybook:build` | Valida y genera el catalogo estatico en `storybook-static`.   |
-| `pnpm run test:storybook`  | Ejecuta stories, interacciones y auditorias axe en Chromium.  |
-| `pnpm run lint`            | Ejecuta ESLint con cero warnings permitidos.                  |
-| `pnpm run lint:fix`        | Ejecuta ESLint aplicando correcciones automaticas.            |
-| `pnpm run format`          | Formatea archivos con Prettier.                               |
-| `pnpm run format:check`    | Verifica formato sin modificar archivos.                      |
-| `pnpm run typecheck`       | Ejecuta TypeScript sin emitir archivos.                       |
-| `pnpm test`                | Ejecuta pruebas con Vitest.                                   |
-| `pnpm run test:watch`      | Ejecuta Vitest en modo watch.                                 |
-| `pnpm run test:ui`         | Abre la interfaz de Vitest.                                   |
-| `pnpm run test:coverage`   | Genera reporte de cobertura.                                  |
-| `pnpm run pwa:icons`       | Regenera los iconos basicos de la PWA.                        |
-| `pnpm run verify:quick`    | Ejecuta formato, lint, typecheck y tests (loop interno).      |
-| `pnpm run check`           | Ejecuta formato, lint, tests y builds de app y Storybook.     |
+| Comando                            | Uso                                                           |
+| ---------------------------------- | ------------------------------------------------------------- |
+| `pnpm run api:contract`            | Consulta operaciones puntuales del contrato OpenAPI.          |
+| `pnpm run audit`                   | Audita dependencias y falla ante vulnerabilidades altas.      |
+| `pnpm run dev`                     | Inicia el servidor local de desarrollo.                       |
+| `pnpm run build`                   | Ejecuta typecheck y genera el build de produccion en `dist`.  |
+| `pnpm run preview`                 | Sirve localmente el build de produccion.                      |
+| `pnpm run start`                   | Alias para servir el build con `vite preview --host 0.0.0.0`. |
+| `pnpm run storybook`               | Abre el catalogo interactivo de componentes.                  |
+| `pnpm run storybook:build`         | Valida y genera el catalogo estatico en `storybook-static`.   |
+| `pnpm run storybook:list-stories`  | Lista los ids de las stories del catalogo estatico.           |
+| `pnpm run storybook:test:affected` | Ejecuta `play`, axe y visual solo de los ids indicados.       |
+| `pnpm run test:storybook`          | Ejecuta stories, interacciones y auditorias axe en Chromium.  |
+| `pnpm run lint`                    | Ejecuta ESLint con cero warnings permitidos.                  |
+| `pnpm run lint:fix`                | Ejecuta ESLint aplicando correcciones automaticas.            |
+| `pnpm run format`                  | Formatea archivos con Prettier.                               |
+| `pnpm run format:check`            | Verifica formato sin modificar archivos.                      |
+| `pnpm run typecheck`               | Ejecuta TypeScript sin emitir archivos.                       |
+| `pnpm test`                        | Ejecuta pruebas con Vitest.                                   |
+| `pnpm run test:watch`              | Ejecuta Vitest en modo watch.                                 |
+| `pnpm run test:ui`                 | Abre la interfaz de Vitest.                                   |
+| `pnpm run test:coverage`           | Genera reporte de cobertura.                                  |
+| `pnpm run pwa:icons`               | Regenera los iconos basicos de la PWA.                        |
+| `pnpm run verify:quick`            | Ejecuta formato, lint, typecheck y tests (loop interno).      |
+| `pnpm run check`                   | Ejecuta formato, lint, tests y builds de app y Storybook.     |
 
 ## Verificacion Recomendada
 
@@ -186,6 +188,18 @@ el resultado y actualice los baselines explicitamente:
 ```bash
 pnpm run test:storybook:update
 ```
+
+Durante la edicion basta con probar las stories afectadas, que reduces el recorrido de varios
+minutos a segundos. El comando reconstruye el catalogo solo si un fuente es mas nuevo, lo sirve en
+`127.0.0.1:6007` y ejecuta `play`, axe y la captura visual de los ids indicados:
+
+```bash
+pnpm run storybook:list-stories
+pnpm run storybook:test:affected -- shared-ui-surface--panel features-auth-loginform--default
+```
+
+El puerto `6006` queda reservado para el Storybook interactivo y el catalogo MCP; las pruebas
+automaticas nunca deben apuntar a el.
 
 ## Origen De Datos
 
@@ -287,6 +301,8 @@ VITE_API_BASE_URL=http://localhost:4000 \
 ### Produccion
 
 `VITE_API_BASE_URL` es obligatoria, debe ser absoluta y se incorpora al bundle durante el build. No debe contener secretos porque cualquier variable `VITE_*` es publica en el navegador.
+
+En produccion el origen de este valor no es libre: la API decide si la sesion usa cookie `SameSite=lax` o `SameSite=none` segun si el frontend y la API comparten dominio registrable. Si se despliegan en sitios distintos hace falta HTTPS en ambos extremos y la sesion depende de que el navegador acepte cookies de terceros. La eleccion de topologia esta abierta en `docs/despliegue.md` del backend.
 
 ```bash
 VITE_API_BASE_URL=https://api.example.test \

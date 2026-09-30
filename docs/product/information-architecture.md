@@ -9,23 +9,78 @@ describen la organizacion actual del frontend; el backend sigue siendo la autori
 
 Disponible sin sesion:
 
-| Ruta            | Proposito                                      |
-| --------------- | ---------------------------------------------- |
-| `/`             | Catalogo publico de actividades.               |
-| `/login`        | Inicio de sesion.                              |
-| `/registro`     | Registro publico de cuenta.                    |
-| `/verify-email` | Verificacion de correo mediante enlace seguro. |
+| Ruta               | Proposito                                                |
+| ------------------ | -------------------------------------------------------- |
+| `/`                | Catalogo publico de actividades.                         |
+| `/login`           | Inicio de sesion.                                        |
+| `/registro`        | Registro publico de cuenta.                              |
+| `/verify-email`    | Verificacion de correo mediante enlace seguro.           |
+| `/forgot-password` | Solicitud de enlace de recuperacion de contrasena.       |
+| `/reset-password`  | Restablecimiento mediante el enlace recibido por correo. |
+
+`/forgot-password` se alcanza desde el enlace "¿Olvidó su contraseña?" del formulario de inicio de
+sesion. `/reset-password` es un flujo directo: el backend genera el enlace con el parametro `token`,
+que la pagina lee una vez y retira de inmediato de la barra de direcciones para que no quede en el
+historial, en capturas ni en registros. Ninguna de las dos rutas exige sesion.
 
 ### Personal
 
 Destinos del participante autenticado, previstos para autoservicio:
 
-- `/mi-cuenta` para perfil y seguridad.
-- `/mis-actividades` para inscripciones y codigos de asistencia.
-- `/mis-certificados` para consulta y descarga privada.
+- `/perfil/datos` para los datos que el contrato permite cambiar.
+- `/perfil/seguridad` para la contrasena de la cuenta.
+- `/perfil/actividades` para inscripciones y codigos de asistencia.
+- `/perfil/certificados` para consulta y descarga privada.
 - `/alertas` para la bandeja personal.
 
-Estos destinos no se crean en Fase 0; cada uno depende de su contrato y fase funcional.
+`/perfil` es ademas el unico destino personal del menu principal: el enlace "Cambiar contraseña" salio
+de `AppMenu` y queda disponible desde la seccion de seguridad y por enlace directo. Antes de la
+Fase 1.9 los servicios de actividades y certificados se anunciaban como tarjetas informativas dentro
+de `/perfil`, sin enlaces ni controles, porque sus contratos aun no existen y enlazarlos los convertiria
+en un callejon sin salida. La Fase 1.9 los convierte en rutas navegables con estado informativo, y las
+fases 9 y 10 rellenan su funcionalidad en esas mismas rutas.
+
+### Perfil Del Participante
+
+| Ruta                   | Modulo                                                           |
+| ---------------------- | ---------------------------------------------------------------- |
+| `/perfil`              | Abre los datos de la cuenta; conserva el enlace historico.       |
+| `/perfil/datos`        | Consulta y edicion de los datos que el contrato permite cambiar. |
+| `/perfil/seguridad`    | Cambio de contrasena de la sesion autenticada.                   |
+| `/perfil/actividades`  | Inscripciones y codigos de asistencia, desde la Fase 9.          |
+| `/perfil/certificados` | Consulta y descarga privada, desde la Fase 10.                   |
+
+Todas exigen sesion y estan disponibles para cualquier rol global, porque el area personal protege la
+identidad de la persona y no el panel. `/cambiar-contrasena` se conserva como alias de
+`/perfil/seguridad` para no romper los enlaces ya compartidos.
+
+Desde la Fase 1.7 la pagina agrupaba tres secciones en un unico documento. Desde la Fase 1.9 cada
+seccion tiene ruta propia y un submenu comun: lateral siempre visible en escritorio y desplegable
+local con la seccion actual a la vista en movil. `/perfil` abre los datos de la cuenta y
+`/cambiar-contrasena` redirige a la seguridad, de modo que no quedan dos rutas equivalentes y los
+enlaces ya compartidos siguen funcionando. La seccion de seguridad se resuelve en su propia ruta y no
+lee el catalogo institucional, por lo que un fallo del catalogo ya no puede ocultar el cambio de
+contrasena. La jerarquia de encabezados va del `h1` del area a un `h2` por seccion.
+
+Solo `firstName`, `lastName`, `unitId` y `careerId` son editables. Correo, rol global, estado,
+identificador y cedula los administra el backend y se muestran como texto de solo lectura. Elegir la
+unidad "Otro" envia `unitId: null` y muestra la carrera global "Otros" bloqueada, porque el backend
+la asigna. El perfil vive solo en memoria: nunca se persiste ni entra en una clave de consulta.
+
+### Seguridad De La Sesion Actual
+
+| Ruta                  | Modulo                                                 |
+| --------------------- | ------------------------------------------------------ |
+| `/cambiar-contrasena` | Cambio de contrasena de la sesion autenticada vigente. |
+
+`/cambiar-contrasena` exige sesion y redirige a `/perfil/seguridad`, que es la seccion canonica. La
+ruta antigua sigue funcionando por enlace directo y por marcador, porque la redireccion reemplaza la
+entrada del historial en lugar de acumular una. El enlace ya no aparece en el menu principal, que solo
+ofrece "Mi perfil" como destino personal.
+
+El cambio conserva la sesion actual y el backend revoca las demas sesiones abiertas. Esa revocacion
+no invalida de inmediato un token de acceso ya emitido en otra pestana: esa pestana sigue operando
+hasta que intente renovar su credencial de refresco y el backend la rechace.
 
 ### Panel Administrativo Actual
 

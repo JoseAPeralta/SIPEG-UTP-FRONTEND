@@ -31,22 +31,24 @@ La identidad recomendada es **SIPEG como producto independiente configurado para
 
 ## Estado actual
 
-| Area                                                         | Estado frontend                                            | Disponibilidad backend                                      |
-| ------------------------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------- |
-| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual              | Disponible                                                  |
-| Registro, verificacion, login, refresh y logout              | Integrado con API                                          | Completo                                                    |
-| Perfil, recuperacion y cambio de contrasena                  | Pendiente                                                  | Completo                                                    |
-| Administracion de usuarios                                   | Shell bloqueado por `OperationsAdapter`                    | Completo                                                    |
-| Unidades, carreras y aulas                                   | Lectura parcial; administracion pendiente                  | Completo                                                    |
-| Permisos y colaboradores                                     | Pendiente                                                  | Completo, salvo descubrimiento global de scopes del usuario |
-| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes         | Completo                                                    |
-| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
-| Archivos y alertas                                           | Pendiente                                                  | Pendiente                                                   |
-| Propuestas de ponentes                                       | Shell mock                                                 | Pendiente                                                   |
-| Inscripcion y asistencia                                     | Shell mock                                                 | Pendiente                                                   |
-| Certificados                                                 | Shell mock                                                 | Pendiente                                                   |
-| Reportes y exportaciones                                     | Shell mock                                                 | Pendiente                                                   |
-| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta  | No aplica                                                   |
+| Area                                                         | Estado frontend                                                        | Disponibilidad backend                                      |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                          | Disponible                                                  |
+| Registro, verificacion, login, refresh y logout              | Integrado con API                                                      | Completo                                                    |
+| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7             | Completo                                                    |
+| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                       | Completo                                                    |
+| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive | No aplica                                                   |
+| Administracion de usuarios                                   | Shell bloqueado por `OperationsAdapter`                                | Completo                                                    |
+| Unidades, carreras y aulas                                   | Lectura parcial; administracion pendiente                              | Completo                                                    |
+| Permisos y colaboradores                                     | Pendiente                                                              | Completo, salvo descubrimiento global de scopes del usuario |
+| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                     | Completo                                                    |
+| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes             | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
+| Archivos y alertas                                           | Pendiente                                                              | Pendiente                                                   |
+| Propuestas de ponentes                                       | Shell mock                                                             | Pendiente                                                   |
+| Inscripcion y asistencia                                     | Shell mock                                                             | Pendiente                                                   |
+| Certificados                                                 | Shell mock                                                             | Pendiente                                                   |
+| Reportes y exportaciones                                     | Shell mock                                                             | Pendiente                                                   |
+| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta              | No aplica                                                   |
 
 El contrato OpenAPI vivo no estuvo disponible al redactar este plan. El estado backend se obtuvo de su plan maestro y codigo actual; cada fase debe reconfirmarlo mediante la CLI antes de implementarse.
 
@@ -120,14 +122,283 @@ cambio o infirio. Revisar en la primera iteracion con backend activo.
 - [x] **1.1 Registro publico.** Ya consume catalogos y `POST /api/v1/auth/register`.
 - [x] **1.2 Verificacion de correo.** Ya procesa el token sin mostrarlo ni reflejar errores internos.
 - [x] **1.3 Sesion real.** Login, refresh rotatorio, restauracion, logout y limpieza de cache estan integrados.
-- [ ] **1.4 Recuperar contrasena.** Anadir solicitud y restablecimiento con respuestas anti-enumeracion. Prueba: email existente e inexistente presentan la misma confirmacion.
-- [ ] **1.5 Cambiar contrasena.** Exigir sesion, contrasena actual y confirmacion de la nueva. Prueba: las demas sesiones revocadas no pueden restaurarse.
-- [ ] **1.6 Consultar y editar perfil.** Permitir nombres, unidad y carrera conforme al contrato. Prueba: no se pueden modificar email, rol, estado o identificadores mediante mass assignment.
-- [ ] **1.7 Crear `Mi cuenta`.** Anadir un destino util para `USER` con perfil, seguridad y accesos futuros a actividades y certificados. Prueba: un usuario estandar no termina en una pantalla administrativa ni en un callejon sin salida.
-- [ ] **1.8 Tratar estados de cuenta.** Localizar cuenta inactiva, correo no verificado, sesion expirada y `429`. Prueba: ningun mensaje revela existencia de cuentas ni detalles del backend.
-- [ ] **1.9 Cubrir el recorrido.** Probar registro -> verificacion -> login -> edicion de perfil -> cambio de contrasena -> logout.
+- [x] **1.4 Recuperar contrasena.** Anadir solicitud y restablecimiento con respuestas anti-enumeracion. Prueba: email existente e inexistente presentan la misma confirmacion.
+- [x] **1.5 Cambiar contrasena.** Exigir sesion, contrasena actual y confirmacion de la nueva. Prueba: las demas sesiones revocadas no pueden restaurarse.
+- [x] **1.6 Consultar y editar perfil.** Permitir nombres, unidad y carrera conforme al contrato. Prueba: no se pueden modificar email, rol, estado o identificadores mediante mass assignment.
+- [x] **1.7 Ampliar `/perfil`.** Anadir a `/perfil` la seccion de seguridad y los accesos futuros a actividades y certificados, de modo que un `USER` tenga un unico destino personal. Prueba: un usuario estandar no termina en una pantalla administrativa ni en un callejon sin salida.
+- [x] **1.8 Tratar estados de cuenta.** Localizar cuenta inactiva, correo no verificado, sesion expirada y `429`. Prueba: ningun mensaje revela existencia de cuentas ni detalles del backend.
+- [x] **1.9 Organizar `/perfil` con un submenu responsive.** Crear un marco comun del area personal con cuatro destinos independientes: datos de la cuenta, seguridad de la cuenta, mis actividades y mis certificados. Cada destino tiene ruta propia, muestra solo su contenido y conserva el acceso al resto del submenu.
+  - Escritorio: navegacion lateral siempre visible, con la seccion actual marcada visualmente y por `aria-current="page"`.
+  - Movil: navegacion local desplegable sobre el contenido, con boton explicito y el nombre de la seccion actual siempre visible. Al desplegar, listar los cuatro enlaces en vertical; al elegir uno, cerrar el menu y llevar el foco al encabezado del destino.
+  - Rutas: `/perfil/datos`, `/perfil/seguridad`, `/perfil/actividades` y `/perfil/certificados`. `/perfil` abre los datos de la cuenta y `/cambiar-contrasena` redirige a la seguridad, de modo que no quedan dos rutas equivalentes.
+  - Datos y seguridad reutilizan los formularios existentes, y la seguridad sigue accesible aunque falle el catalogo institucional.
+  - Mis actividades y mis certificados nacen como destinos navegables con un estado informativo "proximamente"; las fases 9 y 10 incorporan su funcionalidad en esas mismas rutas.
+  - Prueba: acceso directo y recarga de cada ruta, historial atras y adelante, proteccion por sesion para `USER` y `ADMIN`, seccion activa, teclado y lector de pantalla, objetivos tactiles de al menos 44 x 44 px, zoom al 200 % y reflow a 320 px.
+- [x] **1.10 Cubrir el recorrido.** Probar registro -> verificacion -> login -> datos de la cuenta -> edicion de perfil -> seguridad de la cuenta -> cambio de contrasena -> logout, comprobando ademas que cada seccion se alcanza de forma independiente desde el submenu.
 
-**Criterio de salida:** un usuario estandar puede administrar su cuenta completa y la sesion nunca persiste access token o perfil.
+**Criterio de salida:** un usuario estandar puede administrar su cuenta completa, alcanza cada seccion de su area personal por su propia ruta, y la sesion nunca persiste access token o perfil.
+
+Alcance aprobado para 1.9:
+
+- Sin cambio de contrato: el submenu no introduce peticiones, y las secciones de actividades y
+  certificados siguen siendo informativas hasta que las fases 9 y 10 publiquen su contrato.
+- El submenu pertenece al area personal, no al panel. `AdminMenu` y su selector de contexto quedan
+  fuera, porque alli la jerarquia ya la resuelve el contexto de trabajo y no la cuenta.
+- La decision movil se apoya en navegacion colapsable en lugar de pestañas: son enlaces entre rutas
+  distintas, no variantes del mismo documento, y las etiquetas "Mis actividades" y "Mis
+  certificados" necesitan su texto completo.
+- `/perfil` y `/cambiar-contrasena` se conservan como accesos de entrada y no se retiran, para no
+  romper enlaces compartidos ni marcadores.
+
+Evidencia y desviaciones de Fase 1.4: `docs/superpowers/plans/2026-09-29-fase-1.4-recuperacion-contrasena.md`.
+
+- Contrato verificado contra el backend vivo: `POST /api/v1/auth/forgot-password` y
+  `POST /api/v1/auth/reset-password`, ambos publicos y sin `security`.
+- La confirmacion de solicitud es texto fijo del frontend, identico para correos conocidos y
+  desconocidos; el mensaje del backend nunca se muestra y el mock no modela existencia de cuenta.
+- El token de `/reset-password` se lee una vez y se retira de la barra de direcciones en un
+  `useEffect`; la lectura es idempotente para no romper bajo el doble montaje de `StrictMode`.
+- **Divergencia de contrato (resuelta el 2026-09-29):** al redactar esta fase el frontend exigia de
+  12 a 20 caracteres en la recuperacion, mas estricto que el `maxLength: 128` de OpenAPI, y
+  `RegisterForm` aceptaba hasta 128. El backend ajusto despues las tres operaciones a
+  `minLength: 12` y `maxLength: 20`, con lo que la divergencia quedo cerrada y el registro paso a
+  exigir el mismo rango. Ver la nota de cierre de la Fase 1.5.
+- Correccion de accesibilidad no prevista: `Field.ErrorText` usaba el token `fg.error` de Chakra
+  (`red.500`, 4.06:1 sobre `surface.raised`), por debajo de AA. Se sobrescribio `fg.error` con la
+  escala `danger` del tema (9.15:1 en claro). El fallo estaba latente en todos los formularios con
+  error de campo, incluido el registro, y solo lo detecto axe al exponer estados de error nuevos.
+
+Evidencia y desviaciones de Fase 1.5: `docs/superpowers/plans/2026-09-29-fase-1.5-cambio-contrasena.md`.
+
+- Contrato verificado contra el backend vivo: `POST /api/v1/auth/change-password`, con
+  `bearerAuth`, body `{ currentPassword, newPassword, refreshToken }` y `200` con `EmptyData`.
+  Errores documentados: `400`, `401`, `403`, `429`.
+
+Evidencia y desviaciones de Fase 1.6: `docs/superpowers/plans/2026-09-29-fase-1.6-perfil.md`.
+
+- Contrato verificado contra el backend vivo: `GET /api/v1/users/me` y `PATCH /api/v1/users/me`, ambos
+  con `bearerAuth`. El `PATCH` acepta solo `firstName`, `lastName`, `unitId` y `careerId`, devuelve el
+  perfil completo y documenta errores `400`, `401`, `404` y `409`.
+- **Ruta:** `/perfil` es ahora el area personal canonica, protegida por `RequireSession` para `USER` y
+  `ADMIN`. Por decision del usuario, las fases siguientes se construyen sobre `/perfil` y
+  `/mi-cuenta` no se crea; la Fase 1.7 ampliara este mismo destino con seguridad y accesos propios.
+- **Mass assignment en tres capas:** el formulario solo produce los cuatro campos editables, el
+  adapter reconstruye el body propiedad por propiedad y el mock ignora las mismas propiedades. Los
+  tipos de TypeScript no protegen en runtime, por lo que la allowlist del adapter es la garantia real.
+- **Unidad "Otro":** se envia `unitId: null`, se omite `careerId` y la carrera se muestra bloqueada
+  como "Otros", porque el backend la fuerza. El contrato no permite limpiar una carrera manteniendo la
+  misma unidad, asi que el formulario no ofrece esa opcion.
+- **Perfil privado:** se mantiene solo en Zustand, conforme a ADR-0009, y la respuesta del `PATCH`
+  reemplaza `currentUser` sin tocar tokens, caches ni almacenamiento. `replaceCurrentUser` descarta el
+  resultado si la identidad cambio mientras la peticion estaba en vuelo.
+- **Asignaciones vigentes:** una unidad inactiva o una carrera ausente del catalogo se conservan como
+  opcion para no perderlas en silencio; solo las unidades activas se ofrecen como nuevas opciones.
+- El mock de catalogos se alineo con el contrato agregando la carrera global `OTROS`, necesaria para
+  reproducir `unitId: null`.
+- El login de un `USER` terminaba en `/` tras iniciar sesion; la Fase 1.7 movio ese destino a
+  `/perfil` y lo unico con el guard administrativo.
+- El `refreshToken` enviado identifica la sesion que se conserva; el backend revoca las demas. Por
+  eso el frontend **no** limpia sesion, `QueryClient`, contexto de trabajo ni almacenamiento tras un
+  cambio exitoso, y el exito no navega ni cierra la sesion.
+- Los tokens se leen de `useSessionStore` en el momento del envio, no en el render, para que una
+  rotacion programada no invalide el payload. El formulario nunca recibe ni muestra tokens.
+- El `400` no se descompone: contrasena actual incorrecta, refresh token ajeno y error de validacion
+  son indistinguibles por contrato. La UI muestra un unico mensaje localizado.
+- **Largo de contrasena:** el backend ajusto `register`, `reset-password` y `change-password` a
+  `minLength: 12` y `maxLength: 20`, de modo que el cambio ya no es una decision mas estricta del
+  frontend: las tres operaciones comparten contrato y la politica de 12 a 20.
+- `RegisterForm` paso a exigir el mismo rango. `registrationValidation.ts` exporta
+  `PASSWORD_MIN_LENGTH` y `PASSWORD_MAX_LENGTH`, y el formulario los usa tanto para `maxLength` como
+  para el texto de ayuda, con lo que el limite vive en un solo lugar.
+- **Limitacion de la revocacion:** revocar las otras sesiones no invalida de inmediato un access
+  token ya emitido en otra pestana. Esa pestana sigue operando hasta que su proximo refresh es
+  rechazado. Un test unitario frontend no puede probarlo: requiere dos sesiones reales del backend
+  y corresponde a la verificacion dirigida de Fase 1.9 o a la suite E2E de Fase 12.
+- **Riesgo conocido:** si la rotacion programada de refresh se dispara durante el envio, el
+  `refreshToken` pode quedar obsoleto y producir un `400`. No hay coordinacion entre refresh y
+  mutaciones autenticadas; el formulario conserva lo escrito para que el reintento sea inmediato.
+- La ruta `/cambiar-contrasena` es un destino personal complementario para cualquier rol
+  autenticado. La Fase 1.7 la integro como seccion de seguridad de `/perfil` sin cambiar el dominio y
+  retiro su enlace del menu principal.
+
+Evidencia y desviaciones de Fase 1.7: `docs/superpowers/plans/2026-09-29-fase-1.7-area-personal.md`.
+
+- **Sin cambio de contrato:** la fase no introduce, modifica ni elimina ninguna peticion HTTP, por lo
+  que no se consulto OpenAPI y no aplica `api:mocks-check`.
+- `/perfil` es el unico destino personal del menu. El enlace "Cambiar contraseña" salio de `AppMenu` y
+  se alcanza desde la seccion de seguridad; la ruta `/cambiar-contrasena` sigue registrada, sigue
+  protegida por `RequireSession` para ambos roles y sigue funcionando por enlace directo.
+- "Mis actividades" y "Mis certificados" son tarjetas informativas sin enlaces, botones ni controles
+  deshabilitados: sus rutas no existen y la ruta comodin de `App` las convertiria en el callejon sin
+  salida que la fase evita. Un control deshabilitado tampoco serviria, porque no es alcanzable con
+  teclado ni anunciable con utilidad.
+- El destino por rol vive en `resolveAuthLandingPath`, consumido por `LoginPage` y por el guard
+  administrativo, de modo que `ADMIN` termina en `/admin` y cualquier otro rol en `/perfil`, tanto tras
+  iniciar sesion como al intentar abrir una ruta administrativa por URL. Antes, un `USER` pasaba por
+  `/admin` y dependia de que el guard lo expulsara.
+- La seccion de datos personales no recibe un `SectionHeader` propio porque `ProfileForm` ya presenta
+  su `h2`; la jerarquia queda `h1` de ruta, `h2` por seccion y `h3` en cada tarjeta de servicio.
+- La seccion de seguridad y la de servicios se renderizan fuera del `AsyncStateView` del formulario, de
+  modo que un fallo del catalogo institucional no oculta el cambio de contrasena. Hay dos pruebas que
+  lo fijan, una con el catalogo cargando y otra con el catalogo fallando.
+- El copy de `LoginForm` paso de "Acceso administrativo" a "Acceso a su cuenta", porque la pantalla la
+  usan los dos roles y el texto anterior prometer el panel a un usuario estandar.
+- **Sin story de pagina:** la taxonomia de Storybook cubre `Shared/UI`, `Layout` y `Features` y ninguna
+  pagina tiene story. La composicion nueva es privada y de un solo uso, que es lo que `AGENTS.md`
+  permite mantener local al padre, asi que se cubre con `src/pages/ProfilePage.test.tsx` y su evidencia
+  visual llega por las stories de `AppMenu` y `LoginForm`, que si cambian.
+- **`aria-current` se verifica por integracion.** El `MemoryRouter` global de Storybook arranca en `/`,
+  de modo que `NavLink` nunca marca la story de `AppMenu` como activa. La asercion vive en
+  `App.test.tsx`, que monta la ruta real.
+- **Defecto encontrado en la puerta visual, no en el codigo:** el baseline de
+  `layout-appmenu--standard-user` estaba obsoleto desde la Fase 1.5, cuando el menu no tenia todavia
+  "Mi perfil", y aun asi pasaba la comparacion visual. La causa es `maxDiffPixelRatio: 0.01` en
+  `playwright.storybook.config.ts`, que tolera la diferencia entre ambos menus, y el hecho de que
+  `--update-snapshots` solo reescribe un baseline que falla: si la tolerancia lo da por bueno,
+  Playwright lo conserva. Se elimino el archivo y se regenero, y la captura ya muestra "Mi perfil" mas
+  "Cerrar sesion". Conviene revisar esa tolerancia en una fase de calidad: con ella, un baseline puede
+  quedar congelado con un menu equivocado y seguir en verde indefinidamente.
+- **Puerto 6007 ocupado:** un `http-server` de una corrida anterior impedia servir el catalogo estatico
+  y el script lo detecto con un mensaje explicito. Se detuvo el proceso antes de correr las stories.
+- **Defecto de test propio, corregido:** las pruebas iniciales de `ProfilePage` y `LoginPage` fallaron
+  por causas del arnes y no del producto. La primera afirmaba el encabezado del formulario de forma
+  sincrona, cuando el catalogo resuelve de forma asincrona, y paso a `findByRole`. La segunda renderizaba
+  `LoginPage` sin declarar las rutas de destino, de modo que no habia donde navegar; se sustituyo por un
+  arnes con rutas marcadoras que observan el destino real en lugar de reimplementar la regla.
+
+Evidencia y desviaciones de Fase 1.8: `docs/superpowers/plans/2026-09-29-fase-1.8-estados-cuenta.md`.
+
+- **Contrato verificado contra el backend vivo:** `login`, `refresh`, `register`, `verify-email`,
+  `users/me` y `change-password`. Ninguna operacion, campo o estado se modifico.
+  `pnpm run api:mocks-check` paso con 83 verificaciones en 7 operaciones.
+- **Cuenta inactiva y correo no verificado no se distinguen, a proposito:** el contrato no expone ni
+  un campo de estado en `UserProfile` ni un codigo de error dedicado, asi que `401` y `403` colapsan
+  en un unico fallo de rechazo. La UI ofrece una guia estatica de verificacion para toda la
+  audiencia, que ayuda a una cuenta a medio activar sin diagnosticar la de nadie.
+- **El `429` nunca lleva cuenta regresiva:** el contrato no documenta `Retry-After` ni tiempo de
+  espera, y el mismo copy de limite temporal se reutiliza en login, registro, verificacion,
+  recuperacion y restauracion de sesion.
+- **Motivo de fin de sesion en memoria:** el store distingue credencial vencida, limite temporal y
+  fallo de servicio, de modo que una caida de red nunca se reporta como cuenta perdida. No se
+  persiste, y se borra tras un login exitoso o un logout voluntario. Una restauracion lenta que
+  falla despues de un login exitoso se descarta, para no desmontar la identidad nueva.
+- **Fuga evitada en el registro:** `400` y `409` comparten mensaje, porque el `409` declara un
+  atributo que ya existe.
+- **Token de verificacion fuera de la URL:** se lee una vez y se retira de la barra de direcciones
+  antes de enviar la peticion, no despues del exito. La lectura por `useState` es idempotente bajo el
+  doble montaje de `StrictMode`.
+- **Confirmacion prematura corregida:** el panel "Cuenta activada" dependia de `isPending`, que pasa
+  a `false` antes de que termine la navegacion, y podia mostrarse sin que la peticion hubiera
+  resuelto. Ahora depende de un estado explicito que solo se alcanza en el `then`.
+- **Reintento sin abrir el correo:** la pagina conserva el token en memoria y ofrece reintentar, lo
+  que recupera un corte de red sin depender del correo.
+- **Cambio de decision ya cerrado en 1.6:** un `401` en perfil o cambio de contrasena antes conservaba
+  la sesion y solo avisaba en el campo. Ahora la cierra, porque deja al usuario en una pantalla cuyas
+  acciones seguiran fallando; el guard lo lleva a `/login` con el motivo ya preparado. La prueba que
+  fijaba la conducta anterior se reescribio.
+- **Teardown compartido:** `endAuthSession` en `features/auth/model` reemplaza la limpieza duplicada
+  y permite cerrar la sesion desde perfil y cambio de contrasena.
+- **Frontera de arquitectura respetada:** `architecture.test.ts` (R5) prohibe que un hook importe
+  `apiClient`. Las pruebas de hooks construyen el error tipado del adaptador, porque el mapeo
+  estado-HTTP a fallo ya esta cubierto en las pruebas de cada modulo de fallo, que si viven en
+  `adapters`.
+- **Riesgo residual:** los motivos de fin de sesion no sobreviven a una recarga, porque no se
+  persisten. Quien recargue la pagina durante un corte ve la pantalla de acceso sin aviso, lo que es
+  aceptable y evita escribir en disco lo que podria describir el estado de una cuenta.
+
+Evidencia y desviaciones de Fase 1.9: `docs/superpowers/plans/2026-09-30-fase-1.9-submenu-area-personal.md`.
+
+- **Sin cambio de contrato:** la fase no introduce, modifica ni elimina peticiones HTTP, por lo que
+  no se consulto OpenAPI y no aplica `api:mocks-check`.
+- **Un solo `h1`:** el marco `PersonalAreaLayout` lo posee y cada seccion aporta su `h2`. Las paginas
+  de datos y seguridad no reciben un encabezado adicional porque `ProfileForm` y `ChangePasswordForm`
+  ya presentan el suyo, con lo que la jerarquia queda `h1` del area y un `h2` por seccion.
+- **Visibilidad en JavaScript, no en CSS:** `useMediaQuery` decide la rama movil en lugar de una media
+  query, porque con CSS el estado expandido no seria observable en pruebas, `Escape` no tendria un
+  estado que cerrar y jsdom no evalua reglas de medios de forma fiable. El anclaje es el mismo `48em`
+  que el breakpoint `md` del layout, de modo que la columna lateral y la rama de estado coinciden.
+- **Defecto encontrado y corregido durante la fase:** el layout guardaba el estado del desplegable, y
+  una seccion que aun cargaba suspendia ese render, por lo que React descartaba la actualizacion
+  pendiente y el menu se cerraba solo bajo quien acababa de abrirlo. Se reprodujo antes de corregirlo:
+  el enlace ya cargado reabria el menu y el pendiente no. La correccion fue mover el estado a
+  `PersonalAreaNavigation`, un subarbol hermano del `Outlet` que no se suspende, y dejar en el layout
+  solo un ref de intencion de foco, que sobrevive a un render interrumpido.
+  `App.test.tsx` fija el comportamiento recorriendo las cuatro secciones en viewport movil, y esa
+  prueba falla con el diseño anterior.
+- **Prueba mal escrita, detectada y corregida:** la primera version del recorrido movil buscaba
+  `link` con `current: "page"` sobre toda la pagina y encontraba "Mi perfil" del menu principal, que
+  React Router marca activo por prefijo sobre cualquier ruta bajo `/perfil`. No era un defecto del
+  producto sino de la asercion, que ahora queda acotada al landmark del submenu.
+- **La seguridad deja de depender del catalogo:** al vivir en su propia ruta ya no comparte documento
+  con `ProfileView`. La prueba que lo fija navega a `/perfil/seguridad` con el catalogo rechazando y
+  comprueba que el formulario esta presente y que no aparece la accion de reintento del catalogo.
+- **Alias conservados:** `/perfil` y `/cambiar-contrasena` redirigen con `replace` a su ruta
+  canonica. `AppMenu` y `resolveAuthLandingPath` no cambian, de modo que el enlace "Mi perfil" y el
+  destino tras login siguen siendo los de siempre y ahora resuelven a la seccion de datos.
+- **Objetivos tactiles y reflow:** los cuatro enlaces y el boton del desplegable declaran `minH="44px"`.
+  La comprobacion de Playwright a 320 px midio las cuatro cajas en 320 x 44 y el boton en 270 x 44, con
+  los cuatro enlaces apilados en vertical, desbordamiento horizontal 0 y sin texto recortado. Con zoom
+  al 200 % tampoco hay desbordamiento ni recorte.
+- **Puerta visual movil:** `playwright.storybook.config.ts` fija el viewport en 1280x720, y anadir
+  `@storybook/addon-viewport` para una sola story seria una dependencia nueva. La rama movil se cubre
+  con pruebas de jsdom y con la comprobacion de Playwright a 320 px y a zoom 200 % descrita arriba. La
+  infraestructura visual movil pertenece a la Fase 12.
+- **Story del marco:** las stories navigan el router compartido del decorador en vez de anidar un
+  segundo `MemoryRouter`, que React Router rechaza, de modo que el estado de `NavLink` que ejercita
+  `play` es el mismo que obtiene una persona en la aplicacion.
+- **Tolerancia de baseline:** `maxDiffPixelRatio: 0.01` sigue activo y la observacion de la
+  Fase 1.7 sigue sin resolver. No se toco en esta fase porque afecta a la configuracion global de
+  Playwright y merece una revision propia. Volvio a manifestarse al corregir el copy del login: los
+  cuatro baselines pasaron la comparacion con el texto viejo y hubo que eliminarlos para
+  regenerarlos. Es la segunda observacion del mismo defecto y lo convierte en deuda prioritaria.
+
+Evidencia y desviaciones de Fase 1.10: `docs/superpowers/plans/2026-09-30-fase-1.10-recorrido-cuenta.md`.
+
+- **Sin cambio de contrato:** la fase no introduce peticiones, campos ni estados, por lo que no se
+  consulto OpenAPI y no aplica `api:mocks-check`.
+- **La fase no toco produccion.** Todas sus pruebas pasaron con el codigo de las fases anteriores, y
+  el unico cambio en `src/` es el alta de los dos archivos de prueba. El unico ajuste de codigo fue
+  retirar un import sin usar detectado por `typecheck` en el propio archivo nuevo.
+- **Integracion de frontend, no E2E:** el recorrido corre en jsdom con adapters controlados, que es lo
+  que el usuario eligio al abrir el punto. La entrega real del correo y la revocacion de otras sesiones
+  necesitan dos sesiones reales del backend y siguen perteneciendo a la suite E2E de la Fase 12.
+- **La sesion la establece el producto:** la prueba nunca escribe en `useSessionStore` para entrar, de
+  modo que un login roto no puede quedar oculto tras un store sembrado a mano.
+- **Un unico limite, el HTTP:** el escenario mantiene un unico registro de persona, y `register`,
+  `login`, `loadCurrentUser` y `updateCurrentUser` lo leen y lo escriben, que es lo que hace que un
+  perfil editado en el formulario sea el mismo que devuelve la peticion siguiente. Se eligio esta
+  forma en lugar de spies independientes porque `createMockAuthAdapter` no modela una cuenta recien
+  creada, y un escenario de mocks alineado habria necesitado cambios en `src/data/mock` sin valor para
+  la aplicacion.
+- **El enlace del correo es otra carga de pagina:** `VerifyEmailPage` lee el token de
+  `window.location`, no del router, asi que el primer montaje se desmonta y `App` se vuelve a montar
+  en `/verify-email?token=...`. Es lo que hace una persona al abrir el correo.
+- **La persistencia de refresh es intencionada:** `sessionStorage` guarda el refresh token y su
+  vencimiento, y nada mas. La prueba fija que el registro tenga exactamente esos dos campos.
+- **La cache publica si se recarga tras el logout:** las aserciones de limpieza comprueban las claves
+  privadas, la persistencia y el almacenamiento, no que toda la cache quede vacia, porque volver a la
+  portada vuelve a pedir el catalogo publico por diseno.
+- **Tras el logout se comprueba un montaje nuevo en `/perfil/datos`:** el menu anonimo ya no ofrece "Mi
+  perfil", de modo que el rechazo de la ruta personal se verifica abriendo la URL en una montura
+  limpia, que es el caso real de quien vuelve a escribir la direccion o pulsar atras.
+- **El historial se observa con una sonda:** `App.test.tsx` monta una sonda que llama `navigate(-1)` y
+  `navigate(1)`, de modo que la asercion lee el historial real del router en vez de reimplementar su
+  semantica. La sonda vive solo en el archivo de prueba. La prueba previa que pulsaba enlaces y se
+  llamaba historial fue renombrada, porque no verificaba historial.
+- **Alcance del submenu como matriz:** una prueba parametrizada parte de cada una de las cuatro
+  secciones y alcanza las otras tres, comprobando contenido propio y un unico `aria-current="page"`
+  dentro del landmark del submenu. Las cuatro aserciones quedan acotadas al submenu porque React Router
+  marca activo por prefijo y "Mi perfil" del menu principal tambien lo esta bajo `/perfil`.
+- **Mutaciones temporales usadas para probar las aserciones:** se comprobaron cuatro, revirtiendolas
+  despues. Sin `replaceState` en `VerifyEmailPage` falla la retirada del token; sin
+  `replaceCurrentUser` en `useProfile` falla la persistencia del perfil editado; con un
+  `endAuthSession` tras el cambio de contrasena falla la conservacion de la sesion; y con la sonda de
+  historial en no-op falla la prueba de atras y adelante. Ninguna asercion del recorrido es decorativa.
+- **Defecto de copy del login, corregido al cerrar 1.10:** `LoginForm` rotulaba `Contrasena`,
+  `Correo electronico` e `Iniciar sesion en SIPEG`, sin tilde y con el sufijo del producto, mientras
+  el resto de la aplicacion si la usa. A pedido del usuario se corrigieron las cinco cadenas de ese
+  componente y se regeneraron los cuatro baselines de `features-auth-loginform--*`. No se tocaron
+  `SESSION_END_MESSAGES` ni `VerifyEmailPage`, que conservan el mismo defecto fuera de ese alcance.
 
 ---
 
@@ -275,7 +546,7 @@ cambio o infirio. Revisar en la primera iteracion con backend activo.
 
 - [ ] **9.1 Separar conceptos frontend.** Modelar inscripcion y check-in como estados distintos aunque compartan el recurso backend. Prueba: una inscripcion sin check-in no se muestra como ausencia definitiva.
 - [ ] **9.2 Inscribirse desde el detalle.** Mostrar disponibilidad y confirmar la operacion. Prueba: duplicado, actividad cancelada o no disponible conservan una respuesta accionable.
-- [ ] **9.3 Crear `Mis actividades`.** Mostrar proximas, completadas, estado de inscripcion y acceso al codigo.
+- [ ] **9.3 Completar `Mis actividades`.** La Fase 1.9 ya creo la ruta `/perfil/actividades` y su entrada en el submenu; esta fase anade proximas, completadas, estado de inscripcion y acceso al codigo.
 - [ ] **9.4 Cancelar inscripcion.** Habilitarla solo segun el contrato y tratar certificados existentes o check-in realizado.
 - [ ] **9.5 Mostrar QR y codigo.** No incluir el codigo en URL, logs, query keys o almacenamiento persistente.
 - [ ] **9.6 Implementar check-in asistido.** Escanear QR y permitir entrada manual para personal autorizado.
@@ -298,7 +569,7 @@ cambio o infirio. Revisar en la primera iteracion con backend activo.
 - [ ] **10.1 Consultar elegibilidad.** Mostrar registros con check-in y explicar por que otros no son elegibles.
 - [ ] **10.2 Generar individualmente.** Tratar la operacion como idempotente. Prueba: repetirla no crea filas visuales duplicadas.
 - [ ] **10.3 Generar por actividad.** Mostrar progreso y resumen de generados, existentes y fallidos.
-- [ ] **10.4 Crear `Mis certificados`.** Listar certificados propios con filtros y actividad relacionada.
+- [ ] **10.4 Completar `Mis certificados`.** La Fase 1.9 ya creo la ruta `/perfil/certificados` y su entrada en el submenu; esta fase lista los certificados propios con filtros y actividad relacionada.
 - [ ] **10.5 Descargar de forma autenticada.** Usar respuesta privada o blob y revocar la URL temporal. Prueba: el archivo no queda en cache persistida ni accesible tras logout.
 - [ ] **10.6 No asumir estados.** Reemplazar `GENERATED/PENDING` mock solo con enums confirmados por OpenAPI.
 - [ ] **10.7 Integrar alertas.** Refrescar bandeja y lista tras una emision.
@@ -352,18 +623,20 @@ cambio o infirio. Revisar en la primera iteracion con backend activo.
 
 ## Decisiones pendientes y recomendacion inicial
 
-| Decision                                 | Fase | Recomendacion                                                                   |
-| ---------------------------------------- | ---: | ------------------------------------------------------------------------------- |
-| Identidad institucional                  |    0 | SIPEG independiente configurado para UTP, sin multitenancy                      |
-| Descubrimiento de scopes del colaborador |    3 | Contrato dedicado; evitar consultar permiso programa por programa               |
-| Publicacion publica                      |    5 | `SCHEDULED/ONGOING` disponibles, `COMPLETED` pasadas; ocultar `DRAFT/CANCELLED` |
-| Eliminacion de actividades               |    5 | No ofrecerla hasta que backend cierre retencion y Fase 5.4                      |
-| Subida de archivos                       |    6 | Esperar OpenAPI; no construir multipart o URLs por suposicion                   |
-| Escaneo QR                               |    9 | API nativa si cubre navegadores objetivo; fallback manual obligatorio           |
-| Certificados automaticos                 |   10 | Mostrar el comportamiento que decida el backend, sin jobs frontend              |
-| XLSX/PDF                                 |   11 | Generacion backend y descarga autenticada                                       |
-| Notificar inscritos                      |   12 | Control visible solo con campo contractual                                      |
-| Entorno E2E                              |   12 | Backend desechable con seed conocido; nunca produccion                          |
+| Decision                                 | Fase | Recomendacion                                                                                                     |
+| ---------------------------------------- | ---: | ----------------------------------------------------------------------------------------------------------------- |
+| Identidad institucional                  |    0 | SIPEG independiente configurado para UTP, sin multitenancy                                                        |
+| Submenu del area personal                |    1 | Rutas por seccion; lateral en escritorio y desplegable local en movil                                             |
+| Descubrimiento de scopes del colaborador |    3 | Contrato dedicado; evitar consultar permiso programa por programa                                                 |
+| Publicacion publica                      |    5 | `SCHEDULED/ONGOING` disponibles, `COMPLETED` pasadas; ocultar `DRAFT/CANCELLED`                                   |
+| Eliminacion de actividades               |    5 | No ofrecerla hasta que backend cierre retencion y Fase 5.4                                                        |
+| Subida de archivos                       |    6 | Esperar OpenAPI; no construir multipart o URLs por suposicion                                                     |
+| Escaneo QR                               |    9 | API nativa si cubre navegadores objetivo; fallback manual obligatorio                                             |
+| Certificados automaticos                 |   10 | Mostrar el comportamiento que decida el backend, sin jobs frontend                                                |
+| XLSX/PDF                                 |   11 | Generacion backend y descarga autenticada                                                                         |
+| Notificar inscritos                      |   12 | Control visible solo con campo contractual                                                                        |
+| Entorno E2E                              |   12 | Backend desechable con seed conocido; nunca produccion                                                            |
+| Hosting y origen publico del frontend    |   12 | Mismo dominio registrable que la API; su origen exacto va en `CORS_ORIGIN` (ver `docs/despliegue.md` del backend) |
 
 ## Dependencias resumidas
 

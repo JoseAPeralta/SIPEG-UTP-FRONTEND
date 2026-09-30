@@ -12,8 +12,9 @@ cuando cambia su estado.
 | ACC-004 | Recuperacion de contrasena sin enumerar cuentas                               | [Cuentas](../../spec/accounts/accounts-features.md)                      |
 | ACC-005 | Cambio autenticado de contrasena                                              | [Cuentas](../../spec/accounts/accounts-features.md)                      |
 | ACC-006 | Consulta y edicion del perfil propio                                          | [Cuentas](../../spec/accounts/accounts-features.md)                      |
-| ACC-007 | Area personal Mi cuenta                                                       | [Cuentas](../../spec/accounts/accounts-features.md)                      |
+| ACC-007 | Area personal `/perfil` con perfil, seguridad y accesos propios               | [Cuentas](../../spec/accounts/accounts-features.md)                      |
 | ACC-008 | Tratamiento seguro de estados y errores de cuenta                             | [Cuentas](../../spec/accounts/accounts-features.md)                      |
+| ACC-009 | Submenu del area personal con ruta propia por seccion                         | [Cuentas](../../spec/accounts/accounts-features.md)                      |
 | CAT-001 | Administracion de unidades organizativas                                      | [Catalogos](../../spec/catalogs/catalogs-features.md)                    |
 | CAT-002 | Administracion de carreras institucionales y globales                         | [Catalogos](../../spec/catalogs/catalogs-features.md)                    |
 | CAT-003 | Inventario de aulas y laboratorios con disponibilidad, capacidad y amenidades | [Catalogos](../../spec/catalogs/catalogs-features.md)                    |
