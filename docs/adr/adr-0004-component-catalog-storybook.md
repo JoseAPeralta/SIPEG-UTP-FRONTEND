@@ -81,8 +81,16 @@ of truth.
 - **IMP-002**: Inspect intentional visual changes before running `pnpm run test:storybook:update`
   and commit the updated baselines.
 - **IMP-003**: Run `pnpm run components:inventory` after changing stories and keep the generated
-  files versioned.
+  files versioned; use `components:inventory:generate` when the static build is already current.
 - **IMP-004**: Keep `DESIGN.md` authoritative for tokens and visual identity.
+- **IMP-005**: Automated runs serve the static catalog on `127.0.0.1:6007`; `6006` stays reserved for
+  the interactive dev server and the MCP catalog, so a test run never depends on an unrelated
+  process.
+- **IMP-006**: Only the test runner fails on a broken `play` function. Storybook renders a failed
+  `play` in the console and leaves the story root unchanged, so axe and the visual baseline both
+  pass; `test-storybook` must stay in the full suite.
+- **IMP-007**: Prefer `storybook:test:affected` with explicit story ids during editing. The ids are
+  validated before the run, and the build is reused unless a source is newer.
 
 ## References
 

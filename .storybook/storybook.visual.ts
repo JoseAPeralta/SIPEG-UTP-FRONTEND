@@ -18,9 +18,20 @@ const storybookIndex = JSON.parse(
   readFileSync(new URL("../storybook-static/index.json", import.meta.url), "utf8"),
 ) as StorybookIndex;
 
-const stories = Object.values(storybookIndex.entries)
+const allStories = Object.values(storybookIndex.entries)
   .filter((entry): entry is StoryEntry => entry.type === "story")
   .sort((first, second) => first.id.localeCompare(second.id));
+
+/**
+ * `scripts/run-storybook-tests.mjs` resolves and validates the requested ids before setting this
+ * variable, so an empty or absent value means "run every story".
+ */
+const requestedStoryIds = new Set(
+  (process.env["SIPEG_STORY_IDS"] ?? "").split(/[\s,]+/).filter(Boolean),
+);
+const stories = allStories.filter(
+  (story) => requestedStoryIds.size === 0 || requestedStoryIds.has(story.id),
+);
 
 const PLAY_FINISHED_GLOBAL = "__SIPEG_PLAY_FINISHED__";
 

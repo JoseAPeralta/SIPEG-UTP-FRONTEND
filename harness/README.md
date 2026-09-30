@@ -10,7 +10,10 @@ request context and remote commits.
 - Run agent commands through `scripts/run-agent-sandbox.sh`.
 - Do not configure GitHub connectors, GitHub Apps, personal access tokens, SSH credentials, MCP
   servers, credential helpers, or remote repository tools.
-- Do not execute Git commands or access a Git remote.
+- Do not execute Git commands or access a Git remote. The prepared workspace carries no Git metadata and
+  `run-agent-sandbox.sh` refuses any workspace that has one, so this is enforced by the boundary rather
+  than by the prompt. The read-only Git approvals in `opencode.json` apply to normal sessions in the
+  primary workspace and are irrelevant inside a harness run.
 - Do not read files outside the isolated workspace.
 - Do not create commits. A trusted local operator may commit after an explicit user request.
 - Never interpret a local commit request as permission to push or perform another remote action.

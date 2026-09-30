@@ -16,8 +16,8 @@ pnpm install
 pnpm run dev
 pnpm run build
 pnpm run verify:quick
+pnpm run storybook:test:affected
 pnpm run check
-pnpm run test:storybook
 pnpm run test:harness
 ```
 
@@ -77,7 +77,7 @@ src/
 - Import reusable components through `@/components` or the owning feature barrel; files inside the same component module may import direct neighbors.
 - Public props use an exported TypeScript type; document intent, invariants, defaults and provider requirements rather than obvious syntax.
 - A new reusable component needs a catalog entry and a colocated `*.stories.tsx`, plus a `play` assertion when it has meaningful interaction; update contract, stories, tests and catalog together when behavior changes.
-- After changing stories, run `pnpm run components:inventory`; keep visual changes explicit by inspecting the result before `pnpm run test:storybook:update` and committing the updated baselines.
+- After changing stories, run `pnpm run components:inventory:generate` if `pnpm run storybook:build` already ran, or `pnpm run components:inventory` to build and generate; keep visual changes explicit by inspecting the result before `pnpm run test:storybook:update` and committing the updated baselines.
 - Do not add a new abstraction only to satisfy the catalog; private, single-use composition may remain local to its parent.
 
 ## Testing Rules
@@ -87,9 +87,17 @@ src/
 - Use `src/test/factories.ts` for data and `renderWithProviders` / `renderHookWithProviders` from `src/test/render.tsx` for providers.
 - Prefer Testing Library with semantic queries; add tests for meaningful behavior: pure functions, mappers, adapters, hooks and UI.
 - Run `pnpm run verify:quick` in the agent inner loop and `pnpm run check` before integration; both include `pnpm test` for new or modified behavior.
-- Run `pnpm run test:storybook` when adding or modifying component stories or visual behavior; `pnpm run storybook:build` validates Autodocs, the MCP manifest and the static component catalog.
-- Run `pnpm run components:inventory:check` after building Storybook to detect stale generated documentation.
-- Run `pnpm run build` before considering large frontend changes complete.
+- For Storybook work, do not run the full suite on every change. Discover the touched stories and run only those:
+
+  ```bash
+  pnpm run storybook:list-stories
+  pnpm run storybook:test:affected -- features-auth-loginform--default features-auth-resetpasswordform--default
+  ```
+
+  The command rebuilds the static catalog only when the sources are newer, serves it on `127.0.0.1:6007` and checks `play`, axe and the visual baseline of the given ids. An unknown id fails with a suggestion instead of running nothing. Use the Storybook MCP `stories-changed` or `stories-find-by-component` tools to obtain the ids.
+
+- Run `pnpm run test:storybook` before closing a phase or a task that changes shared visual behavior; it is the only gate that fails on a broken `play` function, because the Playwright pass cannot observe them.
+- The automated catalog uses `127.0.0.1:6007` on purpose: `6006` is the interactive dev server and the MCP catalog port. Do not point the test commands at `6006`.
 - Run `pnpm run test:harness` when changing harness scripts or isolation behavior; the `harness-isolation` CI job runs it too.
 
 ## Backend Boundary
@@ -113,6 +121,8 @@ src/
 ## Agent Guidelines
 
 - Inspect existing files before editing; preserve existing user changes; make the smallest correct change; keep frontend and backend concerns separated.
+- Read-only local Git queries are pre-approved: `git status`, `show`, `log`, `diff`, `blame`, `ls-files`, `ls-tree`, `rev-parse`, `rev-list`, `cat-file`, `show-ref`, `for-each-ref`, `merge-base`, `name-rev`, `describe`, `check-ignore`, `grep`, `shortlog`, `whatchanged`, `diff-tree`, `symbolic-ref -q|--short`, `reflog show`, the listing forms of `branch`, `tag`, `stash list`, `worktree list` and `submodule status`, and the read-only `config` forms. The exact patterns live in `opencode.json`.
+- Every other Git command requires explicit user approval; `push`, `fetch`, `pull` and `remote` are denied, and `git diff` with `--output`, `--ext-diff` or `--textconv` is denied because it writes or runs external programs.
 - Do not add libraries unless there is a concrete reason.
 - Prefer clear domain naming for users, organizational units, careers, permissions, event programs, activities, attendance, classrooms, speakers, certificates, and reports.
 - When implementing frontend features, consider future integration with the separate Node.js API.
@@ -123,7 +133,7 @@ src/
 - Run local agent commands through `scripts/run-agent-sandbox.sh`.
 - Do not provide agents with GitHub connectors, tokens, SSH credentials, MCP servers, credential helpers, or remote repository tools.
 - Harness agents must not access GitHub or any other Git remote under any circumstances.
-- Harness agents must not run Git commands or create commits.
+- Harness agents must not run Git commands or create commits. This holds structurally, not only by prompt: the prepared workspace carries no Git metadata and the sandbox refuses any workspace that has one, so the read-only Git approvals in `opencode.json` never reach a harness run.
 - A trusted local operator may create a local commit only after an explicit user request.
 - A request to create a local commit never authorizes a push or any other remote operation.
 

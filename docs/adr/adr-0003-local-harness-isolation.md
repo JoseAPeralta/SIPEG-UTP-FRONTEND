@@ -90,6 +90,10 @@ local run is mandatory before integration.
   agent runs.
 - **IMP-004**: When CI cannot create user namespaces, run `pnpm run test:harness` locally before
   integrating.
+- **IMP-005**: The repository `opencode.json` pre-approves read-only Git queries for normal sessions.
+  That allowance does not weaken this decision: a harness workspace has no Git metadata, so a read-only
+  query cannot resolve a repository there and `run-agent-sandbox.sh` still refuses a workspace that has
+  one.
 
 ## References
 

@@ -41,6 +41,18 @@ intencional:
 pnpm run test:storybook:update
 ```
 
+Durante la edicion no hace falta recorrer el catalogo completo. Se prueban solo las stories
+afectadas, con `play`, axe y captura visual, reutilizando el build estatico cuando sigue vigente:
+
+```bash
+pnpm run storybook:list-stories
+pnpm run storybook:test:affected -- shared-ui-surface--panel
+```
+
+El build se reconstruye automaticamente cuando un fuente es mas nuevo que `storybook-static`, de
+modo que no se validan stories obsoletas. Un id desconocido falla indicando el mas cercano en lugar
+de ejecutar un recorrido vacio.
+
 ## Checklist De Storybook
 
 El widget _Guide_ de Storybook propone pasos de onboarding que este proyecto ya cubre con su propio
@@ -61,18 +73,18 @@ la cache del proyecto, no en el repositorio.
 
 ## UI Compartida
 
-| Modulo                   | Import publico | Usar cuando                                                                                           | Evitar cuando                                                                | Requisitos                                        | Story                                                                                              |
-| ------------------------ | -------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `Surface`                | `@/components` | Se necesita un panel con borde, elevacion, padding o seleccion consistentes.                          | Un primitivo Chakra ya expresa la estructura sin repetir tratamiento visual. | `Provider`                                        | [`Surface.stories.tsx`](../../src/components/ui/Surface.stories.tsx)                               |
-| `AsyncStateView`         | `@/components` | Una carga asincrona alterna entre loading, error y contenido listo.                                   | El estado es estatico o requiere una composicion de dominio mas especifica.  | `Provider`                                        | [`AsyncStateView.stories.tsx`](../../src/components/ui/AsyncStateView.stories.tsx)                 |
-| `FeedbackState`          | `@/components` | Se explica un estado vacio, bloqueado o fallido con una accion opcional.                              | Solo se necesita anunciar una linea corta de estado.                         | `Provider`                                        | [`FeedbackState.stories.tsx`](../../src/components/ui/FeedbackState.stories.tsx)                   |
-| `StatusPanel`            | `@/components` | Se anuncia un mensaje corto con rol `status` o `alert`.                                               | Se necesita titulo, descripcion y accion.                                    | `Provider`                                        | [`StatusPanel.stories.tsx`](../../src/components/ui/StatusPanel.stories.tsx)                       |
-| `SelectionRequiredState` | `@/components` | Una vista administrativa exige seleccionar programa o actividad.                                      | La ausencia no depende del contexto de trabajo.                              | `Provider`                                        | [`SelectionRequiredState.stories.tsx`](../../src/components/ui/SelectionRequiredState.stories.tsx) |
-| `MetricCard`             | `@/components` | Se muestra una metrica en jerarquia standard, operational o summary.                                  | El contenido no es una cifra resumida.                                       | `Provider`; `tone` solo afecta a `standard`       | [`MetricCard.stories.tsx`](../../src/components/ui/MetricCard.stories.tsx)                         |
-| `ModuleShell`            | `@/components` | Una pagina necesita encabezado principal, descripcion, acciones y contenido.                          | Se introduce una seccion interna de una pagina.                              | Debe ser el encabezado `h1` de la vista           | [`ModuleShell.stories.tsx`](../../src/components/ui/ModuleShell.stories.tsx)                       |
-| `SectionHeader`          | `@/components` | Se introduce una seccion dentro de un modulo.                                                         | Se necesita el encabezado principal de la ruta.                              | Mantener jerarquia desde el `h1` de `ModuleShell` | [`SectionHeader.stories.tsx`](../../src/components/ui/SectionHeader.stories.tsx)                   |
-| `PaginationControls`     | `@/components` | Una coleccion paginada conoce pagina, tamaño y total; muestra el rango visible y se oculta sin items. | La coleccion usa scroll infinito o carga incremental.                        | Estado de pagina controlado por el caller         | [`PaginationControls.stories.tsx`](../../src/components/ui/PaginationControls.stories.tsx)         |
-| `Provider`               | `@/components` | Se compone la raiz de aplicacion, pruebas o herramientas de UI.                                       | Dentro de componentes de producto ya envueltos por la raiz.                  | Chakra system y `next-themes`                     | Configurado globalmente en Storybook                                                               |
+| Modulo                   | Import publico | Usar cuando                                                                                           | Evitar cuando                                                                | Requisitos                                                 | Story                                                                                              |
+| ------------------------ | -------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `Surface`                | `@/components` | Se necesita un panel con borde, elevacion, padding o seleccion consistentes.                          | Un primitivo Chakra ya expresa la estructura sin repetir tratamiento visual. | `Provider`                                                 | [`Surface.stories.tsx`](../../src/components/ui/Surface.stories.tsx)                               |
+| `AsyncStateView`         | `@/components` | Una carga asincrona alterna entre loading, error y contenido listo.                                   | El estado es estatico o requiere una composicion de dominio mas especifica.  | `Provider`                                                 | [`AsyncStateView.stories.tsx`](../../src/components/ui/AsyncStateView.stories.tsx)                 |
+| `FeedbackState`          | `@/components` | Se explica un estado vacio, bloqueado o fallido con una accion opcional.                              | Solo se necesita anunciar una linea corta de estado.                         | `Provider`                                                 | [`FeedbackState.stories.tsx`](../../src/components/ui/FeedbackState.stories.tsx)                   |
+| `StatusPanel`            | `@/components` | Se anuncia un mensaje corto con rol `status` o `alert`.                                               | Se necesita titulo, descripcion y accion.                                    | `Provider`                                                 | [`StatusPanel.stories.tsx`](../../src/components/ui/StatusPanel.stories.tsx)                       |
+| `SelectionRequiredState` | `@/components` | Una vista administrativa exige seleccionar programa o actividad.                                      | La ausencia no depende del contexto de trabajo.                              | `Provider`                                                 | [`SelectionRequiredState.stories.tsx`](../../src/components/ui/SelectionRequiredState.stories.tsx) |
+| `MetricCard`             | `@/components` | Se muestra una metrica en jerarquia standard, operational o summary.                                  | El contenido no es una cifra resumida.                                       | `Provider`; `tone` solo afecta a `standard`                | [`MetricCard.stories.tsx`](../../src/components/ui/MetricCard.stories.tsx)                         |
+| `ModuleShell`            | `@/components` | Una pagina necesita encabezado principal, descripcion, acciones y contenido.                          | Se introduce una seccion interna de una pagina.                              | `h1` de la vista; `headingRef` opcional para mover el foco | [`ModuleShell.stories.tsx`](../../src/components/ui/ModuleShell.stories.tsx)                       |
+| `SectionHeader`          | `@/components` | Se introduce una seccion dentro de un modulo.                                                         | Se necesita el encabezado principal de la ruta.                              | Mantener jerarquia desde el `h1` de `ModuleShell`          | [`SectionHeader.stories.tsx`](../../src/components/ui/SectionHeader.stories.tsx)                   |
+| `PaginationControls`     | `@/components` | Una coleccion paginada conoce pagina, tamaño y total; muestra el rango visible y se oculta sin items. | La coleccion usa scroll infinito o carga incremental.                        | Estado de pagina controlado por el caller                  | [`PaginationControls.stories.tsx`](../../src/components/ui/PaginationControls.stories.tsx)         |
+| `Provider`               | `@/components` | Se compone la raiz de aplicacion, pruebas o herramientas de UI.                                       | Dentro de componentes de producto ya envueltos por la raiz.                  | Chakra system y `next-themes`                              | Configurado globalmente en Storybook                                                               |
 
 ## Layout Compartido
 
@@ -93,9 +105,42 @@ completa del panel y los estados de contexto de trabajo.
 
 Import publico: `@/features/auth`.
 
-| Modulo      | Usar cuando                                         | Evitar cuando                                       | Requisitos                  | Story                                                                       |
-| ----------- | --------------------------------------------------- | --------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------- |
-| `LoginForm` | Se solicitan credenciales para una sesion API real. | La identidad ya esta autenticada o en restauracion. | `Provider`; callback async. | [`LoginForm.stories.tsx`](../../src/features/auth/ui/LoginForm.stories.tsx) |
+| Modulo               | Usar cuando                                                         | Evitar cuando                                        | Requisitos                                | Story                                                                                         |
+| -------------------- | ------------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `LoginForm`          | Se solicitan credenciales para una sesion API real.                 | La identidad ya esta autenticada o en restauracion.  | `Provider`; callback async.               | [`LoginForm.stories.tsx`](../../src/features/auth/ui/LoginForm.stories.tsx)                   |
+| `ForgotPasswordForm` | Se solicita un enlace de recuperacion para una direccion de correo. | Se restablece la contrasena con una sesion activa.   | `Provider`; Router.                       | [`ForgotPasswordForm.stories.tsx`](../../src/features/auth/ui/ForgotPasswordForm.stories.tsx) |
+| `ResetPasswordForm`  | Se crea una contrasena nueva desde un enlace de recuperacion.       | Se cambia la contrasena de la sesion actual.         | `Provider`; token como prop.              | [`ResetPasswordForm.stories.tsx`](../../src/features/auth/ui/ResetPasswordForm.stories.tsx)   |
+| `ChangePasswordForm` | Se cambia la contrasena de la sesion autenticada vigente.           | Se restablece la contrasena desde un enlace publico. | `Provider`; callback async.               | [`ChangePasswordForm.stories.tsx`](../../src/features/auth/ui/ChangePasswordForm.stories.tsx) |
+| `ProfileForm`        | Se consultan o actualizan los datos editables del perfil propio.    | Un administrador crea o edita usuarios.              | `Provider`; perfil, catalogos y callback. | [`ProfileForm.stories.tsx`](../../src/features/auth/ui/ProfileForm.stories.tsx)               |
+| `PersonalAreaLayout` | Se compone el area personal con submenu de secciones.               | Un modulo del panel necesita el contexto de trabajo. | Router; sesion autenticada.               | [`PersonalAreaLayout.stories.tsx`](../../src/features/auth/ui/PersonalAreaLayout.stories.tsx) |
+
+`ForgotPasswordForm` y `ResetPasswordForm` no contienen la confirmacion de exito: esa copy vive en
+las paginas para que un mismo texto neutral se muestre siempre. `ResetPasswordForm` recibe el token
+como prop y solo lo reenvia al adapter, de modo que nunca aparece en el DOM.
+
+`ChangePasswordForm` es el unico formulario de contrasena que no recibe tokens: la sesion se resuelve
+en `useChangePassword` leyendo el store al enviar, de modo que ningun token llega a las props ni al
+DOM. `RegisterForm`, `ResetPasswordForm` y `ChangePasswordForm` comparten el rango de 12 a 20
+caracteres, que coincide con el `minLength: 12` y `maxLength: 20` del contrato en las tres
+operaciones de contrasena.
+
+`ProfileForm` recibe el perfil ya validado, los catalogos publicos de unidades y carreras, y un
+callback: compone el parche con `toProfileUpdateRequest` y no admite otras entradas. El correo, la
+cedula y el rol se renderizan como texto de solo lectura, nunca como controles, porque el contrato no
+permite editarlos. Cuando la unidad vigente esta inactiva o su carrera no aparece en el catalogo, la
+asignacion se conserva como opcion para no perderla en silencio. La unidad "Otro" bloquea la carrera
+en "Otros" y produce `unitId: null` sin `careerId`.
+
+`PersonalAreaLayout` es el marco comun del area personal: posee el unico `h1` del area, el submenu de
+cuatro secciones y el `Outlet` de la seccion activa. La visibilidad de la navegacion se resuelve con
+`useMediaQuery` y no con una media query de CSS, para que el estado expandido sea un valor de estado
+real que las pruebas puedan observar y sobre el que `Escape` pueda actuar. Elegir una seccion cierra el
+desplegable y lleva el foco al encabezado del destino, porque de lo contrario quien navega con teclado
+o lector de pantalla quedaria con el foco dentro de un menu que se cerro debajo. Por eso el layout no
+guarda estado de React: una seccion que aun carga suspende ese render y React descarta la
+actualizacion pendiente, lo que cerraria el desplegable bajo quien acaba de abrirlo. La intencion de
+foco vive en un ref, que sobrevive a un render interrumpido, y el estado del desplegable pertenece a
+`PersonalAreaNavigation`, que es un subarbol hermano del `Outlet` y no se suspende.
 
 ## Registro
 
