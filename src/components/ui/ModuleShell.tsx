@@ -1,11 +1,16 @@
 import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/react";
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 
 export type ModuleShellProps = {
   actions?: ReactNode;
   children: ReactNode;
   description: string;
   headingLabel: string;
+  /**
+   * Receives the route-level `h1` so a layout can move focus to the destination heading after a
+   * navigation. Omit it when nothing outside the shell focuses the heading.
+   */
+  headingRef?: Ref<HTMLHeadingElement>;
   title: string;
 };
 
@@ -15,6 +20,7 @@ export function ModuleShell({
   children,
   description,
   headingLabel,
+  headingRef,
   title,
 }: ModuleShellProps) {
   return (
@@ -37,6 +43,8 @@ export function ModuleShell({
             fontSize={{ base: "4xl", md: "6xl" }}
             lineHeight="0.96"
             mt={2}
+            ref={headingRef}
+            tabIndex={-1}
           >
             {title}
           </Heading>

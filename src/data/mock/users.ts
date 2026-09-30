@@ -6,6 +6,7 @@ export const careers: Career[] = [
   { code: "CYBER", id: "cybersecurity", name: "Ciberseguridad", unitId: "fisc" },
   { code: "ELECTRICAL", id: "electrical", name: "Ingenieria Electrica", unitId: "fie" },
   { code: "MECHANICAL", id: "mechanical", name: "Ingenieria Mecanica", unitId: "fim" },
+  { code: "OTROS", id: "otros", name: "Otros", unitId: null },
 ];
 
 export const users: User[] = [

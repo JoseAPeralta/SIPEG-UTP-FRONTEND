@@ -58,3 +58,17 @@ export const ErrorWithAction: Story = {
     await expect(onRetry).toHaveBeenCalledOnce();
   },
 };
+
+export const ConfirmedOutcome: Story = {
+  args: {
+    description: "Si existe una cuenta asociada, recibirá un enlace para continuar.",
+    role: "status",
+    title: "Solicitud registrada",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole("status")).toHaveTextContent(/recibirá un enlace/i);
+    await expect(canvas.queryByRole("alert")).not.toBeInTheDocument();
+  },
+};

@@ -84,6 +84,14 @@ export function readAuthEnvelopeData(payload: unknown, path: string): unknown {
   return record["data"];
 }
 
+export function readEmptySuccessData(payload: unknown, path: string): void {
+  const record = readRecord(readAuthEnvelopeData(payload, path), `${path}.data`);
+
+  if (Object.keys(record).length > 0) {
+    throw new AuthMappingError(`${path}.data debe ser un objeto vacio`);
+  }
+}
+
 export function mapAuthTokens(value: unknown, path: string): AuthTokens {
   const record = readRecord(value, path);
   const tokenType = readString(record, "tokenType", path);

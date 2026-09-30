@@ -1,20 +1,33 @@
-import { useEffect, useRef } from "react";
+import { Button, Stack } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { ModuleShell, StatusPanel } from "@/components";
 
 import { useVerifyEmail } from "@/features/auth";
 
+type VerificationStep = "confirmed" | "failed" | "invalid" | "verifying";
+
 function readTokenFromUrl(): string | null {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("token");
+  return new URLSearchParams(window.location.search).get("token");
 }
 
+/**
+ * The token is read once and removed from the address bar as soon as the page mounts, so it never
+ * lingers in the URL, in the browser history or in a shared link while the request is in flight or
+ * after it fails. It is kept in component memory only, because a retry needs it and the user may
+ * have lost connectivity the first time.
+ */
 export function VerifyEmailPage() {
   const navigate = useNavigate();
-  const { error, isPending, verify } = useVerifyEmail();
+  const { errorMessage, verify } = useVerifyEmail();
+  const [token] = useState(readTokenFromUrl);
+  const [step, setStep] = useState<VerificationStep>(token ? "verifying" : "invalid");
   const hasAttempted = useRef(false);
-  const token = readTokenFromUrl();
+
+  useEffect(() => {
+    window.history.replaceState({}, "", "/verify-email");
+  }, []);
 
   useEffect(() => {
     if (!token || hasAttempted.current) {
@@ -25,13 +38,28 @@ export function VerifyEmailPage() {
 
     void verify(token)
       .then(() => {
-        window.history.replaceState({}, "", "/verify-email");
+        setStep("confirmed");
         void navigate("/login?activated=1", { replace: true });
       })
-      .catch(() => undefined);
+      .catch(() => setStep("failed"));
   }, [token, verify, navigate]);
 
-  if (!token) {
+  const handleRetry = () => {
+    if (!token) {
+      return;
+    }
+
+    setStep("verifying");
+
+    void verify(token)
+      .then(() => {
+        setStep("confirmed");
+        void navigate("/login?activated=1", { replace: true });
+      })
+      .catch(() => setStep("failed"));
+  };
+
+  if (step === "invalid") {
     return (
       <ModuleShell
         description="El enlace de activacion no incluye un token valido. Solicite un nuevo correo de verificacion."
@@ -43,7 +71,7 @@ export function VerifyEmailPage() {
     );
   }
 
-  if (isPending) {
+  if (step === "verifying") {
     return (
       <ModuleShell
         description="Estamos verificando su correo electronico. Este proceso toma solo unos segundos."
@@ -55,16 +83,19 @@ export function VerifyEmailPage() {
     );
   }
 
-  if (error) {
+  if (step === "failed") {
     return (
       <ModuleShell
-        description="No fue posible activar su cuenta. El enlace puede haber expirado o haber sido utilizado anteriormente."
+        description="No fue posible completar la activacion de su cuenta. Puede volver a intentarlo con el mismo enlace."
         headingLabel="Activacion de cuenta"
         title="Error de activacion"
       >
-        <StatusPanel role="alert">
-          No fue posible activar su cuenta. Solicite un nuevo correo de verificacion.
-        </StatusPanel>
+        <Stack gap={4}>
+          <StatusPanel role="alert">{errorMessage}</StatusPanel>
+          <Button alignSelf={{ base: "stretch", md: "start" }} onClick={handleRetry} rounded="full">
+            Reintentar
+          </Button>
+        </Stack>
       </ModuleShell>
     );
   }

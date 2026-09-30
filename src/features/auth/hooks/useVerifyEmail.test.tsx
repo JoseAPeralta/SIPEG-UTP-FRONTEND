@@ -4,14 +4,20 @@ import { describe, expect, it, vi } from "vitest";
 import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
 import { renderHookWithProviders } from "@/test/render";
 
+import { EmailVerificationError } from "../adapters/emailVerificationFailure";
+
 import { useVerifyEmail } from "./useVerifyEmail";
 
 function createAuthAdapter(overrides: Partial<AuthAdapter> = {}): AuthAdapter {
   return {
+    changePassword: vi.fn(),
     loadCurrentUser: vi.fn(),
     login: vi.fn(),
     logout: vi.fn(),
     refresh: vi.fn(),
+    requestPasswordReset: vi.fn(),
+    resetPassword: vi.fn(),
+    updateCurrentUser: vi.fn(),
     verifyEmail: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
@@ -33,14 +39,13 @@ describe("useVerifyEmail", () => {
     });
 
     expect(auth.verifyEmail).toHaveBeenCalledWith("verify-token");
-    expect(result.current.error).toBeNull();
+    expect(result.current.failure).toBeNull();
     expect(result.current.isPending).toBe(false);
   });
 
-  it("should expose verification errors", async () => {
-    const error = new Error("token invalido");
+  it("should expose a typed failure for an invalid link", async () => {
     const auth = createAuthAdapter({
-      verifyEmail: vi.fn().mockRejectedValue(error),
+      verifyEmail: vi.fn().mockRejectedValue(new EmailVerificationError("invalidLink")),
     });
     const { result } = renderHookWithProviders(() => useVerifyEmail(), {
       adapters: createAdapters(auth),
@@ -54,7 +59,45 @@ describe("useVerifyEmail", () => {
       // expected rejection from mutateAsync
     }
 
-    await waitFor(() => expect(result.current.error).toBe(error));
+    await waitFor(() => expect(result.current.failure).toBe("invalidLink"));
+  });
+
+  it("should expose throttling as its own failure", async () => {
+    const auth = createAuthAdapter({
+      verifyEmail: vi.fn().mockRejectedValue(new EmailVerificationError("throttled")),
+    });
+    const { result } = renderHookWithProviders(() => useVerifyEmail(), {
+      adapters: createAdapters(auth),
+    });
+
+    try {
+      await act(async () => {
+        await result.current.verify("throttled-token");
+      });
+    } catch {
+      // expected rejection from mutateAsync
+    }
+
+    await waitFor(() => expect(result.current.failure).toBe("throttled"));
+  });
+
+  it("should not report a connectivity problem as an invalid link", async () => {
+    const auth = createAuthAdapter({
+      verifyEmail: vi.fn().mockRejectedValue(new EmailVerificationError("unavailable")),
+    });
+    const { result } = renderHookWithProviders(() => useVerifyEmail(), {
+      adapters: createAdapters(auth),
+    });
+
+    try {
+      await act(async () => {
+        await result.current.verify("offline-token");
+      });
+    } catch {
+      // expected rejection from mutateAsync
+    }
+
+    await waitFor(() => expect(result.current.failure).toBe("unavailable"));
   });
 
   it("should complete verification without errors", async () => {
@@ -72,6 +115,6 @@ describe("useVerifyEmail", () => {
     });
 
     expect(result.current.isPending).toBe(false);
-    expect(result.current.error).toBeNull();
+    expect(result.current.failure).toBeNull();
   });
 });

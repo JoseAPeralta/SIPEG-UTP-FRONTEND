@@ -7,12 +7,12 @@ export type FeedbackStateProps = {
   action?: ReactNode | undefined;
   description: string;
   padding?: SurfacePadding | undefined;
-  role?: "alert" | undefined;
+  role?: "alert" | "status" | undefined;
   title: string;
   titleSize?: "md" | "lg" | undefined;
 };
 
-/** Presents an empty, blocked or error state with an optional recovery action. */
+/** Presents an empty, blocked, failed or resolved state with an optional recovery action. */
 export function FeedbackState({
   action,
   description,

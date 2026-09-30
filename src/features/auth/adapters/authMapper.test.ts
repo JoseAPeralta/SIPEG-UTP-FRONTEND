@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { mapAuthenticatedUser, mapAuthTokens, readAuthEnvelopeData } from "./authMapper";
+import {
+  mapAuthenticatedUser,
+  mapAuthTokens,
+  readAuthEnvelopeData,
+  readEmptySuccessData,
+} from "./authMapper";
 
 const tokenPayload = {
   accessToken: "access-token",
@@ -59,5 +64,26 @@ describe("authMapper", () => {
 
   it("should reject malformed API envelopes", () => {
     expect(() => readAuthEnvelopeData({ data: tokenPayload }, "auth.login")).toThrow(/success/);
+  });
+
+  it("should accept an empty successful payload", () => {
+    expect(
+      readEmptySuccessData({ data: {}, message: "ok", success: true }, "auth.forgotPassword"),
+    ).toBeUndefined();
+  });
+
+  it("should reject a successful payload that is not empty", () => {
+    expect(() =>
+      readEmptySuccessData(
+        { data: { token: "leaked" }, message: "ok", success: true },
+        "auth.resetPassword",
+      ),
+    ).toThrow(/auth\.resetPassword\.data/);
+  });
+
+  it("should reject an empty successful payload that is not an object", () => {
+    expect(() =>
+      readEmptySuccessData({ data: null, message: "ok", success: true }, "auth.forgotPassword"),
+    ).toThrow(/auth\.forgotPassword\.data/);
   });
 });

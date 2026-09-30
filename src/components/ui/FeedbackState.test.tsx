@@ -40,4 +40,17 @@ describe("FeedbackState", () => {
 
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
+
+  it("should announce a non-error outcome as a polite status", () => {
+    renderWithProviders(
+      <FeedbackState
+        description="Revise su correo electronico para continuar."
+        role="status"
+        title="Solicitud registrada"
+      />,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent(/revise su correo electr/i);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
 });

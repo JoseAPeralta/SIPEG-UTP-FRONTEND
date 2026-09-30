@@ -57,6 +57,8 @@ export const ProgramSelected: Story = {
   play: async ({ canvas }) => {
     const select = await canvas.findByRole("combobox", { name: /contexto de trabajo/i });
 
+    await canvas.findByRole("option", { name: /semana de innovacion academica/i });
+    await expect(select).toBeEnabled();
     await expect(select).toHaveValue("eventProgram:program-innovation-week");
     await expect(canvas.getByText(/las opciones del panel usan:/i)).toBeVisible();
   },
@@ -72,6 +74,8 @@ export const ActivitySelected: Story = {
   play: async ({ canvas }) => {
     const select = await canvas.findByRole("combobox", { name: /contexto de trabajo/i });
 
+    await canvas.findByRole("option", { name: /gobernanza de datos abiertos universitarios/i });
+    await expect(select).toBeEnabled();
     await expect(select).toHaveValue("activity:activity-open-data-governance");
     await expect(canvas.getByText(/las opciones del panel usan:/i)).toBeVisible();
   },

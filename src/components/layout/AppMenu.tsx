@@ -65,6 +65,7 @@ export function AppMenu() {
                 {currentUser.globalRole === "ADMIN" ? (
                   <MenuLink to="/admin">Panel de administracion</MenuLink>
                 ) : null}
+                <MenuLink to="/perfil">Mi perfil</MenuLink>
                 <Button
                   colorPalette="terracotta"
                   onClick={handleLogout}

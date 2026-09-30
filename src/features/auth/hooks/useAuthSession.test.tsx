@@ -14,6 +14,7 @@ import { useWorkingContextStore } from "@/store/workingContext";
 import { renderHookWithProviders } from "@/test/render";
 import type { AuthenticatedUser, AuthTokens } from "@/types/domain";
 
+import { AuthError } from "../adapters/authFailure";
 import { AUTH_REFRESH_STORAGE_KEY, writeStoredRefreshSession } from "../model/authSessionStorage";
 
 import { useAuthSessionBootstrap, useLogin, useLogout } from "./useAuthSession";
@@ -39,10 +40,14 @@ const tokens: AuthTokens = {
 
 function createAuthAdapter(overrides: Partial<AuthAdapter> = {}): AuthAdapter {
   return {
+    changePassword: vi.fn().mockResolvedValue(undefined),
     loadCurrentUser: vi.fn().mockResolvedValue(currentUser),
     login: vi.fn().mockResolvedValue(tokens),
     logout: vi.fn().mockResolvedValue(undefined),
     refresh: vi.fn().mockResolvedValue(tokens),
+    requestPasswordReset: vi.fn().mockResolvedValue(undefined),
+    resetPassword: vi.fn().mockResolvedValue(undefined),
+    updateCurrentUser: vi.fn(),
     verifyEmail: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
@@ -54,7 +59,12 @@ function createAdapters(auth: AuthAdapter) {
 
 describe("auth session hooks", () => {
   beforeEach(() => {
-    useSessionStore.setState({ currentUser: null, status: "anonymous", tokens: null });
+    useSessionStore.setState({
+      currentUser: null,
+      sessionEndReason: null,
+      status: "anonymous",
+      tokens: null,
+    });
     useUnitPreferenceStore.getState().setSelectedUnitId("all");
     useWorkingContextStore.getState().clearWorkingContext();
     localStorage.clear();
@@ -193,9 +203,10 @@ describe("auth session hooks", () => {
     ).toBeUndefined();
   });
 
-  it("should expose login errors without creating a session", async () => {
-    const authError = new Error("credenciales invalidas");
-    const auth = createAuthAdapter({ login: vi.fn().mockRejectedValue(authError) });
+  it("should wrap a login error without creating a session", async () => {
+    const auth = createAuthAdapter({
+      login: vi.fn().mockRejectedValue(new Error("credenciales invalidas")),
+    });
     const { result } = renderHookWithProviders(() => useLogin(), {
       adapters: createAdapters(auth),
     });
@@ -204,9 +215,170 @@ describe("auth session hooks", () => {
       act(async () => {
         await result.current.login({ email: "admin@example.edu", password: "incorrect" });
       }),
-    ).rejects.toBe(authError);
+    ).rejects.toMatchObject({ failure: "unknown" });
 
     expect(useSessionStore.getState().status).toBe("anonymous");
+  });
+
+  it("should expose a typed login failure without creating a session", async () => {
+    const auth = createAuthAdapter({
+      login: vi.fn().mockRejectedValue(new AuthError("rejected")),
+    });
+    const { result } = renderHookWithProviders(() => useLogin(), {
+      adapters: createAdapters(auth),
+    });
+
+    await act(async () => {
+      await expect(
+        result.current.login({ email: "admin@example.edu", password: "incorrect" }),
+      ).rejects.toMatchObject({ failure: "rejected" });
+    });
+
+    expect(useSessionStore.getState().status).toBe("anonymous");
+  });
+
+  it("should expose throttling as its own login failure", async () => {
+    const auth = createAuthAdapter({
+      login: vi.fn().mockRejectedValue(new AuthError("throttled")),
+    });
+    const { result } = renderHookWithProviders(() => useLogin(), {
+      adapters: createAdapters(auth),
+    });
+
+    await act(async () => {
+      await expect(
+        result.current.login({ email: "admin@example.edu", password: "incorrect" }),
+      ).rejects.toBeDefined();
+    });
+
+    await waitFor(() => expect(result.current.failure).toBe("throttled"));
+  });
+
+  it("should explain an expired stored session instead of a first visit", async () => {
+    const auth = createAuthAdapter();
+    writeStoredRefreshSession({ ...tokens, refreshTokenExpiresAt: "2020-01-01T00:00:00.000Z" });
+    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
+
+    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+      adapters: createAdapters(auth),
+    });
+
+    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
+    expect(useSessionStore.getState().sessionEndReason).toBe("expired");
+    expect(auth.refresh).not.toHaveBeenCalled();
+  });
+
+  it("should raise no notice on a first visit", async () => {
+    const auth = createAuthAdapter();
+    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
+
+    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+      adapters: createAdapters(auth),
+    });
+
+    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
+    expect(useSessionStore.getState().sessionEndReason).toBeNull();
+  });
+
+  it("should raise no notice for a malformed stored session", async () => {
+    const auth = createAuthAdapter();
+    sessionStorage.setItem(AUTH_REFRESH_STORAGE_KEY, "not-json");
+    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
+
+    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+      adapters: createAdapters(auth),
+    });
+
+    await waitFor(() => expect(useSessionStore.getState().status).toBe("anonymous"));
+    expect(useSessionStore.getState().sessionEndReason).toBeNull();
+  });
+
+  it("should report a rejected refresh as an expired session", async () => {
+    const auth = createAuthAdapter({
+      refresh: vi.fn().mockRejectedValue(new AuthError("rejected")),
+    });
+    writeStoredRefreshSession(tokens);
+    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
+
+    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+      adapters: createAdapters(auth),
+    });
+
+    await waitFor(() => expect(useSessionStore.getState().sessionEndReason).toBe("expired"));
+    expect(useSessionStore.getState().currentUser).toBeNull();
+    expect(sessionStorage.getItem(AUTH_REFRESH_STORAGE_KEY)).toBeNull();
+  });
+
+  it("should report a throttled refresh as a temporary limit", async () => {
+    const auth = createAuthAdapter({
+      refresh: vi.fn().mockRejectedValue(new AuthError("throttled")),
+    });
+    writeStoredRefreshSession(tokens);
+    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
+
+    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+      adapters: createAdapters(auth),
+    });
+
+    await waitFor(() => expect(useSessionStore.getState().sessionEndReason).toBe("throttled"));
+  });
+
+  it("should not report a connectivity problem as an expired session", async () => {
+    const auth = createAuthAdapter({
+      refresh: vi.fn().mockRejectedValue(new AuthError("unavailable")),
+    });
+    writeStoredRefreshSession(tokens);
+    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
+
+    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+      adapters: createAdapters(auth),
+    });
+
+    await waitFor(() => expect(useSessionStore.getState().sessionEndReason).toBe("unavailable"));
+  });
+
+  it("should keep a new session when a slow restoration fails", async () => {
+    let rejectRefresh: (error: unknown) => void = () => undefined;
+    const auth = createAuthAdapter({
+      refresh: vi.fn(
+        () =>
+          new Promise<AuthTokens>((_resolve, reject) => {
+            rejectRefresh = reject;
+          }),
+      ),
+    });
+    writeStoredRefreshSession(tokens);
+    useSessionStore.setState({ currentUser: null, status: "restoring", tokens: null });
+
+    renderHookWithProviders(() => useAuthSessionBootstrap(), {
+      adapters: createAdapters(auth),
+    });
+
+    await waitFor(() => expect(auth.refresh).toHaveBeenCalled());
+
+    await act(() => {
+      useSessionStore.getState().setSession({ currentUser, tokens });
+      rejectRefresh(new AuthError("rejected"));
+      return Promise.resolve();
+    });
+
+    expect(useSessionStore.getState().status).toBe("authenticated");
+    expect(useSessionStore.getState().currentUser).toEqual(currentUser);
+    expect(useSessionStore.getState().sessionEndReason).toBeNull();
+  });
+
+  it("should clear the notice after a successful login", async () => {
+    const auth = createAuthAdapter();
+    useSessionStore.getState().endSession("expired");
+    const { result } = renderHookWithProviders(() => useLogin(), {
+      adapters: createAdapters(auth),
+    });
+
+    await act(async () => {
+      await result.current.login({ email: "admin@example.edu", password: "secret" });
+    });
+
+    expect(useSessionStore.getState().sessionEndReason).toBeNull();
   });
 
   afterEach(() => {

@@ -32,10 +32,14 @@ const currentUser: AuthenticatedUser = {
 
 function createAuthAdapter(overrides: Partial<AuthAdapter> = {}): AuthAdapter {
   return {
+    changePassword: vi.fn().mockResolvedValue(undefined),
     loadCurrentUser: vi.fn().mockResolvedValue(currentUser),
     login: vi.fn().mockResolvedValue(tokens),
     logout: vi.fn().mockResolvedValue(undefined),
     refresh: vi.fn().mockResolvedValue(tokens),
+    requestPasswordReset: vi.fn().mockResolvedValue(undefined),
+    resetPassword: vi.fn().mockResolvedValue(undefined),
+    updateCurrentUser: vi.fn(),
     verifyEmail: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };

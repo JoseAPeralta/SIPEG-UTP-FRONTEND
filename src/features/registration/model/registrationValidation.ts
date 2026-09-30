@@ -1,5 +1,8 @@
 import type { RegistrationPayload } from "@/types/domain";
 
+export const PASSWORD_MIN_LENGTH = 12;
+export const PASSWORD_MAX_LENGTH = 20;
+
 export type RegistrationField =
   "email" | "firstName" | "identificationNumber" | "lastName" | "password";
 
@@ -46,10 +49,10 @@ export function validateRegistrationPayload(payload: RegistrationPayload): Regis
     errors.email = "Ingrese un correo electrónico válido.";
   }
 
-  if (payload.password.length < 12) {
-    errors.password = "La contraseña debe tener al menos 12 caracteres.";
-  } else if (payload.password.length > 128) {
-    errors.password = "La contraseña no puede exceder 128 caracteres.";
+  if (payload.password.length < PASSWORD_MIN_LENGTH) {
+    errors.password = `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+  } else if (payload.password.length > PASSWORD_MAX_LENGTH) {
+    errors.password = `La contraseña no puede exceder ${PASSWORD_MAX_LENGTH} caracteres.`;
   }
 
   return errors;

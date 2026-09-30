@@ -1,5 +1,6 @@
-import { Button, Field, Heading, Input, Stack, Text } from "@chakra-ui/react";
+import { Button, Field, Heading, Input, Link, Stack, Text } from "@chakra-ui/react";
 import { useState, type FormEvent } from "react";
+import { Link as RouterLink } from "react-router";
 
 import type { AuthCredentials } from "@/app/adapters";
 import { Surface } from "@/components";
@@ -32,19 +33,23 @@ export function LoginForm({ errorMessage = null, isSubmitting = false, onSubmit 
               letterSpacing="0.14em"
               textTransform="uppercase"
             >
-              Acceso administrativo
+              Acceso a su cuenta
             </Text>
             <Heading as="h1" fontFamily="heading" fontSize={{ base: "4xl", md: "5xl" }}>
-              Iniciar sesion en SIPEG
+              Iniciar sesión
             </Heading>
             <Text color="text.muted" lineHeight="1.7">
-              Use las credenciales de su cuenta institucional para acceder al panel operativo.
+              Use las credenciales de su cuenta institucional para entrar a SIPEG.
+            </Text>
+            <Text color="text.muted" fontSize="sm" lineHeight="1.7">
+              Si acaba de registrarse, revise su correo electrónico para verificar su cuenta antes
+              de iniciar sesión.
             </Text>
           </Stack>
 
           <Stack gap={4}>
             <Field.Root required>
-              <Field.Label>Correo electronico</Field.Label>
+              <Field.Label>Correo electrónico</Field.Label>
               <Input
                 autoComplete="email"
                 disabled={isSubmitting}
@@ -55,7 +60,7 @@ export function LoginForm({ errorMessage = null, isSubmitting = false, onSubmit 
             </Field.Root>
 
             <Field.Root required>
-              <Field.Label>Contrasena</Field.Label>
+              <Field.Label>Contraseña</Field.Label>
               <Input
                 autoComplete="current-password"
                 disabled={isSubmitting}
@@ -72,15 +77,21 @@ export function LoginForm({ errorMessage = null, isSubmitting = false, onSubmit 
             </Text>
           ) : null}
 
-          <Button
-            colorPalette="terracotta"
-            disabled={isSubmitting}
-            rounded="full"
-            size="lg"
-            type="submit"
-          >
-            {isSubmitting ? "Iniciando sesion..." : "Iniciar sesion"}
-          </Button>
+          <Stack align={{ base: "stretch", md: "center" }} gap={4} justify="space-between">
+            <Button
+              alignSelf={{ base: "stretch", md: "start" }}
+              colorPalette="terracotta"
+              disabled={isSubmitting}
+              rounded="full"
+              size="lg"
+              type="submit"
+            >
+              {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
+            </Button>
+            <Link asChild color="accent.solid" fontWeight="600" textDecoration="underline">
+              <RouterLink to="/forgot-password">¿Olvidó su contraseña?</RouterLink>
+            </Link>
+          </Stack>
         </Stack>
       </form>
     </Surface>

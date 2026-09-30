@@ -69,6 +69,13 @@ export type AuthTokens = {
   tokenType: "Bearer";
 };
 
+/**
+ * Why a session is no longer authenticated. It is a coarse, in-memory hint for the login screen:
+ * the contract cannot confirm whether a credential expired, an account was deactivated or an email
+ * is still unverified, so no reason asserts a specific cause.
+ */
+export type SessionEndReason = "expired" | "throttled" | "unavailable";
+
 export type User = {
   careerId: string | null;
   email: string;

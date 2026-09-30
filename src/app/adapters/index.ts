@@ -9,5 +9,10 @@ export type {
   AuthAdapter,
   AuthCredentials,
   OperationsAdapter,
+  PasswordChangePayload,
+  PasswordChangeRequest,
+  PasswordResetPayload,
+  PasswordResetRequest,
+  ProfileUpdateRequest,
   RegistrationAdapter,
 } from "./contracts";

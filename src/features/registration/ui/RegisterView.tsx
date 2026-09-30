@@ -37,11 +37,7 @@ export function RegisterView() {
       {catalogQuery.catalog ? (
         <RegisterForm
           careers={catalogQuery.catalog.careers}
-          errorMessage={
-            registration.error
-              ? "No fue posible crear la cuenta. Verifique los datos e intente de nuevo."
-              : null
-          }
+          errorMessage={registration.errorMessage}
           isSubmitting={registration.isPending}
           onSubmit={async (payload) => {
             try {

@@ -14,6 +14,8 @@ import { Surface } from "@/components";
 import type { Career, OrganizationalUnit, RegistrationPayload } from "@/types/domain";
 
 import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
   type RegistrationErrors,
   validateRegistrationPayload,
 } from "../model/registrationValidation";
@@ -170,13 +172,15 @@ export function RegisterForm({
               <Input
                 autoComplete="new-password"
                 disabled={isSubmitting}
-                maxLength={128}
+                maxLength={PASSWORD_MAX_LENGTH}
                 onChange={(event) => updateValue("password", event.currentTarget.value)}
                 type={showPassword ? "text" : "password"}
                 value={values.password}
               />
             </InputGroup>
-            <Field.HelperText>Debe tener entre 12 y 128 caracteres.</Field.HelperText>
+            <Field.HelperText>
+              Debe tener entre {PASSWORD_MIN_LENGTH} y {PASSWORD_MAX_LENGTH} caracteres.
+            </Field.HelperText>
             <Field.ErrorText>{errors.password}</Field.ErrorText>
           </Field.Root>
 

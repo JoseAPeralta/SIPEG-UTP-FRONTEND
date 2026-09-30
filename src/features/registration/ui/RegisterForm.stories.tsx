@@ -56,6 +56,24 @@ export const Submitting: Story = {
   args: { isSubmitting: true },
 };
 
+export const PasswordPolicy: Story = {
+  play: async ({ canvas }) => {
+    const password = canvas.getByLabelText(/^contrase[nñ]a$/i);
+
+    await expect(password).toHaveAttribute("maxlength", "20");
+    await expect(canvas.getByText(/debe tener entre 12 y 20 caracteres/i)).toBeInTheDocument();
+
+    await userEvent.type(password, "a".repeat(30));
+    await expect(password).toHaveValue("a".repeat(20));
+  },
+};
+
 export const RegistrationError: Story = {
   args: { errorMessage: "No se pudo completar el registro. Intente de nuevo." },
+};
+
+export const Throttled: Story = {
+  args: {
+    errorMessage: "Ha realizado demasiados intentos. Espere un momento e intente de nuevo.",
+  },
 };

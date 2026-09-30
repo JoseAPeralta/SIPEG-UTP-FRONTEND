@@ -42,6 +42,7 @@ const config = defineConfig({
         "surface.subtle": { value: { base: "#F3EAE2", _dark: "#33251C" } },
         "text.default": { value: { base: "#33261F", _dark: "#F7EFE8" } },
         "text.muted": { value: { base: "#6B5A4F", _dark: "#C9B8AC" } },
+        "fg.error": { value: { base: "{colors.danger.700}", _dark: "{colors.danger.300}" } },
       },
       shadows: {
         interactive: {

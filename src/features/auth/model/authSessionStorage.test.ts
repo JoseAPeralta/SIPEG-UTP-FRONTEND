@@ -44,30 +44,75 @@ describe("authSessionStorage", () => {
     });
   });
 
+  it("should report an absent credential", () => {
+    const storage = createMemoryStorage();
+
+    expect(readStoredRefreshSession(storage)).toEqual({ kind: "absent" });
+  });
+
   it("should read a valid refresh credential", () => {
     const storage = createMemoryStorage();
     writeStoredRefreshSession(tokens, storage);
 
     expect(readStoredRefreshSession(storage, Date.parse("2026-09-27T00:00:00.000Z"))).toEqual({
-      refreshToken: "refresh-token",
-      refreshTokenExpiresAt: "2026-10-03T12:00:00.000Z",
+      kind: "session",
+      session: {
+        refreshToken: "refresh-token",
+        refreshTokenExpiresAt: "2026-10-03T12:00:00.000Z",
+      },
     });
   });
 
-  it("should remove expired refresh credentials", () => {
+  it("should report an expired credential and remove it", () => {
     const storage = createMemoryStorage();
     writeStoredRefreshSession(tokens, storage);
 
-    expect(readStoredRefreshSession(storage, Date.parse("2026-10-04T00:00:00.000Z"))).toBeNull();
+    expect(readStoredRefreshSession(storage, Date.parse("2026-10-04T00:00:00.000Z"))).toEqual({
+      kind: "expired",
+    });
     expect(storage.getItem(AUTH_REFRESH_STORAGE_KEY)).toBeNull();
   });
 
-  it("should remove malformed refresh credentials", () => {
+  it("should report a malformed credential and remove it", () => {
     const storage = createMemoryStorage();
     storage.setItem(AUTH_REFRESH_STORAGE_KEY, "not-json");
 
-    expect(readStoredRefreshSession(storage)).toBeNull();
+    expect(readStoredRefreshSession(storage)).toEqual({ kind: "invalid" });
     expect(storage.getItem(AUTH_REFRESH_STORAGE_KEY)).toBeNull();
+  });
+
+  it("should report a credential with an unparsable expiration as invalid", () => {
+    const storage = createMemoryStorage();
+    storage.setItem(
+      AUTH_REFRESH_STORAGE_KEY,
+      JSON.stringify({ refreshToken: "token", refreshTokenExpiresAt: "not-a-date" }),
+    );
+
+    expect(readStoredRefreshSession(storage)).toEqual({ kind: "invalid" });
+  });
+
+  it("should report a credential without an expiration as invalid", () => {
+    const storage = createMemoryStorage();
+    storage.setItem(AUTH_REFRESH_STORAGE_KEY, JSON.stringify({ refreshToken: "token" }));
+
+    expect(readStoredRefreshSession(storage)).toEqual({ kind: "invalid" });
+  });
+
+  it("should report a credential without a token as invalid", () => {
+    const storage = createMemoryStorage();
+    storage.setItem(
+      AUTH_REFRESH_STORAGE_KEY,
+      JSON.stringify({ refreshTokenExpiresAt: "2026-10-03T12:00:00.000Z" }),
+    );
+
+    expect(readStoredRefreshSession(storage)).toEqual({ kind: "invalid" });
+  });
+
+  it("should report a non-object payload as invalid", () => {
+    const storage = createMemoryStorage();
+    storage.setItem(AUTH_REFRESH_STORAGE_KEY, JSON.stringify(["refresh-token"]));
+
+    expect(readStoredRefreshSession(storage)).toEqual({ kind: "invalid" });
   });
 
   it("should clear the stored refresh credential", () => {

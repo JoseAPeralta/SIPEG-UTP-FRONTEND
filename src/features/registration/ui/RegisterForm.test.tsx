@@ -105,6 +105,35 @@ describe("RegisterForm", () => {
     expect(screen.getByText(/al menos 12 caracteres/i)).toBeInTheDocument();
   });
 
+  it("should limit the password to the contract maximum and announce the range", () => {
+    renderWithProviders(
+      <RegisterForm careers={careers} onSubmit={vi.fn()} organizationalUnits={[faculty]} />,
+    );
+
+    expect(screen.getByLabelText(/^contrase[nñ]a$/i)).toHaveAttribute("maxlength", "20");
+    expect(screen.getByText(/debe tener entre 12 y 20 caracteres/i)).toBeInTheDocument();
+  });
+
+  it("should never accept a password longer than the contract maximum", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    renderWithProviders(
+      <RegisterForm careers={careers} onSubmit={onSubmit} organizationalUnits={[faculty]} />,
+    );
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /unidad \/ facultad/i }),
+      faculty.id,
+    );
+    await completeRequiredFields(user);
+    await user.clear(screen.getByLabelText(/^contrase[nñ]a$/i));
+    await user.type(screen.getByLabelText(/^contrase[nñ]a$/i), "a".repeat(30));
+    await user.click(screen.getByRole("button", { name: /crear cuenta/i }));
+
+    expect(screen.getByLabelText(/^contrase[nñ]a$/i)).toHaveValue("a".repeat(20));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ password: "a".repeat(20) }));
+  });
+
   it("should present registration guidance with formal language", async () => {
     const user = userEvent.setup();
     renderWithProviders(
