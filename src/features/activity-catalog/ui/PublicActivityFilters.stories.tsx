@@ -113,10 +113,14 @@ export const OffersOnlyUnitsPresentInTheAgenda: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const options = canvas.getAllByRole("option").map((option) => option.textContent);
+  play: async ({ canvas }) => {
+    // El alcance es el desplegable de unidades: la pagina tiene otros con
+    // opciones propias, asi que una consulta global compararia listas distintas.
+    const options = within(canvas.getByRole("combobox", { name: /unidad organizativa/i }));
 
-    await expect(options).toEqual(["Todas las unidades", "FIE - Facultad de Ingeniería Eléctrica"]);
+    await expect(options.getAllByRole("option").map((option) => option.textContent)).toEqual([
+      "Todas las unidades",
+      "FIE - Facultad de Ingeniería Eléctrica",
+    ]);
   },
 };

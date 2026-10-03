@@ -1,11 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent } from "storybook/test";
 
 import type { PublicActivity } from "@/types/domain";
 
 import { buildPublicActivityRows } from "../model/publicCatalogSelectors";
 
 import { PublicActivityCard } from "./PublicActivityCard";
+
+// Supera el umbral de previsualizacion de la tarjeta, de modo que exista el
+// boton "Leer mas" que la story ejercita.
+const LONG_DESCRIPTION =
+  "Taller practico de levantamiento topografico con drones, abierto a estudiantes de Ingenieria Civil y de ingenieria de Sistemas Computacionales, con equipos del laboratorio de geodesia y apoyo del semillero de inspeccion.";
 
 const baseActivity: PublicActivity = {
   bannerUrl: null,
@@ -16,8 +21,7 @@ const baseActivity: PublicActivity = {
     name: "Auditorio Roberto Barraza",
   },
   date: "2026-10-14",
-  description:
-    "Taller practico de levantamiento topografico con drones, con equipos del laboratorio.",
+  description: LONG_DESCRIPTION,
   endTime: "12:00",
   id: "activity-1",
   name: "Taller de Topografia con Drones",
@@ -101,12 +105,17 @@ export const FromAnUnknownUnit: Story = {
 };
 
 export const ExpandsALongDescription: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvas }) => {
+    // Antes de expandir el texto aparece recortado con puntos suspensivos, y
+    // despues completo. La busqueda es literal: como expresion regular, `...`
+    // matchearia cualquier caracter repetido.
+    await expect(
+      canvas.getByText(`${LONG_DESCRIPTION.slice(0, 128).trim()}...`),
+    ).toBeInTheDocument();
 
     await userEvent.click(canvas.getByRole("button", { name: /leer mas/i }));
 
     await expect(canvas.getByRole("button", { name: /leer menos/i })).toBeInTheDocument();
-    await expect(canvas.queryByText(/...$/)).toBeNull();
+    await expect(canvas.getByText(LONG_DESCRIPTION)).toBeInTheDocument();
   },
 };
