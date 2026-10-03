@@ -77,6 +77,65 @@
       "title": "Features/Activity Catalog/EventProgramCard"
     },
     {
+      "componentPath": "src/features/activity-catalog/ui/PublicActivityCard.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-publicactivitycard--expands-a-long-description",
+          "name": "Expands A Long Description",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitycard--from-an-unknown-unit",
+          "name": "From An Unknown Unit",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitycard--program-with-custom-label",
+          "name": "Program With Custom Label",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitycard--without-classroom",
+          "name": "Without Classroom",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitycard--without-description-or-speakers",
+          "name": "Without Description Or Speakers",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/PublicActivityCard.stories.tsx",
+      "title": "Features/Activity Catalog/PublicActivityCard"
+    },
+    {
+      "componentPath": "src/features/activity-catalog/ui/PublicActivityFilters.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-publicactivityfilters--changes-the-sort-order",
+          "name": "Changes The Sort Order",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--offers-only-units-present-in-the-agenda",
+          "name": "Offers Only Units Present In The Agenda",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--selects-an-activity-type",
+          "name": "Selects An Activity Type",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--selects-an-organizational-unit",
+          "name": "Selects An Organizational Unit",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/PublicActivityFilters.stories.tsx",
+      "title": "Features/Activity Catalog/PublicActivityFilters"
+    },
+    {
       "componentPath": "src/features/auth/ui/ChangePasswordForm.tsx",
       "stories": [
         {
@@ -401,6 +460,11 @@
         {
           "id": "layout-appmenu--logged-out",
           "name": "Logged Out",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-appmenu--restoring-session",
+          "name": "Restoring Session",
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {

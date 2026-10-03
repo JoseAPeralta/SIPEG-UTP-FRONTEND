@@ -57,6 +57,8 @@ src/
 - Use the backend vocabulary: `OrganizationalUnit`, `EventProgram`, `Activity`. The official resource is `activities`; there is no `/events` resource.
 - UI copy is Spanish: render the typed label maps in `features/<dominio>/model/*Labels.ts` for contract enums and never show raw API codes or backend error messages. Free-text backend content (names, descriptions, equipment) is shown as-is.
 - Every activity belongs to exactly one event program, and every event program belongs to exactly one organizational unit.
+- Organizational unit codes and names are declared in `features/organizational-units/model/unitRegistry.ts`, never downloaded for the public agenda. Add a unit to `ORGANIZATIONAL_UNIT_CODES` together with its `institutionalUnitsByCode` entry and its color in `src/theme/domainColors.ts`; the compiler rejects an incomplete addition. Activity type labels live in `features/activity-catalog/model/catalogLabels.ts`.
+- The public agenda reads through `PublicActivityCatalogAdapter` (one request to `GET /api/v1/activities`) and renders `PublicActivityCard` / `PublicActivityFilters`. Do not route it back through `ActivityCatalogAdapter`: the public listing omits equipment and enrollment fields, so the two models are deliberately different types.
 
 ## Architecture Rules
 

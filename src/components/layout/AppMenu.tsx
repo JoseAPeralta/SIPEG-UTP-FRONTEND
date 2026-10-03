@@ -1,4 +1,4 @@
-import { Box, Button, Container, Flex, HStack, Heading } from "@chakra-ui/react";
+import { Box, Button, Container, Flex, HStack, Heading, Skeleton } from "@chakra-ui/react";
 import { Link, NavLink, useNavigate } from "react-router";
 
 import { useSessionStore } from "@/store/session";
@@ -30,13 +30,31 @@ function MenuLink({ children, to }: MenuLinkProps) {
   );
 }
 
+function SkeletonCircle() {
+  return (
+    <Skeleton
+      aria-hidden="true"
+      data-testid="session-restoring-placeholder"
+      height="40px"
+      rounded="full"
+      width="180px"
+    />
+  );
+}
+
 export function AppMenu() {
   const currentUser = useSessionStore((state) => state.currentUser);
+  const status = useSessionStore((state) => state.status);
   const navigate = useNavigate();
 
   const handleLogout = () => {
     void navigate("/logout", { replace: true });
   };
+
+  // Mientras se restaura la sesion no se sabe si hay usuario. Mostrar "Iniciar
+  // sesion" y cambiarlo despueseria un parpadeo visible en cada carga, asi que se
+  // reserva el hueco con un esqueleto de la misma forma.
+  const isRestoring = status === "restoring";
 
   return (
     <Box
@@ -60,7 +78,9 @@ export function AppMenu() {
             ml="auto"
             wrap="wrap"
           >
-            {currentUser ? (
+            {isRestoring ? (
+              <SkeletonCircle />
+            ) : currentUser ? (
               <>
                 {currentUser.globalRole === "ADMIN" ? (
                   <MenuLink to="/admin">Panel de administracion</MenuLink>

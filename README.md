@@ -217,6 +217,11 @@ requiere el backend levantado. La URL debe ser el origin del API, sin sufijo `/a
 endpoints ya incluyen el prefijo `/api/v1`. Con `api`, unidades organizativas, carreras, aulas,
 programas y actividades se cargan desde el backend: cada recurso tiene su propio adapter y su
 propia clave de cache, y los tres catalogos se piden como operaciones publicas sin `Bearer`.
+La agenda publica de `/` se resuelve ademas con **una sola peticion** a `GET /api/v1/activities`,
+porque ese listado ya trae aula, programa y unidad embebidos; el catalogo administrativo conserva
+su lectura por recurso porque si necesita el detalle de cada actividad. Los codigos y nombres de
+las unidades, y las etiquetas de los tipos de actividad, estan declarados en el frontend y no se
+descargan.
 Asistencia, certificados, ponentes y reportes permanecen no disponibles con un error explicito hasta
 que el backend publique sus contratos; el dashboard conserva las metricas del catalogo y avisa de
 las que dependen de esas operaciones.

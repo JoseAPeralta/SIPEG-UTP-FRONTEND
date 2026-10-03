@@ -12,7 +12,7 @@ import { useWorkingContextStore } from "@/store/workingContext";
 import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
 import { stubDesktopViewport } from "@/test/viewport";
-import type { GlobalRole } from "@/types/domain";
+import type { AuthTokens, GlobalRole } from "@/types/domain";
 
 const demoUser = createAuthenticatedUser({ globalRole: "ADMIN" });
 const demoTokens = createAuthTokens();
@@ -86,6 +86,76 @@ describe("App", () => {
       screen.queryByRole("link", { name: /panel de administracion/i }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("contentinfo")).toHaveTextContent(/sipeg/i);
+  });
+
+  it("should keep the landing visible while the session is still being restored", async () => {
+    // El refresh nunca resuelve: reproduce la pestana lenta o sin red.
+    const auth: AuthAdapter = {
+      ...createAppAdapters({ source: "mock" }).auth,
+      refresh: vi.fn<AuthAdapter["refresh"]>(() => new Promise<AuthTokens>(() => undefined)),
+    };
+
+    useSessionStore.setState({ status: "restoring" });
+    renderWithProviders(<App />, {
+      adapters: { ...createAppAdapters({ source: "mock" }), auth },
+    });
+
+    expect(
+      await screen.findByRole(
+        "heading",
+        { level: 1, name: /descubra actividades academicas/i },
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("should not offer the session links before knowing whether a session exists", async () => {
+    const auth: AuthAdapter = {
+      ...createAppAdapters({ source: "mock" }).auth,
+      refresh: vi.fn<AuthAdapter["refresh"]>(() => new Promise<AuthTokens>(() => undefined)),
+    };
+
+    useSessionStore.setState({ status: "restoring" });
+    renderWithProviders(<App />, {
+      adapters: { ...createAppAdapters({ source: "mock" }), auth },
+    });
+
+    const navigation = await screen.findByRole("navigation", { name: /navegacion principal/i });
+
+    expect(within(navigation).queryByRole("link", { name: /iniciar sesi[oó]n/i })).toBeNull();
+    expect(within(navigation).queryByRole("link", { name: /registrarse/i })).toBeNull();
+  });
+
+  it("should wait for the session before redirecting a protected route", async () => {
+    let resolveRefresh: ((tokens: ReturnType<typeof createAuthTokens>) => void) | undefined;
+    const auth: AuthAdapter = {
+      ...createAppAdapters({ source: "mock" }).auth,
+      loadCurrentUser: vi.fn(() => Promise.resolve(demoUser)),
+      refresh: vi.fn(
+        () =>
+          new Promise<ReturnType<typeof createAuthTokens>>((resolve) => {
+            resolveRefresh = resolve;
+          }),
+      ),
+    };
+
+    useSessionStore.setState({ status: "restoring" });
+    renderWithProviders(<App />, {
+      adapters: { ...createAppAdapters({ source: "mock" }), auth },
+      route: "/perfil/datos",
+    });
+
+    // Mientras no se restaura, no se redirige: una sesion valida seria expulsada.
+    expect(
+      screen.queryByRole("heading", { level: 1, name: /cree su cuenta en sipeg/i }),
+    ).not.toBeInTheDocument();
+
+    resolveRefresh?.(demoTokens);
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /area personal/i }, { timeout: 5000 }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText(/mantenga sus datos al d[ií]a/i)).toBeInTheDocument();
   });
 
   it("should render public registration without an active session", async () => {

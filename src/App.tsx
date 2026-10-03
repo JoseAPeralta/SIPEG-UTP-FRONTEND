@@ -38,6 +38,24 @@ function renderRoute(element: ReactNode) {
   return <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
 }
 
+/**
+ * Espera a que la sesion se restaure antes de decidir si la ruta es valida.
+ *
+ * Sin esta espera, una pestana que ya tiene cookie redirigiria a `/login` y
+ * volveria atras cuando `POST /auth/refresh` terminara. Solo las rutas que
+ * exigen identidad la necesitan: las publicas pintan de inmediato, y por eso la
+ * agenda no espera un viaje de red para mostrar su primer contenido.
+ */
+function useSessionIsSettling() {
+  const status = useSessionStore((state) => state.status);
+
+  return status === "restoring";
+}
+
+function RestoreGate() {
+  return useSessionIsSettling() ? <RouteFallback /> : <Outlet />;
+}
+
 function RequireSession() {
   const currentUser = useSessionStore((state) => state.currentUser);
 
@@ -72,11 +90,6 @@ export function App() {
   // eso va en su propio hook.
   useAuthSessionBootstrap();
   useProactiveTokenRenewal();
-  const sessionStatus = useSessionStore((state) => state.status);
-
-  if (sessionStatus === "restoring") {
-    return <RouteFallback />;
-  }
 
   return (
     <Routes>
@@ -88,36 +101,43 @@ export function App() {
         <Route path="reset-password" element={renderRoute(<ResetPasswordPage />)} />
         <Route path="verify-email" element={renderRoute(<VerifyEmailPage />)} />
         <Route path="logout" element={renderRoute(<LogoutPage />)} />
-        <Route element={<RequireSession />}>
-          <Route path="cambiar-contrasena" element={<Navigate replace to="/perfil/seguridad" />} />
-          <Route path="perfil" element={<PersonalAreaLayout />}>
-            <Route index element={<Navigate replace to="/perfil/datos" />} />
-            <Route path="datos" element={renderRoute(<ProfilePage />)} />
-            <Route path="seguridad" element={renderRoute(<ChangePasswordPage />)} />
-            <Route path="actividades" element={renderRoute(<PersonalActivitiesPage />)} />
-            <Route path="certificados" element={renderRoute(<PersonalCertificatesPage />)} />
+        <Route element={<RestoreGate />}>
+          <Route element={<RequireSession />}>
+            <Route
+              path="cambiar-contrasena"
+              element={<Navigate replace to="/perfil/seguridad" />}
+            />
+            <Route path="perfil" element={<PersonalAreaLayout />}>
+              <Route index element={<Navigate replace to="/perfil/datos" />} />
+              <Route path="datos" element={renderRoute(<ProfilePage />)} />
+              <Route path="seguridad" element={renderRoute(<ChangePasswordPage />)} />
+              <Route path="actividades" element={renderRoute(<PersonalActivitiesPage />)} />
+              <Route path="certificados" element={renderRoute(<PersonalCertificatesPage />)} />
+            </Route>
+          </Route>
+          <Route element={<RequireAdminSession />}>
+            <Route path="eventos" element={<RedirectToAdminRoute path="eventos" />} />
+            <Route path="asistencia" element={<RedirectToAdminRoute path="asistencia" />} />
+            <Route path="certificados" element={<RedirectToAdminRoute path="certificados" />} />
+            <Route path="aulas" element={<RedirectToAdminRoute path="aulas" />} />
+            <Route path="ponentes" element={<RedirectToAdminRoute path="ponentes" />} />
+            <Route path="reportes" element={<RedirectToAdminRoute path="reportes" />} />
+            <Route path="usuarios" element={<RedirectToAdminRoute path="usuarios" />} />
           </Route>
         </Route>
-        <Route element={<RequireAdminSession />}>
-          <Route path="eventos" element={<RedirectToAdminRoute path="eventos" />} />
-          <Route path="asistencia" element={<RedirectToAdminRoute path="asistencia" />} />
-          <Route path="certificados" element={<RedirectToAdminRoute path="certificados" />} />
-          <Route path="aulas" element={<RedirectToAdminRoute path="aulas" />} />
-          <Route path="ponentes" element={<RedirectToAdminRoute path="ponentes" />} />
-          <Route path="reportes" element={<RedirectToAdminRoute path="reportes" />} />
-          <Route path="usuarios" element={<RedirectToAdminRoute path="usuarios" />} />
-        </Route>
       </Route>
-      <Route element={<RequireAdminSession />}>
-        <Route path="admin" element={<AdminLayout />}>
-          <Route index element={renderRoute(<DashboardPage />)} />
-          <Route path="eventos" element={renderRoute(<ActivityCatalogPage />)} />
-          <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
-          <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
-          <Route path="usuarios" element={renderRoute(<UsersPage />)} />
-          <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
-          <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
-          <Route path="reportes" element={renderRoute(<ReportsPage />)} />
+      <Route element={<RestoreGate />}>
+        <Route element={<RequireAdminSession />}>
+          <Route path="admin" element={<AdminLayout />}>
+            <Route index element={renderRoute(<DashboardPage />)} />
+            <Route path="eventos" element={renderRoute(<ActivityCatalogPage />)} />
+            <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
+            <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
+            <Route path="usuarios" element={renderRoute(<UsersPage />)} />
+            <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
+            <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
+            <Route path="reportes" element={renderRoute(<ReportsPage />)} />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<Navigate replace to="/" />} />

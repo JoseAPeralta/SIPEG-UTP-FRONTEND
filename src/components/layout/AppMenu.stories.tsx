@@ -28,6 +28,27 @@ export const LoggedOut: Story = {
   },
 };
 
+export const RestoringSession: Story = {
+  beforeEach: () => {
+    // El store arranca en `restoring`: todavia no se sabe si hay sesion.
+    useSessionStore.setState({ status: "restoring" });
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Mientras se restaura la sesion se reserva el hueco en lugar de ofrecer el acceso. Mostrarlo y cambiarlo despues se leeria como un parpadeo en cada carga.",
+      },
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByTestId("session-restoring-placeholder")).toBeVisible();
+    await expect(canvas.queryByRole("link", { name: /iniciar sesi[oó]n/i })).toBeNull();
+    await expect(canvas.queryByRole("link", { name: /registrarse/i })).toBeNull();
+    await expect(canvas.getByRole("link", { name: /^sipeg$/i })).toBeVisible();
+  },
+};
+
 export const Administrator: Story = {
   beforeEach: () => {
     useSessionStore.getState().setSession({
