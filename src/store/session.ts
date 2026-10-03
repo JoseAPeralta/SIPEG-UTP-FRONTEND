@@ -33,7 +33,8 @@ export const useSessionStore = create<SessionState>()((set) => ({
   currentUser: null,
   endSession: (reason) =>
     set({ currentUser: null, sessionEndReason: reason, status: "anonymous", tokens: null }),
-  finishRestoration: () => set({ status: "anonymous" }),
+  finishRestoration: () =>
+    set((state) => (state.status === "restoring" ? { status: "anonymous" } : state)),
   replaceCurrentUser: (currentUser) =>
     set((state) => (state.currentUser?.id === currentUser.id ? { currentUser } : state)),
   sessionEndReason: null,

@@ -31,7 +31,12 @@ export class SessionRenewalError extends Error {
    */
   readonly failure: AuthFailure;
 
-  constructor(message: string, transient: boolean, failure: AuthFailure) {
+  constructor(
+    message: string,
+    transient: boolean,
+    failure: AuthFailure,
+    readonly superseded = false,
+  ) {
     super(message);
     this.name = "SessionRenewalError";
     this.transient = transient;
@@ -124,9 +129,10 @@ export const createSessionCoordinator = (
     }
 
     if (message.kind === "session-ended") {
-      // La cookie dejo de valer, asi que esta sesion tampoco. Sin esto, una
-      // pestana seguiria pareciendo autenticada con un token que ya no sirve.
+      // Otra pestana confirmo el cierre. Limpiar la UI aunque un access JWT
+      // stateless previamente emitido pueda seguir vigente hasta su expiracion.
       generation += 1;
+      inFlight = null;
       announce(null);
 
       return;
@@ -134,8 +140,11 @@ export const createSessionCoordinator = (
 
     if (message.kind === "session-established") {
       // Otra pestana inicio sesion. La cookie es compartida, asi que basta con
-      // renovarla para adoptar esa sesion. Se ignora un fallo propio: esta
-      // pestana simplemente se queda como estaba.
+      // renovarla para adoptar esa sesion. La identidad anterior se descarta
+      // primero para no mostrar sus datos si la nueva renovacion falla.
+      generation += 1;
+      inFlight = null;
+      announce(null);
       void renew().catch(() => undefined);
     }
 
@@ -160,6 +169,7 @@ export const createSessionCoordinator = (
             "La sesion cambio mientras se renovaba.",
             false,
             "rejected",
+            true,
           );
         }
 
@@ -168,6 +178,14 @@ export const createSessionCoordinator = (
 
         return next;
       } catch (error) {
+        if (startedAt !== generation) {
+          throw new SessionRenewalError(
+            "La sesion cambio mientras se renovaba.",
+            false,
+            "rejected",
+            true,
+          );
+        }
         if (error instanceof SessionRenewalError) {
           throw error;
         }
@@ -179,12 +197,14 @@ export const createSessionCoordinator = (
           classified.failure !== "rejected",
           classified.failure,
         );
-      } finally {
-        inFlight = null;
       }
     })();
 
     inFlight = attempt;
+    const clearFlight = () => {
+      if (inFlight === attempt) inFlight = null;
+    };
+    void attempt.then(clearFlight, clearFlight);
 
     return attempt;
   };
@@ -195,6 +215,7 @@ export const createSessionCoordinator = (
       // en vuelo una renovacion terminase, su resultado se descartaria en vez de
       // pisar la identidad recien creada.
       generation += 1;
+      inFlight = null;
       const startedAt = generation;
       const tokens = await auth.login(credentials);
       const next = await loadSessionProfile(auth, tokens);
@@ -204,6 +225,7 @@ export const createSessionCoordinator = (
           "La sesion cambio durante el inicio de sesion.",
           false,
           "rejected",
+          true,
         );
       }
 

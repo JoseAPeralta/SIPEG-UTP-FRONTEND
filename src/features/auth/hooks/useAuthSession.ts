@@ -52,24 +52,22 @@ function getSessionCoordinator(
  * `setSession` directamente.
  */
 function useSessionStoreSync(coordinator: SessionCoordinator): void {
+  const queryClient = useQueryClient();
   useEffect(() => {
     return coordinator.subscribe((session) => {
       if (session) {
+        if (useSessionStore.getState().currentUser?.id !== session.currentUser.id) {
+          clearPreviousIdentityState(queryClient);
+        }
         useSessionStore.getState().setSession(session);
 
         return;
       }
 
-      // Una renovacion que termino en 401, o un logout en otra pestana, terminan
-      // la sesion aqui tambien. Un fallo transitorio (429 o red) nunca pasa por
-      // aqui: `renew` lo propaga sin limpiar nada.
-      if (useSessionStore.getState().status === "authenticated") {
-        return;
-      }
-
+      clearPreviousIdentityState(queryClient);
       useSessionStore.getState().clearSession();
     });
-  }, [coordinator]);
+  }, [coordinator, queryClient]);
 }
 
 /**
@@ -78,7 +76,7 @@ function useSessionStoreSync(coordinator: SessionCoordinator): void {
  *
  * No toca la sesion. Para cuando se llama, el coordinador ya la adoptó, y
  * borrarla aqui dejaria al usuario en anonimo justo despues de iniciar sesion.
- * Cerrar la sesion es cosa de `endAuthSession`, que ademas aviva al servidor.
+ * `useLogout` revoca la sesion en el servidor antes de limpiar el estado local.
  */
 function clearPreviousIdentityState(queryClient: QueryClient): void {
   clearPersistedQueryCache();
@@ -124,8 +122,8 @@ export function useLogin() {
     onSuccess: () => {
       // El login ya fijo la cookie en el servidor. Se purga lo que dejo la
       // identidad anterior y la sesion nueva queda adoptada por el coordinador a
-      // traves de la suscripcion. Ninguna credencial se guarda: ninguna es legible
-      // por JavaScript.
+      // traves de la suscripcion. Solo el access token permanece en memoria;
+      // el refresh token no es legible por JavaScript.
       clearPreviousIdentityState(queryClient);
     },
   });
@@ -148,7 +146,7 @@ export function useLogout() {
       // Sin token que enviar: el backend lo lee de la cookie y la borra. Se
       // intenta igualmente porque hace falta revocar la sesion en el servidor, no
       // solo limpiarla en esta pestana.
-      await auth.logout().catch(() => undefined);
+      await auth.logout();
       getSessionCoordinator(auth).end();
       clearPreviousIdentityState(queryClient);
       useSessionStore.getState().clearSession();
@@ -156,6 +154,9 @@ export function useLogout() {
   });
 
   return {
+    errorMessage: mutation.isError
+      ? "No se pudo cerrar la sesion en el servidor. Compruebe su conexion e intente de nuevo."
+      : null,
     isPending: mutation.isPending,
     logout: mutation.mutateAsync,
   };
@@ -195,7 +196,7 @@ export function useAuthSessionBootstrap(): void {
         useSessionStore.getState().finishRestoration();
       })
       .catch((error: unknown) => {
-        if (isCancelled) {
+        if (isCancelled || (error instanceof SessionRenewalError && error.superseded)) {
           return;
         }
 
@@ -235,18 +236,47 @@ export function useProactiveTokenRenewal(): void {
   const coordinator = getSessionCoordinator(auth);
 
   useEffect(() => {
-    if (status !== "authenticated" || !tokens) {
-      return;
-    }
-
-    const refreshTimer = window.setTimeout(() => {
+    let cancelled = false;
+    let refreshTimer: number | undefined;
+    const renew = () => {
       void coordinator.renew().catch((error: unknown) => {
+        if (cancelled || (error instanceof SessionRenewalError && error.superseded)) return;
         if (error instanceof SessionRenewalError && !error.transient) {
-          endAuthSession(queryClient, toSessionEndReason(error));
+          if (useSessionStore.getState().status === "authenticated") {
+            coordinator.end();
+            endAuthSession(queryClient, toSessionEndReason(error));
+          }
+          return;
         }
+        // El temporizador anterior ya se consumio. Un error de red o 429 debe
+        // programar otro intento, sin destruir la sesion ni crear un bucle rapido.
+        refreshTimer = window.setTimeout(renew, 30_000);
       });
-    }, coordinator.getRefreshDelay());
+    };
+    const resume = () => {
+      if (document.visibilityState === "hidden") return;
+      if (
+        useSessionStore.getState().status === "authenticated" &&
+        coordinator.getRefreshDelay() > 0
+      )
+        return;
+      window.clearTimeout(refreshTimer);
+      renew();
+    };
 
-    return () => window.clearTimeout(refreshTimer);
+    if (status === "authenticated" && tokens) {
+      refreshTimer = window.setTimeout(renew, coordinator.getRefreshDelay());
+    }
+    window.addEventListener("focus", resume);
+    window.addEventListener("online", resume);
+    document.addEventListener("visibilitychange", resume);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(refreshTimer);
+      window.removeEventListener("focus", resume);
+      window.removeEventListener("online", resume);
+      document.removeEventListener("visibilitychange", resume);
+    };
   }, [coordinator, queryClient, status, tokens]);
 }

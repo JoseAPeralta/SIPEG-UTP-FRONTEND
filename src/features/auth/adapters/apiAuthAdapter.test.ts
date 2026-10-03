@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { ProfileUpdateRequest } from "@/app/adapters/contracts";
 
@@ -50,6 +50,49 @@ function readJsonBody(request: RequestInit): unknown {
 }
 
 describe("createApiAuthAdapter", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("serializes cookie mutations from independent adapters until the response is consumed", async () => {
+    let queue = Promise.resolve();
+    const request = vi.fn((_name: string, run: () => Promise<unknown>) => {
+      const result = queue.then(run);
+      queue = result.then(
+        () => undefined,
+        () => undefined,
+      );
+      return result;
+    });
+    vi.stubGlobal("navigator", { locks: { request } });
+    let release!: (response: Response) => void;
+    const fetcher = vi
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            release = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(jsonResponse({}));
+    const first = createApiAuthAdapter({ environment, fetcher });
+    const second = createApiAuthAdapter({ environment, fetcher });
+    const refresh = first.refresh();
+    const logout = second.logout();
+    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1));
+    expect(request).toHaveBeenCalledTimes(2);
+    release(jsonResponse(tokens));
+    await Promise.all([refresh, logout]);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(request.mock.calls[0]?.[0]).toBe(request.mock.calls[1]?.[0]);
+  });
+
+  it("retries a conflicting refresh only once when Web Locks are unavailable", async () => {
+    vi.stubGlobal("navigator", {});
+    const fetcher = vi.fn().mockResolvedValue(new Response(null, { status: 401 }));
+    const adapter = createApiAuthAdapter({ environment, fetcher });
+    await expect(adapter.refresh()).rejects.toMatchObject({ status: 401 });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
   it("should log in with the contracted request body", async () => {
     const fetcher = vi.fn().mockResolvedValue(jsonResponse(tokens));
     const adapter = createApiAuthAdapter({ environment, fetcher });
@@ -81,6 +124,7 @@ describe("createApiAuthAdapter", () => {
     // Sin cuerpo y con `credentials: include`: la cookie HttpOnly es lo unico que
     // identifica la sesion, y solo se envia si el navegador la adjunta.
     expect(readJsonBody(request)).toBeUndefined();
+    expect(request.method).toBe("POST");
     expect(request.credentials).toBe("include");
     expect(new Headers(request.headers).has("Content-Type")).toBe(false);
   });
@@ -107,6 +151,7 @@ describe("createApiAuthAdapter", () => {
     // Sin cuerpo y con `credentials: include`: la cookie identifica la sesion y la
     // respuesta la borra.
     expect(request.body).toBeUndefined();
+    expect(request.method).toBe("POST");
     expect(request.credentials).toBe("include");
   });
 

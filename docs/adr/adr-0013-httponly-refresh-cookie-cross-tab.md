@@ -14,6 +14,9 @@ superseded_by: ""
 
 **Accepted**
 
+Implementation corrected on 2026-10-02: explicit POST operations, guarded restoration,
+identity/cache convergence, cross-tab Web Locks and visible logout retry on server failure.
+
 Supersedes [ADR-0009](./adr-0009-auth-session-token-storage.md).
 
 ## Context
@@ -45,16 +48,24 @@ while the winner holds the only valid cookie.
   login flow and the bootstrap flow, so a tab cannot run two competing refreshes.
 - **Single-flight within a tab.** Concurrent callers await the same in-flight refresh instead of each
   starting their own rotation.
-- **An epoch guards login and logout.** If a login or logout starts while a refresh is in flight, the
+- **Web Locks across tabs.** The HTTP auth adapter serializes login, refresh, logout and password
+  changes using a lock scoped by API origin. The lock lasts until the response has been consumed.
+  This coordinates tabs sharing the same frontend origin, not unrelated frontend origins.
+- **An epoch guards identity changes.** If a login starts or logout completes while a refresh is in flight, the
   epoch changes and the refresh result is discarded instead of resurrecting a session the user just
   ended.
 - **Transient and terminal failures are distinguished.** A network error or 5xx must not sign the
   user out; only a definitive rejection ends the session.
-- **One 401 retry per request.** `apiRequest` refreshes once and replays the original request. A second
-  401 surfaces to the caller rather than looping.
+- **Bounded compatibility retry.** Without Web Locks, a refresh returning 401 waits 150 ms and
+  retries once, allowing a concurrent response to install its rotated cookie. This fallback does
+  not guarantee mutual exclusion. The optional HTTP `sessionRefresh` hook is separate.
 - **`BroadcastChannel` announces session changes.** Login, refresh and logout are announced so other
   tabs learn that the session changed without polling. This is a notification channel, not a lock: the
   cookie stays the single source of truth and a tab never trusts a peer for authorization.
+- **Confirmed logout.** A successful POST logout ends all listening tabs and clears identity-scoped
+  caches. A failed revocation stays visible with a retry action instead of pretending success.
+- **Transient recovery.** Proactive refresh retries network/5xx/429 failures after 30 seconds.
+  Focus, visibility and online events can restore an anonymous tab or renew an expiring token.
 
 ## Consequences
 
@@ -62,18 +73,17 @@ while the winner holds the only valid cookie.
 
 - **POS-001**: A new tab restores the session through a refresh call alone; no second login.
 - **POS-002**: A successful XSS can no longer read a long-lived credential.
-- **POS-003**: Logging out in one tab closes the session for the whole browser, because the cookie is
-  browser-scoped.
+- **POS-003**: A confirmed logout removes the shared cookie and clears listening tabs in the same
+  browser profile. Previously issued stateless access JWTs remain valid until expiry.
 - **POS-004**: A transient network failure no longer signs the user out.
 - **POS-005**: Login and logout racing an in-flight refresh can no longer resurrect a session.
 
 ### Negative
 
-- **NEG-001**: Every request carries a cookie the frontend cannot inspect, which removes any client-side
+- **NEG-001**: Auth-path requests carry a cookie the frontend cannot inspect, which removes any client-side
   view of the refresh deadline. The deadline comes from the response body instead.
-- **NEG-002**: Cross-tab coordination is notification-based. Two tabs refreshing at the same instant can
-  still collide; the loser sees a 401 on that call and recovers on the next one. A shared lock would
-  remove the collision but adds a coordination primitive and its own failure modes.
+- **NEG-002**: Web Locks requires a supporting browser and secure context (HTTPS or localhost).
+  Without it, simultaneous refreshes can still collide despite the bounded retry.
 - **NEG-003**: `BroadcastChannel` is unavailable in some older browsers; the guard degrades to
   per-tab behaviour, which is the old behaviour rather than a failure.
 
@@ -92,13 +102,12 @@ while the winner holds the only valid cookie.
 - **ALT-004**: **Rejection Reason**: It moves a credential into JavaScript-readable storage for a
   marginal gain in latency, and the access token cannot be revoked before it expires.
 
-### Coordinate Refresh Across Tabs with a Lock
+### Coordinate Refresh Across Tabs with a Lock (adopted on 2026-10-02)
 
 - **ALT-005**: **Description**: Hold a `Web Locks` or leader-election lock so only one tab rotates the
   cookie at a time.
-- **ALT-006**: **Rejection Reason**: A rotation collision already self-heals: the loser gets a
-  definitive 401 and recovers on the next refresh, while the cookie the browser holds stays valid. The
-  lock would remove a rare transient error at the cost of a distributed protocol in the client.
+- **ALT-006**: **Adoption Reason**: A collision is not guaranteed to self-heal before a tab treats
+  the 401 as terminal. Native Web Locks prevents concurrent rotation without exposing credentials.
 
 ## Implementation Notes
 
@@ -108,3 +117,6 @@ while the winner holds the only valid cookie.
 - **IMP-004**: The 401 retry is bounded to one attempt per request.
 - **IMP-005**: Tests cover login, cross-tab restore, rotation, the epoch race, transient classification,
   single-flight and remote logout.
+- **IMP-006**: `pnpm run test:auth:browser` checks native cookies, BroadcastChannel and Web Locks
+  in Chromium using the real auth modules and a simulated rotating API. Hook tests cover store/cache
+  synchronization and restoration; this browser fixture does not mount the React app or use a database.

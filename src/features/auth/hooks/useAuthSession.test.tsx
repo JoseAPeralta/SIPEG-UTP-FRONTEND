@@ -122,6 +122,40 @@ describe("auth session hooks", () => {
     expect(sessionStorage.length).toBe(0);
   });
 
+  it("should clear identity and private cache when another tab logs out", async () => {
+    const channel = {
+      onmessage: null as ((event: MessageEvent) => void) | null,
+      postMessage: vi.fn(),
+      close: vi.fn(),
+    };
+    vi.stubGlobal(
+      "BroadcastChannel",
+      vi.fn(function () {
+        return channel;
+      }),
+    );
+    const auth = createAuthAdapter();
+    const queryClient = createQueryClient();
+    const { result } = renderHookWithProviders(() => useLogin(), {
+      adapters: createAdapters(auth),
+      queryClient,
+    });
+    await act(async () => {
+      await result.current.login({ email: currentUser.email, password: "secret" });
+    });
+    queryClient.setQueryData(["private", currentUser.id], { secret: true });
+    act(() => {
+      channel.onmessage?.(new MessageEvent("message", { data: { kind: "session-ended" } }));
+    });
+    expect(useSessionStore.getState()).toMatchObject({
+      status: "anonymous",
+      currentUser: null,
+      tokens: null,
+    });
+    expect(queryClient.getQueryData(["private", currentUser.id])).toBeUndefined();
+    expect(auth.logout).not.toHaveBeenCalled();
+  });
+
   it("should rotate tokens before the access token expires", async () => {
     vi.useFakeTimers();
     vi.setSystemTime("2026-09-26T12:00:00.000Z");
@@ -169,6 +203,38 @@ describe("auth session hooks", () => {
     expect(useSessionStore.getState().tokens?.accessToken).toBe(rotatedTokens.accessToken);
   });
 
+  it("retries transient renewal failures without losing the session", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime("2026-09-26T12:00:00.000Z");
+    const auth = createAuthAdapter({
+      login: vi
+        .fn()
+        .mockResolvedValue({ ...tokens, accessTokenExpiresAt: "2026-09-26T12:01:01.000Z" }),
+      refresh: vi.fn().mockRejectedValueOnce(new AuthError("throttled")).mockResolvedValue(tokens),
+    });
+    const adapters = createAdapters(auth);
+    const { result } = renderHookWithProviders(
+      () => {
+        useProactiveTokenRenewal();
+        return useLogin();
+      },
+      { adapters },
+    );
+    await act(async () => {
+      await result.current.login({ email: currentUser.email, password: "secret" });
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_000);
+    });
+    expect(auth.refresh).toHaveBeenCalledTimes(1);
+    expect(useSessionStore.getState().status).toBe("authenticated");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(auth.refresh).toHaveBeenCalledTimes(2);
+    expect(useSessionStore.getState().tokens).toEqual(tokens);
+  });
+
   it("should finish restoration anonymously when there is no session", async () => {
     // Sin cookie, `refresh` responde 401. Es el caso normal de un visitante
     // anonimo: se llega a la pantalla de login sin mostrar ningun error.
@@ -206,7 +272,7 @@ describe("auth session hooks", () => {
     expect(auth.logout).not.toHaveBeenCalled();
   });
 
-  it("should clear local state even when remote logout fails", async () => {
+  it("should expose a failed remote logout so the user can retry", async () => {
     const auth = createAuthAdapter({ logout: vi.fn().mockRejectedValue(new Error("offline")) });
     const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
     useSessionStore.getState().setSession({ currentUser, tokens });
@@ -219,15 +285,15 @@ describe("auth session hooks", () => {
     });
 
     await act(async () => {
-      await result.current.logout();
+      await expect(result.current.logout()).rejects.toBeDefined();
     });
 
     expect(auth.logout).toHaveBeenCalled();
-    expect(useSessionStore.getState().status).toBe("anonymous");
+    expect(useSessionStore.getState().status).toBe("authenticated");
     expect(sessionStorage.length).toBe(0);
     expect(
       queryClient.getQueryData(queryKeys.administrativeActivityCatalog(currentUser.id)),
-    ).toBeUndefined();
+    ).toEqual({ private: true });
   });
 
   it("should wrap a login error without creating a session", async () => {
@@ -389,6 +455,7 @@ describe("auth session hooks", () => {
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.useRealTimers();
     clearPersistedQueryCache();
   });

@@ -63,6 +63,7 @@ src/
 - Adapter ports live in `src/app/adapters/contracts.ts`; `createAppAdapters` is the only composition root and selects mock or API through `VITE_DATA_SOURCE` (`api` by default; `mock` is reserved for tests, Storybook and offline work).
 - Server state lives in TanStack Query: `src/app/query` owns the client, the query keys and the optional persistence, and feature hooks call `useQuery`/`useMutation` over the injected adapters. Components never call adapters directly and never inline query keys.
 - Only `PERSISTED_QUERY_KEY_ROOTS` keys may be dehydrated to `localStorage`; never persist session, user or operations read models. Review the list before adding a persisted key. Logout must clear the query client and the persisted cache.
+- Auth refresh credentials use an HttpOnly backend cookie; access tokens stay in memory. Preserve explicit POST refresh/logout, the auth-cookie Web Lock and credential-free BroadcastChannel notifications. Run `pnpm run test:auth:browser` for cross-tab cookie changes; see ADR-0013 and `e2e/README.md` for coverage.
 - Only adapters and their tests may import `src/data/mock`; pages, components and hooks must not. `src/architecture.test.ts` enforces this.
 - The HTTP adapter must follow the OpenAPI contract and validate payloads before exposing them.
 - Hooks own loading, filtering, pagination and selection logic; UI components receive props and callbacks.

@@ -62,6 +62,17 @@ describe("useSessionStore", () => {
     });
   });
 
+  it("should preserve a session adopted before restoration finishes", () => {
+    useSessionStore.getState().setSession({ currentUser, tokens });
+    useSessionStore.getState().finishRestoration();
+
+    expect(useSessionStore.getState()).toMatchObject({
+      currentUser,
+      status: "authenticated",
+      tokens,
+    });
+  });
+
   it("should replace the profile while preserving the session credentials", () => {
     useSessionStore.getState().setSession({ currentUser, tokens });
     const rotatedTokens = { ...tokens, accessToken: "rotated-access-token" };

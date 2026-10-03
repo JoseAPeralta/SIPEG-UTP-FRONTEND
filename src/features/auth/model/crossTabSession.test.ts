@@ -20,6 +20,25 @@ const channelFactory = (channel: ChannelStub) => (): BroadcastChannel =>
 const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("createCrossTabSessionBus", () => {
+  it("keeps authentication usable when the browser denies the channel", () => {
+    const bus = createCrossTabSessionBus({
+      channelFactory: () => {
+        throw new Error("denied");
+      },
+    });
+    expect(() => bus.publish({ kind: "session-established" })).not.toThrow();
+    bus.close();
+  });
+
+  it("does not propagate a channel publication failure", () => {
+    const channel = channelStub();
+    channel.postMessage.mockImplementation(() => {
+      throw new Error("closed");
+    });
+    const bus = createCrossTabSessionBus({ channelFactory: channelFactory(channel) });
+    expect(() => bus.publish({ kind: "session-ended" })).not.toThrow();
+    bus.close();
+  });
   it("does nothing when BroadcastChannel is unavailable", () => {
     const bus = createCrossTabSessionBus({ channelFactory: () => undefined });
 

@@ -216,6 +216,29 @@ describe("createSessionCoordinator", () => {
     expect(coordinator.getAccessToken()).toBeNull();
   });
 
+  it("discards an old renewal when another tab establishes a different identity", async () => {
+    let release!: (tokens: AuthTokens) => void;
+    const auth = buildAdapter({
+      refresh: vi
+        .fn()
+        .mockImplementationOnce(
+          () =>
+            new Promise<AuthTokens>((resolve) => {
+              release = resolve;
+            }),
+        )
+        .mockResolvedValue(renewedTokens),
+    });
+    const { bus, listeners } = buildBus();
+    const coordinator = createSessionCoordinator(auth, { bus });
+    const old = coordinator.renew();
+    listeners.forEach((listener) => listener({ kind: "session-established" }));
+    await vi.waitFor(() => expect(coordinator.getAccessToken()).toBe("access-2"));
+    release(tokens);
+    await expect(old).rejects.toMatchObject({ superseded: true });
+    expect(coordinator.getAccessToken()).toBe("access-2");
+  });
+
   it("ignores malformed foreign messages", async () => {
     const auth = buildAdapter();
     const { bus, listeners } = buildBus();

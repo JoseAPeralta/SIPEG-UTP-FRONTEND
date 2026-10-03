@@ -6,7 +6,14 @@ import type {
   PasswordResetRequest,
   ProfileUpdateRequest,
 } from "@/app/adapters/contracts";
-import { apiRequest, type ApiClientOptions } from "@/app/adapters/http/apiClient";
+import {
+  ApiError,
+  apiRequest,
+  resolveApiBaseUrl,
+  type ApiClientOptions,
+} from "@/app/adapters/http/apiClient";
+
+import { hasAuthCookieLock, withAuthCookieLock } from "./authCookieLock";
 
 import {
   mapAuthenticatedUser,
@@ -54,7 +61,7 @@ function profileUpdateBody(request: ProfileUpdateRequest): Record<string, string
 }
 
 export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthAdapter {
-  return {
+  const adapter: AuthAdapter = {
     async changePassword(accessToken: string, payload: PasswordChangePayload) {
       const response = await apiRequest<unknown>("/api/v1/auth/change-password", {
         ...options,
@@ -90,6 +97,7 @@ export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthA
       const payload = await apiRequest<unknown>("/api/v1/auth/logout", {
         ...options,
         auth: { mode: "none" },
+        requestInit: { method: "POST" },
       });
 
       readAuthEnvelopeData(payload, "auth.logout");
@@ -102,6 +110,7 @@ export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthA
       const payload = await apiRequest<unknown>("/api/v1/auth/refresh", {
         ...options,
         auth: { mode: "none" },
+        requestInit: { method: "POST" },
       });
 
       return mapAuthTokens(readAuthEnvelopeData(payload, "auth.refresh"), "auth.refresh.data");
@@ -148,5 +157,29 @@ export function createApiAuthAdapter(options: ApiAuthAdapterOptions = {}): AuthA
         requestInit: jsonRequest({ token }),
       });
     },
+  };
+
+  const locked = <T>(operation: () => Promise<T>): Promise<T> =>
+    withAuthCookieLock(new URL(resolveApiBaseUrl(options.environment)).origin, operation);
+
+  return {
+    ...adapter,
+    login: (credentials) => locked(() => adapter.login(credentials)),
+    logout: () => locked(() => adapter.logout()),
+    changePassword: (token, payload) => locked(() => adapter.changePassword(token, payload)),
+    refresh: () =>
+      locked(async () => {
+        try {
+          return await adapter.refresh();
+        } catch (error) {
+          // Compatibilidad sin Web Locks: deja llegar la cookie de una rotacion
+          // concurrente y reintenta una sola vez. No garantiza exclusion mutua.
+          if (hasAuthCookieLock() || !(error instanceof ApiError) || error.status !== 401) {
+            throw error;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 150));
+          return adapter.refresh();
+        }
+      }),
   };
 }

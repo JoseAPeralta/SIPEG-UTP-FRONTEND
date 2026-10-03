@@ -13,8 +13,8 @@
  * - `session-ended`: hubo un logout. Todas cierran, o de lo contrario una
  *   pestana seguiría con un token aparentemente valido.
  *
- * `BroadcastChannel` es el mecanismo: no persiste nada y no es legible desde la
- * pagina. Si el navegador no lo soporta, el bus degrada a no hacer nada, que es
+ * `BroadcastChannel` no persiste nada, pero otros scripts del mismo origen
+ * pueden leerlo: nunca contiene credenciales. Si no existe, el bus no emite y es
  * justo el comportamiento de antes: la sesion sigue siendo correcta porque la
  * cookie es la fuente de verdad, solo se pierde la convergencia instantanea.
  */
@@ -64,7 +64,12 @@ export const createCrossTabSessionBus = (
         ? undefined
         : new BroadcastChannel(dependencies.channelName ?? CHANNEL_NAME));
 
-  const channel = channelFactory();
+  let channel: BroadcastChannel | undefined;
+  try {
+    channel = channelFactory();
+  } catch {
+    // Algunos contextos restringen esta API. La cookie sigue permitiendo restaurar.
+  }
   const listeners = new Set<(message: CrossTabMessage) => void>();
 
   if (channel) {
@@ -85,7 +90,11 @@ export const createCrossTabSessionBus = (
     // Publicar es para las OTRAS pestanas: el navegador no hace eco al mismo
     // contexto, pero es explicito aqui para que quede claro al leerlo.
     publish(message) {
-      channel?.postMessage(message);
+      try {
+        channel?.postMessage(message);
+      } catch {
+        // Un aviso fallido no convierte un login confirmado en un fallo.
+      }
     },
     subscribe(listener) {
       listeners.add(listener);
