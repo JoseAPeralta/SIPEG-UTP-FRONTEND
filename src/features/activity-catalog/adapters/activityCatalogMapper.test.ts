@@ -4,21 +4,9 @@ import {
   ActivityCatalogMappingError,
   mapActivity,
   mapActivityId,
-  mapClassroom,
   mapEventProgram,
-  mapOrganizationalUnit,
   readPaginatedPage,
 } from "./activityCatalogMapper";
-
-const unitPayload = {
-  code: "FIC",
-  description: null,
-  head: { firstName: "Mariana", id: "user-1", lastName: "Rodriguez" },
-  id: "fic",
-  isActive: true,
-  name: "Facultad de Ingenieria Civil",
-  type: "FACULTY",
-};
 
 const programPayload = {
   bannerUrl: null,
@@ -57,20 +45,20 @@ const activityPayload = {
 describe("readPaginatedPage", () => {
   it("should read items and total pages from a valid envelope", () => {
     const payload = {
-      data: { items: [unitPayload], limit: 20, page: 1, total: 1, totalPages: 3 },
+      data: { items: [programPayload], limit: 20, page: 1, total: 1, totalPages: 3 },
       message: "ok",
       success: true,
     };
 
-    expect(readPaginatedPage(payload, "units")).toEqual({
-      items: [unitPayload],
+    expect(readPaginatedPage(payload, "programs")).toEqual({
+      items: [programPayload],
       totalPages: 3,
     });
   });
 
   it("should reject payloads without the paginated envelope", () => {
-    expect(() => readPaginatedPage({ items: [] }, "units")).toThrow(ActivityCatalogMappingError);
-    expect(() => readPaginatedPage(null, "units")).toThrow(/units/);
+    expect(() => readPaginatedPage({ items: [] }, "programs")).toThrow(ActivityCatalogMappingError);
+    expect(() => readPaginatedPage(null, "programs")).toThrow(/programs/);
   });
 });
 
@@ -81,69 +69,6 @@ describe("mapActivityId", () => {
 
   it("should reject list items without an identifier", () => {
     expect(() => mapActivityId({ id: "" })).toThrow(/id/);
-  });
-});
-
-describe("mapClassroom", () => {
-  it("should map a contract classroom", () => {
-    expect(
-      mapClassroom({
-        amenities: ["projector"],
-        building: "Edificio de Aulas",
-        capacity: 60,
-        floor: 1,
-        id: "classroom-1",
-        isActive: true,
-        name: "Aula 101",
-        type: "CLASSROOM",
-      }),
-    ).toEqual({
-      amenities: ["projector"],
-      building: "Edificio de Aulas",
-      capacity: 60,
-      floor: 1,
-      id: "classroom-1",
-      isActive: true,
-      name: "Aula 101",
-      type: "CLASSROOM",
-    });
-  });
-
-  it("should reject unknown classroom types", () => {
-    expect(() =>
-      mapClassroom({
-        amenities: [],
-        building: null,
-        capacity: 10,
-        floor: null,
-        id: "c",
-        isActive: true,
-        name: "Aula",
-        type: "HALL",
-      }),
-    ).toThrow(/type/);
-  });
-});
-
-describe("mapOrganizationalUnit", () => {
-  it("should map a contract unit", () => {
-    expect(mapOrganizationalUnit(unitPayload)).toEqual({
-      code: "FIC",
-      description: null,
-      head: { firstName: "Mariana", id: "user-1", lastName: "Rodriguez" },
-      id: "fic",
-      isActive: true,
-      name: "Facultad de Ingenieria Civil",
-      type: "FACULTY",
-    });
-  });
-
-  it("should reject unknown unit types", () => {
-    expect(() => mapOrganizationalUnit({ ...unitPayload, type: "DEPARTMENT" })).toThrow(/type/);
-  });
-
-  it("should reject units without an identifier", () => {
-    expect(() => mapOrganizationalUnit({ ...unitPayload, id: "" })).toThrow(/id/);
   });
 });
 

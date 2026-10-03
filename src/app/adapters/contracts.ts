@@ -2,8 +2,10 @@ import type {
   ActivityCatalog,
   AuthenticatedUser,
   AuthTokens,
+  Career,
+  Classroom,
+  OrganizationalUnit,
   OperationsReadModel,
-  RegistrationCatalog,
   RegistrationPayload,
   RegistrationResult,
 } from "@/types/domain";
@@ -14,6 +16,18 @@ export type AuthCredentials = {
 };
 
 export type ActivityCatalogAccess = "administrative" | "public";
+
+export type OrganizationalUnitsAdapter = {
+  loadOrganizationalUnits: () => Promise<OrganizationalUnit[]>;
+};
+
+export type CareersAdapter = {
+  loadCareers: () => Promise<Career[]>;
+};
+
+export type ClassroomsAdapter = {
+  loadClassrooms: () => Promise<Classroom[]>;
+};
 
 export type PasswordResetRequest = {
   email: string;
@@ -73,7 +87,9 @@ export type AuthAdapter = {
 };
 
 export type ActivityCatalogAdapter = {
-  loadCatalog: (access: ActivityCatalogAccess) => Promise<ActivityCatalog>;
+  loadCatalog: (
+    access: ActivityCatalogAccess,
+  ) => Promise<Pick<ActivityCatalog, "activities" | "eventPrograms">>;
 };
 
 export type OperationsAdapter = {
@@ -81,13 +97,15 @@ export type OperationsAdapter = {
 };
 
 export type RegistrationAdapter = {
-  loadCatalog: () => Promise<RegistrationCatalog>;
   register: (payload: RegistrationPayload) => Promise<RegistrationResult>;
 };
 
 export type AppAdapters = {
   activityCatalog: ActivityCatalogAdapter;
   auth: AuthAdapter;
+  careers: CareersAdapter;
+  classrooms: ClassroomsAdapter;
+  organizationalUnits: OrganizationalUnitsAdapter;
   operations: OperationsAdapter;
   registration: RegistrationAdapter;
 };

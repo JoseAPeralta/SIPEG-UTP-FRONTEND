@@ -3,7 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AppAdapters } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
-import { createAuthenticatedUser, createAuthTokens, createCatalog } from "@/test/factories";
+import {
+  createActivityCatalogPayload,
+  createAuthenticatedUser,
+  createAuthTokens,
+  createClassroom,
+  createOrganizationalUnit,
+} from "@/test/factories";
 import { renderHookWithProviders } from "@/test/render";
 
 import { useDashboardOverview } from "./useDashboardOverview";
@@ -11,8 +17,12 @@ import { useDashboardOverview } from "./useDashboardOverview";
 function buildAdapters(overrides: Partial<AppAdapters> = {}): AppAdapters {
   return {
     ...createAppAdapters({ source: "mock" }),
-    activityCatalog: { loadCatalog: vi.fn().mockResolvedValue(createCatalog()) },
+    activityCatalog: { loadCatalog: vi.fn().mockResolvedValue(createActivityCatalogPayload()) },
+    classrooms: { loadClassrooms: vi.fn().mockResolvedValue([createClassroom()]) },
     operations: { loadOperations: vi.fn().mockRejectedValue(new Error("operaciones caidas")) },
+    organizationalUnits: {
+      loadOrganizationalUnits: vi.fn().mockResolvedValue([createOrganizationalUnit()]),
+    },
     ...overrides,
   };
 }

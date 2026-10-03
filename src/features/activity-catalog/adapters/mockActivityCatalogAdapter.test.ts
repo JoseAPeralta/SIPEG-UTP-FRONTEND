@@ -5,12 +5,11 @@ import { mockActivityCatalog } from "@/data/mock";
 import { createMockActivityCatalogAdapter } from "./mockActivityCatalogAdapter";
 
 describe("createMockActivityCatalogAdapter", () => {
-  it("should resolve the mock catalog with programs, units and activities", async () => {
+  it("should resolve only programs and activities", async () => {
     const catalog = await createMockActivityCatalogAdapter().loadCatalog("public");
 
-    expect(catalog.organizationalUnits.length).toBeGreaterThan(0);
+    expect(Object.keys(catalog).sort()).toEqual(["activities", "eventPrograms"]);
     expect(catalog.eventPrograms.length).toBeGreaterThan(0);
-    expect(catalog.activities.length).toBeGreaterThan(0);
     expect(catalog.activities).toHaveLength(mockActivityCatalog.activities.length);
   });
 

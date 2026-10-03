@@ -89,13 +89,14 @@ components compartidos + types + utils
 
 ### Adapters
 
-- `src/app/adapters/contracts.ts` define los puertos del frontend: `ActivityCatalogAdapter`, `AuthAdapter` y `OperationsAdapter`.
+- `src/app/adapters/contracts.ts` define los puertos del frontend: `ActivityCatalogAdapter`, `AuthAdapter`, `OrganizationalUnitsAdapter`, `CareersAdapter`, `ClassroomsAdapter` y `OperationsAdapter`.
 - `src/app/adapters/createAppAdapters.ts` es el unico composition root; usa la API por defecto (`VITE_DATA_SOURCE=api`) y deja `mock` como override explicito para pruebas, Storybook y modo offline. Para el catalogo administrativo inyecta de forma privada el lector del access token de la sesion.
 - `src/app/adapters/http/apiClient.ts` concentra el cliente HTTP; cada request declara modo `none` o `bearer`, solo el cliente construye `Authorization` y ningun componente hardcodea URLs (ADR-0012).
 - `src/app/query` concentra el estado de servidor con TanStack Query: el cliente, las claves, la persistencia offline opcional y el provider. Los hooks de cada feature llaman `useQuery`/`useMutation` sobre los adapters inyectados y conservan su forma publica; `useActivityCatalog(access)` exige declarar la frontera `public` o `administrative`, y `useOperations` es la puerta de entrada a operaciones.
-- La sesion vive en Zustand: perfil y access token solo en memoria, refresh token y expiracion en `sessionStorage`; al recargar se rota el refresh token y se carga `users/me` antes de renderizar rutas protegidas. El cierre de sesion revoca el refresh token, limpia el store, el contexto de trabajo, la preferencia de unidad, la cache de Query y la cache publica persistida (ADR-0009).
+- Unidades, carreras y aulas son consultas por recurso: cada uno tiene su mapper, sus adapters API/mock y su hook (`useOrganizationalUnits`, `useCareers`, `useClassrooms`), con claves separadas por frontera y sin credenciales, porque sus listados son operaciones publicas del contrato. `useActivityCatalog` y `useRegistrationCatalog` se conservan como read models compuestos para no duplicar reglas de seleccion en las vistas.
+- La sesion vive en Zustand: perfil y access token solo en memoria; el refresh token viaja en una cookie `HttpOnly` compartida por el navegador. Al abrir una pestana o recargar, `POST /auth/refresh` rota la cookie y se carga `users/me` antes de renderizar rutas protegidas. Web Locks serializa operaciones sobre la cookie y BroadcastChannel envia avisos sin credenciales. El cierre confirmado por el servidor limpia la identidad y caches en todas las pestanas; un fallo de revocacion permite reintentar (ADR-0013).
 - Las rutas administrativas exigen sesion y rol `ADMIN`; la autorizacion efectiva sigue siendo del backend.
-- La persistencia offline es opcional (`VITE_QUERY_PERSISTENCE=on`), guarda solo el catalogo publico exitoso en `localStorage` y se invalida con una version de esquema mas `VITE_APP_VERSION`; nunca persiste sesion, tokens ni claves privadas por usuario (ADR-0010, ADR-0012).
+- La persistencia offline es opcional (`VITE_QUERY_PERSISTENCE=on`), guarda solo los catalogos publicos exitosos (actividades, unidades y aulas) en `localStorage` y se invalida con una version de esquema mas `VITE_APP_VERSION`; nunca persiste sesion, tokens, carreras ni claves privadas por usuario (ADR-0010, ADR-0012).
 - Los adapters concretos viven en cada feature (`features/*/adapters`).
 - Solo los adapters (y sus pruebas) importan desde `src/data/mock`; paginas, componentes y hooks no conocen los mocks.
 - Cuando el OpenAPI cambia, se actualizan dominio, mappers, `src/data/mock` y tests en el mismo cambio, y se valida con `pnpm run api:mocks-check` (backend vivo, no CI).
@@ -103,8 +104,9 @@ components compartidos + types + utils
 - Las metricas de alcance de reportes viven en `features/reports/model/scopeMetrics.ts` y las consumen asistencia, certificados, reportes y dashboard.
 - Mientras el backend no publique contratos de asistencia, certificados, ponentes y reportes, el origen `api` mantiene esas operaciones no disponibles con un error explicito.
 - `OperationsAdapter` es un agregado legado congelado: no admite consumidores nuevos y se extrae en
-  orden carreras, usuarios, propuestas, asistencia, certificados y reportes. Cada puerto se crea
-  solo al integrar su contrato; no se mezclan respuestas API con fallback mock (ADR-0011).
+  orden usuarios, propuestas, asistencia, certificados y reportes. Carreras ya se extrajeron en la
+  Fase 2.1. Cada puerto se crea solo al integrar su contrato; no se mezclan respuestas API con
+  fallback mock (ADR-0011).
 
 ### Separacion De Presentacion
 
@@ -135,8 +137,8 @@ components compartidos + types + utils
 - `src/components/ui/**` no importa `@/features/**`; solo los adapters y sus pruebas importan `src/data/mock`.
 - `src/architecture.test.ts` verifica estas reglas: R1 limita mocks, R2 mantiene UI compartida pura,
   R3 exige barrels de features tambien desde paginas y componentes, R4 aisla stores, R5 limita el
-  cliente HTTP a adapters, R6 limita `fetch` y endpoints `/api/v1`, y R7 congela los consumidores de
-  `OperationsAdapter`.
+  cliente HTTP a adapters, R6 limita `fetch` y endpoints `/api/v1`, R7 congela los consumidores de
+  `OperationsAdapter` y R8 reserva cada endpoint de catalogo a los adapters de su feature.
 
 ## Decisiones De Trabajo
 

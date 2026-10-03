@@ -27,8 +27,10 @@ describe("createAppAdapters", () => {
 
     expect(catalog.activities.length).toBeGreaterThan(0);
     expect(adapters.auth.login).toBeTypeOf("function");
+    await expect(adapters.careers.loadCareers()).resolves.toBeTruthy();
+    await expect(adapters.classrooms.loadClassrooms()).resolves.toBeTruthy();
+    await expect(adapters.organizationalUnits.loadOrganizationalUnits()).resolves.toBeTruthy();
     expect(adapters.registration.register).toBeTypeOf("function");
-    await expect(adapters.registration.loadCatalog()).resolves.toBeTruthy();
     await expect(adapters.operations.loadOperations()).resolves.toBeTruthy();
   });
 

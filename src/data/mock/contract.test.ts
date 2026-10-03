@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { mockActivityCatalog, mockOperationsReadModel } from "./catalog";
+import { careers } from "./careers";
 
 const activityTypes = [
   "WORKSHOP",
@@ -22,7 +23,7 @@ const certificateStatuses = ["GENERATED", "PENDING"];
 const reportTrends = ["down", "stable", "up"];
 
 const { activities, classrooms, eventPrograms, organizationalUnits } = mockActivityCatalog;
-const { attendanceRecords, careers, certificates, reportMetrics, speakerProposals, users } =
+const { attendanceRecords, certificates, reportMetrics, speakerProposals, users } =
   mockOperationsReadModel;
 
 function expectNonEmptyText(values: readonly string[], label: string) {

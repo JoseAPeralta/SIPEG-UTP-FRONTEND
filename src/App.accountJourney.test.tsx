@@ -86,7 +86,6 @@ function createScenario() {
   const registered: { payload: RegistrationPayload | null } = { payload: null };
 
   const registration: RegistrationAdapter = {
-    loadCatalog: vi.fn().mockResolvedValue(catalog),
     register: vi.fn((payload: RegistrationPayload) => {
       registered.payload = payload;
 
@@ -117,7 +116,15 @@ function createScenario() {
   };
 
   return {
-    adapters: { ...createAppAdapters({ source: "mock" }), auth, registration },
+    adapters: {
+      ...createAppAdapters({ source: "mock" }),
+      auth,
+      careers: { loadCareers: vi.fn().mockResolvedValue(catalog.careers) },
+      organizationalUnits: {
+        loadOrganizationalUnits: vi.fn().mockResolvedValue(catalog.organizationalUnits),
+      },
+      registration,
+    },
     auth,
     profile,
     queryClient: createQueryClient({ defaultOptions: { queries: { retry: false } } }),

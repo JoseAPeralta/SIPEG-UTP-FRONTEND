@@ -4,16 +4,10 @@ import {
   type ApiClientOptions,
   type ApiRequestAuth,
 } from "@/app/adapters/http/apiClient";
-import type { ActivityCatalog } from "@/types/domain";
-
-import { assertCatalogIntegrity } from "../model/catalogIntegrity";
-
 import {
   mapActivity,
   mapActivityId,
-  mapClassroom,
   mapEventProgram,
-  mapOrganizationalUnit,
   readEnvelopeData,
   readPaginatedPage,
 } from "./activityCatalogMapper";
@@ -72,20 +66,10 @@ export function createApiActivityCatalogAdapter(
         access === "administrative"
           ? { accessToken: readAccessToken(), mode: "bearer" }
           : { mode: "none" };
-      const [unitPayloads, programPayloads, classroomPayloads] = await Promise.all([
-        loadAllItems("/api/v1/organizational-units", options, auth),
-        loadAllItems("/api/v1/event-programs", options, auth),
-        loadAllItems("/api/v1/classrooms", options, auth),
-      ]);
+      const programPayloads = await loadAllItems("/api/v1/event-programs", options, auth);
 
-      const organizationalUnits = unitPayloads.map((unit, index) =>
-        mapOrganizationalUnit(unit, `organizationalUnits[${index}]`),
-      );
       const eventPrograms = programPayloads.map((program, index) =>
         mapEventProgram(program, `eventPrograms[${index}]`),
-      );
-      const classrooms = classroomPayloads.map((classroom, index) =>
-        mapClassroom(classroom, `classrooms[${index}]`),
       );
 
       // El detalle por actividad es necesario porque solo ActivityDetail
@@ -109,16 +93,7 @@ export function createApiActivityCatalogAdapter(
         activityIdLists.flat().map((activityId) => loadActivity(activityId, options, auth)),
       );
 
-      const catalog: ActivityCatalog = {
-        activities,
-        classrooms,
-        eventPrograms,
-        organizationalUnits,
-      };
-
-      assertCatalogIntegrity(catalog);
-
-      return catalog;
+      return { activities, eventPrograms };
     },
   };
 }

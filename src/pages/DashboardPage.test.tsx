@@ -3,7 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
-import { createAuthenticatedUser, createAuthTokens, createCatalog } from "@/test/factories";
+import {
+  createActivityCatalogPayload,
+  createAuthenticatedUser,
+  createAuthTokens,
+  createClassroom,
+  createOrganizationalUnit,
+} from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
 
 import { DashboardPage } from "./DashboardPage";
@@ -26,8 +32,12 @@ describe("DashboardPage", () => {
     renderWithProviders(<DashboardPage />, {
       adapters: {
         ...adapters,
-        activityCatalog: { loadCatalog: vi.fn().mockResolvedValue(createCatalog()) },
+        activityCatalog: { loadCatalog: vi.fn().mockResolvedValue(createActivityCatalogPayload()) },
+        classrooms: { loadClassrooms: vi.fn().mockResolvedValue([createClassroom()]) },
         operations: { loadOperations: vi.fn().mockRejectedValue(new Error("sin contrato")) },
+        organizationalUnits: {
+          loadOrganizationalUnits: vi.fn().mockResolvedValue([createOrganizationalUnit()]),
+        },
       },
     });
 

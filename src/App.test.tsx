@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocation, useNavigate } from "react-router";
 
 import { App } from "@/App";
-import { createAppAdapters, type AuthAdapter, type RegistrationAdapter } from "@/app/adapters";
+import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";
@@ -575,18 +575,16 @@ describe("App", () => {
       tokens: demoTokens,
     });
     const adapters = createAppAdapters({ source: "mock" });
-    const registration: RegistrationAdapter = {
-      ...adapters.registration,
-      loadCatalog: vi.fn().mockRejectedValue(new Error("catalog unavailable")),
-    };
+    const loadCareers = vi.fn().mockRejectedValue(new Error("catalog unavailable"));
 
     renderWithProviders(<App />, {
-      adapters: { ...adapters, registration },
+      adapters: { ...adapters, careers: { loadCareers } },
       route: "/perfil/seguridad",
     });
 
     expect(await screen.findByLabelText(/contraseña actual/i)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /reintentar/i })).not.toBeInTheDocument();
+    expect(loadCareers).not.toHaveBeenCalled();
   });
 
   it("should move between sections by following the submenu", async () => {

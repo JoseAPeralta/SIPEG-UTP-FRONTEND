@@ -13,7 +13,6 @@ function createRegistrationAdapter(
   overrides: Partial<RegistrationAdapter> = {},
 ): RegistrationAdapter {
   return {
-    loadCatalog: vi.fn(),
     register: vi.fn().mockResolvedValue({ userId: "user-1" }),
     ...overrides,
   };

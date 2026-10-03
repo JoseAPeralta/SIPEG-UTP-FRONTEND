@@ -6,8 +6,14 @@ import {
 import { createMockActivityCatalogAdapter } from "@/features/activity-catalog/adapters/mockActivityCatalogAdapter";
 import { createApiAuthAdapter } from "@/features/auth/adapters/apiAuthAdapter";
 import { createMockAuthAdapter } from "@/features/auth/adapters/mockAuthAdapter";
+import { createApiCareersAdapter } from "@/features/careers/adapters/apiCareersAdapter";
+import { createMockCareersAdapter } from "@/features/careers/adapters/mockCareersAdapter";
+import { createApiClassroomsAdapter } from "@/features/classrooms/adapters/apiClassroomsAdapter";
+import { createMockClassroomsAdapter } from "@/features/classrooms/adapters/mockClassroomsAdapter";
 import { createMockOperationsAdapter } from "@/features/operations/adapters/mockOperationsAdapter";
 import { createUnavailableOperationsAdapter } from "@/features/operations/adapters/unavailableOperationsAdapter";
+import { createApiOrganizationalUnitsAdapter } from "@/features/organizational-units/adapters/apiOrganizationalUnitsAdapter";
+import { createMockOrganizationalUnitsAdapter } from "@/features/organizational-units/adapters/mockOrganizationalUnitsAdapter";
 import {
   createApiRegistrationAdapter,
   createMockRegistrationAdapter,
@@ -44,6 +50,9 @@ export function createAppAdapters({
         readSessionAccessToken,
       ),
       auth: createApiAuthAdapter(apiOptions),
+      careers: createApiCareersAdapter(apiOptions),
+      classrooms: createApiClassroomsAdapter(apiOptions),
+      organizationalUnits: createApiOrganizationalUnitsAdapter(apiOptions),
       operations: createUnavailableOperationsAdapter(),
       registration: createApiRegistrationAdapter(apiOptions),
     };
@@ -52,6 +61,9 @@ export function createAppAdapters({
   return {
     activityCatalog: createMockActivityCatalogAdapter(),
     auth: createMockAuthAdapter(),
+    careers: createMockCareersAdapter(),
+    classrooms: createMockClassroomsAdapter(),
+    organizationalUnits: createMockOrganizationalUnitsAdapter(),
     operations: createMockOperationsAdapter(),
     registration: createMockRegistrationAdapter(),
   };

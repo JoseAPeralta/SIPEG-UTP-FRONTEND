@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { mockActivityCatalog, mockOperationsReadModel } from "./catalog";
+import { careers } from "./careers";
 
 const { activities, classrooms, eventPrograms, organizationalUnits } = mockActivityCatalog;
 const { attendanceRecords, certificates, speakerProposals, users } = mockOperationsReadModel;
@@ -98,6 +99,26 @@ describe("mock activity catalog", () => {
 
     speakerProposals.forEach((proposal) => {
       expect(programIds.has(proposal.eventProgramId)).toBe(true);
+    });
+  });
+
+  it("should attach every career to an existing unit or keep it global", () => {
+    const unitIds = new Set(organizationalUnits.map((unit) => unit.id));
+
+    expect(careers.length).toBeGreaterThan(0);
+    expect(careers.some((career) => career.unitId === null)).toBe(true);
+    expect(careers.every((career) => career.unitId === null || unitIds.has(career.unitId))).toBe(
+      true,
+    );
+  });
+
+  it("should point every user at existing careers and units", () => {
+    const careerIds = new Set(careers.map((career) => career.id));
+    const unitIds = new Set(organizationalUnits.map((unit) => unit.id));
+
+    users.forEach((user) => {
+      if (user.careerId !== null) expect(careerIds.has(user.careerId)).toBe(true);
+      if (user.unitId !== null) expect(unitIds.has(user.unitId)).toBe(true);
     });
   });
 

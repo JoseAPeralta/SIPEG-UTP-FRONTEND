@@ -110,7 +110,6 @@ export function createOperationsReadModel(
 ): OperationsReadModel {
   return {
     attendanceRecords: [],
-    careers: [],
     certificates: [],
     reportMetrics: [],
     speakerProposals: [],
@@ -194,4 +193,17 @@ export function createCatalog(overrides: Partial<ActivityCatalog> = {}): Activit
   const activities = overrides.activities ?? [createActivity()];
 
   return { activities, classrooms, eventPrograms, organizationalUnits };
+}
+
+/**
+ * Base payload owned by `ActivityCatalogAdapter`: units and classrooms arrive from their own
+ * resource queries, so they are not part of it.
+ */
+export function createActivityCatalogPayload(
+  overrides: Partial<Pick<ActivityCatalog, "activities" | "eventPrograms">> = {},
+): Pick<ActivityCatalog, "activities" | "eventPrograms"> {
+  return {
+    activities: overrides.activities ?? [createActivity()],
+    eventPrograms: overrides.eventPrograms ?? [createEventProgram()],
+  };
 }

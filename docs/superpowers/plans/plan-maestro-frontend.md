@@ -408,7 +408,7 @@ Evidencia y desviaciones de Fase 1.10: `docs/superpowers/plans/2026-09-30-fase-1
 
 **Entregable:** unidades, carreras y aulas administrables y reutilizables por los formularios posteriores.
 
-- [ ] **2.1 Crear consultas por recurso.** Migrar unidades, carreras y aulas fuera del agregado de catalogo cuando necesiten administracion. Prueba: cada recurso tiene query key, mapper y adapter propios.
+- [x] **2.1 Crear consultas por recurso.** Migrar unidades, carreras y aulas fuera del agregado de catalogo cuando necesiten administracion. Prueba: cada recurso tiene query key, mapper y adapter propios.
 - [ ] **2.2 Administrar unidades.** Listar, buscar, consultar, crear, editar, desactivar y reactivar. Prueba: conflictos del programa predeterminado muestran una explicacion localizada y permiten reintentar.
 - [ ] **2.3 Administrar carreras.** Gestionar carreras de facultad y globales respetando `OTROS`. Prueba: una carrera asociada a usuarios o una unidad invalida trata correctamente el `409/400`.
 - [ ] **2.4 Administrar aulas.** Anadir CRUD, filtros, detalle, estado, amenidades y disponibilidad semanal. Prueba: dias ISO, intervalos adyacentes y solapes se representan correctamente.
@@ -417,6 +417,41 @@ Evidencia y desviaciones de Fase 1.10: `docs/superpowers/plans/2026-09-30-fase-1
 - [ ] **2.7 Invalidar con precision.** Las mutaciones deben refrescar listados, detalles, registro y selectores dependientes. Prueba: una edicion se refleja sin recargar la aplicacion.
 
 **Criterio de salida:** los tres catalogos pueden administrarse sin duplicar reglas del backend y estan disponibles para usuarios, programas y actividades.
+
+Evidencia y desviaciones de Fase 2.1: `docs/superpowers/plans/2026-10-02-fase-2.1-consultas-catalogos.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-02:** `GET /api/v1/organizational-units`,
+  `GET /api/v1/careers` y `GET /api/v1/classrooms` son **publicos** (`security: []`), incluida la
+  variante `isActive=false`. Sus adapters declaran por tanto `auth: { mode: "none" }` siempre, incluso
+  desde `/admin/aulas`, y no se inventa un endpoint administrativo. La frontera publica o administrativa
+  se expresa en las claves de Query, ligadas al `userId` y nunca al token.
+- **Se cerro el pendiente contractual de la Fase 0:** los GET que el catalogo de actividades ya
+  consumia tambien son publicos, pero `GET /api/v1/event-programs` y `GET /api/v1/activities/{id}`
+  **honran el Bearer cuando existe** (programas: filtro por estado solo para ADMIN; actividades:
+  borradores y programas no `ACTIVE` para ADMIN o colaborador con `activity:read`). Por eso el
+  catalogo conserva su politica `public`/`administrative` y solo las referencias sin sesion dejan de
+  enviarla.
+- **Cada recurso quedo con mapper, adapter API/mock, hook y claves propias**, recorriendo todas las
+  paginas con `limit=50`. Detalle, busqueda y filtros visibles pertenecen a 2.2-2.5.
+- **Lecturas compuestas, no endpoints agregados:** `useActivityCatalog` y `useRegistrationCatalog`
+  conservan su forma para no tocar paginas ni formularios, componiendo consultas independientes. La
+  integridad referencial se valida en la composicion, porque ningun adapter es dueno de las referencias
+  cruzadas, y una violacion se expone como `error` del hook en lugar de lanzar durante el render.
+- **`RegistrationAdapter` quedo reducido a `register`** y `careers` salio de `OperationsReadModel`,
+  conforme al orden de extraccion del ADR-0011. `useUsersOverview` permanece en la lista R7 porque aun
+  consume `operations.users`, que no tiene contrato hasta 3.1.
+- **Persistencia:** `PERSISTED_QUERY_KEY_ROOTS` ahora incluye unidades y aulas publicas, para no perder
+  el modo offline al sacar esos datos del payload cacheado del catalogo; carreras no se persisten, igual
+  que antes. `QUERY_CACHE_SCHEMA_VERSION` subio a `2` porque la forma persistida cambio.
+- **Defecto de pruebas propio, corregido:** `dashboard` y `DashboardPage` inyectaban un catalogo
+  completo, lo que hacia fallar la integridad cruzada al combinarlo con las colecciones reales. Ahora
+  inyectan el payload base y los adapters de cada recurso, que es la frontera real.
+- **R8:** nueva fitness function que reserva `/api/v1/organizational-units`, `/api/v1/careers` y
+  `/api/v1/classrooms` a los adapters de su feature, para que ningun adaptador agregado reintroduzca una
+  peticion duplicada. Se valido por mutacion: introducir uno de esos endpoints fuera de su feature rompe
+  la prueba.
+- **Sin cambios visuales, rutas, stories ni baselines.** Ningun componente de UI fue modificado, de modo
+  que no se regeneraron capturas ni el inventario de componentes.
 
 ---
 

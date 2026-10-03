@@ -2,29 +2,15 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createAppAdapters, type AuthAdapter, type RegistrationAdapter } from "@/app/adapters";
+import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
 import { PasswordChangeError } from "@/features/auth";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";
 import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
-import type { RegistrationCatalog } from "@/types/domain";
 
 import { ChangePasswordPage } from "./ChangePasswordPage";
-
-const catalog: RegistrationCatalog = {
-  careers: [],
-  organizationalUnits: [],
-};
-
-function createRegistrationSpy(overrides: Partial<RegistrationAdapter> = {}): RegistrationAdapter {
-  return {
-    loadCatalog: vi.fn().mockResolvedValue(catalog),
-    register: vi.fn(),
-    ...overrides,
-  };
-}
 
 function createAuthSpy(overrides: Partial<AuthAdapter> = {}): AuthAdapter {
   return {
@@ -189,15 +175,19 @@ describe("ChangePasswordPage", () => {
   });
 
   it("should not read the institutional catalog, so a catalog failure cannot hide it", async () => {
-    const registration = createRegistrationSpy({
-      loadCatalog: vi.fn().mockRejectedValue(new Error("catalog unavailable")),
-    });
+    const loadCareers = vi.fn().mockRejectedValue(new Error("catalog unavailable"));
+    const loadOrganizationalUnits = vi.fn().mockRejectedValue(new Error("catalog unavailable"));
 
     renderWithProviders(<ChangePasswordPage />, {
-      adapters: { ...createAppAdapters({ source: "mock" }), registration },
+      adapters: {
+        ...createAppAdapters({ source: "mock" }),
+        careers: { loadCareers },
+        organizationalUnits: { loadOrganizationalUnits },
+      },
     });
 
     expect(await screen.findByLabelText(/contraseña actual/i)).toBeInTheDocument();
-    expect(registration.loadCatalog).not.toHaveBeenCalled();
+    expect(loadCareers).not.toHaveBeenCalled();
+    expect(loadOrganizationalUnits).not.toHaveBeenCalled();
   });
 });

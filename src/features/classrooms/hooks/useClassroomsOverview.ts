@@ -1,7 +1,7 @@
-import { useActivityCatalog } from "@/features/activity-catalog";
+import { useClassrooms } from "./useClassrooms";
 
 export function useClassroomsOverview() {
-  const { catalog, error, isLoading, refetch } = useActivityCatalog("administrative");
+  const { classrooms, error, isLoading, refetch } = useClassrooms("administrative");
 
-  return { classrooms: catalog?.classrooms ?? [], error, isLoading, refetch };
+  return { classrooms: classrooms ?? [], error, isLoading, refetch };
 }

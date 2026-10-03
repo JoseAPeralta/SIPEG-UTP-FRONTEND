@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createAppAdapters, type AuthAdapter, type RegistrationAdapter } from "@/app/adapters";
+import { createAppAdapters, type AuthAdapter, type CareersAdapter } from "@/app/adapters";
 import { ProfileUpdateError } from "@/features/auth";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
@@ -56,24 +56,21 @@ function createAuthSpy(overrides: Partial<AuthAdapter> = {}): AuthAdapter {
   };
 }
 
-function createRegistrationSpy(overrides: Partial<RegistrationAdapter> = {}): RegistrationAdapter {
-  return {
-    loadCatalog: vi.fn().mockResolvedValue(catalog),
-    register: vi.fn(),
-    ...overrides,
-  };
-}
-
 function createAdapters(
   overrides: {
     auth?: AuthAdapter;
-    registration?: RegistrationAdapter;
+    careers?: CareersAdapter;
   } = {},
 ) {
   return {
     ...createAppAdapters({ source: "mock" }),
     auth: overrides.auth ?? createAuthSpy(),
-    registration: overrides.registration ?? createRegistrationSpy(),
+    careers:
+      overrides.careers ??
+      ({ loadCareers: vi.fn().mockResolvedValue(catalog.careers) } satisfies CareersAdapter),
+    organizationalUnits: {
+      loadOrganizationalUnits: vi.fn().mockResolvedValue(catalog.organizationalUnits),
+    },
   };
 }
 
@@ -100,11 +97,11 @@ describe("ProfileView", () => {
 
   it("should announce the catalog loading state", () => {
     authenticateSession();
-    const registration = createRegistrationSpy({
-      loadCatalog: vi.fn<() => Promise<RegistrationCatalog>>(() => new Promise(() => undefined)),
-    });
+    const careers: CareersAdapter = {
+      loadCareers: vi.fn<CareersAdapter["loadCareers"]>(() => new Promise(() => undefined)),
+    };
 
-    renderWithProviders(<ProfileView />, { adapters: createAdapters({ registration }) });
+    renderWithProviders(<ProfileView />, { adapters: createAdapters({ careers }) });
 
     expect(screen.getByText(/cargando/i)).toBeInTheDocument();
   });
@@ -112,15 +109,18 @@ describe("ProfileView", () => {
   it("should offer a retry when the catalog fails", async () => {
     const user = userEvent.setup();
     authenticateSession();
-    const loadCatalog = vi.fn().mockRejectedValueOnce(new Error("boom")).mockResolvedValue(catalog);
-    const registration = createRegistrationSpy({ loadCatalog });
+    const loadCareers = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("boom"))
+      .mockResolvedValue(catalog.careers);
+    const careers: CareersAdapter = { loadCareers };
 
-    renderWithProviders(<ProfileView />, { adapters: createAdapters({ registration }) });
+    renderWithProviders(<ProfileView />, { adapters: createAdapters({ careers }) });
 
     await user.click(await screen.findByRole("button", { name: /reintentar/i }));
 
     expect(await screen.findByLabelText(/nombre/i)).toHaveValue("Mariana");
-    expect(loadCatalog).toHaveBeenCalledTimes(2);
+    expect(loadCareers).toHaveBeenCalledTimes(2);
   });
 
   it("should render nothing when there is no authenticated profile", () => {

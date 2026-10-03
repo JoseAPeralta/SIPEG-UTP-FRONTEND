@@ -16,53 +16,6 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 describe("createApiRegistrationAdapter", () => {
-  it("should load and map public registration catalogs", async () => {
-    const fetcher = vi.fn((input: string | URL | Request) => {
-      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-
-      if (url.includes("organizational-units")) {
-        return Promise.resolve(
-          jsonResponse({
-            items: [
-              {
-                code: "FISC",
-                description: null,
-                head: null,
-                id: "unit-1",
-                isActive: true,
-                name: "Facultad de Sistemas",
-                type: "FACULTY",
-              },
-            ],
-            totalPages: 1,
-          }),
-        );
-      }
-
-      return Promise.resolve(
-        jsonResponse({
-          items: [
-            {
-              code: "OTROS",
-              description: null,
-              id: "career-other",
-              name: "Otros",
-              unit: null,
-            },
-          ],
-          totalPages: 1,
-        }),
-      );
-    });
-    const adapter = createApiRegistrationAdapter({ environment, fetcher });
-
-    await expect(adapter.loadCatalog()).resolves.toMatchObject({
-      careers: [{ id: "career-other", unitId: null }],
-      organizationalUnits: [{ id: "unit-1", type: "FACULTY" }],
-    });
-    expect(fetcher).toHaveBeenCalledTimes(2);
-  });
-
   it("should register with the contracted public payload", async () => {
     const fetcher = vi.fn().mockResolvedValue(jsonResponse({ userId: "user-1" }, 201));
     const adapter = createApiRegistrationAdapter({ environment, fetcher });

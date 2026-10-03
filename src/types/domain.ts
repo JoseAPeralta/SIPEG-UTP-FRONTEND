@@ -201,7 +201,6 @@ export type ActivityCatalog = {
 
 export type OperationsReadModel = {
   attendanceRecords: AttendanceRecord[];
-  careers: Career[];
   certificates: Certificate[];
   reportMetrics: ReportMetric[];
   speakerProposals: SpeakerProposal[];

@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createAppAdapters, type RegistrationAdapter } from "@/app/adapters";
+import { createAppAdapters, type CareersAdapter } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";
@@ -26,16 +26,14 @@ const catalog: RegistrationCatalog = {
   ],
 };
 
-function createRegistrationSpy(overrides: Partial<RegistrationAdapter> = {}): RegistrationAdapter {
+function createAdapters(careers?: CareersAdapter) {
   return {
-    loadCatalog: vi.fn().mockResolvedValue(catalog),
-    register: vi.fn(),
-    ...overrides,
+    ...createAppAdapters({ source: "mock" }),
+    careers: careers ?? { loadCareers: vi.fn().mockResolvedValue(catalog.careers) },
+    organizationalUnits: {
+      loadOrganizationalUnits: vi.fn().mockResolvedValue(catalog.organizationalUnits),
+    },
   };
-}
-
-function createAdapters(registration: RegistrationAdapter = createRegistrationSpy()) {
-  return { ...createAppAdapters({ source: "mock" }), registration };
 }
 
 function authenticateSession() {
@@ -78,12 +76,12 @@ describe("ProfilePage", () => {
 
   it("should report a catalog failure inside the data section", async () => {
     authenticateSession();
-    const registration = createRegistrationSpy({
-      loadCatalog: vi.fn().mockRejectedValue(new Error("catalog unavailable")),
-    });
+    const careers: CareersAdapter = {
+      loadCareers: vi.fn().mockRejectedValue(new Error("catalog unavailable")),
+    };
 
     renderWithProviders(<ProfilePage />, {
-      adapters: createAdapters(registration),
+      adapters: createAdapters(careers),
       route: "/perfil/datos",
     });
 

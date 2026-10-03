@@ -46,9 +46,18 @@ describe("resolveQueryPersistence", () => {
 });
 
 describe("isPersistedQueryKey", () => {
-  it("should persist only public catalog keys", () => {
+  it("should persist only public catalog roots", () => {
     expect(isPersistedQueryKey(queryKeys.publicActivityCatalog)).toBe(true);
+    expect(isPersistedQueryKey(queryKeys.publicOrganizationalUnits)).toBe(true);
+    expect(isPersistedQueryKey(queryKeys.publicClassrooms)).toBe(true);
+  });
+
+  it("should never persist identity-scoped or unregistered roots", () => {
+    expect(isPersistedQueryKey(queryKeys.publicCareers)).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeActivityCatalog("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.administrativeCareers("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.administrativeClassrooms("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.administrativeOrganizationalUnits("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.operations("user-1"))).toBe(false);
     expect(isPersistedQueryKey(["unknown"])).toBe(false);
   });
@@ -61,6 +70,9 @@ describe("createPersistenceOptions", () => {
     const shouldDehydrate = options.dehydrateOptions?.shouldDehydrateQuery;
 
     expect(shouldDehydrate?.(fakeQuery(queryKeys.publicActivityCatalog, "success"))).toBe(true);
+    expect(shouldDehydrate?.(fakeQuery(queryKeys.publicOrganizationalUnits, "success"))).toBe(true);
+    expect(shouldDehydrate?.(fakeQuery(queryKeys.publicClassrooms, "success"))).toBe(true);
+    expect(shouldDehydrate?.(fakeQuery(queryKeys.publicCareers, "success"))).toBe(false);
     expect(
       shouldDehydrate?.(fakeQuery(queryKeys.administrativeActivityCatalog("user-1"), "success")),
     ).toBe(false);

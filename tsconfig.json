@@ -38,6 +38,7 @@
     ".storybook/**/*.tsx",
     "src",
     "playwright.storybook.config.ts",
+    "playwright.auth.config.ts",
     "vite.config.ts",
     "vitest.config.ts",
     "eslint.config.js"

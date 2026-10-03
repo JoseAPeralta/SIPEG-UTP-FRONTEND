@@ -214,8 +214,9 @@ VITE_API_BASE_URL=https://api.utp.ac.pa   # origin del API; obligatorio en produ
 
 En desarrollo la API se resuelve contra `http://localhost:3000`, asi que `pnpm run dev`
 requiere el backend levantado. La URL debe ser el origin del API, sin sufijo `/api`, porque los
-endpoints ya incluyen el prefijo `/api/v1`. Con `api`, el catalogo de unidades organizativas, programas,
-actividades y aulas se carga desde el backend, y el inicio de sesion usa `POST /api/v1/auth/login`.
+endpoints ya incluyen el prefijo `/api/v1`. Con `api`, unidades organizativas, carreras, aulas,
+programas y actividades se cargan desde el backend: cada recurso tiene su propio adapter y su
+propia clave de cache, y los tres catalogos se piden como operaciones publicas sin `Bearer`.
 Asistencia, certificados, ponentes y reportes permanecen no disponibles con un error explicito hasta
 que el backend publique sus contratos; el dashboard conserva las metricas del catalogo y avisa de
 las que dependen de esas operaciones.
@@ -227,22 +228,36 @@ nunca importan `src/data/mock`: solo los adapters de cada feature y sus tests lo
 
 El flujo de autenticacion consume el contrato OpenAPI real (`auth/login`, `auth/refresh`,
 `auth/logout` y `users/me`) y sigue las decisiones de
-[ADR-0009](docs/adr/adr-0009-auth-session-token-storage.md):
+[ADR-0013](docs/adr/adr-0013-httponly-refresh-cookie-cross-tab.md):
 
 - El perfil autenticado y el access token viven solo en memoria (Zustand); nunca se persisten.
-- El refresh token y su expiracion viven en `sessionStorage` y se rotan al restaurar la sesion.
-- Al recargar, la aplicacion rota el refresh token y consulta `users/me` antes de renderizar rutas
-  protegidas; si falla, limpia la sesion y vuelve al estado anonimo.
+- El refresh token viaja exclusivamente en una cookie `HttpOnly` del backend, compartida entre
+  pestanas del mismo perfil de navegador. No se guardan credenciales en Web Storage.
+- Al abrir otra pestana o recargar, `POST /api/v1/auth/refresh` envia la cookie mediante
+  `credentials: "include"` y luego consulta `users/me` antes de renderizar rutas protegidas.
+- Web Locks serializa login, refresh, logout y cambio de contrasena entre pestanas del mismo
+  origen frontend. Sin esa API, un 401 de refresh tiene un unico reintento de compatibilidad;
+  ese fallback no garantiza exclusion mutua.
+- `BroadcastChannel` envia solo avisos de sesion, nunca tokens. Al cambiar de identidad o cerrar
+  sesion se limpian los datos privados. Los errores transitorios de renovacion se reintentan.
 - El access token se adjunta como `Authorization: Bearer` a las peticiones del API mientras exista
   sesion; el composition root lo lee del store, por lo que los adapters no conocen la sesion.
-- `POST /api/v1/auth/logout` revoca el refresh token y, aunque la red falle, el cierre local limpia
-  sesion, contexto de trabajo, preferencia de unidad, cache de TanStack Query y cache publica
-  persistida.
+- `POST /api/v1/auth/logout` revoca el refresh token. Tras confirmarlo, todas las pestanas limpian
+  sesion, contexto de trabajo, preferencia de unidad y cache. Si falla, se muestra un error y una
+  opcion de reintento: no se presenta como confirmado un cierre que el servidor no pudo efectuar.
 - Las rutas administrativas exigen sesion y rol `ADMIN`; el backend conserva la autoridad final.
 
 Con `VITE_DATA_SOURCE=mock`, el adapter de autenticacion acepta la cuenta de demostracion
 `mariana.rodriguez@example.edu` con la contrasena `sipeg-demo`. Con la API real use las credenciales
 de su cuenta institucional.
+
+En desarrollo use `http://localhost:5173` y `http://localhost:3000` consistentemente,
+sin mezclar `localhost` con `127.0.0.1`. La API debe permitir el origen exacto del frontend
+y usar `AUTH_REFRESH_COOKIE_SAME_SITE=lax` con `NODE_ENV=development`. En produccion se
+requiere HTTPS y cookie `Secure`; `SameSite` depende de la topologia de despliegue.
+
+Ejecute `pnpm run test:auth:browser` para comprobar cookies y coordinacion multipestana en
+Chromium real con una API simulada. El alcance se detalla en [e2e/README.md](e2e/README.md).
 
 ## Aliases De Importacion
 

@@ -4,16 +4,6 @@ import { createApiActivityCatalogAdapter } from "./apiActivityCatalogAdapter";
 
 const environment = { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" };
 
-const unit = {
-  code: "FIC",
-  description: null,
-  head: null,
-  id: "fic",
-  isActive: true,
-  name: "Facultad de Ingenieria Civil",
-  type: "FACULTY",
-};
-
 const program = {
   bannerUrl: null,
   description: null,
@@ -25,17 +15,6 @@ const program = {
   organizationalUnit: { id: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
   startDate: "2026-06-15",
   status: "ACTIVE",
-};
-
-const classroom = {
-  amenities: ["projector"],
-  building: "Edificio de Aulas",
-  capacity: 60,
-  floor: 1,
-  id: "classroom-1",
-  isActive: true,
-  name: "Aula 101",
-  type: "CLASSROOM",
 };
 
 const activity = {
@@ -95,16 +74,8 @@ function createFetcher() {
       return Promise.resolve(jsonResponse(envelope([{ id: "activity-1" }])));
     }
 
-    if (url.includes("/api/v1/organizational-units")) {
-      return Promise.resolve(jsonResponse(envelope([unit])));
-    }
-
     if (url.includes("/api/v1/event-programs")) {
       return Promise.resolve(jsonResponse(envelope([program])));
-    }
-
-    if (url.includes("/api/v1/classrooms")) {
-      return Promise.resolve(jsonResponse(envelope([classroom])));
     }
 
     if (url.includes("/api/v1/activities/activity-1")) {
@@ -116,19 +87,15 @@ function createFetcher() {
 }
 
 describe("createApiActivityCatalogAdapter", () => {
-  it("should map the public catalog from the OpenAPI contract", async () => {
+  it("should map programs and activities from the OpenAPI contract", async () => {
     const catalog = await createApiActivityCatalogAdapter({
       environment,
       fetcher: createFetcher(),
     }).loadCatalog("public");
 
-    expect(catalog.organizationalUnits).toEqual([
-      expect.objectContaining({ id: "fic", type: "FACULTY" }),
-    ]);
     expect(catalog.eventPrograms).toEqual([
       expect.objectContaining({ id: "program-1", organizationalUnitId: "fic" }),
     ]);
-    expect(catalog.classrooms).toEqual([expect.objectContaining({ id: "classroom-1" })]);
     expect(catalog.activities).toEqual([
       expect.objectContaining({
         classroomId: "classroom-1",
@@ -139,24 +106,41 @@ describe("createApiActivityCatalogAdapter", () => {
     ]);
   });
 
+  it("should not request the catalog endpoints owned by other resources", async () => {
+    const fetcher = createFetcher();
+
+    await createApiActivityCatalogAdapter({ environment, fetcher }).loadCatalog("public");
+
+    for (const [input] of fetcher.mock.calls) {
+      const url = toUrl(input);
+
+      expect(url).not.toContain("/api/v1/organizational-units");
+      expect(url).not.toContain("/api/v1/classrooms");
+    }
+  });
+
   it("should read every paginated page", async () => {
     const fetcher = vi.fn((input: RequestInfo | URL) => {
       const url = toUrl(input);
 
-      if (url.includes("/api/v1/organizational-units")) {
-        return Promise.resolve(
-          url.includes("page=2")
-            ? jsonResponse(envelope([{ ...unit, code: "FIE", id: "fie" }], 2, 2))
-            : jsonResponse(envelope([unit], 2, 1)),
-        );
+      if (url.includes("/api/v1/event-programs/program-2/activities")) {
+        return Promise.resolve(jsonResponse(envelope([])));
+      }
+
+      if (url.includes("/api/v1/event-programs/program-1/activities")) {
+        return Promise.resolve(jsonResponse(envelope([{ id: "activity-1" }])));
       }
 
       if (url.includes("/api/v1/event-programs")) {
-        return Promise.resolve(jsonResponse(envelope([])));
+        return Promise.resolve(
+          url.includes("page=2")
+            ? jsonResponse(envelope([{ ...program, id: "program-2" }], 2, 2))
+            : jsonResponse(envelope([program], 2, 1)),
+        );
       }
 
-      if (url.includes("/api/v1/classrooms")) {
-        return Promise.resolve(jsonResponse(envelope([])));
+      if (url.includes("/api/v1/activities/activity-1")) {
+        return Promise.resolve(jsonResponse({ data: activity, message: "ok", success: true }));
       }
 
       return Promise.resolve(jsonResponse({ message: "not found", success: false }, 404));
@@ -166,7 +150,11 @@ describe("createApiActivityCatalogAdapter", () => {
       "public",
     );
 
-    expect(catalog.organizationalUnits.map((candidate) => candidate.id)).toEqual(["fic", "fie"]);
+    expect(catalog.eventPrograms.map((candidate) => candidate.id)).toEqual([
+      "program-1",
+      "program-2",
+    ]);
+    expect(catalog.activities).toHaveLength(1);
   });
 
   it("should never send a bearer token for public access even when a session exists", async () => {
@@ -207,16 +195,8 @@ describe("createApiActivityCatalogAdapter", () => {
         return Promise.resolve(jsonResponse(envelope([{ id: "activity-1" }])));
       }
 
-      if (url.includes("/api/v1/organizational-units")) {
-        return Promise.resolve(jsonResponse(envelope([unit])));
-      }
-
       if (url.includes("/api/v1/event-programs")) {
         return Promise.resolve(jsonResponse(envelope([program])));
-      }
-
-      if (url.includes("/api/v1/classrooms")) {
-        return Promise.resolve(jsonResponse(envelope([classroom])));
       }
 
       if (url.includes("/api/v1/activities/activity-1")) {

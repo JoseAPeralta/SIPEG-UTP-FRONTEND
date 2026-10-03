@@ -22,6 +22,7 @@ type SourceFileRecord = {
   imports: ImportRecord[];
   path: string;
   sourceFile: ts.SourceFile;
+  sourceText: string;
 };
 
 type ImportRecord = {
@@ -101,7 +102,7 @@ function createSourceFileRecord(filePath: string, source: string): SourceFileRec
 
   collectDynamicImports(sourceFile);
 
-  return { imports, path: filePath, sourceFile };
+  return { imports, path: filePath, sourceFile, sourceText: source };
 }
 
 function toRepoPath(filePath: string): string {
@@ -272,6 +273,40 @@ const operationsConsumers = new Set([
   "src/features/users/hooks/useUsersOverview.ts",
 ]);
 
+/**
+ * R8: each catalog endpoint is owned by exactly one feature adapter. Without this, a future
+ * aggregate adapter could silently reintroduce a duplicated request for the same resource.
+ */
+const ownedCatalogEndpoints: readonly { endpoint: string; owner: string }[] = [
+  {
+    endpoint: "/api/v1/organizational-units",
+    owner: "src/features/organizational-units/adapters/",
+  },
+  { endpoint: "/api/v1/careers", owner: "src/features/careers/adapters/" },
+  { endpoint: "/api/v1/classrooms", owner: "src/features/classrooms/adapters/" },
+];
+
+function collectEndpointOwnershipViolations(files: SourceFileRecord[]): Violation[] {
+  const violations: Violation[] = [];
+
+  for (const file of files) {
+    for (const { endpoint, owner } of ownedCatalogEndpoints) {
+      if (!file.sourceText.includes(endpoint) || file.path.startsWith(owner)) {
+        continue;
+      }
+
+      violations.push({
+        file: file.path,
+        remediation: `reutiliza el adapter de ${owner} en lugar de volver a leer ${endpoint}.`,
+        resolved: endpoint,
+        specifier: endpoint,
+      });
+    }
+  }
+
+  return violations;
+}
+
 function checkOperationsConsumer(file: SourceFileRecord, resolved: string): string | null {
   if (!resolved.startsWith("src/features/operations")) {
     return null;
@@ -343,6 +378,26 @@ describe("architecture fitness", () => {
     );
 
     expect(collectViolations([fixture], checkOperationsConsumer)).toHaveLength(1);
+  });
+
+  it("R8: detects a catalog endpoint read outside its owning feature", () => {
+    const fixture = createSourceFileRecord(
+      "src/features/registration/adapters/apiRegistrationAdapter.ts",
+      'const url = "/api/v1/organizational-units?page=1";',
+    );
+
+    expect(collectEndpointOwnershipViolations([fixture]).map((v) => v.resolved)).toEqual([
+      "/api/v1/organizational-units",
+    ]);
+  });
+
+  it("R8: accepts an endpoint inside its owning feature adapter", () => {
+    const fixture = createSourceFileRecord(
+      "src/features/organizational-units/adapters/apiOrganizationalUnitsAdapter.ts",
+      'const url = "/api/v1/organizational-units?page=1";',
+    );
+
+    expect(collectEndpointOwnershipViolations([fixture])).toHaveLength(0);
   });
 
   it("keeps documented architecture exceptions narrow", () => {
@@ -457,5 +512,13 @@ describe("architecture fitness", () => {
     const violations = collectViolations(sourceFiles, checkOperationsConsumer);
 
     expect(renderViolations("R7 operations consumers", violations)).toBe("");
+  });
+
+  it("R8: catalog endpoints are read only by their owning feature adapter", () => {
+    const violations = collectEndpointOwnershipViolations(
+      sourceFiles.filter((file) => !isTestPath(file.path)),
+    );
+
+    expect(renderViolations("R8 catalog endpoint ownership", violations)).toBe("");
   });
 });

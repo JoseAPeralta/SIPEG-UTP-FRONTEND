@@ -3,12 +3,8 @@ import type {
   ActivitySpeaker,
   ActivityStatus,
   ActivityType,
-  Classroom,
-  ClassroomType,
   EventProgram,
   EventProgramStatus,
-  OrganizationalUnit,
-  OrganizationalUnitType,
 } from "@/types/domain";
 
 export class ActivityCatalogMappingError extends Error {
@@ -18,7 +14,6 @@ export class ActivityCatalogMappingError extends Error {
   }
 }
 
-const ORGANIZATIONAL_UNIT_TYPES: readonly OrganizationalUnitType[] = ["FACULTY", "SUBDIRECTORATE"];
 const EVENT_PROGRAM_STATUSES: readonly EventProgramStatus[] = [
   "ACTIVE",
   "ARCHIVED",
@@ -43,7 +38,6 @@ const ACTIVITY_STATUSES: readonly ActivityStatus[] = [
   "ONGOING",
   "SCHEDULED",
 ];
-const CLASSROOM_TYPES: readonly ClassroomType[] = ["CLASSROOM", "LABORATORY"];
 
 function fail(context: string, detail: string): never {
   throw new ActivityCatalogMappingError(`${context}: ${detail}`);
@@ -144,52 +138,6 @@ export function mapActivityId(raw: unknown, context = "activity"): string {
   const activity = readObject(raw, context);
 
   return readString(activity["id"], `${context}.id`);
-}
-
-function mapHead(value: unknown, context: string): OrganizationalUnit["head"] {
-  if (value === null || value === undefined) {
-    return null;
-  }
-
-  const head = readObject(value, context);
-
-  return {
-    firstName: readString(head["firstName"], `${context}.firstName`),
-    id: readString(head["id"], `${context}.id`),
-    lastName: readString(head["lastName"], `${context}.lastName`),
-  };
-}
-
-export function mapOrganizationalUnit(
-  raw: unknown,
-  context = "organizationalUnit",
-): OrganizationalUnit {
-  const unit = readObject(raw, context);
-
-  return {
-    code: readString(unit["code"], `${context}.code`),
-    description: readNullableString(unit["description"], `${context}.description`),
-    head: mapHead(unit["head"], `${context}.head`),
-    id: readString(unit["id"], `${context}.id`),
-    isActive: readBoolean(unit["isActive"], `${context}.isActive`),
-    name: readString(unit["name"], `${context}.name`),
-    type: readEnum(unit["type"], ORGANIZATIONAL_UNIT_TYPES, `${context}.type`),
-  };
-}
-
-export function mapClassroom(raw: unknown, context = "classroom"): Classroom {
-  const classroom = readObject(raw, context);
-
-  return {
-    amenities: readStringList(classroom["amenities"], `${context}.amenities`),
-    building: readNullableString(classroom["building"], `${context}.building`),
-    capacity: readNumber(classroom["capacity"], `${context}.capacity`),
-    floor: readNullableNumber(classroom["floor"], `${context}.floor`),
-    id: readString(classroom["id"], `${context}.id`),
-    isActive: readBoolean(classroom["isActive"], `${context}.isActive`),
-    name: readString(classroom["name"], `${context}.name`),
-    type: readEnum(classroom["type"], CLASSROOM_TYPES, `${context}.type`),
-  };
 }
 
 export function mapEventProgram(raw: unknown, context = "eventProgram"): EventProgram {
