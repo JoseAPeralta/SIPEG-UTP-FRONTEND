@@ -3,38 +3,30 @@ import { useState } from "react";
 
 import { Surface } from "@/components";
 import { getActivityTypeColorKey, getUnitColorKey } from "@theme/index";
-import type { Activity, Classroom, EventProgram, OrganizationalUnit } from "@/types/domain";
 import { formatActivityDate } from "@/utils/dateFormatting";
 
-import { activityTypeLabels, getProgramBadgeLabel } from "../model/catalogLabels";
+import { activityTypeLabels } from "../model/catalogLabels";
+import type { PublicActivityRow } from "../model/publicCatalogSelectors";
 
 const DESCRIPTION_PREVIEW_LENGTH = 128;
 
-export type ActivityCardProps = {
-  activity: Activity;
-  classroom: Classroom | null;
-  isSelected?: boolean;
-  onSelect?: ((activity: Activity) => void) | undefined;
-  program: EventProgram;
-  showEnrolledCount?: boolean;
-  showEquipment?: boolean;
-  unit: OrganizationalUnit;
+export type PublicActivityCardProps = {
+  /** Fila de la agenda publica: la actividad y su unidad ya resueltas. */
+  row: PublicActivityRow;
 };
 
-/** Presents an activity in public, metrics or selectable working-context modes. */
-export function ActivityCard({
-  activity,
-  classroom,
-  isSelected = false,
-  onSelect,
-  program,
-  showEnrolledCount = false,
-  showEquipment = true,
-  unit,
-}: ActivityCardProps) {
+/**
+ * Presenta una actividad de la agenda publica.
+ *
+ * No acepta banderas de presentacion a proposito: el listado publico del API no
+ * expone equipamiento ni inscritos, asi que no hay nada que ocultar. Esa
+ * diferencia con la tarjeta administrativa es estructural, no de configuracion.
+ */
+export function PublicActivityCard({ row }: PublicActivityCardProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const unitColorKey = getUnitColorKey(unit.code);
+  const { activity, programBadgeLabel, unitCode } = row;
   const typeColorKey = getActivityTypeColorKey(activity.type);
+  const unitColorKey = getUnitColorKey(unitCode);
   const description = activity.description?.trim() ?? "";
   const hasDescription = description.length > 0;
   const hasLongDescription = description.length > DESCRIPTION_PREVIEW_LENGTH;
@@ -51,13 +43,12 @@ export function ActivityCard({
       h="full"
       interactive
       overflow="hidden"
-      selected={isSelected}
     >
       <Box background="linear-gradient(135deg, #6E2411 0%, #9C3A1E 52%, #E59A72 100%)" h="10px" />
       <Stack flex="1" gap={5} p={{ base: 5, md: 6 }}>
         <HStack gap={3} wrap="wrap">
           <Badge bg={`unit.bg.${unitColorKey}`} color={`unit.fg.${unitColorKey}`} rounded="full">
-            {getProgramBadgeLabel(program, unit)}
+            {programBadgeLabel}
           </Badge>
           <Badge bg={`type.bg.${typeColorKey}`} color={`type.fg.${typeColorKey}`} rounded="full">
             {activityTypeLabels[activity.type]}
@@ -75,7 +66,7 @@ export function ActivityCard({
           </Text>
           <Text color="text.muted" fontSize="sm" mt={2}>
             {formatActivityDate(activity.date)} · {activity.startTime} - {activity.endTime}
-            {classroom ? ` · ${classroom.name}` : ""}
+            {activity.classroom ? ` · ${activity.classroom.name}` : ""}
           </Text>
         </Box>
         {hasDescription ? (
@@ -116,53 +107,6 @@ export function ActivityCard({
               ))}
             </Stack>
           </Stack>
-        ) : null}
-        <HStack align="start" gap={5} mt="auto" wrap="wrap">
-          {showEnrolledCount ? (
-            <Box>
-              <Text
-                color="text.muted"
-                fontSize="xs"
-                fontWeight="800"
-                letterSpacing="0.08em"
-                textTransform="uppercase"
-              >
-                Inscritos
-              </Text>
-              <Text color="text.default" fontSize="xl" fontWeight="800">
-                {activity.enrolledCount}
-              </Text>
-            </Box>
-          ) : null}
-          {showEquipment && activity.equipment.length > 0 ? (
-            <Box>
-              <Text
-                color="text.muted"
-                fontSize="xs"
-                fontWeight="800"
-                letterSpacing="0.08em"
-                textTransform="uppercase"
-              >
-                Equipamiento
-              </Text>
-              <Text color="text.default" fontSize="sm">
-                {activity.equipment.join(", ")}
-              </Text>
-            </Box>
-          ) : null}
-        </HStack>
-        {onSelect ? (
-          <Button
-            aria-label={`Usar ${activity.name} en panel`}
-            aria-pressed={isSelected}
-            colorPalette="terracotta"
-            onClick={() => onSelect(activity)}
-            rounded="full"
-            size="sm"
-            variant={isSelected ? "solid" : "outline"}
-          >
-            {isSelected ? "Contexto activo" : "Usar en panel"}
-          </Button>
         ) : null}
       </Stack>
     </Surface>

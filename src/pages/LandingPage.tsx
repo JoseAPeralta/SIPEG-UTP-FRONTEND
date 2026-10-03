@@ -7,7 +7,11 @@ import {
   SectionHeader,
   Surface,
 } from "@/components";
-import { ActivityCard, ActivityFilters, usePublicActivities } from "@/features/activity-catalog";
+import {
+  PublicActivityCard,
+  PublicActivityFilters,
+  usePublicActivities,
+} from "@/features/activity-catalog";
 
 const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Agenda academica SIPEG">
@@ -83,14 +87,6 @@ export function LandingPage() {
                     actividades publicadas
                   </Text>
                 </Box>
-                <Box borderLeftColor="border.subtle" borderLeftWidth="1px" pl={5}>
-                  <Text color="accent.solid" fontFamily="heading" fontSize="4xl" fontWeight="700">
-                    {page.summary ? page.summary.unitCount : "..."}
-                  </Text>
-                  <Text color="text.muted" fontSize="sm" fontWeight="800">
-                    unidades organizativas
-                  </Text>
-                </Box>
               </HStack>
             </Stack>
             <Surface elevation="overlay" overflow="hidden" padding="tight">
@@ -108,15 +104,15 @@ export function LandingPage() {
 
         <AsyncStateView error={page.error} isLoading={page.isLoading} onRetry={page.refetch}>
           <Stack gap={6}>
-            <ActivityFilters
+            <PublicActivityFilters
               filteredCount={page.filteredCount}
               onSortDirectionChange={page.onSortDirectionChange}
               onTypeFilterChange={page.onTypeFilterChange}
               onUnitFilterChange={page.onUnitFilterChange}
+              rows={page.rows}
               sortDirection={page.sortDirection}
               typeFilter={page.typeFilter}
               unitFilter={page.unitFilter}
-              unitOptions={page.unitOptions}
             />
 
             <Box as="section" aria-labelledby="public-activities-title">
@@ -130,14 +126,7 @@ export function LandingPage() {
                 {page.pagination.rows.length > 0 ? (
                   <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
                     {page.pagination.rows.map((row) => (
-                      <ActivityCard
-                        activity={row.activity}
-                        classroom={row.classroom}
-                        key={row.activity.id}
-                        program={row.program}
-                        showEquipment={false}
-                        unit={row.unit}
-                      />
+                      <PublicActivityCard key={row.activity.id} row={row} />
                     ))}
                   </SimpleGrid>
                 ) : (

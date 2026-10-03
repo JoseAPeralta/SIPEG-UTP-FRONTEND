@@ -9,6 +9,8 @@ import type {
 
 import { getActivityTimestamp } from "@/utils/dateFormatting";
 
+import { getProgramBadgeLabel } from "./catalogLabels";
+
 export type UnitFilter = "all" | (string & {});
 export type ActivityTypeFilter = "all" | ActivityType;
 export type ProgramFilter = "all" | (string & {});
@@ -54,17 +56,6 @@ export type SelectOption = {
   label: string;
 };
 
-export const activityTypeLabels: Record<ActivityType, string> = {
-  COMPETITION: "Competencia",
-  CONFERENCE: "Conferencia",
-  COURSE: "Curso",
-  OTHER: "Otro",
-  PANEL: "Panel",
-  SEMINAR: "Seminario",
-  TALK: "Charla",
-  WORKSHOP: "Taller",
-};
-
 export const activityTypeFilterOrder: ActivityType[] = [
   "TALK",
   "CONFERENCE",
@@ -81,14 +72,10 @@ export const activityTypeFilterOrder: ActivityType[] = [
  * "Programa de Eventos - <unidad>" by the backend, so we prefer the custom
  * label, fall back to the owning unit name for default programs (avoiding the
  * prefix) and use the program name for additional programs without a label.
+ *
+ * @see getProgramBadgeLabel in ./catalogLabels, which the public agenda shares.
  */
-export function getProgramBadgeLabel(program: EventProgram, unit: OrganizationalUnit): string {
-  if (program.label) {
-    return program.label;
-  }
-
-  return program.isDefault ? unit.name : program.name;
-}
+export { getProgramBadgeLabel };
 
 export function buildActivityRows(catalog: ActivityCatalog): ActivityRow[] {
   const programById = new Map(catalog.eventPrograms.map((program) => [program.id, program]));

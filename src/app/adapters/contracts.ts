@@ -6,6 +6,7 @@ import type {
   Classroom,
   OrganizationalUnit,
   OperationsReadModel,
+  PublicActivityCatalog,
   RegistrationPayload,
   RegistrationResult,
 } from "@/types/domain";
@@ -92,6 +93,19 @@ export type ActivityCatalogAdapter = {
   ) => Promise<Pick<ActivityCatalog, "activities" | "eventPrograms">>;
 };
 
+/**
+ * Agenda publica.
+ *
+ * Puerto separado de `ActivityCatalogAdapter` porque las dos readership no
+ * comparten datos: el listado publico de actividades ya embebe aula, programa y
+ * unidad, mientras que el catalogo administrativo necesita el detalle de cada
+ * actividad. Compartir un puerto obligaba a la agenda publica a descargar el
+ * detalle completo, que no usa.
+ */
+export type PublicActivityCatalogAdapter = {
+  loadPublicActivities: () => Promise<PublicActivityCatalog>;
+};
+
 export type OperationsAdapter = {
   loadOperations: () => Promise<OperationsReadModel>;
 };
@@ -107,5 +121,6 @@ export type AppAdapters = {
   classrooms: ClassroomsAdapter;
   organizationalUnits: OrganizationalUnitsAdapter;
   operations: OperationsAdapter;
+  publicActivityCatalog: PublicActivityCatalogAdapter;
   registration: RegistrationAdapter;
 };

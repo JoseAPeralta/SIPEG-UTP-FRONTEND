@@ -131,6 +131,7 @@ export {
   activityTypeColorTokens,
   getActivityTypeColorKey,
   getUnitColorKey,
+  knownUnitCodes,
   unitColorTokens,
 } from "./domainColors";
 export type { ActivityTypeColorKey, DomainColorToken, UnitColorKey } from "./domainColors";

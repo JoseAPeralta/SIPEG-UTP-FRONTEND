@@ -2,6 +2,7 @@ export { QueryDevtools } from "./QueryDevtools";
 export { QueryProvider, type QueryProviderProps } from "./QueryProvider";
 export {
   createQueryClient,
+  PUBLIC_CATALOG_STALE_TIME_MS,
   QUERY_GC_TIME_MS,
   QUERY_MAX_RETRIES,
   QUERY_STALE_TIME_MS,

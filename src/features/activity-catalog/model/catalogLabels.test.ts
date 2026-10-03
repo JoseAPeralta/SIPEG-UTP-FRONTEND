@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { activityStatusLabels, eventProgramStatusLabels } from "./catalogLabels";
-import { activityTypeFilterOrder, activityTypeLabels } from "./catalogSelectors";
+import {
+  activityStatusLabels,
+  activityTypeLabels,
+  eventProgramStatusLabels,
+} from "./catalogLabels";
+import { activityTypeFilterOrder } from "./catalogSelectors";
 
 function expectSpanishLabels(labels: Record<string, string>) {
   const entries = Object.entries(labels);

@@ -13,9 +13,9 @@ import {
 
 import { Surface } from "@/components";
 
+import { activityTypeLabels } from "../model/catalogLabels";
 import {
   activityTypeFilterOrder,
-  activityTypeLabels,
   type ActivityTypeFilter,
   type ProgramFilter,
   type SelectOption,

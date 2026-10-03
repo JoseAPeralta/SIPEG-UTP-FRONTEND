@@ -16,7 +16,7 @@ export type EventProgramCardProps = {
 /** Summarizes an event program and optionally selects it as the working context. */
 export function EventProgramCard({ isSelected = false, onSelect, summary }: EventProgramCardProps) {
   const { activityCount, enrolledCount, program, unit } = summary;
-  const unitColorKey = getUnitColorKey(unit);
+  const unitColorKey = getUnitColorKey(unit.code);
   const dateRange = formatProgramDateRange(program);
 
   return (

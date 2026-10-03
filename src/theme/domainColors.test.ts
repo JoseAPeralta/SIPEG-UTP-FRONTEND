@@ -4,28 +4,28 @@ import { getActivityTypeColorKey, getUnitColorKey } from "./domainColors";
 
 describe("getUnitColorKey", () => {
   it("should map faculty codes to their color key", () => {
-    expect(getUnitColorKey({ code: "FIC" })).toBe("fic");
-    expect(getUnitColorKey({ code: "FIE" })).toBe("fie");
-    expect(getUnitColorKey({ code: "FII" })).toBe("fii");
-    expect(getUnitColorKey({ code: "FIM" })).toBe("fim");
-    expect(getUnitColorKey({ code: "FISC" })).toBe("fisc");
-    expect(getUnitColorKey({ code: "FCYT" })).toBe("fcyt");
+    expect(getUnitColorKey("FIC")).toBe("fic");
+    expect(getUnitColorKey("FIE")).toBe("fie");
+    expect(getUnitColorKey("FII")).toBe("fii");
+    expect(getUnitColorKey("FIM")).toBe("fim");
+    expect(getUnitColorKey("FISC")).toBe("fisc");
+    expect(getUnitColorKey("FCYT")).toBe("fcyt");
   });
 
   it("should normalize case and surrounding whitespace", () => {
-    expect(getUnitColorKey({ code: "  fisc  " })).toBe("fisc");
+    expect(getUnitColorKey("  fisc  ")).toBe("fisc");
   });
 
   it("should map each subdirectorate code to its own color key", () => {
-    expect(getUnitColorKey({ code: "SUB-ACAD" })).toBe("subAcad");
-    expect(getUnitColorKey({ code: "SUB-ADMIN" })).toBe("subAdmin");
-    expect(getUnitColorKey({ code: "SUB-VIDA" })).toBe("subVida");
-    expect(getUnitColorKey({ code: "SUB-IPE" })).toBe("subIpe");
+    expect(getUnitColorKey("SUB-ACAD")).toBe("subAcad");
+    expect(getUnitColorKey("SUB-ADMIN")).toBe("subAdmin");
+    expect(getUnitColorKey("SUB-VIDA")).toBe("subVida");
+    expect(getUnitColorKey("SUB-IPE")).toBe("subIpe");
   });
 
   it("should fall back to the default color for unknown codes", () => {
-    expect(getUnitColorKey({ code: "OTROS" })).toBe("default");
-    expect(getUnitColorKey({ code: "FCT" })).toBe("default");
+    expect(getUnitColorKey("OTROS")).toBe("default");
+    expect(getUnitColorKey("FCT")).toBe("default");
   });
 });
 

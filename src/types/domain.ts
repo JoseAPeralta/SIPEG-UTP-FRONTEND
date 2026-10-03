@@ -199,6 +199,72 @@ export type ActivityCatalog = {
   organizationalUnits: OrganizationalUnit[];
 };
 
+/**
+ * Actividad tal como la publica el listado anonimo (`ActivityListItem`).
+ *
+ * No extiende `Activity` a proposito: el listado publico omite `equipment`,
+ * `enrolledCount`, `checkedInCount` y `cancelReason`, que solo existen en el
+ * detalle administrativo. Modelar la diferencia como dos tipos hace imposible
+ * que la agenda publica dependa de un dato que el contrato no le da.
+ *
+ * `program` y `unit` vienen embebidos en el propio item, y `classroom` puede
+ * ser `null`: la agenda se construye sin joins ni consultas adicionales.
+ */
+export type PublicActivity = {
+  readonly bannerUrl: string | null;
+  readonly capacity: number | null;
+  readonly classroom: PublicClassroom | null;
+  readonly date: string;
+  readonly description: string | null;
+  readonly endTime: string;
+  readonly id: string;
+  readonly name: string;
+  readonly program: PublicEventProgram;
+  readonly speakers: readonly ActivitySpeaker[];
+  readonly startTime: string;
+  readonly type: ActivityType;
+  readonly unit: PublicOrganizationalUnit;
+};
+
+/**
+ * Programa tal como lo embebe el listado publico (`ActivityProgramSummary`).
+ *
+ * `isDefault` no viene en el contrato; el read model lo deriva del nombre, que
+ * el backend genera como `Programa de Eventos - <unidad>` para los programas
+ * predeterminados.
+ */
+export type PublicEventProgram = {
+  readonly id: string;
+  readonly isDefault: boolean;
+  readonly label: string | null;
+  readonly name: string;
+};
+
+/** Aula tal como la embebe el listado publico (`ActivityClassroomSummary`). */
+export type PublicClassroom = {
+  readonly building: string | null;
+  readonly id: string;
+  readonly name: string;
+};
+
+/**
+ * Unidad tal como la embebe el listado publico (`ActivityOrganizationalUnit`).
+ *
+ * Solo trae `id`, `name` y `type`. El codigo institucional no viene en el
+ * contrato: lo aporta el registro de unidades del frontend, que es la unica
+ * forma de colorear la agenda publica sin una segunda consulta.
+ */
+export type PublicOrganizationalUnit = {
+  readonly backendId: string;
+  readonly name: string;
+  readonly type: OrganizationalUnitType;
+};
+
+/** Read model de la agenda publica, resuelto con una sola peticion. */
+export type PublicActivityCatalog = {
+  readonly activities: readonly PublicActivity[];
+};
+
 export type OperationsReadModel = {
   attendanceRecords: AttendanceRecord[];
   certificates: Certificate[];

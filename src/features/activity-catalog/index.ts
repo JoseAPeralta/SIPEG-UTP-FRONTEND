@@ -2,9 +2,13 @@ export {
   buildActivityRows,
   buildProgramSummaries,
   buildUnitOptions,
-  activityTypeLabels,
 } from "./model/catalogSelectors";
-export { activityStatusLabels, eventProgramStatusLabels } from "./model/catalogLabels";
+export {
+  activityStatusLabels,
+  activityTypeLabels,
+  eventProgramStatusLabels,
+  getProgramBadgeLabel,
+} from "./model/catalogLabels";
 export type {
   ActivityRow,
   ActivityTypeFilter,
@@ -17,7 +21,21 @@ export type {
 } from "./model/catalogSelectors";
 export { useActivityCatalog } from "./hooks/useActivityCatalog";
 export { useActivityCatalogPage } from "./hooks/useActivityCatalogPage";
-export { usePublicActivities } from "./hooks/usePublicActivities";
+export { PUBLIC_ACTIVITIES_PER_PAGE, usePublicActivities } from "./hooks/usePublicActivities";
+export {
+  buildPublicActivityRows,
+  filterPublicActivityRows,
+  paginatePublicActivityRows,
+  publicActivityTypeOptions,
+  summarizePublicCatalog,
+} from "./model/publicCatalogSelectors";
+export type {
+  ActivityTypeFilter as PublicActivityTypeFilter,
+  PublicActivityRow,
+  PublicCatalogSummary,
+  SortDirection as PublicSortDirection,
+  UnitFilter as PublicUnitFilter,
+} from "./model/publicCatalogSelectors";
 export {
   ActivityCard,
   type ActivityCardProps,
@@ -26,4 +44,8 @@ export {
   type ActivityFiltersProps,
   EventProgramCard,
   type EventProgramCardProps,
+  PublicActivityCard,
+  type PublicActivityCardProps,
+  PublicActivityFilters,
+  type PublicActivityFiltersProps,
 } from "./ui";

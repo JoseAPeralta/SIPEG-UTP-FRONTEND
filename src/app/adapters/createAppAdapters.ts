@@ -4,6 +4,8 @@ import {
   type ApiActivityCatalogAdapterOptions,
 } from "@/features/activity-catalog/adapters/apiActivityCatalogAdapter";
 import { createMockActivityCatalogAdapter } from "@/features/activity-catalog/adapters/mockActivityCatalogAdapter";
+import { createApiPublicActivityCatalogAdapter } from "@/features/activity-catalog/adapters/apiPublicActivityCatalogAdapter";
+import { createMockPublicActivityCatalogAdapter } from "@/features/activity-catalog/adapters/mockPublicActivityCatalogAdapter";
 import { createApiAuthAdapter } from "@/features/auth/adapters/apiAuthAdapter";
 import { createMockAuthAdapter } from "@/features/auth/adapters/mockAuthAdapter";
 import { createApiCareersAdapter } from "@/features/careers/adapters/apiCareersAdapter";
@@ -54,6 +56,7 @@ export function createAppAdapters({
       classrooms: createApiClassroomsAdapter(apiOptions),
       organizationalUnits: createApiOrganizationalUnitsAdapter(apiOptions),
       operations: createUnavailableOperationsAdapter(),
+      publicActivityCatalog: createApiPublicActivityCatalogAdapter(apiOptions),
       registration: createApiRegistrationAdapter(apiOptions),
     };
   }
@@ -65,6 +68,7 @@ export function createAppAdapters({
     classrooms: createMockClassroomsAdapter(),
     organizationalUnits: createMockOrganizationalUnitsAdapter(),
     operations: createMockOperationsAdapter(),
+    publicActivityCatalog: createMockPublicActivityCatalogAdapter(),
     registration: createMockRegistrationAdapter(),
   };
 }

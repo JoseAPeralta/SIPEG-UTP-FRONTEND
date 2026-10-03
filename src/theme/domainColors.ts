@@ -1,4 +1,8 @@
-import type { ActivityType, OrganizationalUnit } from "@/types/domain";
+import {
+  institutionalUnitsByCode,
+  type OrganizationalUnitCode,
+} from "@/features/organizational-units/model/unitRegistry";
+import type { ActivityType } from "@/types/domain";
 
 /**
  * Fuente unica de verdad para los colores de identidad por unidad organizativa
@@ -29,6 +33,14 @@ import type { ActivityType, OrganizationalUnit } from "@/types/domain";
  * cumplir contraste AA (>= 4.5:1) sobre `bg`.
  */
 
+/**
+ * Clave de token de color por unidad.
+ *
+ * Las claves son `camelCase` a proposito, no los codigos institucionales:
+ * los badges las leen con `unit.bg.${key}` y una clave con guion (como
+ * `SUB-ACAD`) romperia el acceso por punto. La union con los codigos la
+ * garantiza `unitColorKeyByCode`, que es exhaustivo sobre el registro.
+ */
 export type UnitColorKey =
   | "default"
   | "fcyt"
@@ -90,7 +102,14 @@ export const activityTypeColorTokens: Record<ActivityTypeColorKey, DomainColorTo
   workshop: { base: "#9C3A1E", bg: "#EEDDD4", darkBg: "#3B1D13", darkFg: "#F35A2F", fg: "#9C3A1E" },
 };
 
-const unitCodeToColorKey: Record<string, UnitColorKey> = {
+/**
+ * Une cada codigo institucional con su token de color.
+ *
+ * Es un `Record` sobre `OrganizationalUnitCode`, de modo que agregar una unidad
+ * al registro sin decidirle un color rompe la compilacion. Ningun valor es
+ * `default`: `default` es solo para codigos que el backend aun no conoce.
+ */
+const unitColorKeyByCode: Record<OrganizationalUnitCode, Exclude<UnitColorKey, "default">> = {
   FCYT: "fcyt",
   FIC: "fic",
   FIE: "fie",
@@ -114,11 +133,34 @@ const activityTypeToColorKey: Record<ActivityType, ActivityTypeColorKey> = {
   WORKSHOP: "workshop",
 };
 
-/** Resolves the color token key for an organizational unit by its code. */
-export function getUnitColorKey(unit: Pick<OrganizationalUnit, "code">): UnitColorKey {
-  const code = unit.code.trim().toUpperCase();
+/**
+ * Resolves the color token key for an organizational unit by its institutional code.
+ *
+ * A code outside the registry (a faculty the backend added without a frontend
+ * change) degrades to the `default` token instead of throwing: the agenda must
+ * still render. `null` is the public agenda's way of saying "this activity's
+ * unit is not in the registry", and it degrades the same way.
+ */
+export function getUnitColorKey(code: string | null | undefined): UnitColorKey {
+  if (!code) {
+    return "default";
+  }
 
-  return unitCodeToColorKey[code] ?? "default";
+  // `noUncheckedIndexedAccess` no esta activo, asi que el indice se declara como
+  // presente aunque el Record sea exhaustivo. La busqueda se hace sobre las
+  // claves reales para que un codigo desconocido degrade de verdad, que es lo
+  // que evita romper la agenda cuando el backend agrega una facultad.
+  const normalized = code.trim().toUpperCase();
+  const resolved = Object.hasOwn(unitColorKeyByCode, normalized)
+    ? unitColorKeyByCode[normalized as OrganizationalUnitCode]
+    : undefined;
+
+  return resolved ?? "default";
+}
+
+/** Every code the theme can paint, used to assert the registry and the theme agree. */
+export function knownUnitCodes(): readonly OrganizationalUnitCode[] {
+  return Object.keys(institutionalUnitsByCode) as OrganizationalUnitCode[];
 }
 
 /** Resolves the color token key for an activity type. */

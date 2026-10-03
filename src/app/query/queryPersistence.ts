@@ -4,7 +4,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { isPersistedQueryKey } from "./queryKeys";
 
 export const QUERY_CACHE_STORAGE_KEY = "sipeg-query-cache";
-export const QUERY_CACHE_SCHEMA_VERSION = "2";
+export const QUERY_CACHE_SCHEMA_VERSION = "3";
 export const QUERY_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 export const QUERY_CACHE_THROTTLE_MS = 1000;
 
