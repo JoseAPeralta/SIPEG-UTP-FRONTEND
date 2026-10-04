@@ -472,6 +472,55 @@
       "title": "Features/Registration/RegisterForm"
     },
     {
+      "componentPath": "src/features/users/ui/UserDetailView.tsx",
+      "stories": [
+        {
+          "id": "features-users-userdetailview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-userdetailview--promoting-a-user",
+          "name": "Promoting A User",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-userdetailview--protecting-the-acting-administrator",
+          "name": "Protecting The Acting Administrator",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-userdetailview--unknown-user",
+          "name": "Unknown User",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/users/ui/UserDetailView.stories.tsx",
+      "title": "Features/Users/UserDetailView"
+    },
+    {
+      "componentPath": "src/features/users/ui/UsersView.tsx",
+      "stories": [
+        {
+          "id": "features-users-usersview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-usersview--filtering-by-role",
+          "name": "Filtering By Role",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-usersview--validating-the-create-form",
+          "name": "Validating The Create Form",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/users/ui/UsersView.stories.tsx",
+      "title": "Features/Users/UsersView"
+    },
+    {
       "componentPath": "src/features/working-context/ui/WorkingContextSelect.tsx",
       "stories": [
         {

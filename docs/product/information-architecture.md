@@ -95,7 +95,8 @@ En Fase 0 todas las rutas implementadas del panel exigen sesion y rol global `AD
 | `/admin/unidades`           | Consulta administrativa de unidades organizativas.               |
 | `/admin/carreras`           | Administracion de carreras institucionales y globales.           |
 | `/admin/ponentes`           | Read model transitorio de propuestas.                            |
-| `/admin/usuarios`           | Read model transitorio de usuarios.                              |
+| `/admin/usuarios`           | Listado paginado, busqueda, filtros y alta de usuarios.          |
+| `/admin/usuarios/:userId`   | Detalle, rol, estado, unidad y carrera de una cuenta.            |
 | `/admin/asistencia`         | Read model transitorio de asistencia.                            |
 | `/admin/certificados`       | Read model transitorio de certificados.                          |
 | `/admin/reportes`           | Read model transitorio de reportes.                              |

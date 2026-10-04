@@ -81,5 +81,12 @@ Acceptance criteria:
 ## Open Questions
 
 - Which list filters, editable fields, user states, and administrative operations are contractual?
-- Which critical-account safeguards are enforced and how are conflicts represented?
-- Can any non-administrator role access user administration?
+  Resolved: the list filters by `globalRole`, `isActive`, `unitId`, `careerId` and `q`; the detail and
+  `PATCH` edit only `globalRole`, `isActive`, `unitId` and `careerId`; there is no `DELETE`, so the
+  lifecycle closes with `PATCH { isActive }`.
+- Which critical-account safeguards are enforced and how are conflicts represented? Resolved: the
+  backend rejects self-deactivation/demotion, demoting or deactivating the last active administrator
+  and promoting an inactive account with a `409`, and combining promotion with deactivation. The UI
+  explains these causes without exposing the raw response.
+- Can any non-administrator role access user administration? Resolved: the endpoint requires
+  `bearerAuth` and the `ADMIN` role; collaboration grants are a separate concern (Fase 3.6-3.8).

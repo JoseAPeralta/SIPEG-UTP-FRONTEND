@@ -609,7 +609,7 @@ Evidencia y desviaciones de Fase 2.2: `docs/superpowers/plans/2026-10-03-fase-2.
 **Entregable:** administracion real de usuarios y operaciones por capacidades de programa o actividad.
 
 - [x] **3.1 Separar usuarios del read model.** Crear adapter, mappers y query keys para `/api/v1/admin/users`. Prueba: `VITE_DATA_SOURCE=api` deja de bloquear usuarios por contratos ajenos.
-- [ ] **3.2 Administrar usuarios.** Implementar listado paginado, busqueda, filtros, detalle, creacion y edicion. Prueba: autodesactivacion, ultimo ADMIN, duplicados y relaciones invalidas muestran conflictos accionables.
+- [x] **3.2 Administrar usuarios.** Implementar listado paginado, busqueda, filtros, detalle, creacion y edicion. Prueba: autodesactivacion, ultimo ADMIN, duplicados y relaciones invalidas muestran conflictos accionables.
 - [x] **3.3 Modelar permisos.** Tipar y traducir roles `VIEWER`, `EDITOR`, `ORGANIZER` y el catalogo canonico de permisos. Prueba: la UI nunca muestra `activity:update` u otros codigos crudos.
 - [ ] **3.4 Resolver descubrimiento de scopes.** Acordar un contrato para conocer todos los programas y actividades accesibles al usuario. No implementar N+1 sobre el catalogo publico. Prueba: un colaborador descubre scopes no publicos sin conocer sus IDs previamente.
 - [ ] **3.5 Evolucionar los guards.** Mantener catalogos institucionales y usuarios como ADMIN; habilitar modulos operativos por capacidad efectiva. Prueba: ADMIN, ORGANIZER, EDITOR, VIEWER y USER reciben navegacion diferente.
@@ -637,6 +637,30 @@ Evidencia y desviaciones de Fase 3.1: `docs/superpowers/plans/2026-10-04-fase-3.
   `PERSISTED_QUERY_KEY_ROOTS`; el esquema de cache persistido no cambia.
 - **R7/R8:** `useUsersOverview` sale de la allowlist de consumidores de `OperationsAdapter` y
   `/api/v1/admin/users` queda reservado a `src/features/users/adapters/`.
+
+Evidencia y desviaciones de Fase 3.2: `docs/superpowers/plans/2026-10-04-fase-3.2-administracion-usuarios.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-04:** `GET`, `POST`, `GET {id}` y
+  `PATCH {id}` de `/api/v1/admin/users`. El listado pagina y filtra por `globalRole`, `isActive`,
+  `unitId`, `careerId` y `q`; el alta siempre crea rol `USER`; el `PATCH` solo edita rol, estado,
+  unidad y carrera y declara las salvaguardas de autodesactivacion y ultimo ADMIN. No existe `DELETE`.
+  `api:mocks-check` paso con 207 verificaciones en 27 operaciones.
+- **Paginacion en servidor, no cliente:** `loadUsersPage(filters, page)` envia `page`, `limit=20` y
+  los filtros al backend; `loadUsers()` (todas las paginas) se conserva para el resumen transitorio de
+  certificados. `keepPreviousData` evita vaciar la tabla al cambiar de pagina o filtro.
+- **Edicion limitada al contrato:** nombre, correo y cedula son solo lectura; el formulario envia
+  unicamente `globalRole`, `unitId`, `careerId` y, en una accion separada con confirmacion, `isActive`.
+  La allowlist del adapter y del mock reproduce la misma restriccion. `unitId: null` fuerza la carrera
+  global "Otros" segun el contrato.
+- **Conflictos accionables sin filtrar el backend:** `userMutationFailure` traduce `400/403/404/409` y
+  cada operacion nombra sus causas (duplicado, cuenta inactiva no promovible, autodesactivacion o
+  ultimo administrador) sin mostrar el mensaje ni el codigo crudo.
+- **Mock con salvaguardas:** `user-1` representa al administrador en funciones y se agrego un usuario
+  inactivo para la regla de promocion; el fixture conserva los mismos `id` que usan carreras y
+  unidades. `api:mocks-check` no detecto drift.
+- **Puertas:** `verify:quick` (con `format:check`, `lint`, `typecheck` y la suite completa),
+  `storybook:test:affected` de las siete stories nuevas (play, axe y baselines) y
+  `components:inventory:check` verdes; se crearon y revisaron 7 baselines nuevos.
 
 Evidencia y desviaciones de Fase 3.3: `docs/superpowers/plans/2026-10-04-fase-3.3-modelado-permisos.md`.
 
