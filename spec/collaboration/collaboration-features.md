@@ -83,6 +83,10 @@ Acceptance criteria:
 
 ## Open Questions
 
-- What operation returns all scopes accessible to the current user?
-- Which roles, permission codes, provenance values, and validity fields are contractual?
+- What operation returns all scopes accessible to the current user? (pending, Fase 3.4)
+- Which roles, permission codes, provenance values, and validity fields are contractual? (resolved in
+  Fase 3.3, 2026-10-04: roles `VIEWER`, `EDITOR`, `ORGANIZER`; the 21 canonical permission codes
+  enumerated in `POST .../permissions`; `origin` `LOCAL|INHERITED|BOTH`; `source`
+  `ROLE_DEFAULT|OVERRIDE`; `validFrom`/`validUntil` ISO 8601 or null. The per-role default permission
+  matrix is not contractual and is not modeled in the frontend.)
 - What safeguards prevent removal of the last user able to delegate access?
