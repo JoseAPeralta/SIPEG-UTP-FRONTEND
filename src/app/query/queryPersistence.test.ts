@@ -58,6 +58,7 @@ describe("isPersistedQueryKey", () => {
     expect(isPersistedQueryKey(queryKeys.administrativeCareers("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeClassrooms("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeOrganizationalUnits("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.administrativeUsers("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.operations("user-1"))).toBe(false);
     expect(
       isPersistedQueryKey(

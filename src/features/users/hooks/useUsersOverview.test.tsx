@@ -4,41 +4,31 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createAppAdapters, type AppAdapters } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
 import {
-  createActivityCatalogPayload,
+  createAdminUser,
   createAuthenticatedUser,
   createAuthTokens,
-  createCareer,
   createOperationsReadModel,
-  createOrganizationalUnit,
-  createUser,
 } from "@/test/factories";
 import { renderHookWithProviders } from "@/test/render";
 
 import { useUsersOverview } from "./useUsersOverview";
 
+const softwareCareer = { code: "SOFTWARE", id: "software", name: "Desarrollo de Software" };
+const fiscUnit = { code: "FISC", id: "fisc", name: "Facultad de Ingenieria de Sistemas" };
+
 function buildAdapters(overrides: Partial<AppAdapters> = {}): AppAdapters {
   return {
     ...createAppAdapters({ source: "mock" }),
-    activityCatalog: { loadCatalog: vi.fn().mockResolvedValue(createActivityCatalogPayload()) },
-    careers: { loadCareers: vi.fn().mockResolvedValue([createCareer()]) },
-    operations: {
-      loadOperations: vi.fn().mockResolvedValue(
-        createOperationsReadModel({
-          users: [
-            createUser({ careerId: "software", id: "user-1", unitId: "fic" }),
-            createUser({ careerId: null, id: "user-2", unitId: null }),
-          ],
-        }),
-      ),
-    },
-    organizationalUnits: {
-      loadOrganizationalUnits: vi.fn().mockResolvedValue([
-        createOrganizationalUnit({
-          code: "FIC",
-          id: "fic",
-          name: "Facultad de Ingenieria Civil",
-        }),
-      ]),
+    careers: { loadCareers: vi.fn().mockResolvedValue([]) },
+    operations: { loadOperations: vi.fn().mockResolvedValue(createOperationsReadModel()) },
+    organizationalUnits: { loadOrganizationalUnits: vi.fn().mockResolvedValue([]) },
+    users: {
+      loadUsers: vi
+        .fn()
+        .mockResolvedValue([
+          createAdminUser({ career: softwareCareer, id: "user-1", unit: fiscUnit }),
+          createAdminUser({ career: null, id: "user-2", unit: null }),
+        ]),
     },
     ...overrides,
   };
@@ -56,7 +46,7 @@ describe("useUsersOverview", () => {
     useSessionStore.getState().clearSession();
   });
 
-  it("should label users from the career and unit catalogs instead of the operations aggregate", async () => {
+  it("should label users from the embedded references without consulting the catalogs", async () => {
     const adapters = buildAdapters();
     const { result } = renderHookWithProviders(() => useUsersOverview(), { adapters });
 
@@ -65,30 +55,30 @@ describe("useUsersOverview", () => {
     expect(result.current.rows).toEqual([
       {
         careerName: "Desarrollo de Software",
-        unitLabel: "FIC",
-        user: createUser({ careerId: "software", id: "user-1", unitId: "fic" }),
+        unitLabel: "FISC",
+        user: createAdminUser({ career: softwareCareer, id: "user-1", unit: fiscUnit }),
       },
       {
         careerName: null,
         unitLabel: null,
-        user: createUser({ careerId: null, id: "user-2", unitId: null }),
+        user: createAdminUser({ career: null, id: "user-2", unit: null }),
       },
     ]);
-    expect(adapters.operations.loadOperations).toHaveBeenCalledTimes(1);
-    expect(adapters.activityCatalog.loadCatalog).not.toHaveBeenCalled();
-    expect(adapters.careers.loadCareers).toHaveBeenCalledTimes(1);
-    expect(adapters.organizationalUnits.loadOrganizationalUnits).toHaveBeenCalledTimes(1);
+    expect(adapters.users.loadUsers).toHaveBeenCalledTimes(1);
+    expect(adapters.careers.loadCareers).not.toHaveBeenCalled();
+    expect(adapters.organizationalUnits.loadOrganizationalUnits).not.toHaveBeenCalled();
+    expect(adapters.operations.loadOperations).not.toHaveBeenCalled();
   });
 
-  it("should keep labels empty until the catalogs resolve", async () => {
+  it("should expose the listing failure and keep rows empty", async () => {
     const adapters = buildAdapters({
-      careers: { loadCareers: vi.fn().mockRejectedValue(new Error("carreras caidas")) },
+      users: { loadUsers: vi.fn().mockRejectedValue(new Error("usuarios caidos")) },
     });
     const { result } = renderHookWithProviders(() => useUsersOverview(), { adapters });
 
     await waitFor(() => expect(result.current.error).not.toBeNull());
 
-    expect(result.current.error?.message).toBe("carreras caidas");
-    expect(result.current.rows.map((row) => row.careerName)).toEqual([null, null]);
+    expect(result.current.error?.message).toBe("usuarios caidos");
+    expect(result.current.rows).toEqual([]);
   });
 });

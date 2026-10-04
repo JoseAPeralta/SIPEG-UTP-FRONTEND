@@ -33,7 +33,7 @@ export function createMockCareersAdapter(): CareersAdapter {
       const career = catalog[index];
       if (!career)
         return Promise.reject(new ApiError("No se encontro el recurso solicitado.", 404));
-      if (career.code === "OTROS" || users.some((user) => user.careerId === careerId)) {
+      if (career.code === "OTROS" || users.some((user) => user.career?.id === careerId)) {
         return Promise.reject(
           new ApiError("La operacion entra en conflicto con el estado actual.", 409),
         );
@@ -52,7 +52,7 @@ export function createMockCareersAdapter(): CareersAdapter {
       ) {
         return Promise.reject(new ApiError("La solicitud no es valida.", 400));
       }
-      if (request.unitId !== undefined && users.some((user) => user.careerId === careerId)) {
+      if (request.unitId !== undefined && users.some((user) => user.career?.id === careerId)) {
         return Promise.reject(
           new ApiError("La operacion entra en conflicto con el estado actual.", 409),
         );

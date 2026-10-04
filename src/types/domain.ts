@@ -81,17 +81,6 @@ export type AuthTokens = {
  */
 export type SessionEndReason = "expired" | "throttled" | "unavailable";
 
-export type User = {
-  careerId: string | null;
-  email: string;
-  firstName: string;
-  globalRole: GlobalRole;
-  id: string;
-  isActive: boolean;
-  lastName: string;
-  unitId: string | null;
-};
-
 export type EventProgramStatus = "DRAFT" | "ACTIVE" | "COMPLETED" | "CANCELLED" | "ARCHIVED";
 
 export type EventProgram = {
@@ -271,7 +260,6 @@ export type OperationsReadModel = {
   certificates: Certificate[];
   reportMetrics: ReportMetric[];
   speakerProposals: SpeakerProposal[];
-  users: User[];
 };
 
 export type WorkingContext =

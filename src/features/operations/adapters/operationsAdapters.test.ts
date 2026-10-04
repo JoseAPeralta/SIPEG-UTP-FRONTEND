@@ -13,7 +13,6 @@ describe("createMockOperationsAdapter", () => {
     const operations = await createMockOperationsAdapter().loadOperations();
 
     expect(operations).toBe(mockOperationsReadModel);
-    expect(operations.users.length).toBeGreaterThan(0);
     expect(operations.attendanceRecords.length).toBeGreaterThan(0);
   });
 });

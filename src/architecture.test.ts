@@ -282,27 +282,28 @@ const operationsConsumers = new Set([
   "src/features/dashboard/hooks/useDashboardOverview.ts",
   "src/features/reports/hooks/useReportsOverview.ts",
   "src/features/speakers/hooks/useSpeakersOverview.ts",
-  "src/features/users/hooks/useUsersOverview.ts",
 ]);
 
 /**
- * R8: each catalog endpoint is owned by exactly one feature adapter. Without this, a future
- * aggregate adapter could silently reintroduce a duplicated request for the same resource.
+ * R8: each owned endpoint is read from exactly one feature adapter. Without this, a future aggregate
+ * adapter could silently reintroduce a duplicated request for the same resource. `users` joined the
+ * list when Fase 3.1 extracted `/api/v1/admin/users` from the operations aggregate.
  */
-const ownedCatalogEndpoints: readonly { endpoint: string; owner: string }[] = [
+const ownedEndpoints: readonly { endpoint: string; owner: string }[] = [
   {
     endpoint: "/api/v1/organizational-units",
     owner: "src/features/organizational-units/adapters/",
   },
   { endpoint: "/api/v1/careers", owner: "src/features/careers/adapters/" },
   { endpoint: "/api/v1/classrooms", owner: "src/features/classrooms/adapters/" },
+  { endpoint: "/api/v1/admin/users", owner: "src/features/users/adapters/" },
 ];
 
 function collectEndpointOwnershipViolations(files: SourceFileRecord[]): Violation[] {
   const violations: Violation[] = [];
 
   for (const file of files) {
-    for (const { endpoint, owner } of ownedCatalogEndpoints) {
+    for (const { endpoint, owner } of ownedEndpoints) {
       if (!file.sourceText.includes(endpoint) || file.path.startsWith(owner)) {
         continue;
       }
@@ -392,6 +393,15 @@ describe("architecture fitness", () => {
     expect(collectViolations([fixture], checkOperationsConsumer)).toHaveLength(1);
   });
 
+  it("rejects the extracted users overview as an operations consumer", () => {
+    const fixture = createSourceFileRecord(
+      "src/features/users/hooks/useUsersOverview.ts",
+      'import { useOperations } from "@/features/operations";',
+    );
+
+    expect(collectViolations([fixture], checkOperationsConsumer)).toHaveLength(1);
+  });
+
   it("R8: detects a catalog endpoint read outside its owning feature", () => {
     const fixture = createSourceFileRecord(
       "src/features/registration/adapters/apiRegistrationAdapter.ts",
@@ -426,7 +436,7 @@ describe("architecture fitness", () => {
       'import { usePublicActivities } from "@/features/activity-catalog/public";',
     );
     const existingOperationsConsumer = createSourceFileRecord(
-      "src/features/users/hooks/useUsersOverview.ts",
+      "src/features/certificates/hooks/useCertificatesOverview.ts",
       'import { useOperations } from "@/features/operations";',
     );
     const syntaxFalsePositives = createSourceFileRecord(

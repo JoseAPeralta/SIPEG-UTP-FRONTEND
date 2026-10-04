@@ -18,5 +18,6 @@ export type {
   PasswordResetRequest,
   ProfileUpdateRequest,
   RegistrationAdapter,
+  UsersAdapter,
 } from "./contracts";
 export type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";

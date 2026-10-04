@@ -21,6 +21,8 @@ import {
   createApiRegistrationAdapter,
   createMockRegistrationAdapter,
 } from "@/features/registration/adapters";
+import { createApiUsersAdapter } from "@/features/users/adapters/apiUsersAdapter";
+import { createMockUsersAdapter } from "@/features/users/adapters/mockUsersAdapter";
 import { useSessionStore } from "@/store/session";
 
 export { resolveDataSource } from "./dataSource";
@@ -54,6 +56,7 @@ export function createAppAdapters({
       operations: createUnavailableOperationsAdapter(),
       publicActivityCatalog: createApiPublicActivityCatalogAdapter(apiOptions),
       registration: createApiRegistrationAdapter(apiOptions),
+      users: createApiUsersAdapter(apiOptions, readSessionAccessToken),
     };
   }
 
@@ -66,5 +69,6 @@ export function createAppAdapters({
     operations: createMockOperationsAdapter(),
     publicActivityCatalog: createMockPublicActivityCatalogAdapter(),
     registration: createMockRegistrationAdapter(),
+    users: createMockUsersAdapter(),
   };
 }

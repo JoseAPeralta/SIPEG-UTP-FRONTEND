@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { mockActivityCatalog, mockOperationsReadModel } from "./catalog";
 import { careers } from "./careers";
+import { users } from "./users";
 
 const { activities, classrooms, eventPrograms, organizationalUnits } = mockActivityCatalog;
-const { attendanceRecords, certificates, speakerProposals, users } = mockOperationsReadModel;
+const { attendanceRecords, certificates, speakerProposals } = mockOperationsReadModel;
 
 describe("mock activity catalog", () => {
   it("should keep every activity attached to an existing event program", () => {
@@ -112,13 +113,26 @@ describe("mock activity catalog", () => {
     );
   });
 
-  it("should point every user at existing careers and units", () => {
-    const careerIds = new Set(careers.map((career) => career.id));
-    const unitIds = new Set(organizationalUnits.map((unit) => unit.id));
+  it("should embed career and unit references that match the catalogs", () => {
+    const careersById = new Map(careers.map((career) => [career.id, career]));
+    const unitsById = new Map(organizationalUnits.map((unit) => [unit.id, unit]));
 
     users.forEach((user) => {
-      if (user.careerId !== null) expect(careerIds.has(user.careerId)).toBe(true);
-      if (user.unitId !== null) expect(unitIds.has(user.unitId)).toBe(true);
+      if (user.career !== null) {
+        const career = careersById.get(user.career.id);
+
+        expect(career).toBeDefined();
+        expect(user.career.code).toBe(career?.code);
+        expect(user.career.name).toBe(career?.name);
+      }
+
+      if (user.unit !== null) {
+        const unit = unitsById.get(user.unit.id);
+
+        expect(unit).toBeDefined();
+        expect(user.unit.code).toBe(unit?.code);
+        expect(user.unit.name).toBe(unit?.name);
+      }
     });
   });
 

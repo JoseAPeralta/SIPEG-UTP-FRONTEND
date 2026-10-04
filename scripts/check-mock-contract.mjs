@@ -17,6 +17,31 @@ const ACTIVITY_STATUSES = ["DRAFT", "SCHEDULED", "ONGOING", "COMPLETED", "CANCEL
 const EVENT_PROGRAM_STATUSES = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED", "ARCHIVED"];
 const ORGANIZATIONAL_UNIT_TYPES = ["FACULTY", "SUBDIRECTORATE"];
 const CLASSROOM_TYPES = ["LABORATORY", "CLASSROOM"];
+const GLOBAL_ROLES = ["ADMIN", "USER"];
+const COLLABORATION_ROLES = ["VIEWER", "EDITOR", "ORGANIZER"];
+const PERMISSION_NAMES = [
+  "program:read",
+  "program:create",
+  "program:update",
+  "program:archive",
+  "program:reactivate",
+  "activity:read",
+  "activity:create",
+  "activity:update",
+  "activity:cancel",
+  "activity:delete",
+  "attendance:register",
+  "attendance:checkin",
+  "attendance:manage",
+  "certificate:read",
+  "certificate:generate",
+  "proposal:read",
+  "proposal:review",
+  "proposal:feedback",
+  "report:view",
+  "report:export",
+  "permission:grant",
+];
 
 export const CONTRACT_EXPECTATIONS = [
   {
@@ -259,6 +284,53 @@ export const CONTRACT_EXPECTATIONS = [
     required: ["id", "name", "code", "description", "unit"],
     enums: {},
   },
+  {
+    method: "GET",
+    path: "/api/v1/admin/users",
+    schema: "AdminUser",
+    required: [
+      "id",
+      "firstName",
+      "lastName",
+      "identificationNumber",
+      "email",
+      "globalRole",
+      "isActive",
+      "unit",
+      "career",
+    ],
+    enums: { globalRole: GLOBAL_ROLES },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/event-programs/{id}/collaborators",
+    requestBody: { enums: { role: COLLABORATION_ROLES } },
+  },
+  {
+    method: "PATCH",
+    path: "/api/v1/event-programs/{id}/collaborators/{userId}",
+    requestBody: { enums: { role: COLLABORATION_ROLES } },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/activities/{id}/collaborators",
+    requestBody: { enums: { role: COLLABORATION_ROLES } },
+  },
+  {
+    method: "PATCH",
+    path: "/api/v1/activities/{id}/collaborators/{userId}",
+    requestBody: { enums: { role: COLLABORATION_ROLES } },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/event-programs/{id}/permissions",
+    requestBody: { enums: { permission: PERMISSION_NAMES } },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/activities/{id}/permissions",
+    requestBody: { enums: { permission: PERMISSION_NAMES } },
+  },
 ];
 
 const USAGE = `Usage:
@@ -272,7 +344,7 @@ export function compareContract(document, expectations = CONTRACT_EXPECTATIONS) 
     const label = `${expectation.method} ${expectation.path}`;
     const registeredSchemas = document.components?.schemas ?? {};
 
-    if (!registeredSchemas[expectation.schema]) {
+    if (expectation.schema && !registeredSchemas[expectation.schema]) {
       issues.push(`${label}: el schema ${expectation.schema} ya no existe en el contrato.`);
       continue;
     }
@@ -286,47 +358,67 @@ export function compareContract(document, expectations = CONTRACT_EXPECTATIONS) 
       continue;
     }
 
-    const schema =
-      view.components.schemas?.[expectation.schema] ?? registeredSchemas[expectation.schema];
+    if (expectation.schema) {
+      const schema =
+        view.components.schemas?.[expectation.schema] ?? registeredSchemas[expectation.schema];
+      const required = Array.isArray(schema.required) ? schema.required : [];
 
-    const required = Array.isArray(schema.required) ? schema.required : [];
+      for (const field of expectation.required ?? []) {
+        checks += 1;
+        if (!required.includes(field)) {
+          issues.push(`${label} (${expectation.schema}): falta el campo requerido ${field}.`);
+        }
+      }
 
-    for (const field of expectation.required) {
-      checks += 1;
-      if (!required.includes(field)) {
-        issues.push(`${label} (${expectation.schema}): falta el campo requerido ${field}.`);
+      for (const [field, expectedValues] of Object.entries(expectation.enums ?? {})) {
+        checks += checkEnum(
+          schema,
+          field,
+          expectedValues,
+          `${label} (${expectation.schema})`,
+          issues,
+        );
       }
     }
 
-    for (const [field, expectedValues] of Object.entries(expectation.enums)) {
-      const property = schema.properties?.[field];
-      const actualValues = Array.isArray(property?.enum) ? property.enum : undefined;
-      checks += 1;
+    if (expectation.requestBody) {
+      const bodySchema = view.operation?.requestBody?.content?.["application/json"]?.schema;
 
-      if (!actualValues) {
-        issues.push(`${label} (${expectation.schema}).${field}: el campo ya no declara enum.`);
-        continue;
-      }
-
-      for (const value of expectedValues) {
-        if (!actualValues.includes(value)) {
-          issues.push(
-            `${label} (${expectation.schema}).${field}: el contrato ya no incluye ${value}; actualiza dominio, mappers, mocks y tests.`,
-          );
-        }
-      }
-
-      for (const value of actualValues) {
-        if (!expectedValues.includes(value)) {
-          issues.push(
-            `${label} (${expectation.schema}).${field}: nuevo valor ${value} en el contrato; actualiza dominio, mappers, mocks y tests.`,
-          );
-        }
+      for (const [field, expectedValues] of Object.entries(expectation.requestBody.enums ?? {})) {
+        checks += checkEnum(bodySchema, field, expectedValues, `${label} (requestBody)`, issues);
       }
     }
   }
 
   return { checks, issues };
+}
+
+function checkEnum(schema, field, expectedValues, label, issues) {
+  const property = schema?.properties?.[field];
+  const actualValues = Array.isArray(property?.enum) ? property.enum : undefined;
+
+  if (!actualValues) {
+    issues.push(`${label}.${field}: el campo ya no declara enum.`);
+    return 1;
+  }
+
+  for (const value of expectedValues) {
+    if (!actualValues.includes(value)) {
+      issues.push(
+        `${label}.${field}: el contrato ya no incluye ${value}; actualiza dominio, mappers, mocks y tests.`,
+      );
+    }
+  }
+
+  for (const value of actualValues) {
+    if (!expectedValues.includes(value)) {
+      issues.push(
+        `${label}.${field}: nuevo valor ${value} en el contrato; actualiza dominio, mappers, mocks y tests.`,
+      );
+    }
+  }
+
+  return 1;
 }
 
 export function parseSource(argumentsList) {

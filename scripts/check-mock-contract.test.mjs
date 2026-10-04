@@ -32,34 +32,49 @@ function buildDocument(expectations = CONTRACT_EXPECTATIONS) {
   const paths = {};
 
   for (const expectation of expectations) {
-    const properties = Object.fromEntries(
-      expectation.required.map((field) => [field, { type: "string" }]),
-    );
-    for (const [field, values] of Object.entries(expectation.enums)) {
-      properties[field] = { enum: [...values], type: "string" };
-    }
-
-    schemas[expectation.schema] = {
-      properties,
-      required: [...expectation.required],
-      type: "object",
-    };
-    // Varias operaciones comparten path (por ejemplo el listado y el alta de aulas), asi que el
-    // metodo se acumula en el mismo item en lugar de reemplazarlo.
-    const pathItem = (paths[expectation.path] ??= {});
-    pathItem[expectation.method.toLowerCase()] = {
+    const operation = {
       responses: {
         200: {
-          content: {
-            "application/json": {
-              schema: { $ref: `#/components/schemas/${expectation.schema}` },
-            },
-          },
+          content: { "application/json": { schema: {} } },
           description: "ok",
         },
       },
       summary: "Fixture",
     };
+
+    if (expectation.schema) {
+      const properties = Object.fromEntries(
+        (expectation.required ?? []).map((field) => [field, { type: "string" }]),
+      );
+      for (const [field, values] of Object.entries(expectation.enums ?? {})) {
+        properties[field] = { enum: [...values], type: "string" };
+      }
+
+      schemas[expectation.schema] = {
+        properties,
+        required: [...(expectation.required ?? [])],
+        type: "object",
+      };
+      operation.responses[200].content["application/json"].schema = {
+        $ref: `#/components/schemas/${expectation.schema}`,
+      };
+    }
+
+    if (expectation.requestBody) {
+      const properties = {};
+      for (const [field, values] of Object.entries(expectation.requestBody.enums ?? {})) {
+        properties[field] = { enum: [...values], type: "string" };
+      }
+      operation.requestBody = {
+        content: { "application/json": { schema: { properties, type: "object" } } },
+        required: true,
+      };
+    }
+
+    // Varias operaciones comparten path (por ejemplo el listado y el alta de aulas), asi que el
+    // metodo se acumula en el mismo item en lugar de reemplazarlo.
+    const pathItem = (paths[expectation.path] ??= {});
+    pathItem[expectation.method.toLowerCase()] = operation;
   }
 
   return {
@@ -78,6 +93,65 @@ describe("compareContract", () => {
       path: "/api/v1/classrooms/available",
       required: ["id", "name", "type", "capacity", "building", "floor", "isActive", "amenities"],
       schema: "ClassroomSummary",
+    });
+  });
+
+  it("should track the administrative users contract", () => {
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      enums: { globalRole: ["ADMIN", "USER"] },
+      method: "GET",
+      path: "/api/v1/admin/users",
+      required: [
+        "id",
+        "firstName",
+        "lastName",
+        "identificationNumber",
+        "email",
+        "globalRole",
+        "isActive",
+        "unit",
+        "career",
+      ],
+      schema: "AdminUser",
+    });
+  });
+
+  it("should track the collaboration roles and permission catalog", () => {
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      method: "POST",
+      path: "/api/v1/event-programs/{id}/collaborators",
+      requestBody: { enums: { role: ["VIEWER", "EDITOR", "ORGANIZER"] } },
+    });
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      method: "POST",
+      path: "/api/v1/event-programs/{id}/permissions",
+      requestBody: {
+        enums: {
+          permission: [
+            "program:read",
+            "program:create",
+            "program:update",
+            "program:archive",
+            "program:reactivate",
+            "activity:read",
+            "activity:create",
+            "activity:update",
+            "activity:cancel",
+            "activity:delete",
+            "attendance:register",
+            "attendance:checkin",
+            "attendance:manage",
+            "certificate:read",
+            "certificate:generate",
+            "proposal:read",
+            "proposal:review",
+            "proposal:feedback",
+            "report:view",
+            "report:export",
+            "permission:grant",
+          ],
+        },
+      },
     });
   });
 
@@ -142,6 +216,65 @@ describe("compareContract", () => {
     const { issues } = compareContract(document);
 
     expect(issues.some((issue) => issue.includes("nuevo valor RESCHEDULED"))).toBe(true);
+  });
+
+  it("should report a collaboration role removed from the request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/event-programs/{id}/collaborators"].post.requestBody.content[
+      "application/json"
+    ].schema.properties.role.enum = ["VIEWER", "EDITOR"];
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("ya no incluye ORGANIZER"))).toBe(true);
+  });
+
+  it("should report a new collaboration role in the request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}/collaborators"].post.requestBody.content[
+      "application/json"
+    ].schema.properties.role.enum.push("OWNER");
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("nuevo valor OWNER"))).toBe(true);
+  });
+
+  it("should report a permission removed from the request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/event-programs/{id}/permissions"].post.requestBody.content[
+      "application/json"
+    ].schema.properties.permission.enum = ["program:read"];
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("ya no incluye activity:update"))).toBe(true);
+  });
+
+  it("should report a new permission in the request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}/permissions"].post.requestBody.content[
+      "application/json"
+    ].schema.properties.permission.enum.push("activity:teleport");
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("nuevo valor activity:teleport"))).toBe(true);
+  });
+
+  it("should report a missing collaboration operation", () => {
+    const document = buildDocument();
+    delete document.paths["/api/v1/event-programs/{id}/permissions"];
+
+    const { issues } = compareContract(document);
+
+    expect(
+      issues.some(
+        (issue) =>
+          issue.includes("POST /api/v1/event-programs/{id}/permissions") &&
+          issue.includes("ya no existe"),
+      ),
+    ).toBe(true);
   });
 });
 

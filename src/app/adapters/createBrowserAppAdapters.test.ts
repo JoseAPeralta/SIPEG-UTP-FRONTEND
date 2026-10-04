@@ -1,9 +1,26 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createAuthTokens, createAuthenticatedUser, createClassroomDetail } from "@/test/factories";
+import {
+  createAuthTokens,
+  createAuthenticatedUser,
+  createAdminUser,
+  createClassroomDetail,
+} from "@/test/factories";
 import { useSessionStore } from "@/store/session";
 
 import { createBrowserAppAdapters } from "./createBrowserAppAdapters";
+
+function toUrl(input: RequestInfo | URL): string {
+  if (typeof input === "string") {
+    return input;
+  }
+
+  if (input instanceof URL) {
+    return input.href;
+  }
+
+  return input.url;
+}
 
 describe("createBrowserAppAdapters", () => {
   afterEach(() => useSessionStore.getState().clearSession());
@@ -14,6 +31,7 @@ describe("createBrowserAppAdapters", () => {
     expect(adapters.auth.refresh).toBeTypeOf("function");
     expect(adapters.publicActivityCatalog.loadPublicActivities).toBeTypeOf("function");
     expect(adapters.classrooms.loadClassrooms).toBeTypeOf("function");
+    expect(adapters.users.loadUsers).toBeTypeOf("function");
   });
 
   it("keeps port methods added after the composition root was written reachable", async () => {
@@ -71,6 +89,45 @@ describe("createBrowserAppAdapters", () => {
     });
 
     const [, requestInit] = fetcher.mock.calls[0] ?? [];
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBe(
+      "Bearer current-access-token",
+    );
+  });
+
+  it("reads the current access token when a deferred user listing runs", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens({ accessToken: "current-access-token" }),
+    });
+    const fetcher = vi.fn((input: RequestInfo | URL, requestInit?: RequestInit) => {
+      void input;
+      void requestInit;
+
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            data: { items: [createAdminUser()], limit: 50, page: 1, total: 1, totalPages: 1 },
+            message: "ok",
+            success: true,
+          }),
+          { headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    });
+    const adapters = createBrowserAppAdapters({
+      apiOptions: {
+        environment: { DEV: false, PROD: true, VITE_API_BASE_URL: "https://api.test" },
+        fetcher,
+      },
+      source: "api",
+    });
+
+    await adapters.users.loadUsers();
+
+    const urls = fetcher.mock.calls.map(([input]) => toUrl(input));
+    const [, requestInit] = fetcher.mock.calls[0] ?? [];
+
+    expect(urls[0]).toContain("/api/v1/admin/users?page=1&limit=50");
     expect(new Headers(requestInit?.headers).get("Authorization")).toBe(
       "Bearer current-access-token",
     );

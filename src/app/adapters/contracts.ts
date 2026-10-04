@@ -22,6 +22,7 @@ import type {
 } from "@/features/careers/model/careerRequests";
 import type { ClassroomDetail } from "@/features/classrooms/model/classroomDetail";
 import type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";
+import type { AdminUser } from "@/features/users/model/adminUser";
 import type {
   AddClassroomAvailabilityRequest,
   CreateClassroomRequest,
@@ -172,6 +173,17 @@ export type OperationsAdapter = {
   loadOperations: () => Promise<OperationsReadModel>;
 };
 
+/**
+ * Listado administrativo de cuentas.
+ *
+ * En 3.1 recorre todas las paginas y aplana los items para conservar la pantalla actual; el mapper
+ * valida y conserva la metadata por pagina para que 3.2 pueda paginar en la UI sin rehacer el
+ * contrato. La autorizacion final sigue siendo del backend: este puerto solo transporta.
+ */
+export type UsersAdapter = {
+  loadUsers: () => Promise<AdminUser[]>;
+};
+
 export type RegistrationAdapter = {
   register: (payload: RegistrationPayload) => Promise<RegistrationResult>;
 };
@@ -185,4 +197,5 @@ export type AppAdapters = {
   operations: OperationsAdapter;
   publicActivityCatalog: PublicActivityCatalogAdapter;
   registration: RegistrationAdapter;
+  users: UsersAdapter;
 };

@@ -11,12 +11,12 @@ import type {
   OperationsReadModel,
   OrganizationalUnit,
   SpeakerProposal,
-  User,
 } from "@/types/domain";
 import type {
   ClassroomAvailability,
   ClassroomDetail,
 } from "@/features/classrooms/model/classroomDetail";
+import type { AdminUser } from "@/features/users/model/adminUser";
 
 export function createAuthenticatedUser(
   overrides: Partial<AuthenticatedUser> = {},
@@ -44,16 +44,17 @@ export function createAuthTokens(overrides: Partial<AuthTokens> = {}): AuthToken
   };
 }
 
-export function createUser(overrides: Partial<User> = {}): User {
+export function createAdminUser(overrides: Partial<AdminUser> = {}): AdminUser {
   return {
-    careerId: null,
+    career: null,
     email: "admin@example.edu",
     firstName: "Mariana",
     globalRole: "ADMIN",
     id: "user-1",
+    identificationNumber: "8-123-456",
     isActive: true,
     lastName: "Rodriguez",
-    unitId: null,
+    unit: null,
     ...overrides,
   };
 }
@@ -118,7 +119,6 @@ export function createOperationsReadModel(
     certificates: [],
     reportMetrics: [],
     speakerProposals: [],
-    users: [createUser()],
     ...overrides,
   };
 }

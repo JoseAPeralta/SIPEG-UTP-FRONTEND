@@ -1,44 +1,57 @@
-import type { User } from "@/types/domain";
+import type { AdminUser } from "@/features/users/model/adminUser";
 
-export const users: User[] = [
+/**
+ * Cuentas de demostracion con las referencias institucionales embebidas que exige `AdminUser`.
+ * Los nombres y codigos coinciden con los catalogos de `./careers` y `./organizationalUnits`,
+ * porque la pantalla administrativa ya no consulta esos catalogos para etiquetar una fila.
+ */
+export const users: AdminUser[] = [
   {
-    careerId: "software",
+    career: { code: "SOFTWARE", id: "software", name: "Desarrollo de Software" },
     email: "mariana.rodriguez@example.edu",
     firstName: "Mariana",
     globalRole: "ADMIN",
     id: "user-1",
+    identificationNumber: "8-888-1234",
     isActive: true,
     lastName: "Rodriguez",
-    unitId: "fisc",
+    unit: {
+      code: "FISC",
+      id: "fisc",
+      name: "Facultad de Ingenieria de Sistemas Computacionales",
+    },
   },
   {
-    careerId: "civil",
+    career: { code: "CIVIL", id: "civil", name: "Ingenieria Civil" },
     email: "carlos.mendez@example.edu",
     firstName: "Carlos",
     globalRole: "USER",
     id: "user-2",
+    identificationNumber: "8-712-4455",
     isActive: true,
     lastName: "Mendez",
-    unitId: "fic",
+    unit: { code: "FIC", id: "fic", name: "Facultad de Ingenieria Civil" },
   },
   {
-    careerId: "electrical",
+    career: { code: "ELECTRICAL", id: "electrical", name: "Ingenieria Electrica" },
     email: "laura.chen@example.edu",
     firstName: "Laura",
     globalRole: "USER",
     id: "user-3",
+    identificationNumber: "8-655-9021",
     isActive: true,
     lastName: "Chen",
-    unitId: "fie",
+    unit: { code: "FIE", id: "fie", name: "Facultad de Ingenieria Electrica" },
   },
   {
-    careerId: "mechanical",
+    career: { code: "MECHANICAL", id: "mechanical", name: "Ingenieria Mecanica" },
     email: "jorge.santos@example.edu",
     firstName: "Jorge",
     globalRole: "USER",
     id: "user-4",
+    identificationNumber: "8-590-3377",
     isActive: true,
     lastName: "Santos",
-    unitId: "fim",
+    unit: { code: "FIM", id: "fim", name: "Facultad de Ingenieria Mecanica" },
   },
 ];

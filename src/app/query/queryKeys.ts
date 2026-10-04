@@ -21,6 +21,7 @@ export const queryKeys = {
     ["administrative-organizational-unit-detail", userId] as const,
   administrativeOrganizationalUnits: (userId: string) =>
     ["administrative-organizational-units", userId] as const,
+  administrativeUsers: (userId: string) => ["administrative-users", userId] as const,
   availableClassrooms: (criteria: AvailableClassroomsCriteria | null) =>
     ["available-classrooms", criteria] as const,
   /** Raiz que alcanza toda consulta de disponibilidad, cualquiera sea su criterio. */

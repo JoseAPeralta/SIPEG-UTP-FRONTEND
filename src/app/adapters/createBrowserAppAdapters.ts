@@ -101,5 +101,14 @@ export function createBrowserAppAdapters({
             ({ createMockRegistrationAdapter }) => createMockRegistrationAdapter(),
           ),
     ),
+    users: createDeferredAdapter(async () =>
+      isApi
+        ? import("@/features/users/adapters/apiUsersAdapter").then(({ createApiUsersAdapter }) =>
+            createApiUsersAdapter(apiOptions, readSessionAccessToken),
+          )
+        : import("@/features/users/adapters/mockUsersAdapter").then(({ createMockUsersAdapter }) =>
+            createMockUsersAdapter(),
+          ),
+    ),
   };
 }

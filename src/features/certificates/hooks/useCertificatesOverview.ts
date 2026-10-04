@@ -2,11 +2,13 @@ import { useMemo } from "react";
 
 import { useOperations } from "@/features/operations";
 import { countGeneratedCertificates, filterCertificatesByScope } from "@/features/reports";
+import { useUsers } from "@/features/users";
 import { useWorkingContext } from "@/features/working-context";
 
 export function useCertificatesOverview() {
   const { catalog, error: catalogError, isLoading: isCatalogLoading, scope } = useWorkingContext();
   const { error: operationsError, isLoading: isOperationsLoading, operations } = useOperations();
+  const { error: usersError, isLoading: isUsersLoading, users } = useUsers();
 
   const certificates = useMemo(() => {
     if (!operations || !scope) {
@@ -20,7 +22,7 @@ export function useCertificatesOverview() {
     const activityById = new Map(
       (catalog?.activities ?? []).map((activity) => [activity.id, activity]),
     );
-    const userById = new Map((operations?.users ?? []).map((user) => [user.id, user]));
+    const userById = new Map((users ?? []).map((user) => [user.id, user]));
 
     return certificates.map((certificate) => {
       const user = userById.get(certificate.userId);
@@ -31,12 +33,12 @@ export function useCertificatesOverview() {
         userName: user ? `${user.firstName} ${user.lastName}` : null,
       };
     });
-  }, [catalog, certificates, operations]);
+  }, [catalog, certificates, users]);
 
   return {
-    error: catalogError ?? operationsError,
+    error: catalogError ?? operationsError ?? usersError,
     generatedCount: countGeneratedCertificates(certificates),
-    isLoading: isCatalogLoading || isOperationsLoading,
+    isLoading: isCatalogLoading || isOperationsLoading || isUsersLoading,
     rows,
     scope,
   };

@@ -31,6 +31,7 @@ describe("createAppAdapters", () => {
     await expect(adapters.classrooms.loadClassrooms()).resolves.toBeTruthy();
     await expect(adapters.organizationalUnits.loadOrganizationalUnits()).resolves.toBeTruthy();
     expect(adapters.registration.register).toBeTypeOf("function");
+    await expect(adapters.users.loadUsers()).resolves.toBeTruthy();
     await expect(adapters.operations.loadOperations()).resolves.toBeTruthy();
   });
 
@@ -76,5 +77,22 @@ describe("createAppAdapters", () => {
     const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
 
     expect(new Headers(requestInit?.headers).get("Authorization")).toBeNull();
+  });
+
+  it("should authenticate the administrative user listing with the in-memory session token", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens({ accessToken: "session-access-token" }),
+    });
+    const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
+
+    await expect(adapters.users.loadUsers()).rejects.toThrow(/conectar/i);
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBe(
+      "Bearer session-access-token",
+    );
   });
 });
