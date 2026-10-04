@@ -35,6 +35,12 @@ function toUrl(input: RequestInfo | URL): string {
   return input.url;
 }
 
+function parseJsonBody(body: BodyInit | null | undefined) {
+  if (typeof body !== "string")
+    throw new Error("El cuerpo de la solicitud debe ser JSON serializado.");
+  return JSON.parse(body) as unknown;
+}
+
 describe("createApiCareersAdapter", () => {
   it("should load every page anonymously", async () => {
     const fetcher = vi.fn((input: RequestInfo | URL, requestInit?: RequestInit) => {
@@ -52,5 +58,71 @@ describe("createApiCareersAdapter", () => {
     for (const [, requestInit] of fetcher.mock.calls) {
       expect(new Headers(requestInit?.headers).get("Authorization")).toBeNull();
     }
+  });
+
+  it("should send administrative commands with the current bearer token", async () => {
+    let call = 0;
+    const fetch = vi.fn((...args: Parameters<typeof globalThis.fetch>) => {
+      void args;
+      call += 1;
+      return Promise.resolve(
+        call === 3
+          ? new Response(null, { status: 204 })
+          : new Response(JSON.stringify({ data: career, message: "ok", success: true })),
+      );
+    });
+    const fetcher = fetch as unknown as typeof globalThis.fetch;
+    const adapter = createApiCareersAdapter({ environment, fetcher }, () => "access-token");
+
+    await adapter.createCareer!({
+      code: "DATA",
+      description: null,
+      name: "Ciencia de Datos",
+      unitId: "unit-1",
+    });
+    await adapter.updateCareer!("career-1", { name: "Datos Aplicados" });
+    await adapter.deleteCareer!("career-1");
+
+    const [createCall, updateCall, deleteCall] = fetch.mock.calls;
+    expect(createCall?.[0]).toContain("/api/v1/careers");
+    expect(createCall?.[1]).toMatchObject({ method: "POST" });
+    expect(new Headers(createCall?.[1]?.headers).get("Authorization")).toBe("Bearer access-token");
+    expect(parseJsonBody(createCall?.[1]?.body)).toEqual({
+      code: "DATA",
+      description: null,
+      name: "Ciencia de Datos",
+      unitId: "unit-1",
+    });
+    expect(updateCall?.[0]).toContain("/api/v1/careers/career-1");
+    expect(parseJsonBody(updateCall?.[1]?.body)).toEqual({ name: "Datos Aplicados" });
+    expect(deleteCall?.[1]).toMatchObject({ method: "DELETE" });
+  });
+
+  it("only serializes contract fields for a create request", async () => {
+    const fetch = vi.fn((...args: Parameters<typeof globalThis.fetch>) => {
+      void args;
+      return Promise.resolve(
+        new Response(JSON.stringify({ data: career, message: "ok", success: true })),
+      );
+    });
+    const adapter = createApiCareersAdapter(
+      { environment, fetcher: fetch as unknown as typeof globalThis.fetch },
+      () => "access-token",
+    );
+
+    await adapter.createCareer!({
+      code: "DATA",
+      description: null,
+      name: "Ciencia de Datos",
+      unitId: null,
+      unsafe: "ignored",
+    } as unknown as Parameters<NonNullable<typeof adapter.createCareer>>[0]);
+
+    expect(parseJsonBody(fetch.mock.calls[0]?.[1]?.body)).toEqual({
+      code: "DATA",
+      description: null,
+      name: "Ciencia de Datos",
+      unitId: null,
+    });
   });
 });

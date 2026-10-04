@@ -4,12 +4,29 @@ import type {
   AuthTokens,
   Career,
   Classroom,
+  ClassroomType,
   OrganizationalUnit,
   OperationsReadModel,
   PublicActivityCatalog,
   RegistrationPayload,
   RegistrationResult,
 } from "@/types/domain";
+import type { OrganizationalUnitDetail } from "@/features/organizational-units/model/organizationalUnitDetail";
+import type {
+  CreateOrganizationalUnitRequest,
+  UpdateOrganizationalUnitRequest,
+} from "@/features/organizational-units/model/organizationalUnitRequests";
+import type {
+  CreateCareerRequest,
+  UpdateCareerRequest,
+} from "@/features/careers/model/careerRequests";
+import type { ClassroomDetail } from "@/features/classrooms/model/classroomDetail";
+import type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";
+import type {
+  AddClassroomAvailabilityRequest,
+  CreateClassroomRequest,
+  UpdateClassroomRequest,
+} from "@/features/classrooms/model/classroomRequests";
 
 export type AuthCredentials = {
   email: string;
@@ -18,16 +35,61 @@ export type AuthCredentials = {
 
 export type ActivityCatalogAccess = "administrative" | "public";
 
+/**
+ * Filtros del listado de aulas, uno por parametro del contrato.
+ *
+ * `isActive` es triestado a proposito: el backend devuelve solo aulas activas cuando se omite, de
+ * modo que la agenda publica no necesita decir nada, el panel puede pedir las inactivas y el filtro
+ * "todas" obliga a recorrer las dos listas en lugar de fingir un parametro que el contrato no
+ * acepta.
+ */
+export type ClassroomFilters = {
+  amenity?: string;
+  isActive?: "active" | "all" | "inactive";
+  minCapacity?: number;
+  type?: ClassroomType;
+};
+
 export type OrganizationalUnitsAdapter = {
+  createOrganizationalUnit?: (
+    request: CreateOrganizationalUnitRequest,
+  ) => Promise<OrganizationalUnitDetail>;
+  deactivateOrganizationalUnit?: (unitId: string) => Promise<OrganizationalUnitDetail>;
+  getOrganizationalUnit?: (unitId: string) => Promise<OrganizationalUnitDetail>;
   loadOrganizationalUnits: () => Promise<OrganizationalUnit[]>;
+  reactivateOrganizationalUnit?: (unitId: string) => Promise<OrganizationalUnitDetail>;
+  updateOrganizationalUnit?: (
+    unitId: string,
+    request: UpdateOrganizationalUnitRequest,
+  ) => Promise<OrganizationalUnitDetail>;
 };
 
 export type CareersAdapter = {
+  createCareer?: (request: CreateCareerRequest) => Promise<Career>;
+  deleteCareer?: (careerId: string) => Promise<void>;
   loadCareers: () => Promise<Career[]>;
+  updateCareer?: (careerId: string, request: UpdateCareerRequest) => Promise<Career>;
 };
 
 export type ClassroomsAdapter = {
-  loadClassrooms: () => Promise<Classroom[]>;
+  addClassroomAmenity?: (classroomId: string, amenity: string) => Promise<ClassroomDetail>;
+  addClassroomAvailability?: (
+    classroomId: string,
+    request: AddClassroomAvailabilityRequest,
+  ) => Promise<ClassroomDetail>;
+  createClassroom?: (request: CreateClassroomRequest) => Promise<ClassroomDetail>;
+  getClassroom?: (classroomId: string) => Promise<ClassroomDetail>;
+  loadAvailableClassrooms?: (criteria: AvailableClassroomsCriteria) => Promise<Classroom[]>;
+  loadClassrooms: (filters?: ClassroomFilters) => Promise<Classroom[]>;
+  removeClassroomAmenity?: (classroomId: string, amenity: string) => Promise<ClassroomDetail>;
+  removeClassroomAvailability?: (
+    classroomId: string,
+    availabilityId: string,
+  ) => Promise<ClassroomDetail>;
+  updateClassroom?: (
+    classroomId: string,
+    request: UpdateClassroomRequest,
+  ) => Promise<ClassroomDetail>;
 };
 
 export type PasswordResetRequest = {

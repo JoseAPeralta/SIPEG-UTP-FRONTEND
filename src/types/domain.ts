@@ -18,6 +18,7 @@ export type OrganizationalUnit = {
 
 export type Career = {
   code: string;
+  description?: string | null;
   id: string;
   name: string;
   unitId: string | null;

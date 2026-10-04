@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { mapCareer, mapCareersPage } from "./careersMapper";
+import { mapCareer, mapCareerResponse, mapCareersPage } from "./careersMapper";
 
 const career = {
   code: "SOFTWARE",
@@ -12,7 +12,11 @@ const career = {
 
 describe("careersMapper", () => {
   it("should map institutional and global careers", () => {
-    expect(mapCareer(career)).toMatchObject({ id: "career-1", unitId: "unit-1" });
+    expect(mapCareer(career)).toMatchObject({
+      description: "Desarrollo de software",
+      id: "career-1",
+      unitId: "unit-1",
+    });
     expect(mapCareer({ ...career, code: "OTROS", id: "other", unit: null })).toMatchObject({
       unitId: null,
     });
@@ -31,5 +35,14 @@ describe("careersMapper", () => {
   it("should reject missing contracted fields", () => {
     expect(() => mapCareer({ ...career, description: undefined })).toThrow(/description/);
     expect(() => mapCareer({ ...career, unit: { id: "unit-1" } })).toThrow(/code/);
+  });
+
+  it("validates successful mutation envelopes before exposing a career", () => {
+    expect(
+      mapCareerResponse({ data: career, message: "ok", success: true }, "careers.create"),
+    ).toMatchObject({ id: "career-1" });
+    expect(() => mapCareerResponse({ data: career, message: "no", success: false })).toThrow(
+      /success/,
+    );
   });
 });

@@ -1,14 +1,45 @@
 import type { CareersAdapter } from "@/app/adapters/contracts";
 import { apiRequest, type ApiClientOptions } from "@/app/adapters/http/apiClient";
 
-import { mapCareersPage } from "./careersMapper";
+import { mapCareerResponse, mapCareersPage } from "./careersMapper";
+import type { CreateCareerRequest, UpdateCareerRequest } from "../model/careerRequests";
 
 const PAGE_LIMIT = 50;
 
 export type ApiCareersAdapterOptions = Pick<ApiClientOptions, "environment" | "fetcher">;
 
-export function createApiCareersAdapter(options: ApiCareersAdapterOptions = {}): CareersAdapter {
+type AccessTokenReader = () => string | null | undefined;
+
+function jsonRequest(method: "PATCH" | "POST", body: unknown): RequestInit {
+  return { body: JSON.stringify(body), headers: { "Content-Type": "application/json" }, method };
+}
+
+export function createApiCareersAdapter(
+  options: ApiCareersAdapterOptions = {},
+  readAccessToken: AccessTokenReader = () => null,
+): CareersAdapter {
   return {
+    async createCareer(request: CreateCareerRequest) {
+      const body: CreateCareerRequest = {
+        code: request.code,
+        description: request.description,
+        name: request.name,
+        unitId: request.unitId,
+      };
+      const payload = await apiRequest<unknown>("/api/v1/careers", {
+        ...options,
+        auth: { accessToken: readAccessToken(), mode: "bearer" },
+        requestInit: jsonRequest("POST", body),
+      });
+      return mapCareerResponse(payload, "careers.create");
+    },
+    async deleteCareer(careerId: string) {
+      await apiRequest<void>(`/api/v1/careers/${encodeURIComponent(careerId)}`, {
+        ...options,
+        auth: { accessToken: readAccessToken(), mode: "bearer" },
+        requestInit: { method: "DELETE" },
+      });
+    },
     async loadCareers() {
       const careers = [];
       let page = 1;
@@ -26,6 +57,19 @@ export function createApiCareersAdapter(options: ApiCareersAdapterOptions = {}):
       } while (page <= totalPages);
 
       return careers;
+    },
+    async updateCareer(careerId: string, request: UpdateCareerRequest) {
+      const body: UpdateCareerRequest = {};
+      if (request.name !== undefined) body.name = request.name;
+      if (request.code !== undefined) body.code = request.code;
+      if (request.description !== undefined) body.description = request.description;
+      if (request.unitId !== undefined) body.unitId = request.unitId;
+      const payload = await apiRequest<unknown>(`/api/v1/careers/${encodeURIComponent(careerId)}`, {
+        ...options,
+        auth: { accessToken: readAccessToken(), mode: "bearer" },
+        requestInit: jsonRequest("PATCH", body),
+      });
+      return mapCareerResponse(payload, "careers.update");
     },
   };
 }

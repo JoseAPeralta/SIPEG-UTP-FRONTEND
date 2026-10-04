@@ -57,10 +57,18 @@ export function mapCareer(raw: unknown, context = "career"): Career {
 
   return {
     code: readString(career["code"], `${context}.code`),
+    description: readNullableString(career["description"], `${context}.description`),
     id: readString(career["id"], `${context}.id`),
     name: readString(career["name"], `${context}.name`),
     unitId,
   };
+}
+
+export function mapCareerResponse(payload: unknown, context = "careerResponse"): Career {
+  const envelope = readObject(payload, context);
+  if (envelope["success"] !== true) fail(`${context}.success`, "debe ser true");
+  readString(envelope["message"], `${context}.message`);
+  return mapCareer(envelope["data"], `${context}.data`);
 }
 
 export function mapCareersPage(payload: unknown, context = "careers") {
