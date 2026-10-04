@@ -1,5 +1,11 @@
 import type { OrganizationalUnit, OrganizationalUnitType } from "@/types/domain";
 
+import type {
+  DefaultEventProgram,
+  OrganizationalUnitCareer,
+  OrganizationalUnitDetail,
+} from "../model/organizationalUnitDetail";
+
 export class OrganizationalUnitsMappingError extends Error {
   constructor(message: string) {
     super(message);
@@ -8,6 +14,13 @@ export class OrganizationalUnitsMappingError extends Error {
 }
 
 const UNIT_TYPES: readonly OrganizationalUnitType[] = ["FACULTY", "SUBDIRECTORATE"];
+const PROGRAM_STATUSES: readonly DefaultEventProgram["status"][] = [
+  "DRAFT",
+  "ACTIVE",
+  "COMPLETED",
+  "CANCELLED",
+  "ARCHIVED",
+];
 
 function fail(context: string, detail: string): never {
   throw new OrganizationalUnitsMappingError(`${context}: ${detail}`);
@@ -82,6 +95,53 @@ export function mapOrganizationalUnit(
     isActive: readBoolean(unit["isActive"], `${context}.isActive`),
     name: readString(unit["name"], `${context}.name`),
     type: type as OrganizationalUnitType,
+  };
+}
+
+function mapCareer(value: unknown, context: string): OrganizationalUnitCareer {
+  const career = readObject(value, context);
+
+  return {
+    code: readString(career["code"], `${context}.code`),
+    id: readString(career["id"], `${context}.id`),
+    name: readString(career["name"], `${context}.name`),
+  };
+}
+
+function mapDefaultProgram(value: unknown, context: string): DefaultEventProgram | null {
+  if (value === null) return null;
+  const program = readObject(value, context);
+  const status = program["status"];
+
+  if (
+    typeof status !== "string" ||
+    !PROGRAM_STATUSES.includes(status as DefaultEventProgram["status"])
+  ) {
+    fail(`${context}.status`, `valor fuera del contrato: ${String(status)}`);
+  }
+
+  return {
+    id: readString(program["id"], `${context}.id`),
+    name: readString(program["name"], `${context}.name`),
+    status: status as DefaultEventProgram["status"],
+  };
+}
+
+export function mapOrganizationalUnitDetail(
+  payload: unknown,
+  context = "organizationalUnitDetail",
+): OrganizationalUnitDetail {
+  const envelope = readObject(payload, context);
+  if (envelope["success"] !== true) fail(`${context}.success`, "debe ser true");
+  readString(envelope["message"], `${context}.message`);
+  const detail = readObject(envelope["data"], `${context}.data`);
+
+  return {
+    ...mapOrganizationalUnit(detail, `${context}.data`),
+    careers: readArray(detail["careers"], `${context}.data.careers`).map((career, index) =>
+      mapCareer(career, `${context}.data.careers[${index}]`),
+    ),
+    defaultProgram: mapDefaultProgram(detail["defaultProgram"], `${context}.data.defaultProgram`),
   };
 }
 

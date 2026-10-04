@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { mapOrganizationalUnit, mapOrganizationalUnitsPage } from "./organizationalUnitsMapper";
+import {
+  mapOrganizationalUnit,
+  mapOrganizationalUnitDetail,
+  mapOrganizationalUnitsPage,
+} from "./organizationalUnitsMapper";
 
 const unit = {
   code: "FISC",
@@ -37,5 +41,17 @@ describe("organizationalUnitsMapper", () => {
         success: true,
       }),
     ).toThrow(/page/);
+  });
+
+  it("should map the unit detail returned by lifecycle mutations", () => {
+    const detail = {
+      ...unit,
+      careers: [{ code: "LICS", id: "career-1", name: "Licenciatura en Sistemas" }],
+      defaultProgram: { id: "program-1", name: "Agenda permanente", status: "ACTIVE" },
+    };
+
+    expect(mapOrganizationalUnitDetail({ data: detail, message: "ok", success: true })).toEqual(
+      detail,
+    );
   });
 });

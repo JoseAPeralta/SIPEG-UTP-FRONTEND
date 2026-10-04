@@ -38,3 +38,45 @@ export const organizationalUnits: OrganizationalUnit[] = [
     type: "FACULTY",
   },
 ];
+
+/**
+ * Estado de demostracion del programa predeterminado de cada unidad. `hasScheduledActivities`
+ * reproduce la unica regla contractual que bloquea la desactivacion: el backend la rechaza con `409`
+ * mientras el programa tiene actividades programadas o en curso.
+ */
+export type OrganizationalUnitDefaultProgramSeed = {
+  hasScheduledActivities: boolean;
+  id: string;
+  name: string;
+  status: "ACTIVE" | "ARCHIVED";
+};
+
+export const organizationalUnitDefaultPrograms: Record<
+  string,
+  OrganizationalUnitDefaultProgramSeed
+> = {
+  fic: {
+    hasScheduledActivities: false,
+    id: "program-fic",
+    name: "Agenda permanente",
+    status: "ACTIVE",
+  },
+  fisc: {
+    hasScheduledActivities: true,
+    id: "program-fisc",
+    name: "Agenda permanente",
+    status: "ACTIVE",
+  },
+  fie: {
+    hasScheduledActivities: false,
+    id: "program-fie",
+    name: "Agenda permanente",
+    status: "ACTIVE",
+  },
+  fim: {
+    hasScheduledActivities: false,
+    id: "program-fim",
+    name: "Agenda permanente",
+    status: "ACTIVE",
+  },
+};

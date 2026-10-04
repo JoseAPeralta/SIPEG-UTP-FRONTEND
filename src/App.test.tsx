@@ -24,6 +24,12 @@ const personalAreaSections = [
   { content: /descargar los certificados/i, label: "Mis certificados", path: "certificados" },
 ] as const satisfies readonly { content: RegExp; label: string; path: string }[];
 
+const institutionalAdminRoutes = [
+  { heading: /^Aulas$/, path: "aulas" },
+  { heading: "Unidades organizativas", path: "unidades" },
+  { heading: "Carreras", path: "carreras" },
+] as const;
+
 /**
  * Drives the real router history so the assertion observes the back and forward entries instead of
  * reimplementing their semantics. It renders two controls that no product screen exposes, and it lives
@@ -165,6 +171,8 @@ describe("App", () => {
       await screen.findByRole("heading", { level: 1, name: /cree su cuenta en sipeg/i }),
     ).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: /crear cuenta/i })).toBeEnabled();
+    expect(screen.getByRole("combobox", { name: /unidad \/ facultad/i })).toBeEnabled();
+    expect(screen.getByRole("combobox", { name: /carrera/i })).toBeInTheDocument();
   });
 
   it("should render the password recovery request without an active session", async () => {
@@ -287,10 +295,10 @@ describe("App", () => {
   });
 
   it.each([
-    ["aulas", /aulas disponibles/i],
-    ["ponentes", /registro de ponentes/i],
-    ["usuarios", /usuarios y permisos/i],
-  ])("should render /admin/%s inside the admin layout", async (path, heading) => {
+    ...institutionalAdminRoutes,
+    { heading: /registro de ponentes/i, path: "ponentes" },
+    { heading: /usuarios y permisos/i, path: "usuarios" },
+  ])("should render /admin/$path inside the admin layout", async ({ path, heading }) => {
     useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
 
     renderWithProviders(<App />, { route: `/admin/${path}` });
@@ -300,16 +308,82 @@ describe("App", () => {
   });
 
   it.each([
-    ["aulas", /aulas disponibles/i],
-    ["ponentes", /registro de ponentes/i],
-    ["usuarios", /usuarios y permisos/i],
-  ])("should redirect the legacy /%s route to the admin layout", async (path, heading) => {
+    ...institutionalAdminRoutes,
+    { heading: /registro de ponentes/i, path: "ponentes" },
+    { heading: /usuarios y permisos/i, path: "usuarios" },
+  ])("should redirect the legacy /$path route to the admin layout", async ({ path, heading }) => {
     useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
 
-    renderWithProviders(<App />, { route: `/${path}` });
+    renderWithProviders(
+      <>
+        <App />
+        <HistoryProbe />
+      </>,
+      { route: `/${path}` },
+    );
 
     expect(await screen.findByRole("heading", { level: 1, name: heading })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: /navegacion del panel/i })).toBeInTheDocument();
+    expect(screen.getByTestId("history-path")).toHaveTextContent(`/admin/${path}`);
+  });
+
+  it.each(institutionalAdminRoutes)(
+    "should keep /admin/$path closed to a standard user",
+    async ({ heading, path }) => {
+      useSessionStore.getState().setSession({
+        currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+        tokens: demoTokens,
+      });
+
+      renderWithProviders(<App />, { route: `/admin/${path}` });
+
+      expect(
+        await screen.findByRole("heading", { level: 1, name: /[aá]rea personal/i }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { level: 1, name: heading })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("navigation", { name: /navegacion del panel/i }),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(institutionalAdminRoutes)(
+    "should redirect anonymous visitors away from /admin/$path",
+    async ({ heading, path }) => {
+      renderWithProviders(<App />, { route: `/admin/${path}` });
+
+      expect(
+        await screen.findByRole("heading", { level: 1, name: /^iniciar sesi[oó]n$/i }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { level: 1, name: heading })).not.toBeInTheDocument();
+    },
+  );
+
+  it("should render the unit detail inside the admin layout", async () => {
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
+
+    renderWithProviders(<App />, { route: "/admin/unidades/fisc" });
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /facultad de ingenier[ií]a de sistemas/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /navegacion del panel/i })).toBeInTheDocument();
+  });
+
+  it("should keep the unit detail closed to a standard user", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+
+    renderWithProviders(<App />, { route: "/admin/unidades/fisc" });
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /[aá]rea personal/i }),
+    ).toBeInTheDocument();
   });
 
   it("should keep admin modules scoped to the selected event program", async () => {
@@ -772,5 +846,29 @@ describe("App", () => {
       expect(screen.getByRole("button", { name: /ver todas las secciones/i })).toBeVisible();
       expect(within(submenu).queryByRole("link", { name: label })).not.toBeInTheDocument();
     }
+  });
+
+  it("should open the classroom detail route with its own path parameter", async () => {
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
+
+    renderWithProviders(<App />, { route: "/admin/aulas/aula-10" });
+
+    expect(await screen.findByRole("heading", { level: 1, name: "Aula 10B" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /disponibilidad semanal/i })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /navegacion del panel/i })).toBeInTheDocument();
+  });
+
+  it("should keep the classroom detail route closed to a standard user", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER", id: "user-2" }),
+      tokens: demoTokens,
+    });
+
+    renderWithProviders(<App />, { route: "/admin/aulas/aula-10" });
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /area personal/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1, name: "Aula 10B" })).not.toBeInTheDocument();
   });
 });

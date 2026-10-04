@@ -60,4 +60,42 @@ describe("createApiOrganizationalUnitsAdapter", () => {
       expect(new Headers(requestInit?.headers).get("Authorization")).toBeNull();
     }
   });
+
+  it("should create a unit with the current access token and map its detail", async () => {
+    const fetcher = vi.fn(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            data: { ...unit, careers: [], defaultProgram: null },
+            message: "created",
+            success: true,
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    const result = await createApiOrganizationalUnitsAdapter(
+      { environment, fetcher },
+      () => "access-1",
+    ).createOrganizationalUnit!({
+      code: "FISC",
+      description: null,
+      name: "Facultad de Sistemas",
+      type: "FACULTY",
+    });
+
+    const [, init] = fetcher.mock.calls[0] as unknown as [RequestInfo | URL, RequestInit];
+    expect(result.defaultProgram).toBeNull();
+    expect(new Headers(init.headers).get("Authorization")).toBe("Bearer access-1");
+    expect(init).toMatchObject({
+      body: JSON.stringify({
+        code: "FISC",
+        description: null,
+        name: "Facultad de Sistemas",
+        type: "FACULTY",
+      }),
+      method: "POST",
+    });
+  });
 });

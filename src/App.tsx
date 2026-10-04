@@ -1,27 +1,38 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
-import { AdminLayout, AppLayout, StatusPanel } from "@/components";
+import { AppLayout, StatusPanel } from "@/components/appShell";
 import {
-  PersonalAreaLayout,
   resolveAuthLandingPath,
   useAuthSessionBootstrap,
   useProactiveTokenRenewal,
-} from "@/features/auth";
+} from "@/features/auth/session";
 import { useSessionStore } from "@/store/session";
 
 const ActivityCatalogPage = lazy(() => import("@pages/ActivityCatalogPage"));
+const AdminLayout = lazy(() =>
+  import("@/components/adminShell").then(({ AdminLayout: Component }) => ({ default: Component })),
+);
 const AttendancePage = lazy(() => import("@pages/AttendancePage"));
 const CertificatesPage = lazy(() => import("@pages/CertificatesPage"));
+const CareersPage = lazy(() => import("@pages/CareersPage"));
 const ChangePasswordPage = lazy(() => import("@pages/ChangePasswordPage"));
 const ClassroomsPage = lazy(() => import("@pages/ClassroomsPage"));
+const ClassroomDetailPage = lazy(() => import("@pages/ClassroomDetailPage"));
 const DashboardPage = lazy(() => import("@pages/DashboardPage"));
 const ForgotPasswordPage = lazy(() => import("@pages/ForgotPasswordPage"));
 const LandingPage = lazy(() => import("@pages/LandingPage"));
 const LoginPage = lazy(() => import("@pages/LoginPage"));
 const LogoutPage = lazy(() => import("@pages/LogoutPage"));
+const OrganizationalUnitDetailPage = lazy(() => import("@pages/OrganizationalUnitDetailPage"));
+const OrganizationalUnitsPage = lazy(() => import("@pages/OrganizationalUnitsPage"));
 const PersonalActivitiesPage = lazy(() => import("@pages/PersonalActivitiesPage"));
 const PersonalCertificatesPage = lazy(() => import("@pages/PersonalCertificatesPage"));
+const PersonalAreaLayout = lazy(() =>
+  import("@/features/auth/personalArea").then(({ PersonalAreaLayout: Component }) => ({
+    default: Component,
+  })),
+);
 const ProfilePage = lazy(() => import("@pages/ProfilePage"));
 const ReportsPage = lazy(() => import("@pages/ReportsPage"));
 const RegisterPage = lazy(() => import("@pages/RegisterPage"));
@@ -107,7 +118,7 @@ export function App() {
               path="cambiar-contrasena"
               element={<Navigate replace to="/perfil/seguridad" />}
             />
-            <Route path="perfil" element={<PersonalAreaLayout />}>
+            <Route path="perfil" element={renderRoute(<PersonalAreaLayout />)}>
               <Route index element={<Navigate replace to="/perfil/datos" />} />
               <Route path="datos" element={renderRoute(<ProfilePage />)} />
               <Route path="seguridad" element={renderRoute(<ChangePasswordPage />)} />
@@ -123,17 +134,26 @@ export function App() {
             <Route path="ponentes" element={<RedirectToAdminRoute path="ponentes" />} />
             <Route path="reportes" element={<RedirectToAdminRoute path="reportes" />} />
             <Route path="usuarios" element={<RedirectToAdminRoute path="usuarios" />} />
+            <Route path="unidades" element={<RedirectToAdminRoute path="unidades" />} />
+            <Route path="carreras" element={<RedirectToAdminRoute path="carreras" />} />
           </Route>
         </Route>
       </Route>
       <Route element={<RestoreGate />}>
         <Route element={<RequireAdminSession />}>
-          <Route path="admin" element={<AdminLayout />}>
+          <Route path="admin" element={renderRoute(<AdminLayout />)}>
             <Route index element={renderRoute(<DashboardPage />)} />
             <Route path="eventos" element={renderRoute(<ActivityCatalogPage />)} />
             <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
+            <Route path="aulas/:classroomId" element={renderRoute(<ClassroomDetailPage />)} />
             <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
             <Route path="usuarios" element={renderRoute(<UsersPage />)} />
+            <Route path="unidades" element={renderRoute(<OrganizationalUnitsPage />)} />
+            <Route
+              path="unidades/:unitId"
+              element={renderRoute(<OrganizationalUnitDetailPage />)}
+            />
+            <Route path="carreras" element={renderRoute(<CareersPage />)} />
             <Route path="asistencia" element={renderRoute(<AttendancePage />)} />
             <Route path="certificados" element={renderRoute(<CertificatesPage />)} />
             <Route path="reportes" element={renderRoute(<ReportsPage />)} />
