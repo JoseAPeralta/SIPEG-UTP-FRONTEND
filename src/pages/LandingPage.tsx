@@ -6,12 +6,12 @@ import {
   PaginationControls,
   SectionHeader,
   Surface,
-} from "@/components";
+} from "@/components/publicUi";
 import {
   PublicActivityCard,
   PublicActivityFilters,
   usePublicActivities,
-} from "@/features/activity-catalog";
+} from "@/features/activity-catalog/public";
 
 const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Agenda academica SIPEG">

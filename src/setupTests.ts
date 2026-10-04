@@ -1,4 +1,9 @@
 import "@testing-library/jest-dom/vitest";
+import { configure } from "@testing-library/react";
+
+// Lazy route modules can queue behind the full parallel suite; one second is too short to
+// distinguish that scheduling delay from a route that never resolves.
+configure({ asyncUtilTimeout: 5_000 });
 
 Object.defineProperty(window, "matchMedia", {
   value: vi.fn().mockImplementation((query: string) => ({

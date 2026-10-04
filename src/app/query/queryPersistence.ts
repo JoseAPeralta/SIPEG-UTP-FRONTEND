@@ -2,37 +2,25 @@ import type { PersistQueryClientOptions, Persister } from "@tanstack/react-query
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
 import { isPersistedQueryKey } from "./queryKeys";
+import {
+  QUERY_CACHE_MAX_AGE_MS,
+  QUERY_CACHE_STORAGE_KEY,
+  QUERY_CACHE_THROTTLE_MS,
+  resolvePersistenceBuster,
+  type QueryPersistenceEnvironment,
+} from "./queryPersistenceConfig";
 
-export const QUERY_CACHE_STORAGE_KEY = "sipeg-query-cache";
-export const QUERY_CACHE_SCHEMA_VERSION = "3";
-export const QUERY_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
-export const QUERY_CACHE_THROTTLE_MS = 1000;
-
-export type QueryPersistenceEnvironment = {
-  readonly PROD?: boolean;
-  readonly VITE_APP_VERSION?: string;
-  readonly VITE_QUERY_PERSISTENCE?: string;
-};
+export {
+  clearPersistedQueryCache,
+  QUERY_CACHE_MAX_AGE_MS,
+  QUERY_CACHE_SCHEMA_VERSION,
+  QUERY_CACHE_STORAGE_KEY,
+  QUERY_CACHE_THROTTLE_MS,
+  resolveQueryPersistence,
+} from "./queryPersistenceConfig";
+export type { QueryPersistenceEnvironment } from "./queryPersistenceConfig";
 
 export type QueryPersistenceOptions = Omit<PersistQueryClientOptions, "queryClient">;
-
-export function resolveQueryPersistence(
-  environment: QueryPersistenceEnvironment = import.meta.env,
-): boolean {
-  return environment.VITE_QUERY_PERSISTENCE?.trim().toLowerCase() === "on";
-}
-
-function resolvePersistenceBuster(
-  environment: QueryPersistenceEnvironment = import.meta.env,
-): string {
-  const configuredVersion = environment.VITE_APP_VERSION?.trim();
-
-  if (configuredVersion) {
-    return `${QUERY_CACHE_SCHEMA_VERSION}:${configuredVersion}`;
-  }
-
-  return `${QUERY_CACHE_SCHEMA_VERSION}:dev`;
-}
 
 export function createQueryPersister(
   storage: Storage = window.localStorage,
@@ -58,8 +46,4 @@ export function createPersistenceOptions(
     maxAge: QUERY_CACHE_MAX_AGE_MS,
     persister,
   };
-}
-
-export function clearPersistedQueryCache(storage: Storage = window.localStorage): void {
-  storage.removeItem(QUERY_CACHE_STORAGE_KEY);
 }

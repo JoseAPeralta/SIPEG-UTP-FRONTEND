@@ -13,6 +13,10 @@ import type {
   SpeakerProposal,
   User,
 } from "@/types/domain";
+import type {
+  ClassroomAvailability,
+  ClassroomDetail,
+} from "@/features/classrooms/model/classroomDetail";
 
 export function createAuthenticatedUser(
   overrides: Partial<AuthenticatedUser> = {},
@@ -57,6 +61,7 @@ export function createUser(overrides: Partial<User> = {}): User {
 export function createCareer(overrides: Partial<Career> = {}): Career {
   return {
     code: "SOFTWARE",
+    description: null,
     id: "software",
     name: "Desarrollo de Software",
     unitId: "fisc",
@@ -161,6 +166,23 @@ export function createClassroom(overrides: Partial<Classroom> = {}): Classroom {
     type: "CLASSROOM",
     ...overrides,
   };
+}
+
+export function createClassroomAvailability(
+  overrides: Partial<ClassroomAvailability> = {},
+): ClassroomAvailability {
+  return {
+    dayOfWeek: 1,
+    endTime: "10:00",
+    id: "availability-1",
+    period: "Mañana",
+    startTime: "08:00",
+    ...overrides,
+  };
+}
+
+export function createClassroomDetail(overrides: Partial<ClassroomDetail> = {}): ClassroomDetail {
+  return { ...createClassroom(), availability: [createClassroomAvailability()], ...overrides };
 }
 
 export function createActivity(overrides: Partial<Activity> = {}): Activity {

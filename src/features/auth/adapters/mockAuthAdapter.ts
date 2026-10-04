@@ -1,7 +1,8 @@
 import type { AuthAdapter, ProfileUpdateRequest } from "@/app/adapters/contracts";
 import { ApiError } from "@/app/adapters/http/apiClient";
 import { mockAuthenticatedUser, mockAuthTokens } from "@/data/mock/auth";
-import { careers, organizationalUnits } from "@/data/mock";
+import { careers } from "@/data/mock/careers";
+import { organizationalUnits } from "@/data/mock/organizationalUnits";
 import type {
   AuthenticatedUser,
   Career,

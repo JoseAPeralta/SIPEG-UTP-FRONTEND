@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 
-import { clearPersistedQueryCache } from "@/app/query";
+import { clearPersistedQueryCache } from "@/app/query/cache";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";

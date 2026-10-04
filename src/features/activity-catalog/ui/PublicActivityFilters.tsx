@@ -1,7 +1,7 @@
 import { Badge, Box, Field, Flex, NativeSelect, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 
-import { Surface } from "@/components";
-import { institutionalUnitFilterOptions } from "@/features/organizational-units";
+import { Surface } from "@/components/publicUi";
+import { institutionalUnitFilterOptions } from "@/features/organizational-units/public";
 
 import {
   publicActivityTypeOptions,

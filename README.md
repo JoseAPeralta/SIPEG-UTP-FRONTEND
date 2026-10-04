@@ -203,13 +203,15 @@ automaticas nunca deben apuntar a el.
 
 ## Origen De Datos
 
-`createAppAdapters` es el unico composition root. Por defecto usa la API real; los mocks solo se
-usan en tests, Storybook y trabajo offline:
+`createBrowserAppAdapters` compone la aplicacion del navegador y difiere cada implementacion hasta
+que se usa su puerto. `createAppAdapters` conserva la composicion sincrona para pruebas. Ambos usan
+la API real por defecto; los mocks solo se usan en tests, Storybook y trabajo offline:
 
 ```bash
 VITE_DATA_SOURCE=api    # valor por defecto: catalogo desde el contrato OpenAPI
 VITE_DATA_SOURCE=mock   # override explicito para offline o demos
 VITE_API_BASE_URL=https://api.utp.ac.pa   # origin del API; obligatorio en produccion
+VITE_QUERY_DEVTOOLS=on # opt-in local; no carga Devtools cuando se omite
 ```
 
 En desarrollo la API se resuelve contra `http://localhost:3000`, asi que `pnpm run dev`
@@ -222,6 +224,8 @@ porque ese listado ya trae aula, programa y unidad embebidos; el catalogo admini
 su lectura por recurso porque si necesita el detalle de cada actividad. Los codigos y nombres de
 las unidades, y las etiquetas de los tipos de actividad, estan declarados en el frontend y no se
 descargan.
+Los entrypoints de arranque son estrechos (`appShell`, `session`, `public`): importar los barrels
+generales desde `main.tsx`, `App.tsx` o la landing volveria a cargar UI y adapters de rutas privadas.
 Asistencia, certificados, ponentes y reportes permanecen no disponibles con un error explicito hasta
 que el backend publique sus contratos; el dashboard conserva las metricas del catalogo y avisa de
 las que dependen de esas operaciones.

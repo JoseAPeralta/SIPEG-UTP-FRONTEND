@@ -1,5 +1,5 @@
 import type { ActivityCatalogAdapter } from "@/app/adapters/contracts";
-import { mockActivityCatalog } from "@/data/mock";
+import { mockActivityCatalog } from "@/data/mock/activityCatalog";
 
 export function createMockActivityCatalogAdapter(): ActivityCatalogAdapter {
   return {

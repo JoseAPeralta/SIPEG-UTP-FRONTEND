@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, startTransition } from "react";
 
-import { useAppAdapters } from "@/app/adapters";
-import { PUBLIC_CATALOG_STALE_TIME_MS, queryKeys } from "@/app/query";
+import { useAppAdapters } from "@/app/adapters/context";
+import { PUBLIC_CATALOG_STALE_TIME_MS, queryKeys } from "@/app/query/publicCatalog";
 import { useQuery } from "@tanstack/react-query";
 
 import {

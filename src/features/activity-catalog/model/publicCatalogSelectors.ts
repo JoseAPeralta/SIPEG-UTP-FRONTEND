@@ -1,7 +1,7 @@
 import {
   findInstitutionalUnitByName,
   type OrganizationalUnitCode,
-} from "@/features/organizational-units";
+} from "@/features/organizational-units/public";
 import type { PublicActivity, PublicActivityCatalog } from "@/types/domain";
 import { getActivityTimestamp } from "@/utils/dateFormatting";
 

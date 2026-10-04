@@ -1,13 +1,14 @@
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { useState, type ReactNode } from "react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 
 import { createQueryClient } from "./queryClient";
-import {
-  createPersistenceOptions,
-  createQueryPersister,
-  resolveQueryPersistence,
-} from "./queryPersistence";
+import { resolveQueryPersistence } from "./queryPersistenceConfig";
+
+const PersistentQueryProvider = lazy(() =>
+  import("./PersistentQueryProvider").then(({ PersistentQueryProvider: Component }) => ({
+    default: Component,
+  })),
+);
 
 export type QueryProviderProps = {
   children: ReactNode;
@@ -21,15 +22,11 @@ export function QueryProvider({
   persist = resolveQueryPersistence(),
 }: QueryProviderProps) {
   const [queryClient] = useState(() => client ?? createQueryClient());
-  const [persistOptions] = useState(() =>
-    persist ? createPersistenceOptions(createQueryPersister()) : null,
-  );
-
-  if (persistOptions) {
+  if (persist) {
     return (
-      <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-        {children}
-      </PersistQueryClientProvider>
+      <Suspense fallback={null}>
+        <PersistentQueryProvider client={queryClient}>{children}</PersistentQueryProvider>
+      </Suspense>
     );
   }
 

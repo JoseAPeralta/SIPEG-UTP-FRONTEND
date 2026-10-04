@@ -1,5 +1,5 @@
 import type { PublicActivityCatalogAdapter } from "@/app/adapters/contracts";
-import { mockActivityCatalog } from "@/data/mock";
+import { mockActivityCatalog } from "@/data/mock/activityCatalog";
 import type { PublicActivity, PublicActivityCatalog } from "@/types/domain";
 
 /**

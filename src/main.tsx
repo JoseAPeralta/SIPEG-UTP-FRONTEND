@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 
 import { App } from "@/App";
-import { AppAdaptersProvider, createAppAdapters } from "@/app/adapters";
-import { QueryDevtools, QueryProvider } from "@/app/query";
-import { Provider } from "@/components";
+import { AppAdaptersProvider, createBrowserAppAdapters } from "@/app/adapters/browser";
+import { QueryDevtools, QueryProvider } from "@/app/query/runtime";
+import { Provider } from "@/components/root";
 import { registerServiceWorker } from "@/pwa/registerServiceWorker";
 import "@/styles/global.css";
 
@@ -15,7 +15,7 @@ if (!rootElement) {
   throw new Error("Root element #root was not found");
 }
 
-const adapters = createAppAdapters();
+const adapters = createBrowserAppAdapters();
 
 createRoot(rootElement).render(
   <StrictMode>

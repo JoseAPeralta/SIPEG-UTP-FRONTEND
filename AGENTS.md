@@ -62,7 +62,7 @@ src/
 
 ## Architecture Rules
 
-- Adapter ports live in `src/app/adapters/contracts.ts`; `createAppAdapters` is the only composition root and selects mock or API through `VITE_DATA_SOURCE` (`api` by default; `mock` is reserved for tests, Storybook and offline work).
+- Adapter ports live in `src/app/adapters/contracts.ts`; `createBrowserAppAdapters` is the browser composition root and defers concrete feature adapters until first use. `createAppAdapters` remains the synchronous test composition root. Both select mock or API through `VITE_DATA_SOURCE` (`api` by default; `mock` is reserved for tests, Storybook and offline work).
 - Server state lives in TanStack Query: `src/app/query` owns the client, the query keys and the optional persistence, and feature hooks call `useQuery`/`useMutation` over the injected adapters. Components never call adapters directly and never inline query keys.
 - Only `PERSISTED_QUERY_KEY_ROOTS` keys may be dehydrated to `localStorage`; never persist session, user or operations read models. Review the list before adding a persisted key. Logout must clear the query client and the persisted cache.
 - Auth refresh credentials use an HttpOnly backend cookie; access tokens stay in memory. Preserve explicit POST refresh/logout, the auth-cookie Web Lock and credential-free BroadcastChannel notifications. Run `pnpm run test:auth:browser` for cross-tab cookie changes; see ADR-0013 and `e2e/README.md` for coverage.
@@ -70,7 +70,8 @@ src/
 - The HTTP adapter must follow the OpenAPI contract and validate payloads before exposing them.
 - Hooks own loading, filtering, pagination and selection logic; UI components receive props and callbacks.
 - Connected feature views may call a feature hook; pages stay thin.
-- Use explicit barrels (`src/components`, `features/*`) for public imports; cross-feature imports always use the other feature's barrel. Internal files import their direct neighbor to avoid cycles. Lazy-loaded pages keep direct imports.
+- Use explicit barrels (`src/components`, `features/*`) for public imports; cross-feature imports use the other feature's root barrel or an approved focused barrel such as `features/auth/session`, `features/auth/personalArea`, `features/activity-catalog/public` and `features/organizational-units/public`. Internal files import their direct neighbor to avoid cycles. Lazy-loaded pages keep direct imports.
+- Startup code (`src/main.tsx`, `src/App.tsx`, the landing and the public agenda components) must import only focused entrypoints, never a root barrel: `@/components/root`, `@/components/appShell`, `@/components/publicUi`, `@/components/adminShell`, `@/app/adapters/browser`, `@/app/adapters/context`, `@/app/query/runtime`, `@/app/query/cache` and `@/app/query/publicCatalog`. `AdminLayout` and `PersonalAreaLayout` load on their route, and concrete feature adapters load on first port use. `src/architecture.test.ts` rules R9 to R11 enforce this.
 - Do not create a global `src/index.ts` barrel.
 
 ## Component Reuse Workflow

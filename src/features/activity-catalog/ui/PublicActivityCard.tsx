@@ -1,7 +1,7 @@
 import { Badge, Box, Button, HStack, Stack, Text } from "@chakra-ui/react";
 import { useState } from "react";
 
-import { Surface } from "@/components";
+import { Surface } from "@/components/publicUi";
 import { getActivityTypeColorKey, getUnitColorKey } from "@theme/index";
 import { formatActivityDate } from "@/utils/dateFormatting";
 

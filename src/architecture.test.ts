@@ -166,7 +166,18 @@ function checkFeatureBarrel(file: SourceFileRecord, resolved: string): string | 
     return null;
   }
 
-  if (importerFeature === targetFeature || resolved === `src/features/${targetFeature}`) {
+  const focusedPublicEntrypoints = new Set([
+    "src/features/activity-catalog/public",
+    "src/features/auth/personalArea",
+    "src/features/auth/session",
+    "src/features/organizational-units/public",
+  ]);
+
+  if (
+    importerFeature === targetFeature ||
+    resolved === `src/features/${targetFeature}` ||
+    focusedPublicEntrypoints.has(resolved)
+  ) {
     return null;
   }
 
@@ -263,6 +274,7 @@ function collectSyntaxViolations(files: SourceFileRecord[]): Violation[] {
 }
 
 const operationsConsumers = new Set([
+  "src/app/adapters/createBrowserAppAdapters.ts",
   "src/app/adapters/createAppAdapters.test.ts",
   "src/app/adapters/createAppAdapters.ts",
   "src/features/attendance/hooks/useAttendanceOverview.ts",
@@ -409,6 +421,10 @@ describe("architecture fitness", () => {
       "src/pages/UsersPage.tsx",
       'import { useUsersOverview } from "@/features/users";',
     );
+    const focusedPublicBarrel = createSourceFileRecord(
+      "src/pages/LandingPage.tsx",
+      'import { usePublicActivities } from "@/features/activity-catalog/public";',
+    );
     const existingOperationsConsumer = createSourceFileRecord(
       "src/features/users/hooks/useUsersOverview.ts",
       'import { useOperations } from "@/features/operations";',
@@ -420,6 +436,7 @@ describe("architecture fitness", () => {
 
     expect(collectViolations([queryPolicy], checkHttpClientImport)).toHaveLength(0);
     expect(collectViolations([publicBarrel], checkFeatureBarrel)).toHaveLength(0);
+    expect(collectViolations([focusedPublicBarrel], checkFeatureBarrel)).toHaveLength(0);
     expect(collectViolations([existingOperationsConsumer], checkOperationsConsumer)).toHaveLength(
       0,
     );
@@ -520,5 +537,50 @@ describe("architecture fitness", () => {
     );
 
     expect(renderViolations("R8 catalog endpoint ownership", violations)).toBe("");
+  });
+
+  it("R9: startup modules avoid broad runtime barrels", () => {
+    const startupBoundaries = new Map<string, readonly string[]>([
+      ["src/main.tsx", ['"@/app/adapters"', '"@/app/query"', '"@/components"']],
+      ["src/App.tsx", ['"@/components"', '"@/features/auth"']],
+      ["src/pages/LandingPage.tsx", ['"@/components"', '"@/features/activity-catalog"']],
+      ["src/app/adapters/createBrowserAppAdapters.ts", ['"./createAppAdapters"']],
+    ]);
+    const violations = sourceFiles.flatMap((file) =>
+      (startupBoundaries.get(file.path) ?? [])
+        .filter((specifier) => file.sourceText.includes(`from ${specifier}`))
+        .map((specifier) => `${file.path}: ${specifier}`),
+    );
+
+    expect(violations).toEqual([]);
+  });
+
+  it("R10: mock adapters import focused fixtures", () => {
+    const violations = collectViolations(sourceFiles, (file, resolved) => {
+      if (!file.path.includes("/adapters/") || isTestPath(file.path)) return null;
+      if (resolved !== "src/data/mock") return null;
+
+      return "importa el fixture concreto en lugar del barrel completo de mocks.";
+    });
+
+    expect(renderViolations("R10 focused mocks", violations)).toBe("");
+  });
+
+  it("R11: public agenda modules avoid broad cross-domain barrels", () => {
+    const publicAgendaFiles = new Set([
+      "src/features/activity-catalog/model/publicCatalogSelectors.ts",
+      "src/features/activity-catalog/ui/PublicActivityCard.tsx",
+      "src/features/activity-catalog/ui/PublicActivityFilters.tsx",
+    ]);
+    const broadBarrels = new Set(["@/components", "@/features/organizational-units"]);
+    const violations = sourceFiles.flatMap((file) =>
+      publicAgendaFiles.has(file.path)
+        ? file.imports
+            .filter((imported) => broadBarrels.has(imported.specifier))
+            .map((imported) => `${file.path}: ${imported.specifier}`)
+        : [],
+    );
+
+    expect(violations).toEqual([]);
   });
 });

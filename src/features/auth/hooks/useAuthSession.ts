@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-import { useAppAdapters, type AuthCredentials } from "@/app/adapters";
-import { clearPersistedQueryCache } from "@/app/query";
+import { useAppAdapters, type AuthCredentials } from "@/app/adapters/context";
+import { clearPersistedQueryCache } from "@/app/query/cache";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";
