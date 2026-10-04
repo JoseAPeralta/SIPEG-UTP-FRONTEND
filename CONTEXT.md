@@ -13,8 +13,10 @@ SIPEG es un producto independiente. Este repositorio implementa una instancia mo
 
 La arquitectura de informacion vigente se documenta en
 [`docs/product/information-architecture.md`](docs/product/information-architecture.md). La Fase 0
-mantiene los modulos implementados bajo `/admin` y conserva aliases heredados; `/operaciones` se
-aplaza hasta que la Fase 3 resuelva el descubrimiento de scopes y los guards por capacidad efectiva.
+mantiene los modulos implementados bajo `/admin` y conserva aliases heredados. La Fase 3.4 integro
+el descubrimiento de scopes accesibles contra el contrato dedicado descrito en
+[ADR-0014](docs/adr/adr-0014-scope-discovery-contract.md); `/operaciones` y los guards por capacidad
+efectiva pertenecen a la Fase 3.5, que ya puede consumir esa lista sin N+1.
 
 ## Alineacion Con El Backend
 

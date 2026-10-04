@@ -29,3 +29,4 @@ inmutable: una decisión se reemplaza creando un ADR nuevo que la sucede.
 | [ADR-0011](./adr-0011-domain-adapter-strangler-migration.md)     | Strangler migration from the operations aggregate              | Accepted   | 2026-09-27 |
 | [ADR-0012](./adr-0012-explicit-http-authentication-policy.md)    | Explicit HTTP authentication policy                            | Accepted   | 2026-09-28 |
 | [ADR-0013](./adr-0013-httponly-refresh-cookie-cross-tab.md)      | HttpOnly refresh cookie and cross-tab session coordination     | Accepted   | 2026-09-30 |
+| [ADR-0014](./adr-0014-scope-discovery-contract.md)               | Dedicated operation for user scope discovery                   | Accepted   | 2026-10-04 |

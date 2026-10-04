@@ -56,6 +56,10 @@ documento es el punto de entrada al detalle.
   agregado de operaciones hacia adapters por dominio.
 - [ADR-0012](./adr/adr-0012-explicit-http-authentication-policy.md) — politica explicita de
   autenticacion HTTP y aislamiento de cache privada.
+- [ADR-0013](./adr/adr-0013-httponly-refresh-cookie-cross-tab.md) — cookie de refresh HttpOnly y
+  coordinacion de sesion entre pestañas.
+- [ADR-0014](./adr/adr-0014-scope-discovery-contract.md) — operacion dedicada de descubrimiento de
+  scopes del usuario (propuesta, pendiente de publicacion en OpenAPI).
 
 ## Planes
 

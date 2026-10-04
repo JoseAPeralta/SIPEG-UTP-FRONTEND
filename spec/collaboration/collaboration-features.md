@@ -26,7 +26,8 @@ access comes from and what can safely be changed.
 
 ## Out Of Scope
 
-- Defining permission codes, role values, grant payloads, or scope-discovery operations.
+- Defining the scope-discovery contract; the frontend consumes the published operation
+  (`GET /api/v1/users/me/scopes`, ADR-0014).
 - Replacing backend authorization with hidden controls or route guards.
 - User account administration.
 
@@ -83,7 +84,9 @@ Acceptance criteria:
 
 ## Open Questions
 
-- What operation returns all scopes accessible to the current user? (pending, Fase 3.4)
+- What operation returns all scopes accessible to the current user? (resolved in Fase 3.4, 2026-10-04:
+  the dedicated `GET /api/v1/users/me/scopes` operation, published in OpenAPI and consumed by the
+  frontend through `features/collaboration`; see ADR-0014.)
 - Which roles, permission codes, provenance values, and validity fields are contractual? (resolved in
   Fase 3.3, 2026-10-04: roles `VIEWER`, `EDITOR`, `ORGANIZER`; the 21 canonical permission codes
   enumerated in `POST .../permissions`; `origin` `LOCAL|INHERITED|BOTH`; `source`

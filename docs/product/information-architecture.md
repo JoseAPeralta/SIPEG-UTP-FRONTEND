@@ -106,9 +106,10 @@ El menu del panel enlaza todos estos modulos; ninguna ruta implementada queda hu
 ### Operaciones Por Capacidad
 
 La futura area `/operaciones` reunira programas, actividades, asistencia, certificados y reportes
-para colaboradores con capacidad efectiva. No se implementa en Fase 0: primero debe existir un
-contrato para descubrir todos los programas y actividades accesibles sin consultar el catalogo
-publico recurso por recurso. Esta decision se resuelve en Fase 3.
+para colaboradores con capacidad efectiva. El contrato de descubrimiento ya existe: la Fase 3.4
+integro `features/collaboration` contra la operacion dedicada y paginada propuesta en
+[ADR-0014](../adr/adr-0014-scope-discovery-contract.md), sin N+1 sobre el catalogo publico. La
+navegacion por capacidad efectiva y las rutas de `/operaciones` pertenecen a la Fase 3.5.
 
 Los catalogos institucionales y la administracion global de usuarios continuaran siendo exclusivos
 de `ADMIN`. Los guards del frontend mejoran la experiencia, pero no sustituyen la autorizacion del

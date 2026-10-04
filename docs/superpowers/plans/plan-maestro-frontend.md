@@ -31,24 +31,24 @@ La identidad recomendada es **SIPEG como producto independiente configurado para
 
 ## Estado actual
 
-| Area                                                         | Estado frontend                                                        | Disponibilidad backend                                      |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                          | Disponible                                                  |
-| Registro, verificacion, login, refresh y logout              | Integrado con API                                                      | Completo                                                    |
-| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7             | Completo                                                    |
-| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                       | Completo                                                    |
-| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive | No aplica                                                   |
-| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2    | Completo                                                    |
-| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4      | Completo                                                    |
-| Permisos y colaboradores                                     | Pendiente                                                              | Completo, salvo descubrimiento global de scopes del usuario |
-| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                     | Completo                                                    |
-| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes             | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
-| Archivos y alertas                                           | Pendiente                                                              | Pendiente                                                   |
-| Propuestas de ponentes                                       | Shell mock                                                             | Pendiente                                                   |
-| Inscripcion y asistencia                                     | Shell mock                                                             | Pendiente                                                   |
-| Certificados                                                 | Shell mock                                                             | Pendiente                                                   |
-| Reportes y exportaciones                                     | Shell mock                                                             | Pendiente                                                   |
-| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta              | No aplica                                                   |
+| Area                                                         | Estado frontend                                                                                        | Disponibilidad backend                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                          | Disponible                              |
+| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                      | Completo                                |
+| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                             | Completo                                |
+| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                       | Completo                                |
+| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                 | No aplica                               |
+| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                    | Completo                                |
+| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                      | Completo                                |
+| Permisos y colaboradores                                     | Roles modelados (3.3) y descubrimiento de scopes integrado (3.4); colaboradores y overrides pendientes | Completo                                |
+| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                                                     | Completo                                |
+| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes                                             | 5.1-5.3 disponibles; 5.4-5.8 pendientes |
+| Archivos y alertas                                           | Pendiente                                                                                              | Pendiente                               |
+| Propuestas de ponentes                                       | Shell mock                                                                                             | Pendiente                               |
+| Inscripcion y asistencia                                     | Shell mock                                                                                             | Pendiente                               |
+| Certificados                                                 | Shell mock                                                                                             | Pendiente                               |
+| Reportes y exportaciones                                     | Shell mock                                                                                             | Pendiente                               |
+| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                              | No aplica                               |
 
 El contrato OpenAPI vivo no estuvo disponible al redactar este plan. El estado backend se obtuvo de su plan maestro y codigo actual; cada fase debe reconfirmarlo mediante la CLI antes de implementarse.
 
@@ -611,7 +611,7 @@ Evidencia y desviaciones de Fase 2.2: `docs/superpowers/plans/2026-10-03-fase-2.
 - [x] **3.1 Separar usuarios del read model.** Crear adapter, mappers y query keys para `/api/v1/admin/users`. Prueba: `VITE_DATA_SOURCE=api` deja de bloquear usuarios por contratos ajenos.
 - [x] **3.2 Administrar usuarios.** Implementar listado paginado, busqueda, filtros, detalle, creacion y edicion. Prueba: autodesactivacion, ultimo ADMIN, duplicados y relaciones invalidas muestran conflictos accionables.
 - [x] **3.3 Modelar permisos.** Tipar y traducir roles `VIEWER`, `EDITOR`, `ORGANIZER` y el catalogo canonico de permisos. Prueba: la UI nunca muestra `activity:update` u otros codigos crudos.
-- [ ] **3.4 Resolver descubrimiento de scopes.** Acordar un contrato para conocer todos los programas y actividades accesibles al usuario. No implementar N+1 sobre el catalogo publico. Prueba: un colaborador descubre scopes no publicos sin conocer sus IDs previamente.
+- [x] **3.4 Resolver descubrimiento de scopes.** Acordar un contrato para conocer todos los programas y actividades accesibles al usuario. No implementar N+1 sobre el catalogo publico. Prueba: un colaborador descubre scopes no publicos sin conocer sus IDs previamente. **Integrada:** ADR-0014 aceptado; adapter, mapper, clave y hook en `features/collaboration`, con prueba de descubrimiento no publico.
 - [ ] **3.5 Evolucionar los guards.** Mantener catalogos institucionales y usuarios como ADMIN; habilitar modulos operativos por capacidad efectiva. Prueba: ADMIN, ORGANIZER, EDITOR, VIEWER y USER reciben navegacion diferente.
 - [ ] **3.6 Gestionar colaboradores.** Listar, agregar, cambiar rol y eliminar colaboradores en programas y actividades. Prueba: el ultimo delegador y los grants fuera del subconjunto producen feedback de conflicto.
 - [ ] **3.7 Mostrar herencia.** Diferenciar permisos `LOCAL`, `INHERITED` y `BOTH`, vigencia y estado efectivo. Prueba: un permiso heredado no ofrece revocacion local enganosa.
@@ -682,6 +682,26 @@ Evidencia y desviaciones de Fase 3.3: `docs/superpowers/plans/2026-10-04-fase-3.
   24 operaciones.
 - **Sin cambio visual:** la fase no toca componentes, rutas, stories ni baselines; no aplica
   `components:inventory` ni `test:storybook`. La futura UI de 3.6-3.8 consumira este catalogo.
+
+Evidencia y cierre de Fase 3.4: `docs/superpowers/plans/2026-10-04-fase-3.4-descubrimiento-scopes.md`.
+
+- **Contrato publicado y verificado contra el backend vivo el 2026-10-04:** `GET /api/v1/users/me/scopes`
+  con `bearerAuth`, filtro opcional `type` (`program|activity`) y paginacion `page`/`limit` (maximo
+  50). Devuelve los scopes con al menos un permiso efectivo vigente, incluidos los estados no
+  publicos; `ADMIN` recibe el catalogo completo como `LOCAL` y sin envelopes; nunca expone
+  `grantedById`/`grantedAt`. `api:mocks-check` paso con 221 verificaciones en 29 operaciones.
+- **Integracion sin UI:** el adapter de `features/collaboration` recorre todas las paginas con
+  `limit=50` y una sola peticion por pagina, de modo que ningun consumidor puede reproducir el N+1
+  prohibido; el hook `useUserScopes` liga la clave a la identidad y no se persiste. La navegacion por
+  capacidad y las rutas de `/operaciones` pertenecen a 3.5.
+- **Prueba:** una prueba del adapter con un payload contractual de programa `DRAFT` y actividad
+  `DRAFT` demuestra el descubrimiento de scopes no publicos sin conocer sus IDs; el mapper rechaza
+  valores fuera del contrato y el mock reproduce la rama ADMIN derivando el catalogo existente.
+- **Sin cambios visuales:** no se tocan componentes, rutas, stories ni baselines; no aplica Storybook
+  ni el inventario de componentes. La invalidacion de autorizacion por mutaciones de colaboracion
+  sigue en 3.9.
+- **R8:** `/api/v1/users/me/scopes` queda reservado a `src/features/collaboration/adapters/` para que
+  ningun adapter agregado reintroduzca la consulta duplicada.
 
 ---
 
@@ -871,7 +891,7 @@ Evidencia y desviaciones de Fase 3.3: `docs/superpowers/plans/2026-10-04-fase-3.
 | ---------------------------------------- | ---: | ----------------------------------------------------------------------------------------------------------------- |
 | Identidad institucional                  |    0 | SIPEG independiente configurado para UTP, sin multitenancy                                                        |
 | Submenu del area personal                |    1 | Rutas por seccion; lateral en escritorio y desplegable local en movil                                             |
-| Descubrimiento de scopes del colaborador |    3 | Contrato dedicado; evitar consultar permiso programa por programa                                                 |
+| Descubrimiento de scopes del colaborador |    3 | Contrato dedicado (ADR-0014, aceptado y consumido en 3.4); evitar consultar permiso programa por programa         |
 | Publicacion publica                      |    5 | `SCHEDULED/ONGOING` disponibles, `COMPLETED` pasadas; ocultar `DRAFT/CANCELLED`                                   |
 | Eliminacion de actividades               |    5 | No ofrecerla hasta que backend cierre retencion y Fase 5.4                                                        |
 | Subida de archivos                       |    6 | Esperar OpenAPI; no construir multipart o URLs por suposicion                                                     |
