@@ -38,7 +38,7 @@ La identidad recomendada es **SIPEG como producto independiente configurado para
 | Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7             | Completo                                                    |
 | Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                       | Completo                                                    |
 | Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive | No aplica                                                   |
-| Administracion de usuarios                                   | Shell bloqueado por `OperationsAdapter`                                | Completo                                                    |
+| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2    | Completo                                                    |
 | Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4      | Completo                                                    |
 | Permisos y colaboradores                                     | Pendiente                                                              | Completo, salvo descubrimiento global de scopes del usuario |
 | Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                     | Completo                                                    |
@@ -608,9 +608,9 @@ Evidencia y desviaciones de Fase 2.2: `docs/superpowers/plans/2026-10-03-fase-2.
 
 **Entregable:** administracion real de usuarios y operaciones por capacidades de programa o actividad.
 
-- [ ] **3.1 Separar usuarios del read model.** Crear adapter, mappers y query keys para `/api/v1/admin/users`. Prueba: `VITE_DATA_SOURCE=api` deja de bloquear usuarios por contratos ajenos.
+- [x] **3.1 Separar usuarios del read model.** Crear adapter, mappers y query keys para `/api/v1/admin/users`. Prueba: `VITE_DATA_SOURCE=api` deja de bloquear usuarios por contratos ajenos.
 - [ ] **3.2 Administrar usuarios.** Implementar listado paginado, busqueda, filtros, detalle, creacion y edicion. Prueba: autodesactivacion, ultimo ADMIN, duplicados y relaciones invalidas muestran conflictos accionables.
-- [ ] **3.3 Modelar permisos.** Tipar y traducir roles `VIEWER`, `EDITOR`, `ORGANIZER` y el catalogo canonico de permisos. Prueba: la UI nunca muestra `activity:update` u otros codigos crudos.
+- [x] **3.3 Modelar permisos.** Tipar y traducir roles `VIEWER`, `EDITOR`, `ORGANIZER` y el catalogo canonico de permisos. Prueba: la UI nunca muestra `activity:update` u otros codigos crudos.
 - [ ] **3.4 Resolver descubrimiento de scopes.** Acordar un contrato para conocer todos los programas y actividades accesibles al usuario. No implementar N+1 sobre el catalogo publico. Prueba: un colaborador descubre scopes no publicos sin conocer sus IDs previamente.
 - [ ] **3.5 Evolucionar los guards.** Mantener catalogos institucionales y usuarios como ADMIN; habilitar modulos operativos por capacidad efectiva. Prueba: ADMIN, ORGANIZER, EDITOR, VIEWER y USER reciben navegacion diferente.
 - [ ] **3.6 Gestionar colaboradores.** Listar, agregar, cambiar rol y eliminar colaboradores en programas y actividades. Prueba: el ultimo delegador y los grants fuera del subconjunto producen feedback de conflicto.
@@ -620,6 +620,44 @@ Evidencia y desviaciones de Fase 2.2: `docs/superpowers/plans/2026-10-03-fase-2.
 - [ ] **3.10 Cubrir autorizacion horizontal.** Probar acceso directo por URL ademas de navegacion visible; el `403` del backend sigue siendo autoritativo.
 
 **Criterio de salida:** usuarios y colaboradores pueden operar solo sobre sus scopes efectivos, con procedencia y vigencia comprensibles.
+
+Evidencia y desviaciones de Fase 3.1: `docs/superpowers/plans/2026-10-04-fase-3.1-separacion-usuarios.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-04:** `GET /api/v1/admin/users` con
+  `bearerAuth` y rol ADMIN; pagina con `limit` maximo 50, filtros `globalRole`, `isActive`, `unitId`,
+  `careerId` y `q`, y respuesta `PaginatedUsers` con `unit` y `career` embebidos. `api:mocks-check`
+  paso con 170 verificaciones en 18 operaciones.
+- **Extraccion sin cambio visual:** `UsersAdapter`, `useUsers` y la clave administrativa por `userId`
+  reemplazan a `operations.users`; `useUsersOverview` deja de consultar carreras y unidades porque el
+  endpoint ya trae las referencias, y `useCertificatesOverview` resuelve participantes desde
+  `useUsers`. La pantalla, sus rutas y sus stories no cambiaron.
+- **Paginacion aplanada en 3.1:** el adapter recorre todas las paginas con `limit=50` y el mapper
+  conserva la metadata completa; busqueda, filtros, detalle, alta y edicion pertenecen a 3.2.
+- **Privacidad:** la clave se liga al `userId`, nunca al token, y no entra en
+  `PERSISTED_QUERY_KEY_ROOTS`; el esquema de cache persistido no cambia.
+- **R7/R8:** `useUsersOverview` sale de la allowlist de consumidores de `OperationsAdapter` y
+  `/api/v1/admin/users` queda reservado a `src/features/users/adapters/`.
+
+Evidencia y desviaciones de Fase 3.3: `docs/superpowers/plans/2026-10-04-fase-3.3-modelado-permisos.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-04:** tres roles de colaboracion
+  (`VIEWER`, `EDITOR`, `ORGANIZER`) y 21 codigos de permiso. Se enumeran en los cuerpos de
+  `POST /event-programs/{id}/collaborators`, `PATCH .../collaborators/{userId}`,
+  `POST /event-programs/{id}/permissions` y sus equivalentes de actividad. `GET /users/me/permissions`
+  y los listados de colaboradores devuelven `name` como `string` libre, de modo que el catalogo
+  canonico solo es verificable en los cuerpos de las mutaciones.
+- **Modelo puro sin autorizacion:** `features/collaboration/model/permissions.ts` expone tipos,
+  etiquetas y resolutores; no incluye peticiones, adapters, claves Query ni la matriz de permisos
+  predeterminados por rol, que OpenAPI no publica. El backend sigue siendo la autoridad final.
+- **Codigos crudos nunca en UI:** `resolveCollaborationRoleLabel` y `resolvePermissionLabel`
+  degradan un valor desconocido a `Rol de colaboracion no reconocido` o `Permiso no reconocido` sin
+  reflejar el valor recibido, y los `type guards` permiten validar envelopes sin `any`.
+- **Drift contractual automatizado:** `check-mock-contract.mjs` ahora verifica enums de cuerpos
+  `application/json` inline (`requestBody`) ademas de los schemas de respuesta, y registra los cuatro
+  endpoints de colaboradores y los dos de permisos. `api:mocks-check` paso con 176 verificaciones en
+  24 operaciones.
+- **Sin cambio visual:** la fase no toca componentes, rutas, stories ni baselines; no aplica
+  `components:inventory` ni `test:storybook`. La futura UI de 3.6-3.8 consumira este catalogo.
 
 ---
 

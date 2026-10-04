@@ -49,7 +49,7 @@ Evento individual que pertenece obligatoriamente a un programa de eventos. Tiene
 
 ### Permiso De Colaboracion
 
-Capacidad asignada a un usuario para colaborar en un programa de eventos o en una actividad. Los permisos del programa se heredan por defecto en sus actividades.
+Capacidad asignada a un usuario para colaborar en un programa de eventos o en una actividad. Los permisos del programa se heredan por defecto en sus actividades. Los roles de colaboracion son `VIEWER`, `EDITOR` y `ORGANIZER`, y el catalogo canonico de 21 permisos vive en `features/collaboration/model/permissions.ts`. El contrato no publica la matriz de permisos predeterminados de cada rol, asi que el frontend no la infiere ni decide autorizacion: el backend sigue siendo la autoridad.
 
 ### Registro De Asistencia
 
@@ -89,11 +89,12 @@ components compartidos + types + utils
 
 ### Adapters
 
-- `src/app/adapters/contracts.ts` define los puertos del frontend: `ActivityCatalogAdapter`, `AuthAdapter`, `OrganizationalUnitsAdapter`, `CareersAdapter`, `ClassroomsAdapter` y `OperationsAdapter`.
+- `src/app/adapters/contracts.ts` define los puertos del frontend: `ActivityCatalogAdapter`, `AuthAdapter`, `OrganizationalUnitsAdapter`, `CareersAdapter`, `ClassroomsAdapter`, `UsersAdapter` y `OperationsAdapter` (agregado legado congelado).
 - `src/app/adapters/createBrowserAppAdapters.ts` es el composition root del navegador: usa la API por defecto (`VITE_DATA_SOURCE=api`) y deja `mock` como override explicito, pero entrega puertos estables que importan cada adapter concreto solo al invocar su primer metodo. `createAppAdapters.ts` conserva la composicion sincrona para pruebas. Ambos inyectan de forma privada el lector del access token donde corresponde.
 - `src/app/adapters/http/apiClient.ts` concentra el cliente HTTP; cada request declara modo `none` o `bearer`, solo el cliente construye `Authorization` y ningun componente hardcodea URLs (ADR-0012).
 - `src/app/query` concentra el estado de servidor con TanStack Query: el cliente, las claves, la persistencia offline opcional y el provider. Los hooks de cada feature llaman `useQuery`/`useMutation` sobre los adapters inyectados y conservan su forma publica; `useActivityCatalog(access)` exige declarar la frontera `public` o `administrative`, y `useOperations` es la puerta de entrada a operaciones.
 - Unidades, carreras y aulas son consultas por recurso: cada uno tiene su mapper, sus adapters API/mock y su hook (`useOrganizationalUnits`, `useCareers`, `useClassrooms`), con claves separadas por frontera y sin credenciales, porque sus listados son operaciones publicas del contrato. `useAvailableClassrooms` conserva un snapshot de criterios enviado explicitamente, no se persiste y consulta `GET /classrooms/available` sin Bearer; el backend sigue siendo la autoridad para ventanas y reservas. `useActivityCatalog` y `useRegistrationCatalog` se conservan como read models compuestos para no duplicar reglas de seleccion en las vistas.
+- `useUsers` es la lectura administrativa de `GET /api/v1/admin/users` (Bearer, rol `ADMIN`): la clave se liga al `userId`, nunca al token, no se persiste y las referencias de unidad y carrera vienen embebidas en `AdminUser`, de modo que la pantalla de usuarios ya no consulta los catalogos para etiquetar filas. Por ahora recorre todas las paginas con `limit=50`; la paginacion visible y los filtros pertenecen a 3.2.
 - La agenda publica tiene su propio read model y puerto (`PublicActivityCatalogAdapter`): se resuelve con **una sola peticion** a `GET /api/v1/activities`, porque ese listado ya embebe aula, programa y unidad. No comparte tipo con `Activity` a proposito: el listado publico omite `equipment`, `enrolledCount`, `checkedInCount` y `cancelReason`, y modelar esa diferencia como dos tipos impide que la agenda dependa de un dato que el contrato no le da. El catalogo administrativo conserva su N+1, porque si necesita ese detalle.
 - Los codigos y nombres de las unidades viven en un registro del frontend (`features/organizational-units/model/unitRegistry.ts`), no se descargan. No cambian con frecuencia y `ActivityOrganizationalUnit` no trae `code`, que es justo lo que el tema y los badges necesitan; la union con el listado publico se hace por nombre normalizado (sin diacriticos ni dobles espacios), y una unidad desconocida degrada a color `default` sin romper la agenda. `ORGANIZATIONAL_UNIT_CODES` es una tupla const y las fichas son un `Record` sobre ella, de modo que agregar un codigo sin ficha rompe la compilacion. Los tipos de actividad son etiquetas de dominio (`activityTypeLabels`) y tampoco se descargan.
 - La agenda publica no revalida al recuperar el foco de la ventana (`refetchOnWindowFocus: false`) y usa `PUBLIC_CATALOG_STALE_TIME_MS`, porque con la politica global cada vuelta a la pestana volveria a descargarla entera.
@@ -109,8 +110,8 @@ components compartidos + types + utils
 - Las metricas de alcance de reportes viven en `features/reports/model/scopeMetrics.ts` y las consumen asistencia, certificados, reportes y dashboard.
 - Mientras el backend no publique contratos de asistencia, certificados, ponentes y reportes, el origen `api` mantiene esas operaciones no disponibles con un error explicito.
 - `OperationsAdapter` es un agregado legado congelado: no admite consumidores nuevos y se extrae en
-  orden usuarios, propuestas, asistencia, certificados y reportes. Carreras ya se extrajeron en la
-  Fase 2.1. Cada puerto se crea solo al integrar su contrato; no se mezclan respuestas API con
+  orden propuestas, asistencia, certificados y reportes. Carreras y usuarios ya se extrajeron en las
+  fases 2.1 y 3.1. Cada puerto se crea solo al integrar su contrato; no se mezclan respuestas API con
   fallback mock (ADR-0011).
 
 ### Separacion De Presentacion
@@ -120,6 +121,7 @@ components compartidos + types + utils
 - Los componentes de UI reciben props y callbacks; las vistas conectadas pueden invocar un hook de su feature.
 - Las paginas de nivel ruta componen una vista o un hook y no contienen reglas de negocio.
 - La capa de presentacion traduce el vocabulario del contrato a espanol con mapas tipados en `features/<dominio>/model/*Labels.ts`; la UI no muestra codigos del API ni mensajes crudos del backend. Los textos libres del backend (nombres, descripciones, equipamiento) no se traducen.
+- El modulo `features/collaboration` modela roles y permisos como tipos y etiquetas puras: `resolveCollaborationRoleLabel` y `resolvePermissionLabel` degradan un codigo desconocido a un texto localizado y nunca lo muestran crudo. La UI de colaboracion consume estas funciones; los codigos del contrato solo circulan por dentro.
 - `ApiError` (`src/app/adapters/http/apiClient.ts`) entrega mensajes en espanol por codigo HTTP y no expone la ruta ni el mensaje del backend.
 
 ### Pruebas
@@ -143,7 +145,8 @@ components compartidos + types + utils
 - `src/architecture.test.ts` verifica estas reglas: R1 limita mocks, R2 mantiene UI compartida pura,
   R3 exige barrels de features tambien desde paginas y componentes, R4 aisla stores, R5 limita el
   cliente HTTP a adapters, R6 limita `fetch` y endpoints `/api/v1`, R7 congela los consumidores de
-  `OperationsAdapter` y R8 reserva cada endpoint de catalogo a los adapters de su feature.
+  `OperationsAdapter` y R8 reserva cada endpoint con dueno (catalogos y usuarios) a los adapters de
+  su feature.
 
 ## Decisiones De Trabajo
 
