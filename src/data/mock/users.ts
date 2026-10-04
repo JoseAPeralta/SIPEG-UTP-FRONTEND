@@ -54,4 +54,15 @@ export const users: AdminUser[] = [
     lastName: "Santos",
     unit: { code: "FIM", id: "fim", name: "Facultad de Ingenieria Mecanica" },
   },
+  {
+    career: null,
+    email: "ana.torres@example.edu",
+    firstName: "Ana",
+    globalRole: "USER",
+    id: "user-5",
+    identificationNumber: "8-500-1188",
+    isActive: false,
+    lastName: "Torres",
+    unit: null,
+  },
 ];

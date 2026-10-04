@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { AdminUsersMappingError, mapAdminUser, mapAdminUsersPage } from "./usersMapper";
+import {
+  AdminUsersMappingError,
+  mapAdminUser,
+  mapAdminUserResponse,
+  mapAdminUsersPage,
+} from "./usersMapper";
 
 const unit = { code: "FISC", id: "fisc", name: "Facultad de Ingenieria de Sistemas" };
 const career = { code: "SOFTWARE", id: "software", name: "Desarrollo de Software" };
@@ -50,6 +55,30 @@ describe("mapAdminUser", () => {
     expect(() => mapAdminUser({ ...adminUser, unit: { id: "fisc", name: "Sin codigo" } })).toThrow(
       AdminUsersMappingError,
     );
+  });
+});
+
+describe("mapAdminUserResponse", () => {
+  it("should validate the single envelope and return the user", () => {
+    const payload = { data: adminUser, message: "ok", success: true };
+
+    expect(mapAdminUserResponse(payload)).toEqual(adminUser);
+  });
+
+  it("should reject a failed envelope", () => {
+    expect(() => mapAdminUserResponse({ message: "error", success: false })).toThrow(
+      AdminUsersMappingError,
+    );
+  });
+
+  it("should reject a malformed user payload", () => {
+    const payload = {
+      data: { ...adminUser, globalRole: "SUPERVISOR" },
+      message: "ok",
+      success: true,
+    };
+
+    expect(() => mapAdminUserResponse(payload)).toThrow(AdminUsersMappingError);
   });
 });
 

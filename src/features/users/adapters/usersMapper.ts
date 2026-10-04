@@ -83,6 +83,14 @@ export function mapAdminUser(raw: unknown, context = "adminUser"): AdminUser {
   };
 }
 
+export function mapAdminUserResponse(payload: unknown, context = "adminUser"): AdminUser {
+  const envelope = readObject(payload, context);
+  if (envelope["success"] !== true) fail(`${context}.success`, "debe ser true");
+  readString(envelope["message"], `${context}.message`);
+
+  return mapAdminUser(envelope["data"], `${context}.data`);
+}
+
 export function mapAdminUsersPage(payload: unknown, context = "adminUsers"): AdminUsersPage {
   const envelope = readObject(payload, context);
   if (envelope["success"] !== true) fail(`${context}.success`, "debe ser true");

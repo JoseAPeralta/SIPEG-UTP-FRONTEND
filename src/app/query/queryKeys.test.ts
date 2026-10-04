@@ -56,4 +56,29 @@ describe("queryKeys prefixes", () => {
       ),
     ).toBe(false);
   });
+
+  it("should scope administrative user pages by identity across filters", () => {
+    const scoped = queryKeys.administrativeUsersScope("user-1");
+
+    expect(
+      isPrefix(scoped, queryKeys.administrativeUsersPage("user-1", { globalRole: "ADMIN" }, 2)),
+    ).toBe(true);
+    expect(isPrefix(scoped, queryKeys.administrativeUsers("user-1"))).toBe(true);
+    expect(isPrefix(scoped, queryKeys.administrativeUsersPage("user-2", {}, 1))).toBe(false);
+  });
+
+  it("should scope administrative user details to one identity", () => {
+    expect(
+      isPrefix(
+        queryKeys.administrativeUsersScope("user-1"),
+        queryKeys.administrativeUserDetail("user-1", "user-2"),
+      ),
+    ).toBe(false);
+    expect(
+      isPrefix(
+        ["administrative-user-detail", "user-1"],
+        queryKeys.administrativeUserDetail("user-1", "user-2"),
+      ),
+    ).toBe(true);
+  });
 });

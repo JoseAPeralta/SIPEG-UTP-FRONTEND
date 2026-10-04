@@ -38,6 +38,7 @@ const ReportsPage = lazy(() => import("@pages/ReportsPage"));
 const RegisterPage = lazy(() => import("@pages/RegisterPage"));
 const ResetPasswordPage = lazy(() => import("@pages/ResetPasswordPage"));
 const SpeakersPage = lazy(() => import("@pages/SpeakersPage"));
+const UserDetailPage = lazy(() => import("@pages/UserDetailPage"));
 const UsersPage = lazy(() => import("@pages/UsersPage"));
 const VerifyEmailPage = lazy(() => import("@pages/VerifyEmailPage"));
 
@@ -148,6 +149,7 @@ export function App() {
             <Route path="aulas/:classroomId" element={renderRoute(<ClassroomDetailPage />)} />
             <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />
             <Route path="usuarios" element={renderRoute(<UsersPage />)} />
+            <Route path="usuarios/:userId" element={renderRoute(<UserDetailPage />)} />
             <Route path="unidades" element={renderRoute(<OrganizationalUnitsPage />)} />
             <Route
               path="unidades/:unitId"

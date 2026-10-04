@@ -297,7 +297,7 @@ describe("App", () => {
   it.each([
     ...institutionalAdminRoutes,
     { heading: /registro de ponentes/i, path: "ponentes" },
-    { heading: /usuarios y permisos/i, path: "usuarios" },
+    { heading: /^Usuarios$/, path: "usuarios" },
   ])("should render /admin/$path inside the admin layout", async ({ path, heading }) => {
     useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
 
@@ -310,7 +310,7 @@ describe("App", () => {
   it.each([
     ...institutionalAdminRoutes,
     { heading: /registro de ponentes/i, path: "ponentes" },
-    { heading: /usuarios y permisos/i, path: "usuarios" },
+    { heading: /^Usuarios$/, path: "usuarios" },
   ])("should redirect the legacy /$path route to the admin layout", async ({ path, heading }) => {
     useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
 
@@ -380,6 +380,30 @@ describe("App", () => {
     });
 
     renderWithProviders(<App />, { route: "/admin/unidades/fisc" });
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /[aá]rea personal/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("should render the user detail inside the admin layout", async () => {
+    useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
+
+    renderWithProviders(<App />, { route: "/admin/usuarios/user-2" });
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /carlos m[eé]ndez/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /navegacion del panel/i })).toBeInTheDocument();
+  });
+
+  it("should keep the user detail closed to a standard user", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+
+    renderWithProviders(<App />, { route: "/admin/usuarios/user-2" });
 
     expect(
       await screen.findByRole("heading", { level: 1, name: /[aá]rea personal/i }),

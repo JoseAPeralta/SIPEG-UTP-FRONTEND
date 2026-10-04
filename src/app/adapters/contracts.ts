@@ -5,6 +5,7 @@ import type {
   Career,
   Classroom,
   ClassroomType,
+  GlobalRole,
   OrganizationalUnit,
   OperationsReadModel,
   PublicActivityCatalog,
@@ -22,7 +23,11 @@ import type {
 } from "@/features/careers/model/careerRequests";
 import type { ClassroomDetail } from "@/features/classrooms/model/classroomDetail";
 import type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";
-import type { AdminUser } from "@/features/users/model/adminUser";
+import type { AdminUser, AdminUsersPage } from "@/features/users/model/adminUser";
+import type {
+  CreateAdminUserRequest,
+  UpdateAdminUserRequest,
+} from "@/features/users/model/userRequests";
 import type {
   AddClassroomAvailabilityRequest,
   CreateClassroomRequest,
@@ -174,14 +179,31 @@ export type OperationsAdapter = {
 };
 
 /**
+ * Filtros del listado administrativo de usuarios, uno por parametro del contrato. `isActive` es
+ * opcional: omitirlo devuelve todos los estados, de modo que "todas" no necesita recorrer dos
+ * listas como en aulas.
+ */
+export type AdminUserFilters = {
+  careerId?: string;
+  globalRole?: GlobalRole;
+  isActive?: boolean;
+  q?: string;
+  unitId?: string;
+};
+
+/**
  * Listado administrativo de cuentas.
  *
- * En 3.1 recorre todas las paginas y aplana los items para conservar la pantalla actual; el mapper
- * valida y conserva la metadata por pagina para que 3.2 pueda paginar en la UI sin rehacer el
- * contrato. La autorizacion final sigue siendo del backend: este puerto solo transporta.
+ * `loadUsers` recorre todas las paginas y aplana los items; lo consumen los resumenes heredados
+ * (`useCertificatesOverview`). `loadUsersPage` expone una pagina ya filtrada por el backend para la
+ * pantalla de 3.2. La autorizacion final es del backend: este puerto solo transporta.
  */
 export type UsersAdapter = {
+  createUser?: (request: CreateAdminUserRequest) => Promise<AdminUser>;
+  getUser?: (userId: string) => Promise<AdminUser>;
   loadUsers: () => Promise<AdminUser[]>;
+  loadUsersPage?: (filters: AdminUserFilters, page: number) => Promise<AdminUsersPage>;
+  updateUser?: (userId: string, request: UpdateAdminUserRequest) => Promise<AdminUser>;
 };
 
 export type RegistrationAdapter = {

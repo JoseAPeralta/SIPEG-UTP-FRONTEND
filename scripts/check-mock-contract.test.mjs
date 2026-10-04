@@ -116,6 +116,44 @@ describe("compareContract", () => {
     });
   });
 
+  it("should track the administrative user commands", () => {
+    const required = [
+      "id",
+      "firstName",
+      "lastName",
+      "identificationNumber",
+      "email",
+      "globalRole",
+      "isActive",
+      "unit",
+      "career",
+    ];
+    const enums = { globalRole: ["ADMIN", "USER"] };
+
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      enums,
+      method: "POST",
+      path: "/api/v1/admin/users",
+      required,
+      schema: "AdminUser",
+    });
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      enums,
+      method: "GET",
+      path: "/api/v1/admin/users/{id}",
+      required,
+      schema: "AdminUser",
+    });
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      enums,
+      method: "PATCH",
+      path: "/api/v1/admin/users/{id}",
+      requestBody: { enums },
+      required,
+      schema: "AdminUser",
+    });
+  });
+
   it("should track the collaboration roles and permission catalog", () => {
     expect(CONTRACT_EXPECTATIONS).toContainEqual({
       method: "POST",

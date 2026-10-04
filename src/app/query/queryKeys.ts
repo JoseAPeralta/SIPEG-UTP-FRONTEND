@@ -1,4 +1,4 @@
-import type { ClassroomFilters } from "@/app/adapters/contracts";
+import type { AdminUserFilters, ClassroomFilters } from "@/app/adapters/contracts";
 import type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";
 
 export const queryKeys = {
@@ -21,7 +21,15 @@ export const queryKeys = {
     ["administrative-organizational-unit-detail", userId] as const,
   administrativeOrganizationalUnits: (userId: string) =>
     ["administrative-organizational-units", userId] as const,
+  administrativeUserDetail: (userId: string, targetUserId: string) =>
+    ["administrative-user-detail", userId, targetUserId] as const,
+  /** Listado administrativo aplanado (todas las paginas) que consumen los resumenes heredados. */
   administrativeUsers: (userId: string) => ["administrative-users", userId] as const,
+  /** Una pagina filtrada del listado administrativo, administrada por la pantalla de 3.2. */
+  administrativeUsersPage: (userId: string, filters: AdminUserFilters, page: number) =>
+    ["administrative-users", userId, filters, page] as const,
+  /** Prefijo por identidad que alcanza el listado aplanado y todas las paginas filtradas. */
+  administrativeUsersScope: (userId: string) => ["administrative-users", userId] as const,
   availableClassrooms: (criteria: AvailableClassroomsCriteria | null) =>
     ["available-classrooms", criteria] as const,
   /** Raiz que alcanza toda consulta de disponibilidad, cualquiera sea su criterio. */

@@ -5,6 +5,7 @@ export type { DataSource } from "./createAppAdapters";
 export type {
   ActivityCatalogAdapter,
   ActivityCatalogAccess,
+  AdminUserFilters,
   AppAdapters,
   AuthAdapter,
   AuthCredentials,
