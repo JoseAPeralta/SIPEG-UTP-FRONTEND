@@ -86,16 +86,19 @@ hasta que intente renovar su credencial de refresco y el backend la rechace.
 
 En Fase 0 todas las rutas implementadas del panel exigen sesion y rol global `ADMIN`:
 
-| Ruta                  | Modulo                                  |
-| --------------------- | --------------------------------------- |
-| `/admin`              | Resumen operativo.                      |
-| `/admin/eventos`      | Catalogo administrativo y contexto.     |
-| `/admin/aulas`        | Inventario parcial de aulas.            |
-| `/admin/ponentes`     | Read model transitorio de propuestas.   |
-| `/admin/usuarios`     | Read model transitorio de usuarios.     |
-| `/admin/asistencia`   | Read model transitorio de asistencia.   |
-| `/admin/certificados` | Read model transitorio de certificados. |
-| `/admin/reportes`     | Read model transitorio de reportes.     |
+| Ruta                        | Modulo                                                           |
+| --------------------------- | ---------------------------------------------------------------- |
+| `/admin`                    | Resumen operativo.                                               |
+| `/admin/eventos`            | Catalogo administrativo y contexto.                              |
+| `/admin/aulas`              | Inventario, filtros y alta de aulas.                             |
+| `/admin/aulas/:classroomId` | Detalle, estado, amenidades y disponibilidad semanal de un aula. |
+| `/admin/unidades`           | Consulta administrativa de unidades organizativas.               |
+| `/admin/carreras`           | Administracion de carreras institucionales y globales.           |
+| `/admin/ponentes`           | Read model transitorio de propuestas.                            |
+| `/admin/usuarios`           | Read model transitorio de usuarios.                              |
+| `/admin/asistencia`         | Read model transitorio de asistencia.                            |
+| `/admin/certificados`       | Read model transitorio de certificados.                          |
+| `/admin/reportes`           | Read model transitorio de reportes.                              |
 
 El menu del panel enlaza todos estos modulos; ninguna ruta implementada queda huerfana.
 
@@ -112,10 +115,10 @@ backend.
 
 ## Aliases Heredados
 
-Las rutas `/eventos`, `/aulas`, `/ponentes`, `/usuarios`, `/asistencia`, `/certificados` y
-`/reportes` redirigen temporalmente a su equivalente bajo `/admin`. Se conservan para no romper
-enlaces locales existentes y deben retirarse cuando la navegacion por capacidades de Fase 3 defina
-los destinos canonicos de operaciones.
+Las rutas `/eventos`, `/aulas`, `/unidades`, `/carreras`, `/ponentes`, `/usuarios`, `/asistencia`,
+`/certificados` y `/reportes` redirigen temporalmente a su equivalente bajo `/admin`. Se conservan
+para no romper enlaces locales existentes y deben retirarse cuando la navegacion por capacidades de
+Fase 3 defina los destinos canonicos de operaciones.
 
 ## Reglas De Navegacion
 

@@ -9,6 +9,8 @@ const menuOptions = [
   { label: "Aulas", path: "/admin/aulas" },
   { label: "Ponentes", path: "/admin/ponentes" },
   { label: "Usuarios", path: "/admin/usuarios" },
+  { label: "Unidades", path: "/admin/unidades" },
+  { label: "Carreras", path: "/admin/carreras" },
   { label: "Asistencia", path: "/admin/asistencia" },
   { label: "Certificados", path: "/admin/certificados" },
   { label: "Reportes", path: "/admin/reportes" },
@@ -38,7 +40,12 @@ export function AdminMenu() {
 
         <HStack as="nav" aria-label="Navegacion del panel" gap={2} justify="end" wrap="wrap">
           {menuOptions.map((option) => (
-            <NavLink end key={option.path} style={{ textDecoration: "none" }} to={option.path}>
+            <NavLink
+              end={option.path === "/admin"}
+              key={option.path}
+              style={{ textDecoration: "none" }}
+              to={option.path}
+            >
               {({ isActive }) => (
                 <Box
                   bg={isActive ? "accent.solid" : "transparent"}

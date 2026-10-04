@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, within } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 
 import { useSessionStore } from "@/store/session";
 import { useWorkingContextStore } from "@/store/workingContext";
@@ -12,6 +14,16 @@ function authenticateAdministrator() {
     currentUser: createAuthenticatedUser({ globalRole: "ADMIN" }),
     tokens: createAuthTokens(),
   });
+}
+
+function AdminMenuFrame({ active }: { active: string }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    void navigate(active);
+  }, [active, navigate]);
+
+  return <AdminMenu />;
 }
 
 const meta = {
@@ -48,6 +60,8 @@ export const Administrator: Story = {
       /aulas/i,
       /ponentes/i,
       /usuarios/i,
+      /unidades/i,
+      /carreras/i,
       /asistencia/i,
       /certificados/i,
       /reportes/i,
@@ -63,6 +77,14 @@ export const Administrator: Story = {
       "href",
       "/admin/usuarios",
     );
+    await expect(canvas.getByRole("link", { name: /unidades/i })).toHaveAttribute(
+      "href",
+      "/admin/unidades",
+    );
+    await expect(canvas.getByRole("link", { name: /carreras/i })).toHaveAttribute(
+      "href",
+      "/admin/carreras",
+    );
   },
 };
 
@@ -75,6 +97,29 @@ export const WithoutContextSelected: Story = {
     await expect(
       await canvas.findByText(/las demas paginas requieren seleccionar un programa o actividad/i),
     ).toBeVisible();
+  },
+};
+
+export const ClassroomDetailActive: Story = {
+  render: () => <AdminMenuFrame active="/admin/aulas/aula-10" />,
+  beforeEach: () => {
+    useWorkingContextStore.getState().clearWorkingContext();
+    authenticateAdministrator();
+  },
+  play: async ({ canvas }) => {
+    const panelNavigation = await canvas.findByRole("navigation", {
+      name: /navegacion del panel/i,
+    });
+
+    await waitFor(async () => {
+      await expect(within(panelNavigation).getByRole("link", { name: "Aulas" })).toHaveAttribute(
+        "aria-current",
+        "page",
+      );
+    });
+    await expect(
+      within(panelNavigation).queryByRole("link", { current: "page", name: /panel/i }),
+    ).toBeNull();
   },
 };
 

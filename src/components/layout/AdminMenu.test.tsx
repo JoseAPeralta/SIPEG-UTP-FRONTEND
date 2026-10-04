@@ -12,14 +12,22 @@ describe("AdminMenu", () => {
     expect(
       await screen.findByRole("combobox", { name: /contexto de trabajo/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /aulas/i })).toHaveAttribute("href", "/admin/aulas");
-    expect(screen.getByRole("link", { name: /ponentes/i })).toHaveAttribute(
-      "href",
-      "/admin/ponentes",
-    );
-    expect(screen.getByRole("link", { name: /usuarios/i })).toHaveAttribute(
-      "href",
-      "/admin/usuarios",
-    );
+
+    for (const { label, path } of [
+      { label: /aulas/i, path: "/admin/aulas" },
+      { label: /unidades/i, path: "/admin/unidades" },
+      { label: /carreras/i, path: "/admin/carreras" },
+    ]) {
+      expect(screen.getByRole("link", { name: label })).toHaveAttribute("href", path);
+    }
+  });
+
+  it("should keep classrooms active while viewing a classroom detail", async () => {
+    renderWithProviders(<AdminMenu />, { route: "/admin/aulas/aula-10" });
+
+    expect(
+      await screen.findByRole("link", { current: "page", name: /aulas/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("link", { current: "page", name: /panel/i })).not.toBeInTheDocument();
   });
 });
