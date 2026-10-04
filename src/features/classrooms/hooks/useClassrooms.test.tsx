@@ -37,4 +37,30 @@ describe("useClassrooms", () => {
     expect(JSON.stringify(keys)).not.toContain("secret-token");
     expect(loadClassrooms).toHaveBeenCalledTimes(2);
   });
+
+  it("should forward the administrative filters to the adapter and to the query key", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ id: "user-1" }),
+      tokens: createAuthTokens({ accessToken: "secret-token" }),
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+    const loadClassrooms = vi.fn().mockResolvedValue([createClassroom()]);
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { result } = renderHookWithProviders(
+      () => useClassrooms("administrative", { isActive: "all", type: "LABORATORY" }),
+      { adapters: { ...adapters, classrooms: { loadClassrooms } }, queryClient },
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(loadClassrooms).toHaveBeenCalledWith({ isActive: "all", type: "LABORATORY" });
+    const keys = queryClient
+      .getQueryCache()
+      .getAll()
+      .map((query) => query.queryKey);
+    expect(keys).toContainEqual(
+      queryKeys.administrativeClassrooms("user-1", { isActive: "all", type: "LABORATORY" }),
+    );
+    expect(JSON.stringify(keys)).not.toContain("secret-token");
+  });
 });

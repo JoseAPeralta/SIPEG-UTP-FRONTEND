@@ -56,4 +56,17 @@ describe("useClassroomsOverview", () => {
     expect(result.current.error?.message).toBe("aulas caidas");
     expect(result.current.classrooms).toEqual([]);
   });
+
+  it("should send the selected filters to the adapter", async () => {
+    const loadClassrooms = vi.fn().mockResolvedValue([createClassroom()]);
+    const adapters = buildAdapters({ classrooms: { loadClassrooms } });
+    const { result } = renderHookWithProviders(
+      () => useClassroomsOverview({ isActive: "inactive", minCapacity: 25 }),
+      { adapters },
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(loadClassrooms).toHaveBeenCalledWith({ isActive: "inactive", minCapacity: 25 });
+  });
 });

@@ -1,4 +1,5 @@
 import type { AppAdapters } from "./contracts";
+import { resolveDataSource, type DataSource } from "./dataSource";
 import {
   createApiActivityCatalogAdapter,
   type ApiActivityCatalogAdapterOptions,
@@ -22,18 +23,13 @@ import {
 } from "@/features/registration/adapters";
 import { useSessionStore } from "@/store/session";
 
-export type DataSource = "mock" | "api";
+export { resolveDataSource } from "./dataSource";
+export type { DataSource } from "./dataSource";
 
 export type CreateAppAdaptersOptions = {
   apiOptions?: ApiActivityCatalogAdapterOptions;
   source?: DataSource;
 };
-
-export function resolveDataSource(
-  environment: Record<string, unknown> = import.meta.env,
-): DataSource {
-  return environment["VITE_DATA_SOURCE"] === "mock" ? "mock" : "api";
-}
 
 function readSessionAccessToken(): string | null {
   return useSessionStore.getState().tokens?.accessToken ?? null;
@@ -52,9 +48,9 @@ export function createAppAdapters({
         readSessionAccessToken,
       ),
       auth: createApiAuthAdapter(apiOptions),
-      careers: createApiCareersAdapter(apiOptions),
-      classrooms: createApiClassroomsAdapter(apiOptions),
-      organizationalUnits: createApiOrganizationalUnitsAdapter(apiOptions),
+      careers: createApiCareersAdapter(apiOptions, readSessionAccessToken),
+      classrooms: createApiClassroomsAdapter(apiOptions, readSessionAccessToken),
+      organizationalUnits: createApiOrganizationalUnitsAdapter(apiOptions, readSessionAccessToken),
       operations: createUnavailableOperationsAdapter(),
       publicActivityCatalog: createApiPublicActivityCatalogAdapter(apiOptions),
       registration: createApiRegistrationAdapter(apiOptions),

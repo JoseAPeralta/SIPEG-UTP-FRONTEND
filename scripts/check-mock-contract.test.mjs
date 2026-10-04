@@ -44,20 +44,21 @@ function buildDocument(expectations = CONTRACT_EXPECTATIONS) {
       required: [...expectation.required],
       type: "object",
     };
-    paths[expectation.path] = {
-      [expectation.method.toLowerCase()]: {
-        responses: {
-          200: {
-            content: {
-              "application/json": {
-                schema: { $ref: `#/components/schemas/${expectation.schema}` },
-              },
+    // Varias operaciones comparten path (por ejemplo el listado y el alta de aulas), asi que el
+    // metodo se acumula en el mismo item en lugar de reemplazarlo.
+    const pathItem = (paths[expectation.path] ??= {});
+    pathItem[expectation.method.toLowerCase()] = {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              schema: { $ref: `#/components/schemas/${expectation.schema}` },
             },
-            description: "ok",
           },
+          description: "ok",
         },
-        summary: "Fixture",
       },
+      summary: "Fixture",
     };
   }
 
@@ -70,6 +71,16 @@ function buildDocument(expectations = CONTRACT_EXPECTATIONS) {
 }
 
 describe("compareContract", () => {
+  it("should track the classroom availability summary contract", () => {
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      enums: { type: ["LABORATORY", "CLASSROOM"] },
+      method: "GET",
+      path: "/api/v1/classrooms/available",
+      required: ["id", "name", "type", "capacity", "building", "floor", "isActive", "amenities"],
+      schema: "ClassroomSummary",
+    });
+  });
+
   it("should accept a contract that matches the expectations", () => {
     const { checks, issues } = compareContract(buildDocument());
 

@@ -150,6 +150,34 @@ Import publico: `@/features/registration`.
 | -------------- | ------------------------------------------------------------- | --------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `RegisterForm` | Se crea una cuenta publica con unidad y carrera relacionadas. | Un administrador crea o edita usuarios. | `Provider`; catalogos publicos; callback async. | [`RegisterForm.stories.tsx`](../../src/features/registration/ui/RegisterForm.stories.tsx) |
 
+## Aulas
+
+Import publico: `@/features/classrooms`.
+
+| Modulo                          | Import publico          | Usar cuando                                                                                            | Evitar cuando                                           | Requisitos                                           | Story                                                                                                                     |
+| ------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `ClassroomsView`                | `@/features/classrooms` | Se lista el inventario de aulas con los filtros que el contrato admite.                                | Se edita un aula concreta.                              | Sesion `ADMIN`; adapters de aulas.                   | [`ClassroomsView.stories.tsx`](../../src/features/classrooms/ui/ClassroomsView.stories.tsx)                               |
+| `ClassroomDetailView`           | `@/features/classrooms` | Se editan datos, amenidades y la disponibilidad semanal de un aula.                                    | Se consulta la agenda publica o el selector.            | `classroomId` de la ruta; adapters.                  | [`ClassroomDetailView.stories.tsx`](../../src/features/classrooms/ui/ClassroomDetailView.stories.tsx)                     |
+| `ClassroomAvailabilitySelector` | `@/features/classrooms` | Un formulario de actividad ya conoce fecha, horario y requisitos y necesita elegir un aula disponible. | Se mantienen aulas o se calculan conflictos localmente. | `criteria`, selección controlada; adapters de aulas. | [`ClassroomAvailabilitySelector.stories.tsx`](../../src/features/classrooms/ui/ClassroomAvailabilitySelector.stories.tsx) |
+
+El filtro de estado del listado arranca en "todas" porque el backend solo devuelve aulas activas
+cuando se omite `isActive`: una administracion que no puede listar las inactivas no puede
+reactivarlas, y el adapter recorre las dos listas en ese caso.
+
+`ClassroomDetailView` recibe `classroomId` como prop y no lee el router. El estado del aula no tiene
+comando propio: desactivar y reactivar son el `PATCH` de `isActive`, igual que en las unidades de la
+Fase 2.2, porque el contrato no publica un borrado de aulas. El fallo se expone por area
+(`classroomFailure`, `amenityFailure`, `availabilityFailure`) porque un mismo `409` significa un aula
+reservada, una amenidad repetida o un solape, y nombrar el motivo equivocado seria mentir. El
+`period` de una ventana es texto informativo del backend: se muestra cuando existe pero no actúa como
+regla adicional de disponibilidad.
+
+`ClassroomAvailabilitySelector` no duplica los campos del formulario de actividades: recibe sus
+criterios controlados y consulta solo cuando se pulsa "Consultar aulas". El contrato admite una sola
+amenidad; los resultados no se persisten porque dependen de reservas y ventanas vigentes. Si una nueva
+consulta deja fuera una selección existente, la conserva marcada como no disponible para que el
+formulario no pierda información sin avisar.
+
 ## Catalogo De Actividades
 
 Import publico: `@/features/activity-catalog`.
