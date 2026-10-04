@@ -17,6 +17,7 @@ import type {
   ClassroomDetail,
 } from "@/features/classrooms/model/classroomDetail";
 import type { AdminUser } from "@/features/users/model/adminUser";
+import type { UserScope } from "@/features/collaboration/model/userScopes";
 
 export function createAuthenticatedUser(
   overrides: Partial<AuthenticatedUser> = {},
@@ -55,6 +56,23 @@ export function createAdminUser(overrides: Partial<AdminUser> = {}): AdminUser {
     isActive: true,
     lastName: "Rodriguez",
     unit: null,
+    ...overrides,
+  };
+}
+
+export function createUserScope(overrides: Partial<UserScope> = {}): UserScope {
+  return {
+    eventProgram: null,
+    id: "program-fisc-default",
+    name: "Programa de Eventos de Ingenieria de Sistemas",
+    organizationalUnit: {
+      id: "fisc",
+      name: "Facultad de Ingenieria de Sistemas Computacionales",
+      type: "FACULTY",
+    },
+    permissions: [{ name: "program:read", origin: "LOCAL", validFrom: null, validUntil: null }],
+    status: "ACTIVE",
+    type: "program",
     ...overrides,
   };
 }

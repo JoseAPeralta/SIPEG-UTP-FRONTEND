@@ -193,6 +193,43 @@ describe("compareContract", () => {
     });
   });
 
+  it("should track the authenticated user scopes contract", () => {
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      enums: {
+        status: ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED", "ARCHIVED", "SCHEDULED", "ONGOING"],
+        type: ["program", "activity"],
+      },
+      method: "GET",
+      path: "/api/v1/users/me/scopes",
+      required: [
+        "type",
+        "id",
+        "name",
+        "status",
+        "eventProgram",
+        "organizationalUnit",
+        "permissions",
+      ],
+      schema: "UserScope",
+    });
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      enums: { origin: ["LOCAL", "INHERITED", "BOTH"] },
+      method: "GET",
+      path: "/api/v1/users/me/scopes",
+      required: ["name", "origin", "validFrom", "validUntil"],
+      schema: "OwnPermission",
+    });
+  });
+
+  it("should report a new scope status in the contract", () => {
+    const document = buildDocument();
+    document.components.schemas.UserScope.properties.status.enum.push("RESCHEDULED");
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("nuevo valor RESCHEDULED"))).toBe(true);
+  });
+
   it("should accept a contract that matches the expectations", () => {
     const { checks, issues } = compareContract(buildDocument());
 

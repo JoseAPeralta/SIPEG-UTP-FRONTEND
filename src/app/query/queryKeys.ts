@@ -1,5 +1,6 @@
 import type { AdminUserFilters, ClassroomFilters } from "@/app/adapters/contracts";
 import type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";
+import type { UserScopeFilters } from "@/features/collaboration/model/userScopes";
 
 export const queryKeys = {
   administrativeActivityCatalog: (userId: string) =>
@@ -44,6 +45,11 @@ export const queryKeys = {
   /** Raiz que alcanza todos los detalles publicos de unidad, usada por las mutaciones de carrera. */
   publicOrganizationalUnitDetails: ["public-organizational-unit-detail"],
   publicOrganizationalUnits: ["public-organizational-units"],
+  /** Scopes accesibles del usuario, privados y ligados a la identidad; nunca se persisten. */
+  userScopes: (userId: string, filters: UserScopeFilters = {}) =>
+    ["user-scopes", userId, filters] as const,
+  /** Prefijo por identidad que alcanza todos los filtros de descubrimiento. */
+  userScopesScope: (userId: string) => ["user-scopes", userId] as const,
 } as const;
 
 /**

@@ -287,7 +287,8 @@ const operationsConsumers = new Set([
 /**
  * R8: each owned endpoint is read from exactly one feature adapter. Without this, a future aggregate
  * adapter could silently reintroduce a duplicated request for the same resource. `users` joined the
- * list when Fase 3.1 extracted `/api/v1/admin/users` from the operations aggregate.
+ * list when Fase 3.1 extracted `/api/v1/admin/users` from the operations aggregate, and
+ * `/api/v1/users/me/scopes` when Fase 3.4 replaced the forbidden catalog N+1.
  */
 const ownedEndpoints: readonly { endpoint: string; owner: string }[] = [
   {
@@ -297,6 +298,7 @@ const ownedEndpoints: readonly { endpoint: string; owner: string }[] = [
   { endpoint: "/api/v1/careers", owner: "src/features/careers/adapters/" },
   { endpoint: "/api/v1/classrooms", owner: "src/features/classrooms/adapters/" },
   { endpoint: "/api/v1/admin/users", owner: "src/features/users/adapters/" },
+  { endpoint: "/api/v1/users/me/scopes", owner: "src/features/collaboration/adapters/" },
 ];
 
 function collectEndpointOwnershipViolations(files: SourceFileRecord[]): Violation[] {

@@ -110,5 +110,15 @@ export function createBrowserAppAdapters({
             createMockUsersAdapter(),
           ),
     ),
+    userScopes: createDeferredAdapter(async () =>
+      isApi
+        ? import("@/features/collaboration/adapters/apiUserScopesAdapter").then(
+            ({ createApiUserScopesAdapter }) =>
+              createApiUserScopesAdapter(apiOptions, readSessionAccessToken),
+          )
+        : import("@/features/collaboration/adapters/mockUserScopesAdapter").then(
+            ({ createMockUserScopesAdapter }) => createMockUserScopesAdapter(),
+          ),
+    ),
   };
 }

@@ -19,6 +19,17 @@ const ORGANIZATIONAL_UNIT_TYPES = ["FACULTY", "SUBDIRECTORATE"];
 const CLASSROOM_TYPES = ["LABORATORY", "CLASSROOM"];
 const GLOBAL_ROLES = ["ADMIN", "USER"];
 const COLLABORATION_ROLES = ["VIEWER", "EDITOR", "ORGANIZER"];
+const USER_SCOPE_TYPES = ["program", "activity"];
+const USER_SCOPE_STATUSES = [
+  "DRAFT",
+  "ACTIVE",
+  "COMPLETED",
+  "CANCELLED",
+  "ARCHIVED",
+  "SCHEDULED",
+  "ONGOING",
+];
+const PERMISSION_ORIGINS = ["LOCAL", "INHERITED", "BOTH"];
 const PERMISSION_NAMES = [
   "program:read",
   "program:create",
@@ -382,6 +393,20 @@ export const CONTRACT_EXPECTATIONS = [
     method: "POST",
     path: "/api/v1/activities/{id}/permissions",
     requestBody: { enums: { permission: PERMISSION_NAMES } },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/users/me/scopes",
+    schema: "UserScope",
+    required: ["type", "id", "name", "status", "eventProgram", "organizationalUnit", "permissions"],
+    enums: { type: USER_SCOPE_TYPES, status: USER_SCOPE_STATUSES },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/users/me/scopes",
+    schema: "OwnPermission",
+    required: ["name", "origin", "validFrom", "validUntil"],
+    enums: { origin: PERMISSION_ORIGINS },
   },
 ];
 

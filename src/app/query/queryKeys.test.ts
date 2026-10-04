@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { queryKeys } from "./queryKeys";
+import { isPersistedQueryKey, queryKeys } from "./queryKeys";
 
 function isPrefix(prefix: readonly unknown[], key: readonly unknown[]): boolean {
   return prefix.every((part, index) => key[index] === part);
@@ -65,6 +65,19 @@ describe("queryKeys prefixes", () => {
     ).toBe(true);
     expect(isPrefix(scoped, queryKeys.administrativeUsers("user-1"))).toBe(true);
     expect(isPrefix(scoped, queryKeys.administrativeUsersPage("user-2", {}, 1))).toBe(false);
+  });
+
+  it("should scope discovered user scopes by identity across filters", () => {
+    const scoped = queryKeys.userScopesScope("user-1");
+
+    expect(isPrefix(scoped, queryKeys.userScopes("user-1", { type: "program" }))).toBe(true);
+    expect(isPrefix(scoped, queryKeys.userScopes("user-1"))).toBe(true);
+    expect(isPrefix(scoped, queryKeys.userScopes("user-2", { type: "activity" }))).toBe(false);
+  });
+
+  it("should never persist discovered user scopes", () => {
+    expect(isPersistedQueryKey(queryKeys.userScopes("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.userScopes("user-1", { type: "activity" }))).toBe(false);
   });
 
   it("should scope administrative user details to one identity", () => {

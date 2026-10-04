@@ -28,6 +28,7 @@ import type {
   CreateAdminUserRequest,
   UpdateAdminUserRequest,
 } from "@/features/users/model/userRequests";
+import type { UserScope, UserScopeFilters } from "@/features/collaboration/model/userScopes";
 import type {
   AddClassroomAvailabilityRequest,
   CreateClassroomRequest,
@@ -210,6 +211,16 @@ export type RegistrationAdapter = {
   register: (payload: RegistrationPayload) => Promise<RegistrationResult>;
 };
 
+/**
+ * Descubrimiento de los scopes accesibles del usuario autenticado.
+ *
+ * Una sola operacion paginada de descubrimiento reemplaza cualquier N+1 sobre el catalogo publico;
+ * el backend decide que scopes son accesibles, incluidos los no publicos.
+ */
+export type UserScopesAdapter = {
+  loadUserScopes: (filters?: UserScopeFilters) => Promise<UserScope[]>;
+};
+
 export type AppAdapters = {
   activityCatalog: ActivityCatalogAdapter;
   auth: AuthAdapter;
@@ -220,4 +231,5 @@ export type AppAdapters = {
   publicActivityCatalog: PublicActivityCatalogAdapter;
   registration: RegistrationAdapter;
   users: UsersAdapter;
+  userScopes: UserScopesAdapter;
 };

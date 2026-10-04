@@ -13,6 +13,8 @@ import { createApiCareersAdapter } from "@/features/careers/adapters/apiCareersA
 import { createMockCareersAdapter } from "@/features/careers/adapters/mockCareersAdapter";
 import { createApiClassroomsAdapter } from "@/features/classrooms/adapters/apiClassroomsAdapter";
 import { createMockClassroomsAdapter } from "@/features/classrooms/adapters/mockClassroomsAdapter";
+import { createApiUserScopesAdapter } from "@/features/collaboration/adapters/apiUserScopesAdapter";
+import { createMockUserScopesAdapter } from "@/features/collaboration/adapters/mockUserScopesAdapter";
 import { createMockOperationsAdapter } from "@/features/operations/adapters/mockOperationsAdapter";
 import { createUnavailableOperationsAdapter } from "@/features/operations/adapters/unavailableOperationsAdapter";
 import { createApiOrganizationalUnitsAdapter } from "@/features/organizational-units/adapters/apiOrganizationalUnitsAdapter";
@@ -57,6 +59,7 @@ export function createAppAdapters({
       publicActivityCatalog: createApiPublicActivityCatalogAdapter(apiOptions),
       registration: createApiRegistrationAdapter(apiOptions),
       users: createApiUsersAdapter(apiOptions, readSessionAccessToken),
+      userScopes: createApiUserScopesAdapter(apiOptions, readSessionAccessToken),
     };
   }
 
@@ -70,5 +73,6 @@ export function createAppAdapters({
     publicActivityCatalog: createMockPublicActivityCatalogAdapter(),
     registration: createMockRegistrationAdapter(),
     users: createMockUsersAdapter(),
+    userScopes: createMockUserScopesAdapter(),
   };
 }

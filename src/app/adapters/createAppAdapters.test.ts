@@ -32,6 +32,7 @@ describe("createAppAdapters", () => {
     await expect(adapters.organizationalUnits.loadOrganizationalUnits()).resolves.toBeTruthy();
     expect(adapters.registration.register).toBeTypeOf("function");
     await expect(adapters.users.loadUsers()).resolves.toBeTruthy();
+    await expect(adapters.userScopes.loadUserScopes()).resolves.toBeTruthy();
     await expect(adapters.operations.loadOperations()).resolves.toBeTruthy();
   });
 
@@ -88,6 +89,23 @@ describe("createAppAdapters", () => {
     const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
 
     await expect(adapters.users.loadUsers()).rejects.toThrow(/conectar/i);
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBe(
+      "Bearer session-access-token",
+    );
+  });
+
+  it("should authenticate the user scope discovery with the in-memory session token", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens({ accessToken: "session-access-token" }),
+    });
+    const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
+
+    await expect(adapters.userScopes.loadUserScopes()).rejects.toThrow(/conectar/i);
 
     const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
 
