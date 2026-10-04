@@ -37,6 +37,9 @@ restricted administration.
 - Classroom types and availability values are rendered from contract-confirmed values with localized
   labels.
 - Backend validation remains authoritative for relationships, availability, and conflicts.
+- The availability lookup sends one contract-supported amenity and starts only after an explicit user
+  request; it never derives room availability from the local activity catalog.
+- Availability results are transient server state and are not persisted for offline use.
 
 ## User Stories
 
@@ -86,5 +89,5 @@ Acceptance criteria:
 ## Open Questions
 
 - Which lifecycle and mutation operations are currently exposed for each catalog?
-- What classroom types, amenity representation, day format, and availability rules are contractual?
-- Does the backend provide an availability query or only data from which availability is displayed?
+- How should an activity edit retain its own scheduled classroom when the availability operation has
+  no `activityId` to exclude that reservation?

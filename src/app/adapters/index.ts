@@ -19,3 +19,4 @@ export type {
   ProfileUpdateRequest,
   RegistrationAdapter,
 } from "./contracts";
+export type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";

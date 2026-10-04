@@ -59,6 +59,15 @@ describe("isPersistedQueryKey", () => {
     expect(isPersistedQueryKey(queryKeys.administrativeClassrooms("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeOrganizationalUnits("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.operations("user-1"))).toBe(false);
+    expect(
+      isPersistedQueryKey(
+        queryKeys.availableClassrooms({
+          date: "2026-08-24",
+          endTime: "11:00",
+          startTime: "09:00",
+        }),
+      ),
+    ).toBe(false);
     expect(isPersistedQueryKey(["unknown"])).toBe(false);
   });
 });
