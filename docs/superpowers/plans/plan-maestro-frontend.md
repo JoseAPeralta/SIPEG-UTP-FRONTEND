@@ -39,7 +39,7 @@ La identidad recomendada es **SIPEG como producto independiente configurado para
 | Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                       | Completo                                                    |
 | Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive | No aplica                                                   |
 | Administracion de usuarios                                   | Shell bloqueado por `OperationsAdapter`                                | Completo                                                    |
-| Unidades, carreras y aulas                                   | Lectura parcial; administracion pendiente                              | Completo                                                    |
+| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4      | Completo                                                    |
 | Permisos y colaboradores                                     | Pendiente                                                              | Completo, salvo descubrimiento global de scopes del usuario |
 | Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                     | Completo                                                    |
 | Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes             | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
@@ -409,12 +409,14 @@ Evidencia y desviaciones de Fase 1.10: `docs/superpowers/plans/2026-09-30-fase-1
 **Entregable:** unidades, carreras y aulas administrables y reutilizables por los formularios posteriores.
 
 - [x] **2.1 Crear consultas por recurso.** Migrar unidades, carreras y aulas fuera del agregado de catalogo cuando necesiten administracion. Prueba: cada recurso tiene query key, mapper y adapter propios.
-- [ ] **2.2 Administrar unidades.** Listar, buscar, consultar, crear, editar, desactivar y reactivar. Prueba: conflictos del programa predeterminado muestran una explicacion localizada y permiten reintentar.
-- [ ] **2.3 Administrar carreras.** Gestionar carreras de facultad y globales respetando `OTROS`. Prueba: una carrera asociada a usuarios o una unidad invalida trata correctamente el `409/400`.
-- [ ] **2.4 Administrar aulas.** Anadir CRUD, filtros, detalle, estado, amenidades y disponibilidad semanal. Prueba: dias ISO, intervalos adyacentes y solapes se representan correctamente.
-- [ ] **2.5 Consultar disponibilidad.** Crear un selector de aula por fecha, horario, capacidad, tipo y amenidades para reutilizarlo en actividades. Prueba: un aula ocupada o sin capacidad no aparece como seleccionable.
-- [ ] **2.6 Canonizar rutas.** Incorporar `/admin/unidades`, `/admin/carreras` y `/admin/aulas` al panel. Prueba: solo ADMIN ve gestion institucional; la lectura publica requerida por registro permanece disponible.
-- [ ] **2.7 Invalidar con precision.** Las mutaciones deben refrescar listados, detalles, registro y selectores dependientes. Prueba: una edicion se refleja sin recargar la aplicacion.
+- [x] **2.2 Administrar unidades.** Listar, buscar, consultar, crear, editar, desactivar y reactivar. Prueba: conflictos del programa predeterminado muestran una explicacion localizada y permiten reintentar.
+- [x] **2.3 Administrar carreras.** Gestionar carreras de facultad y globales respetando `OTROS`. Prueba: una carrera asociada a usuarios o una unidad invalida trata correctamente el `409/400`.
+- [x] **2.4 Administrar aulas.** Anadir CRUD, filtros, detalle, estado, amenidades y disponibilidad semanal. Prueba: dias ISO, intervalos adyacentes y solapes se representan correctamente.
+- [x] **2.5 Consultar disponibilidad.** Crear un selector de aula por fecha, horario, capacidad, tipo y amenidades para reutilizarlo en actividades. Prueba: un aula ocupada o sin capacidad no aparece como seleccionable.
+  - Consulta pública explícita, sin cache persistente, con resultado autoritativo del backend y selección obsoleta visible. Evidencia: `2026-10-03-fase-2.5-consulta-disponibilidad-aulas.md`.
+  - Cierre verificado el 2026-10-03: `api:mocks-check` (110 verificaciones en 12 operaciones), suite de Storybook (114 interacciones y 114 comparaciones visuales con axe) y `pnpm run check` verdes.
+- [x] **2.6 Canonizar rutas.** Incorporar `/admin/unidades`, `/admin/carreras` y `/admin/aulas` al panel. Prueba: solo ADMIN ve gestion institucional; la lectura publica requerida por registro permanece disponible.
+- [x] **2.7 Invalidar con precision.** Las mutaciones deben refrescar listados, detalles, registro y selectores dependientes. Prueba: una edicion se refleja sin recargar la aplicacion.
 
 **Criterio de salida:** los tres catalogos pueden administrarse sin duplicar reglas del backend y estan disponibles para usuarios, programas y actividades.
 
@@ -452,6 +454,151 @@ Evidencia y desviaciones de Fase 2.1: `docs/superpowers/plans/2026-10-02-fase-2.
   la prueba.
 - **Sin cambios visuales, rutas, stories ni baselines.** Ningun componente de UI fue modificado, de modo
   que no se regeneraron capturas ni el inventario de componentes.
+
+Evidencia y desviaciones de Fase 2.3: `docs/superpowers/plans/2026-10-03-fase-2.3-administracion-carreras.md`.
+
+- **Contrato verificado contra el backend vivo:** `GET /api/v1/careers` permanece público; `POST`,
+  `PATCH /api/v1/careers/{id}` y `DELETE /api/v1/careers/{id}` requieren `ADMIN` con bearer. Los
+  comandos validan su envelope antes de llegar a los componentes y sus bodies se reconstruyen con
+  allowlists para ignorar propiedades inyectadas.
+- **Carrera global OTROS:** se puede editar nombre y descripción, pero su código y unidad quedan
+  bloqueados y no se puede eliminar. El mock fija las restricciones contractuales: unidad no activa o
+  no facultad devuelve `400`; una carrera con usuarios asociados devuelve `409` al cambiar unidad o
+  eliminar.
+- **Cache:** cada mutación invalida las fronteras pública y administrativa de carreras. Registro,
+  perfil y las vistas administrativas reciben la siguiente lectura sin recargar la aplicación, y las
+  claves administrativas siguen asociadas a `userId`, nunca al token.
+- **Navegación y visual:** `/admin/carreras` y el acceso corto `/carreras` están protegidos por el guard
+  de ADMIN. La vista tiene story, baseline visual y aserciones de interacción; las comprobaciones
+  afectadas pasaron axe y comparación visual.
+
+Evidencia y desviaciones de Fase 2.4: `docs/superpowers/plans/2026-10-03-fase-2.4-administracion-aulas.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-03**, ocho operaciones de aulas. Se
+  administran listado y detalle (publicos, sin `Bearer`), creacion, edicion, amenidades y
+  disponibilidad semanal (todas `ADMIN` con `bearerAuth`).
+- **No existe `DELETE /api/v1/classrooms/{id}`.** El ciclo de vida se cierra con
+  `PATCH { isActive }`, igual que las unidades de 2.2. La UI no ofrece borrar y no se invento el
+  endpoint. `GET /api/v1/classrooms/available` queda intacto para 2.5.
+- **El filtro de estado es triestado y no un parametro:** sin `isActive` el backend devuelve solo
+  aulas activas, de modo que el panel pide `"all"` y el adapter recorre las dos listas en paralelo.
+  El listado arranca en "todas" porque una administracion que no ve las inactivas no puede
+  reactivarlas. El filtro se incluye en la clave de Query, ligada a `userId` y nunca al token.
+- **El detalle tiene dos fronteras** aunque el `GET` sea publico: `publicClassroomDetail` y
+  `administrativeClassroomDetail`. El detalle no se persiste; el horario semanal en disco seria dato
+  obsoleto sin uso, porque la agenda publica nunca lo lee.
+- **`period` es texto informativo.** Se muestra cuando existe pero no actúa como regla adicional de
+  disponibilidad: el contrato no lo usa para validar ni para resolver conflictos.
+- **Dias ISO y solapes:** el mapper rechaza `dayOfWeek` fuera de `1..7` y horas fuera de `HH:mm`, y
+  el mock reproduce la regla real: dos intervalos se solapan cuando cada uno empieza antes de que el
+  otro termine, de modo que `08:00-09:00` y `09:00-10:00` son adyacentes y se aceptan, mientras que
+  `08:00-09:30` y `09:00-10:00` se rechazan con `409`.
+- **Un `409` no significa una sola cosa,** asi que `useClassroomMutations` expone el fallo por area
+  (`classroomFailure`, `amenityFailure`, `availabilityFailure`). La primera version mostraba un unico
+  `failure` en las tres secciones, lo que hacia aparecer la misma explicacion tres veces y obligaba a
+  mentir sobre el motivo. El contrato no distingue los casos, asi que cada area nombra el suyo sin
+  exponer el mensaje del backend.
+- **Defecto encontrado en el barrel, no en la vista:** `ClassroomsView` se importaba desde
+  `@/features/classrooms` sin estar exportada. El `import()` diferido rechazaba y el `Suspense` de la
+  ruta se quedaba en "Cargando modulo SIPEG..." de forma indefinida, sin error visible en consola.
+  Lo detecto `App.test.tsx`, no la prueba de la vista, que importa el archivo directamente.
+- **Defecto real del mock, detectado por una prueba:** la primera version de `loadClassrooms`
+  devolvia tambien las aulas inactivas cuando no habia filtro, al leer mal la precedencia de `||`.
+  El contrato dice lo contrario, y una agenda publica habria recibido aulas desactivadas.
+- **Prueba propia mal escrita, corregida:** `useClassroomDetail` con `enabled: false` sigue creando
+  la entrada en el cache de Query, asi que "no se pidio el aula" no puede comprobarse contando
+  queries sino que el adapter no fue invocado. Y `useClassroomMutations` no puede exponer firmas
+  variadicas: `mutateAsync` interpreta el segundo argumento como opciones de la mutacion, de modo
+  que la amenidad llegaba al adapter como objeto de opciones. Los comandos declaran ahora un unico
+  objeto de variables.
+- **Defecto latente del fixture de contrato, corregido:** `buildDocument` indexaba las operaciones
+  solo por path, de modo que registrar `POST /api/v1/classrooms` borraba el `GET` del mismo path y el
+  fixture reportaba una operacion inexistente. El fixture ahora acumula metodos por path.
+- **Deuda de lint preexistente saldada para poder cerrar la fase:** `pnpm run check` incluye
+  `eslint --max-warnings=0` y fallaba por tres archivos que esta fase no toco. Se corrigieron dos
+  firmas de `async` sin `await` y una asercion con `expect.any`, y `resolveQueryDevtools` se movio a
+  `queryDevtoolsEnvironment.ts` porque `react-refresh` solo admite exportaciones de componentes en
+  un archivo que tambien exporta un componente.
+- **Puertas:** `api:mocks-check` paso con 101 verificaciones en 11 operaciones tras registrar
+  `ClassroomDetail`, `CreateClassroom`, `UpdateClassroom` y `AddClassroomAvailability`. `UpdateClassroom`
+  se registra sin campos requeridos porque el parche es parcial. `verify:quick` (890 pruebas),
+  `test:storybook` (110 stories con `play`, axe y baseline), `components:inventory:check` y `check`
+  quedaron en verde. Se crearon y revisaron 6 baselines nuevos.
+
+Evidencia y desviaciones de Fase 2.6: `docs/superpowers/plans/2026-10-03-fase-2.6-canonizacion-rutas.md`.
+
+- **Sin cambio contractual:** la fase solo consolida rutas, navegacion, pruebas y documentacion; no
+  introduce operaciones HTTP, adapters, mocks ni claves Query. No aplica `api:mocks-check`.
+- **Rutas y aliases:** `/admin/unidades`, `/admin/carreras` y `/admin/aulas` ya viven bajo
+  `RequireAdminSession`; sus aliases cortos redirigen con `replace` a la ruta canonica. La matriz de
+  `App.test.tsx` demuestra acceso ADMIN y rechazo de USER y visitante para los tres recursos.
+- **Registro publico conservado:** `/registro` permanece fuera de los guards y sus selectores de
+  unidad y carrera se verifican sin sesion. La visibilidad administrativa nunca sustituye las lecturas
+  publicas requeridas por el formulario.
+- **Aulas activas en detalle:** el menu aplica `end` solo a Panel, para que Aulas conserve
+  `aria-current="page"` en `/admin/aulas/:classroomId`. La story nueva cubre el caso con `play`, axe
+  y baseline.
+- **Unidades sigue pendiente:** 2.6 no implementa formularios, detalle ni ciclo de vida de unidades;
+  ese trabajo permanece en 2.2.
+
+Evidencia y desviaciones de Fase 2.7: `docs/superpowers/plans/2026-10-03-fase-2.7-invalidacion-precisa-catalogos.md`.
+
+- **Sin cambio contractual ni de persistencia:** la fase solo ajusta que invalida cada mutacion sobre
+  las claves existentes. No se tocaron operaciones HTTP, adapters, mocks, `PERSISTED_QUERY_KEY_ROOTS`
+  ni la version del esquema de cache, por lo que no aplica `api:mocks-check`.
+- **Prefijos centralizados:** `queryKeys` gana `availableClassroomsRoot`,
+  `publicOrganizationalUnitDetails`, `administrativeOrganizationalUnitDetails(userId)` y
+  `administrativeClassroomsScope(userId)`. Los hooks de mutacion dejan de escribir arrays literales de
+  claves. La variante con `filters` por defecto no sirve como raiz administrativa porque el objeto `{}`
+  no coincide con otro filtro, de ahi la nueva factory por identidad.
+- **Unidades:** crear invalida listas y el catalogo administrativo de actividades (el alta crea el
+  programa predeterminado); editar invalida el detalle exacto de la unidad y, solo si cambia el
+  nombre, la agenda publica; desactivar y reactivar invalidan listas, detalle exacto y ambos catalogos
+  de actividades (el programa se archiva y se restaura).
+- **Carreras:** crear, editar y eliminar invalidan listas de carrera y los detalles de unidad publico y
+  administrativo, porque `OrganizationalUnitDetail.careers[]` es un consumidor directo. La invalidacion
+  administrativa queda ligada a `userId` y nunca al token.
+- **Aulas:** la matriz unica se separo por tipo de cambio. Crear refresca listas y disponibilidad;
+  editar agrega el detalle exacto y la agenda publica solo si cambian `name` o `building`; amenidades
+  refrescan listas, disponibilidad y detalle; horario refresca solo disponibilidad y detalle. El
+  catalogo administrativo de actividades dejo de invalidarse por cambios de aula, porque recompone los
+  nombres desde el listado de aulas.
+- **Pruebas de actualizacion, no solo spies:** se anaden pruebas de integracion que montan el
+  consumidor (listado publico de unidades, detalle administrativo o lista publica de carreras) y la
+  mutacion sobre un mismo `QueryClient`, hacen que el adapter devuelva una segunda version y comprueban
+  el dato nuevo sin desmontar. El selector de disponibilidad recibe una mutacion de aula y anuncia que
+  la seleccion dejo de estar disponible.
+- **Desviacion respecto al plan:** el plan mencionaba montar `useRegistrationCatalog` en la prueba de
+  unidades y carreras; se sustituyo por las lecturas publicas que ese hook compone
+  (`useOrganizationalUnits` y `useCareers`) porque importar el hook de otra feature desde las pruebas
+  viola la regla R3 de `architecture.test.ts`. El comportamiento verificado es el mismo: la frontera
+  publica que alimenta registro y perfil.
+- **Puertas:** `pnpm run verify:quick` paso con 140 archivos y 948 pruebas. `pnpm run test:storybook` y
+  `pnpm run components:inventory:check` sin cambios porque la fase no toca comportamiento visual.
+
+Evidencia y desviaciones de Fase 2.2: `docs/superpowers/plans/2026-10-03-fase-2.2-administracion-unidades.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-03**, cinco operaciones de unidades: detalle
+  y listado publicos, y creacion, edicion, desactivacion y reactivacion con `bearerAuth` y rol ADMIN.
+  No existe `DELETE`: el ciclo de vida se cierra con `deactivate`/`reactivate`, igual que en aulas.
+- **Conflicto del programa predeterminado:** la desactivacion se rechaza con `409` mientras el
+  programa predeterminado tenga actividades programadas o en curso. `toOrganizationalUnitFailure`
+  mapea el estado y la vista de detalle muestra un copy localizado con accion "Reintentar", que
+  vuelve a ejecutar la operacion en lugar de dejar un callejon sin salida. El mock reproduce la regla
+  con una unidad ocupada (`fisc`).
+- **Detalle con ruta propia:** `/admin/unidades/:unitId` reutiliza el guard ADMIN existente; el menu
+  no cambia porque ya aplica `end` solo a Panel y "Unidades" conserva `aria-current`. La vista muestra
+  datos editables (nombre y descripcion), codigo/tipo inmutables y responsable en solo lectura, ademas
+  del programa predeterminado y las carreras asociadas.
+- **`headId` diferido a la Fase 3:** el `PATCH` admite `headId`, pero aun no existe catalogo de
+  usuarios (3.1). Exponer un identificador crudo seria peor que no gestionarlo, asi que el responsable
+  se muestra en solo lectura y la allowlist del adapter conserva solo `name` y `description`.
+- **Cache:** las mutaciones invalidan las cuatro fronteras (listado y detalle, publico y
+  administrativo). El detalle no se persiste: embebe el programa, que seria dato obsoleto en disco sin
+  uso offline.
+- **Cobertura:** pruebas RED-GREEN de mapper de fallos, mock, hook de detalle, mutaciones, listado y
+  detalle; stories `CreateForm` y `DefaultProgramConflict` con `play` y axe; `api:mocks-check` paso con
+  160 verificaciones en 17 operaciones.
 
 ---
 

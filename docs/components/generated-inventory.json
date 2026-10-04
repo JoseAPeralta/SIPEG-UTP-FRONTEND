@@ -328,6 +328,118 @@
       "title": "Features/Auth/ResetPasswordForm"
     },
     {
+      "componentPath": "src/features/careers/ui/CareersView.tsx",
+      "stories": [
+        {
+          "id": "features-careers-careersview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/careers/ui/CareersView.stories.tsx",
+      "title": "Features/Careers/CareersView"
+    },
+    {
+      "componentPath": null,
+      "stories": [
+        {
+          "id": "features-classrooms-classroomavailabilityselector--available-classrooms",
+          "name": "Available Classrooms",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomavailabilityselector--selected-classroom-unavailable",
+          "name": "Selected Classroom Unavailable",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomavailabilityselector--without-available-classrooms",
+          "name": "Without Available Classrooms",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/classrooms/ui/ClassroomAvailabilitySelector.stories.tsx",
+      "title": "Features/Classrooms/ClassroomAvailabilitySelector"
+    },
+    {
+      "componentPath": "src/features/classrooms/ui/ClassroomDetailView.tsx",
+      "stories": [
+        {
+          "id": "features-classrooms-classroomdetailview--adding-a-weekly-window",
+          "name": "Adding A Weekly Window",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomdetailview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomdetailview--unknown-classroom",
+          "name": "Unknown Classroom",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/classrooms/ui/ClassroomDetailView.stories.tsx",
+      "title": "Features/Classrooms/ClassroomDetailView"
+    },
+    {
+      "componentPath": "src/features/classrooms/ui/ClassroomsView.tsx",
+      "stories": [
+        {
+          "id": "features-classrooms-classroomsview--creating-a-classroom",
+          "name": "Creating A Classroom",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomsview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomsview--without-matches",
+          "name": "Without Matches",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/classrooms/ui/ClassroomsView.stories.tsx",
+      "title": "Features/Classrooms/ClassroomsView"
+    },
+    {
+      "componentPath": "src/features/organizational-units/ui/OrganizationalUnitDetailView.tsx",
+      "stories": [
+        {
+          "id": "features-organizationalunits-organizationalunitdetailview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-organizationalunits-organizationalunitdetailview--default-program-conflict",
+          "name": "Default Program Conflict",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/organizational-units/ui/OrganizationalUnitDetailView.stories.tsx",
+      "title": "Features/OrganizationalUnits/OrganizationalUnitDetailView"
+    },
+    {
+      "componentPath": "src/features/organizational-units/ui/OrganizationalUnitsView.tsx",
+      "stories": [
+        {
+          "id": "features-organizationalunits-organizationalunitsview--create-form",
+          "name": "Create Form",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-organizationalunits-organizationalunitsview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/organizational-units/ui/OrganizationalUnitsView.stories.tsx",
+      "title": "Features/OrganizationalUnits/OrganizationalUnitsView"
+    },
+    {
       "componentPath": "src/features/registration/ui/RegisterForm.tsx",
       "stories": [
         {
@@ -409,6 +521,11 @@
         {
           "id": "layout-adminmenu--administrator",
           "name": "Administrator",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-adminmenu--classroom-detail-active",
+          "name": "Classroom Detail Active",
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
