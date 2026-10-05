@@ -1,70 +1,69 @@
-import { Box, Button, Heading, Stack, Text } from "@chakra-ui/react";
-import { Navigate, useNavigate } from "react-router";
+import { Box } from "@chakra-ui/react";
+import { Navigate, useNavigate, useSearchParams } from "react-router";
 
-import { users } from "@/data/sipeg";
+import type { AuthCredentials } from "@/app/adapters";
+import { StatusPanel } from "@/components";
+import { LoginForm, resolveAuthLandingPath, SESSION_END_MESSAGES, useLogin } from "@/features/auth";
 import { useSessionStore } from "@/store/session";
-import type { User } from "@/types/domain";
-
-function getDemoUser(): User {
-  const demoUser = users.find((user) => user.role === "admin");
-
-  if (!demoUser) {
-    throw new Error("Demo administrator user was not found");
-  }
-
-  return demoUser;
-}
-
-const demoUser = getDemoUser();
 
 export function LoginPage() {
   const currentUser = useSessionStore((state) => state.currentUser);
-  const login = useSessionStore((state) => state.login);
+  const sessionEndReason = useSessionStore((state) => state.sessionEndReason);
+  const { errorMessage, isPending, login } = useLogin();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isActivated = searchParams.get("activated") === "1";
+  const isPasswordReset = searchParams.get("reset") === "1";
 
   if (currentUser) {
-    return <Navigate replace to="/admin" />;
+    return <Navigate replace to={resolveAuthLandingPath(currentUser.globalRole)} />;
   }
 
-  const handleLogin = () => {
-    login(demoUser);
-    void navigate("/admin", { replace: true });
+  const handleLogin = async (credentials: AuthCredentials) => {
+    try {
+      const session = await login(credentials);
+      void navigate(resolveAuthLandingPath(session.currentUser.globalRole), { replace: true });
+    } catch {
+      // The mutation exposes a localized form-level message below.
+    }
   };
 
   return (
     <Box maxW="lg" mx="auto" py={{ base: 3, md: 6 }}>
-      <Box
-        bg="surface.raised"
-        borderColor="border.subtle"
-        borderWidth="1px"
-        p={{ base: 6, md: 8 }}
-        rounded="3xl"
-        shadow="0 24px 80px rgba(65, 31, 20, 0.14)"
-      >
-        <Stack gap={6}>
-          <Stack gap={3}>
-            <Text
-              color="accent.solid"
-              fontSize="sm"
-              fontWeight="800"
-              letterSpacing="0.14em"
-              textTransform="uppercase"
-            >
-              Acceso administrativo
-            </Text>
-            <Heading as="h1" fontFamily="heading" fontSize={{ base: "4xl", md: "5xl" }}>
-              Iniciar sesion en SIPEG
-            </Heading>
-            <Text color="text.muted" lineHeight="1.7">
-              Accede temporalmente con una cuenta demo mientras se integra el backend de
-              autenticacion.
-            </Text>
-          </Stack>
-          <Button colorPalette="terracotta" onClick={handleLogin} rounded="full" size="lg">
-            Iniciar sesion
-          </Button>
-        </Stack>
-      </Box>
+      {sessionEndReason ? (
+        <Box mb={4}>
+          <StatusPanel role="status">{SESSION_END_MESSAGES[sessionEndReason]}</StatusPanel>
+        </Box>
+      ) : null}
+      {isActivated ? (
+        <Box
+          bg="green.50"
+          border="1px solid"
+          borderColor="green.200"
+          borderRadius="md"
+          color="green.800"
+          mb={4}
+          p={4}
+          role="status"
+        >
+          Su cuenta ha sido activada. Inicie sesion para continuar.
+        </Box>
+      ) : null}
+      {isPasswordReset ? (
+        <Box
+          bg="green.50"
+          border="1px solid"
+          borderColor="green.200"
+          borderRadius="md"
+          color="green.800"
+          mb={4}
+          p={4}
+          role="status"
+        >
+          Su contraseña ha sido restablecida. Inicie sesión para continuar.
+        </Box>
+      ) : null}
+      <LoginForm errorMessage={errorMessage} isSubmitting={isPending} onSubmit={handleLogin} />
     </Box>
   );
 }

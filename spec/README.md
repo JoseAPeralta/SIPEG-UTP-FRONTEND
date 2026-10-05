@@ -16,6 +16,35 @@ remote.
 Generated artifacts must not override `CONTEXT.md`, `AGENTS.md`, or their source features file.
 Unknown requirements remain open questions instead of being invented.
 
+## Traceability And Ownership
+
+- Capability IDs in `docs/product/features.md` are immutable. Rename the capability description,
+  not its ID; retire an ID without reusing it.
+- Every capability has exactly one primary `*-features.md` owner. Supporting specs may add
+  implementation context but must link back instead of redefining ownership.
+- Product scope and implementation status are separate. Feature specs describe the intended
+  behavior; status belongs in implementation status files and repository status documentation.
+- API paths, payload fields, status values, response codes, and backend behavior must come from
+  the current contract. Unknown details stay in `Open Questions`.
+
+## Domain Index
+
+- [Accounts](./accounts/accounts-features.md) (`ACC`)
+- [Catalogs](./catalogs/catalogs-features.md) (`CAT`)
+- [Users](./users/users-features.md) (`USR`)
+- [Collaboration](./collaboration/collaboration-features.md) (`COL`)
+- [Event programs](./event-programs/event-programs-features.md) (`EPG`)
+- [Activities](./activities/activities-features.md) (`ACT`)
+- [Speaker proposals](./speaker-proposals/speaker-proposals-features.md) (`SPP`)
+- [Attendance](./attendance/attendance-features.md) (`ATT`)
+- [Certificates](./certificates/certificates-features.md) (`CER`)
+- [Alerts](./alerts/alerts-features.md) (`ALT`)
+- [Notifications](./notifications/notifications-features.md) (`NTF`)
+- [Reports](./reports/reports-features.md) (`RPT`)
+
+Supporting implementation specs: [authentication and session](./auth/auth-features.md) and
+[catalog and working context](./events/events-features.md).
+
 ## Local Workflow
 
 1. A person creates or updates a `*-features.md` file.
@@ -31,7 +60,9 @@ Unknown requirements remain open questions instead of being invented.
 - Agents must not receive GitHub connectors, tokens, SSH keys, credential helpers, or MCP tools.
 - Agents must not access, fetch, clone, pull, push, or otherwise communicate with a Git remote.
 - Agent workspaces must not contain `.git`, `.env*`, private keys, dependency directories, build
-  outputs, coverage reports, or local agent configuration.
+  outputs (`dist/`, `storybook-static/`), test artifacts (`coverage/`, `test-results/`,
+  `playwright-report/`, `*.tsbuildinfo`), editor metadata (`.DS_Store`), or local agent
+  configuration.
 - Agents must not run `git commit`. A trusted local operator may create a commit only after an
   explicit user request.
 - A request to commit never authorizes a push or any other remote operation.
@@ -62,3 +93,11 @@ Verify both isolation layers with:
 ```bash
 pnpm run test:harness
 ```
+
+## Continuous Integration
+
+The `harness-isolation` job runs `pnpm run test:harness` on `ubuntu-latest`. The runner must allow
+unprivileged user namespaces; the job enables them with
+`sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0`. If the runner blocks `unshare --user`,
+run `pnpm run test:harness` locally before integrating. This check is mandatory and has no silent
+exclusion (`continue-on-error`).

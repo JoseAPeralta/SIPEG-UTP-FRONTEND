@@ -1,28 +1,17 @@
-import { startTransition, useState } from "react";
-import {
-  Badge,
-  Box,
-  Flex,
-  Heading,
-  HStack,
-  Image,
-  SimpleGrid,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Badge, Box, Heading, HStack, Image, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 
-import { EventCard } from "@components/EventCard";
 import {
-  EventFilters,
-  type EventTypeFilter,
-  type FacultyFilter,
-  type SortDirection,
-} from "@components/EventFilters";
-import { PaginationControls } from "@components/PaginationControls";
-import { classrooms, faculties, largeEvents, smallEvents } from "@/data/sipeg";
-import type { SmallEvent } from "@/types/domain";
-
-const EVENTS_PER_PAGE = 10;
+  AsyncStateView,
+  FeedbackState,
+  PaginationControls,
+  SectionHeader,
+  Surface,
+} from "@/components/publicUi";
+import {
+  PublicActivityCard,
+  PublicActivityFilters,
+  usePublicActivities,
+} from "@/features/activity-catalog/public";
 
 const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Agenda academica SIPEG">
@@ -56,38 +45,8 @@ const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
   </g>
 </svg>`)} `;
 
-function getEventTimestamp(event: SmallEvent) {
-  return new Date(`${event.date}T${event.startTime}:00`).getTime();
-}
-
-function getFilteredEvents(
-  facultyFilter: FacultyFilter,
-  eventTypeFilter: EventTypeFilter,
-  sortDirection: SortDirection,
-) {
-  return [...smallEvents]
-    .filter((event) => facultyFilter === "all" || event.facultyId === facultyFilter)
-    .filter((event) => eventTypeFilter === "all" || event.type === eventTypeFilter)
-    .sort((firstEvent, secondEvent) => {
-      const dateDifference = getEventTimestamp(firstEvent) - getEventTimestamp(secondEvent);
-
-      return sortDirection === "asc" ? dateDifference : -dateDifference;
-    });
-}
-
 export function LandingPage() {
-  const [facultyFilter, setFacultyFilter] = useState<FacultyFilter>("all");
-  const [eventTypeFilter, setEventTypeFilter] = useState<EventTypeFilter>("all");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const [page, setPage] = useState(1);
-  const filteredEvents = getFilteredEvents(facultyFilter, eventTypeFilter, sortDirection);
-  const pageCount = Math.max(1, Math.ceil(filteredEvents.length / EVENTS_PER_PAGE));
-  const currentPage = Math.min(page, pageCount);
-  const firstVisibleEventIndex = (currentPage - 1) * EVENTS_PER_PAGE;
-  const visibleEvents = filteredEvents.slice(
-    firstVisibleEventIndex,
-    firstVisibleEventIndex + EVENTS_PER_PAGE,
-  );
+  const page = usePublicActivities();
 
   return (
     <Box bg="surface.canvas" color="text.default">
@@ -100,7 +59,7 @@ export function LandingPage() {
                   Agenda publica
                 </Badge>
                 <Badge colorPalette="terracotta" px={4} py={2} rounded="full" variant="surface">
-                  Eventos disponibles
+                  Actividades disponibles
                 </Badge>
               </HStack>
               <Stack gap={4}>
@@ -112,148 +71,84 @@ export function LandingPage() {
                   id="landing-title"
                   lineHeight="0.95"
                 >
-                  Descubre eventos academicos en SIPEG
+                  Descubra actividades academicas en SIPEG
                 </Heading>
                 <Text color="text.muted" fontSize={{ base: "lg", md: "xl" }} maxW="2xl">
-                  Explora conferencias, talleres, seminarios y charlas academicas en un solo
+                  Explore talleres, seminarios, charlas y otras actividades academicas en un solo
                   calendario publico.
                 </Text>
               </Stack>
               <HStack gap={5} wrap="wrap">
                 <Box>
                   <Text color="accent.solid" fontFamily="heading" fontSize="4xl" fontWeight="700">
-                    {smallEvents.length}
+                    {page.summary ? page.summary.activityCount : "..."}
                   </Text>
                   <Text color="text.muted" fontSize="sm" fontWeight="800">
-                    eventos publicados
-                  </Text>
-                </Box>
-                <Box borderLeftColor="border.subtle" borderLeftWidth="1px" pl={5}>
-                  <Text color="accent.solid" fontFamily="heading" fontSize="4xl" fontWeight="700">
-                    {faculties.length}
-                  </Text>
-                  <Text color="text.muted" fontSize="sm" fontWeight="800">
-                    facultades
+                    actividades publicadas
                   </Text>
                 </Box>
               </HStack>
             </Stack>
-            <Box
-              bg="surface.raised"
-              borderColor="border.subtle"
-              borderWidth="1px"
-              overflow="hidden"
-              p={{ base: 3, md: 4 }}
-              rounded="3xl"
-              shadow="0 30px 90px rgba(65, 31, 20, 0.16)"
-            >
+            <Surface elevation="overlay" overflow="hidden" padding="tight">
               <Image
-                alt="Ilustracion de una agenda academica digital de eventos"
+                alt="Ilustracion de una agenda academica digital de actividades"
                 aspectRatio="4 / 3"
                 objectFit="cover"
                 rounded="2xl"
                 src={heroImageSource}
                 w="full"
               />
-            </Box>
+            </Surface>
           </SimpleGrid>
         </Box>
 
-        <EventFilters
-          currentPage={page}
-          eventTypeFilter={eventTypeFilter}
-          facultyFilter={facultyFilter}
-          filteredCount={filteredEvents.length}
-          onEventTypeChange={(filter) => {
-            startTransition(() => {
-              setEventTypeFilter(filter);
-              setPage(1);
-            });
-          }}
-          onFacultyChange={(filter) => {
-            startTransition(() => {
-              setFacultyFilter(filter);
-              setPage(1);
-            });
-          }}
-          onSortDirectionChange={(direction) => {
-            startTransition(() => {
-              setSortDirection(direction);
-              setPage(1);
-            });
-          }}
-          sortDirection={sortDirection}
-        />
-
-        <Box as="section" aria-labelledby="events-title">
-          <Stack gap={5}>
-            <Flex align={{ base: "start", md: "end" }} gap={4} justify="space-between" wrap="wrap">
-              <Box>
-                <Text
-                  color="text.muted"
-                  fontSize="sm"
-                  fontWeight="800"
-                  letterSpacing="0.1em"
-                  textTransform="uppercase"
-                >
-                  Calendario publico
-                </Text>
-                <Heading
-                  as="h2"
-                  color="text.default"
-                  fontFamily="heading"
-                  fontSize={{ base: "3xl", md: "4xl" }}
-                  id="events-title"
-                >
-                  Eventos disponibles
-                </Heading>
-              </Box>
-              <Text color="text.muted" fontWeight="700">
-                Pagina {currentPage} de {pageCount} · maximo {EVENTS_PER_PAGE} por pagina
-              </Text>
-            </Flex>
-
-            {visibleEvents.length > 0 ? (
-              <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-                {visibleEvents.map((event) => (
-                  <EventCard
-                    classroom={classrooms.find((classroom) => classroom.id === event.classroomId)}
-                    event={event}
-                    faculty={faculties.find((faculty) => faculty.id === event.facultyId)}
-                    key={event.id}
-                    parentEvent={largeEvents.find(
-                      (largeEvent) => largeEvent.id === event.parentEventId,
-                    )}
-                  />
-                ))}
-              </SimpleGrid>
-            ) : (
-              <Box
-                bg="surface.raised"
-                borderColor="border.subtle"
-                borderWidth="1px"
-                p={{ base: 5, md: 8 }}
-                rounded="3xl"
-              >
-                <Text color="text.default" fontFamily="heading" fontSize="2xl" fontWeight="700">
-                  No hay eventos con esos filtros
-                </Text>
-                <Text color="text.muted" mt={2}>
-                  Cambia la facultad o el tipo de evento para ver mas opciones disponibles.
-                </Text>
-              </Box>
-            )}
-
-            <PaginationControls
-              currentPage={currentPage}
-              itemLabel="eventos"
-              onPageChange={setPage}
-              pageCount={pageCount}
-              totalItems={filteredEvents.length}
-              visibleItems={visibleEvents.length}
+        <AsyncStateView error={page.error} isLoading={page.isLoading} onRetry={page.refetch}>
+          <Stack gap={6}>
+            <PublicActivityFilters
+              filteredCount={page.filteredCount}
+              onSortDirectionChange={page.onSortDirectionChange}
+              onTypeFilterChange={page.onTypeFilterChange}
+              onUnitFilterChange={page.onUnitFilterChange}
+              rows={page.rows}
+              sortDirection={page.sortDirection}
+              typeFilter={page.typeFilter}
+              unitFilter={page.unitFilter}
             />
+
+            <Box as="section" aria-labelledby="public-activities-title">
+              <Stack gap={5}>
+                <SectionHeader
+                  headingLabel="Calendario publico"
+                  id="public-activities-title"
+                  title="Actividades disponibles"
+                />
+
+                {page.pagination.rows.length > 0 ? (
+                  <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
+                    {page.pagination.rows.map((row) => (
+                      <PublicActivityCard key={row.activity.id} row={row} />
+                    ))}
+                  </SimpleGrid>
+                ) : (
+                  <FeedbackState
+                    description="Cambie la unidad o el tipo de actividad para ver mas opciones disponibles."
+                    padding="roomy"
+                    title="No hay actividades con esos filtros"
+                  />
+                )}
+
+                <PaginationControls
+                  currentPage={page.pagination.currentPage}
+                  itemLabel="actividades"
+                  onPageChange={page.onPageChange}
+                  pageCount={page.pagination.pageCount}
+                  pageSize={page.pageSize}
+                  totalItems={page.filteredCount}
+                />
+              </Stack>
+            </Box>
           </Stack>
-        </Box>
+        </AsyncStateView>
       </Stack>
     </Box>
   );

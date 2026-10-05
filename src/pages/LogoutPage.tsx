@@ -1,33 +1,48 @@
-import { Box, Text } from "@chakra-ui/react";
-import { useEffect } from "react";
+import { Box, Button } from "@chakra-ui/react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 
-import { useSessionStore } from "@/store/session";
+import { StatusPanel } from "@/components";
+import { useLogout } from "@/features/auth";
 
 export function LogoutPage() {
-  const logout = useSessionStore((state) => state.logout);
+  const { logout, errorMessage, isPending } = useLogout();
+  const hasStarted = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    logout();
-    void navigate("/", { replace: true });
+    if (hasStarted.current) {
+      return;
+    }
+
+    hasStarted.current = true;
+    void logout().then(
+      () => navigate("/", { replace: true }),
+      () => undefined,
+    );
   }, [logout, navigate]);
 
   return (
-    <Box
-      bg="surface.raised"
-      borderColor="border.subtle"
-      borderWidth="1px"
-      mx="auto"
-      my={{ base: 10, md: 16 }}
-      p={6}
-      rounded="3xl"
-      role="status"
-      w="min(100% - 2rem, 32rem)"
-    >
-      <Text color="text.muted" fontWeight="800">
-        Cerrando sesion...
-      </Text>
+    <Box mx="auto" my={{ base: 10, md: 16 }} w="min(100% - 2rem, 32rem)">
+      {errorMessage ? (
+        <StatusPanel role="alert">
+          {errorMessage}
+          <Button
+            mt={4}
+            loading={isPending}
+            onClick={() => {
+              void logout().then(
+                () => navigate("/", { replace: true }),
+                () => undefined,
+              );
+            }}
+          >
+            Reintentar cierre de sesion
+          </Button>
+        </StatusPanel>
+      ) : (
+        <StatusPanel>Cerrando sesion...</StatusPanel>
+      )}
     </Box>
   );
 }

@@ -1,35 +1,35 @@
-import { Badge, Box, HStack, Stack, Text } from "@chakra-ui/react";
+import { Badge, Box, HStack, Text } from "@chakra-ui/react";
 
-import { ModuleShell } from "@components/ModuleShell";
-import { smallEvents, speakerProposals } from "@/data/sipeg";
+import { AsyncStateView, ModuleShell, Surface } from "@/components";
+import { activityTypeLabels } from "@/features/activity-catalog";
+import { useSpeakersOverview } from "@/features/speakers";
+import { formatDateTime } from "@/utils";
 
 export function SpeakersPage() {
+  const { error, isLoading, rows } = useSpeakersOverview();
+
   return (
     <ModuleShell
-      description="Registro de propuestas de ponentes con duracion, tipo de charla, resumen y evento asociado; listo para conectar envio opcional por correo en una capa aparte."
-      eyebrow="Convocatoria"
+      description="Registro de propuestas de ponentes con duracion, tipo de charla, resumen y programa asociado."
+      headingLabel="Convocatoria"
       title="Registro de ponentes"
     >
-      <Stack gap={4}>
-        {speakerProposals.map((proposal) => {
-          const event = smallEvents.find((smallEvent) => smallEvent.id === proposal.eventId);
-
-          return (
-            <Stack
-              bg="surface.raised"
-              borderColor="border.subtle"
-              borderWidth="1px"
+      <AsyncStateView error={error} isLoading={isLoading}>
+        <Box display="flex" flexDirection="column" gap={4}>
+          {rows.map((row) => (
+            <Surface
+              display="flex"
+              flexDirection="column"
               gap={4}
-              key={proposal.id}
-              p={6}
-              rounded="3xl"
+              key={row.proposal.id}
+              padding="normal"
             >
               <HStack gap={3} wrap="wrap">
                 <Badge colorPalette="terracotta" rounded="full" variant="subtle">
-                  {proposal.talkType}
+                  {activityTypeLabels[row.proposal.talkType]}
                 </Badge>
                 <Badge rounded="full" variant="surface">
-                  {proposal.approximateDuration}
+                  {row.proposal.approximateDuration}
                 </Badge>
               </HStack>
               <Box>
@@ -40,20 +40,21 @@ export function SpeakersPage() {
                   fontWeight="700"
                   lineHeight="1.06"
                 >
-                  {proposal.proposalTitle}
+                  {row.proposal.proposalTitle}
                 </Text>
                 <Text color="text.muted" mt={2}>
-                  {proposal.firstName} {proposal.lastName} · {proposal.email}
+                  {row.proposal.firstName} {row.proposal.lastName} · {row.proposal.email}
                 </Text>
               </Box>
-              <Text color="text.default">{proposal.content}</Text>
+              <Text color="text.default">{row.proposal.content}</Text>
               <Text color="text.muted" fontSize="sm">
-                Aplica a: {event?.name ?? "Evento pendiente"} · Enviado {proposal.submittedAt}
+                Aplica a: {row.programName ?? "Programa pendiente"} · Enviado{" "}
+                {formatDateTime(row.proposal.submittedAt)}
               </Text>
-            </Stack>
-          );
-        })}
-      </Stack>
+            </Surface>
+          ))}
+        </Box>
+      </AsyncStateView>
     </ModuleShell>
   );
 }

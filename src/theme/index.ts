@@ -1,9 +1,32 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 
+import { activityTypeColorTokens, type DomainColorToken, unitColorTokens } from "./domainColors";
+
+function buildDomainSemanticColors() {
+  const colors: Record<string, { value: { base: string; _dark: string } }> = {};
+
+  const register = (namespace: "type" | "unit", key: string, token: DomainColorToken) => {
+    colors[`${namespace}.bg.${key}`] = { value: { base: token.bg, _dark: token.darkBg } };
+    colors[`${namespace}.fg.${key}`] = { value: { base: token.fg, _dark: token.darkFg } };
+    colors[`${namespace}.solid.${key}`] = { value: { base: token.base, _dark: token.base } };
+  };
+
+  for (const [key, token] of Object.entries(unitColorTokens)) {
+    register("unit", key, token);
+  }
+
+  for (const [key, token] of Object.entries(activityTypeColorTokens)) {
+    register("type", key, token);
+  }
+
+  return colors;
+}
+
 const config = defineConfig({
   theme: {
     semanticTokens: {
       colors: {
+        ...buildDomainSemanticColors(),
         "accent.contrast": { value: { base: "#FFFFFF", _dark: "#2B1209" } },
         "accent.muted": {
           value: { base: "{colors.terracotta.50}", _dark: "{colors.terracotta.950}" },
@@ -19,6 +42,27 @@ const config = defineConfig({
         "surface.subtle": { value: { base: "#F3EAE2", _dark: "#33251C" } },
         "text.default": { value: { base: "#33261F", _dark: "#F7EFE8" } },
         "text.muted": { value: { base: "#6B5A4F", _dark: "#C9B8AC" } },
+        "fg.error": { value: { base: "{colors.danger.700}", _dark: "{colors.danger.300}" } },
+      },
+      shadows: {
+        interactive: {
+          value: {
+            base: "0 28px 80px rgba(65, 31, 20, 0.14)",
+            _dark: "0 28px 80px rgba(0, 0, 0, 0.52)",
+          },
+        },
+        overlay: {
+          value: {
+            base: "0 30px 90px rgba(65, 31, 20, 0.16)",
+            _dark: "0 30px 90px rgba(0, 0, 0, 0.58)",
+          },
+        },
+        raised: {
+          value: {
+            base: "0 20px 70px rgba(65, 31, 20, 0.08)",
+            _dark: "0 24px 70px rgba(0, 0, 0, 0.45)",
+          },
+        },
       },
     },
     tokens: {
@@ -82,3 +126,12 @@ const config = defineConfig({
 });
 
 export const system = createSystem(defaultConfig, config);
+
+export {
+  activityTypeColorTokens,
+  getActivityTypeColorKey,
+  getUnitColorKey,
+  knownUnitCodes,
+  unitColorTokens,
+} from "./domainColors";
+export type { ActivityTypeColorKey, DomainColorToken, UnitColorKey } from "./domainColors";

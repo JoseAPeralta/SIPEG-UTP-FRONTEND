@@ -1,0 +1,878 @@
+{
+  "components": [
+    {
+      "componentPath": "src/features/activity-catalog/ui/ActivityCard.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-activitycard--long-description",
+          "name": "Long Description",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--new-activity-types",
+          "name": "New Activity Types",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--public",
+          "name": "Public",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--selectable",
+          "name": "Selectable",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--selected",
+          "name": "Selected",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycard--with-enrollment-count",
+          "name": "With Enrollment Count",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ActivityCard.stories.tsx",
+      "title": "Features/Activity Catalog/ActivityCard"
+    },
+    {
+      "componentPath": "src/features/activity-catalog/ui/ActivityFilters.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-activityfilters--administrative",
+          "name": "Administrative",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activityfilters--public",
+          "name": "Public",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ActivityFilters.stories.tsx",
+      "title": "Features/Activity Catalog/ActivityFilters"
+    },
+    {
+      "componentPath": "src/features/activity-catalog/ui/EventProgramCard.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-eventprogramcard--selectable",
+          "name": "Selectable",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-eventprogramcard--selected",
+          "name": "Selected",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-eventprogramcard--summary",
+          "name": "Summary",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/EventProgramCard.stories.tsx",
+      "title": "Features/Activity Catalog/EventProgramCard"
+    },
+    {
+      "componentPath": "src/features/activity-catalog/ui/PublicActivityCard.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-publicactivitycard--expands-a-long-description",
+          "name": "Expands A Long Description",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitycard--from-an-unknown-unit",
+          "name": "From An Unknown Unit",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitycard--program-with-custom-label",
+          "name": "Program With Custom Label",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitycard--without-classroom",
+          "name": "Without Classroom",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitycard--without-description-or-speakers",
+          "name": "Without Description Or Speakers",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/PublicActivityCard.stories.tsx",
+      "title": "Features/Activity Catalog/PublicActivityCard"
+    },
+    {
+      "componentPath": "src/features/activity-catalog/ui/PublicActivityFilters.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-publicactivityfilters--changes-the-sort-order",
+          "name": "Changes The Sort Order",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--offers-only-units-present-in-the-agenda",
+          "name": "Offers Only Units Present In The Agenda",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--selects-an-activity-type",
+          "name": "Selects An Activity Type",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--selects-an-organizational-unit",
+          "name": "Selects An Organizational Unit",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/PublicActivityFilters.stories.tsx",
+      "title": "Features/Activity Catalog/PublicActivityFilters"
+    },
+    {
+      "componentPath": "src/features/auth/ui/ChangePasswordForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-changepasswordform--current-password-required",
+          "name": "Current Password Required",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--invalid-credentials",
+          "name": "Invalid Credentials",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--password-mismatch",
+          "name": "Password Mismatch",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--password-too-short",
+          "name": "Password Too Short",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--password-visible",
+          "name": "Password Visible",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-changepasswordform--throttled",
+          "name": "Throttled",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/ChangePasswordForm.stories.tsx",
+      "title": "Features/Auth/ChangePasswordForm"
+    },
+    {
+      "componentPath": "src/features/auth/ui/ForgotPasswordForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-forgotpasswordform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-forgotpasswordform--invalid-email",
+          "name": "Invalid Email",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-forgotpasswordform--service-error",
+          "name": "Service Error",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-forgotpasswordform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/ForgotPasswordForm.stories.tsx",
+      "title": "Features/Auth/ForgotPasswordForm"
+    },
+    {
+      "componentPath": "src/features/auth/ui/LoginForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-loginform--authentication-error",
+          "name": "Authentication Error",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-loginform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-loginform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-loginform--throttled",
+          "name": "Throttled",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/LoginForm.stories.tsx",
+      "title": "Features/Auth/LoginForm"
+    },
+    {
+      "componentPath": "src/features/auth/ui/PersonalAreaLayout.tsx",
+      "stories": [
+        {
+          "id": "features-auth-personalarealayout--desktop-data-section",
+          "name": "Desktop Data Section",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-personalarealayout--desktop-security-section",
+          "name": "Desktop Security Section",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/PersonalAreaLayout.stories.tsx",
+      "title": "Features/Auth/PersonalAreaLayout"
+    },
+    {
+      "componentPath": "src/features/auth/ui/ProfileForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-profileform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-profileform--inactive-current-assignment",
+          "name": "Inactive Current Assignment",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-profileform--other-unit",
+          "name": "Other Unit",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-profileform--service-error",
+          "name": "Service Error",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-profileform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-profileform--validation-error",
+          "name": "Validation Error",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/ProfileForm.stories.tsx",
+      "title": "Features/Auth/ProfileForm"
+    },
+    {
+      "componentPath": "src/features/auth/ui/ResetPasswordForm.tsx",
+      "stories": [
+        {
+          "id": "features-auth-resetpasswordform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--expired-link",
+          "name": "Expired Link",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--password-mismatch",
+          "name": "Password Mismatch",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--password-too-short",
+          "name": "Password Too Short",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--password-visible",
+          "name": "Password Visible",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-auth-resetpasswordform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/auth/ui/ResetPasswordForm.stories.tsx",
+      "title": "Features/Auth/ResetPasswordForm"
+    },
+    {
+      "componentPath": "src/features/careers/ui/CareersView.tsx",
+      "stories": [
+        {
+          "id": "features-careers-careersview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/careers/ui/CareersView.stories.tsx",
+      "title": "Features/Careers/CareersView"
+    },
+    {
+      "componentPath": null,
+      "stories": [
+        {
+          "id": "features-classrooms-classroomavailabilityselector--available-classrooms",
+          "name": "Available Classrooms",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomavailabilityselector--selected-classroom-unavailable",
+          "name": "Selected Classroom Unavailable",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomavailabilityselector--without-available-classrooms",
+          "name": "Without Available Classrooms",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/classrooms/ui/ClassroomAvailabilitySelector.stories.tsx",
+      "title": "Features/Classrooms/ClassroomAvailabilitySelector"
+    },
+    {
+      "componentPath": "src/features/classrooms/ui/ClassroomDetailView.tsx",
+      "stories": [
+        {
+          "id": "features-classrooms-classroomdetailview--adding-a-weekly-window",
+          "name": "Adding A Weekly Window",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomdetailview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomdetailview--unknown-classroom",
+          "name": "Unknown Classroom",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/classrooms/ui/ClassroomDetailView.stories.tsx",
+      "title": "Features/Classrooms/ClassroomDetailView"
+    },
+    {
+      "componentPath": "src/features/classrooms/ui/ClassroomsView.tsx",
+      "stories": [
+        {
+          "id": "features-classrooms-classroomsview--creating-a-classroom",
+          "name": "Creating A Classroom",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomsview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-classrooms-classroomsview--without-matches",
+          "name": "Without Matches",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/classrooms/ui/ClassroomsView.stories.tsx",
+      "title": "Features/Classrooms/ClassroomsView"
+    },
+    {
+      "componentPath": "src/features/organizational-units/ui/OrganizationalUnitDetailView.tsx",
+      "stories": [
+        {
+          "id": "features-organizationalunits-organizationalunitdetailview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-organizationalunits-organizationalunitdetailview--default-program-conflict",
+          "name": "Default Program Conflict",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/organizational-units/ui/OrganizationalUnitDetailView.stories.tsx",
+      "title": "Features/OrganizationalUnits/OrganizationalUnitDetailView"
+    },
+    {
+      "componentPath": "src/features/organizational-units/ui/OrganizationalUnitsView.tsx",
+      "stories": [
+        {
+          "id": "features-organizationalunits-organizationalunitsview--create-form",
+          "name": "Create Form",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-organizationalunits-organizationalunitsview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/organizational-units/ui/OrganizationalUnitsView.stories.tsx",
+      "title": "Features/OrganizationalUnits/OrganizationalUnitsView"
+    },
+    {
+      "componentPath": "src/features/registration/ui/RegisterForm.tsx",
+      "stories": [
+        {
+          "id": "features-registration-registerform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-registration-registerform--password-policy",
+          "name": "Password Policy",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-registration-registerform--registration-error",
+          "name": "Registration Error",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-registration-registerform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-registration-registerform--throttled",
+          "name": "Throttled",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/features/registration/ui/RegisterForm.stories.tsx",
+      "title": "Features/Registration/RegisterForm"
+    },
+    {
+      "componentPath": "src/features/users/ui/UserDetailView.tsx",
+      "stories": [
+        {
+          "id": "features-users-userdetailview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-userdetailview--promoting-a-user",
+          "name": "Promoting A User",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-userdetailview--protecting-the-acting-administrator",
+          "name": "Protecting The Acting Administrator",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-userdetailview--unknown-user",
+          "name": "Unknown User",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/users/ui/UserDetailView.stories.tsx",
+      "title": "Features/Users/UserDetailView"
+    },
+    {
+      "componentPath": "src/features/users/ui/UsersView.tsx",
+      "stories": [
+        {
+          "id": "features-users-usersview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-usersview--filtering-by-role",
+          "name": "Filtering By Role",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-users-usersview--validating-the-create-form",
+          "name": "Validating The Create Form",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/users/ui/UsersView.stories.tsx",
+      "title": "Features/Users/UsersView"
+    },
+    {
+      "componentPath": "src/features/working-context/ui/WorkingContextSelect.tsx",
+      "stories": [
+        {
+          "id": "features-working-context-workingcontextselect--activity-selected",
+          "name": "Activity Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-working-context-workingcontextselect--change-selection",
+          "name": "Change Selection",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-working-context-workingcontextselect--program-selected",
+          "name": "Program Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-working-context-workingcontextselect--without-selection",
+          "name": "Without Selection",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/working-context/ui/WorkingContextSelect.stories.tsx",
+      "title": "Features/Working Context/WorkingContextSelect"
+    },
+    {
+      "componentPath": "src/components/layout/AdminLayout.tsx",
+      "stories": [
+        {
+          "id": "layout-adminlayout--with-outlet",
+          "name": "With Outlet",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-adminlayout--without-working-context",
+          "name": "Without Working Context",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AdminLayout.stories.tsx",
+      "title": "Layout/AdminLayout"
+    },
+    {
+      "componentPath": "src/components/layout/AdminMenu.tsx",
+      "stories": [
+        {
+          "id": "layout-adminmenu--administrator",
+          "name": "Administrator",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-adminmenu--classroom-detail-active",
+          "name": "Classroom Detail Active",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-adminmenu--with-context-selected",
+          "name": "With Context Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-adminmenu--without-context-selected",
+          "name": "Without Context Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AdminMenu.stories.tsx",
+      "title": "Layout/AdminMenu"
+    },
+    {
+      "componentPath": "src/components/layout/AppFooter.tsx",
+      "stories": [
+        {
+          "id": "layout-appfooter--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AppFooter.stories.tsx",
+      "title": "Layout/AppFooter"
+    },
+    {
+      "componentPath": "src/components/layout/AppLayout.tsx",
+      "stories": [
+        {
+          "id": "layout-applayout--with-outlet",
+          "name": "With Outlet",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AppLayout.stories.tsx",
+      "title": "Layout/AppLayout"
+    },
+    {
+      "componentPath": "src/components/layout/AppMenu.tsx",
+      "stories": [
+        {
+          "id": "layout-appmenu--administrator",
+          "name": "Administrator",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-appmenu--logged-out",
+          "name": "Logged Out",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-appmenu--restoring-session",
+          "name": "Restoring Session",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "layout-appmenu--standard-user",
+          "name": "Standard User",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/AppMenu.stories.tsx",
+      "title": "Layout/AppMenu"
+    },
+    {
+      "componentPath": "src/components/layout/SkipLink.tsx",
+      "stories": [
+        {
+          "id": "layout-skiplink--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/layout/SkipLink.stories.tsx",
+      "title": "Layout/SkipLink"
+    },
+    {
+      "componentPath": "src/components/ui/AsyncStateView.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-asyncstateview--error-with-retry",
+          "name": "Error With Retry",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "shared-ui-asyncstateview--error-without-retry",
+          "name": "Error Without Retry",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-asyncstateview--loading",
+          "name": "Loading",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-asyncstateview--ready",
+          "name": "Ready",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/AsyncStateView.stories.tsx",
+      "title": "Shared/UI/AsyncStateView"
+    },
+    {
+      "componentPath": "src/components/ui/FeedbackState.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-feedbackstate--confirmed-outcome",
+          "name": "Confirmed Outcome",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "shared-ui-feedbackstate--empty",
+          "name": "Empty",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-feedbackstate--error-with-action",
+          "name": "Error With Action",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "shared-ui-feedbackstate--prominent-title",
+          "name": "Prominent Title",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/FeedbackState.stories.tsx",
+      "title": "Shared/UI/FeedbackState"
+    },
+    {
+      "componentPath": "src/components/ui/MetricCard.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-metriccard--neutral",
+          "name": "Neutral",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--operational",
+          "name": "Operational",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--primary",
+          "name": "Primary",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--success",
+          "name": "Success",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--summary",
+          "name": "Summary",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-metriccard--warning",
+          "name": "Warning",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/MetricCard.stories.tsx",
+      "title": "Shared/UI/MetricCard"
+    },
+    {
+      "componentPath": "src/components/ui/ModuleShell.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-moduleshell--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-moduleshell--with-actions",
+          "name": "With Actions",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/ModuleShell.stories.tsx",
+      "title": "Shared/UI/ModuleShell"
+    },
+    {
+      "componentPath": "src/components/ui/PaginationControls.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-paginationcontrols--first-page",
+          "name": "First Page",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-paginationcontrols--middle-page",
+          "name": "Middle Page",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "shared-ui-paginationcontrols--only-page",
+          "name": "Only Page",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/PaginationControls.stories.tsx",
+      "title": "Shared/UI/PaginationControls"
+    },
+    {
+      "componentPath": "src/components/ui/SectionHeader.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-sectionheader--with-description",
+          "name": "With Description",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-sectionheader--with-heading-label",
+          "name": "With Heading Label",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-sectionheader--with-status",
+          "name": "With Status",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/SectionHeader.stories.tsx",
+      "title": "Shared/UI/SectionHeader"
+    },
+    {
+      "componentPath": "src/components/ui/SelectionRequiredState.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-selectionrequiredstate--selection-required",
+          "name": "Selection Required",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/SelectionRequiredState.stories.tsx",
+      "title": "Shared/UI/SelectionRequiredState"
+    },
+    {
+      "componentPath": "src/components/ui/StatusPanel.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-statuspanel--alert",
+          "name": "Alert",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-statuspanel--loading",
+          "name": "Loading",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/StatusPanel.stories.tsx",
+      "title": "Shared/UI/StatusPanel"
+    },
+    {
+      "componentPath": "src/components/ui/Surface.tsx",
+      "stories": [
+        {
+          "id": "shared-ui-surface--control-radius",
+          "name": "Control Radius",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--interactive",
+          "name": "Interactive",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--overlay",
+          "name": "Overlay",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--panel",
+          "name": "Panel",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--raised",
+          "name": "Raised",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "shared-ui-surface--selected",
+          "name": "Selected",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        }
+      ],
+      "storyPath": "src/components/ui/Surface.stories.tsx",
+      "title": "Shared/UI/Surface"
+    }
+  ],
+  "schemaVersion": 1,
+  "source": "storybook-static/index.json"
+}

@@ -11,10 +11,27 @@ export default mergeConfig(
         provider: "v8",
         reporter: ["text", "html", "lcov"],
       },
-      css: true,
+      css: false,
+      deps: {
+        optimizer: {
+          client: {
+            enabled: true,
+            include: [
+              "@chakra-ui/react",
+              "@emotion/react",
+              "@tanstack/react-query",
+              "@testing-library/react",
+              "@testing-library/user-event",
+              "react-router",
+            ],
+          },
+        },
+      },
       environment: "jsdom",
+      fsModuleCache: true,
       globals: true,
       setupFiles: ["./src/setupTests.ts"],
+      testTimeout: 15000,
     },
   }),
 );

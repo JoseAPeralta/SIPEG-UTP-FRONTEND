@@ -79,6 +79,18 @@ tar \
   --exclude='./dist/*' \
   --exclude='*/dist' \
   --exclude='*/dist/*' \
+  --exclude='./playwright-report' \
+  --exclude='./playwright-report/*' \
+  --exclude='*/playwright-report' \
+  --exclude='*/playwright-report/*' \
+  --exclude='./storybook-static' \
+  --exclude='./storybook-static/*' \
+  --exclude='*/storybook-static' \
+  --exclude='*/storybook-static/*' \
+  --exclude='./test-results' \
+  --exclude='./test-results/*' \
+  --exclude='*/test-results' \
+  --exclude='*/test-results/*' \
   --exclude='./node_modules' \
   --exclude='./node_modules/*' \
   --exclude='*/node_modules' \
@@ -95,6 +107,10 @@ tar \
   --exclude='*.pem' \
   --exclude='*.p12' \
   --exclude='*.pfx' \
+  --exclude='*.tsbuildinfo' \
+  --exclude='*/*.tsbuildinfo' \
+  --exclude='.DS_Store' \
+  --exclude='*/.DS_Store' \
   -C "$SOURCE_ROOT" \
   -cf "$ARCHIVE" .
 

@@ -1,163 +1,118 @@
-import { startTransition } from "react";
-import { Badge, Box, Button, HStack, SimpleGrid, Stack, Text } from "@chakra-ui/react";
+import { Button, HStack, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 
-import { EventCard } from "@components/EventCard";
-import { MetricCard } from "@components/MetricCard";
-import { ModuleShell } from "@components/ModuleShell";
-import { classrooms, faculties, largeEvents, reportMetrics, smallEvents } from "@/data/sipeg";
-import { useDashboardMetrics } from "@hooks/useDashboardMetrics";
-import { useFacultyPreferenceStore } from "@store/facultyPreference";
-import type { FacultyFilter } from "@utils/eventFilters";
-import { getEventsForFaculty } from "@utils/eventFilters";
+import {
+  AsyncStateView,
+  MetricCard,
+  ModuleShell,
+  SectionHeader,
+  StatusPanel,
+  Surface,
+} from "@/components";
+import { ActivityCard } from "@/features/activity-catalog";
+import { useDashboardOverview } from "@/features/dashboard";
 
 export function DashboardPage() {
-  const selectedFacultyId = useFacultyPreferenceStore((state) => state.selectedFacultyId);
-  const setSelectedFacultyId = useFacultyPreferenceStore((state) => state.setSelectedFacultyId);
-  const metrics = useDashboardMetrics();
-  const visibleEvents = getEventsForFaculty(smallEvents, selectedFacultyId).slice(0, 3);
-
-  const handleFacultyChange = (facultyId: FacultyFilter) => {
-    startTransition(() => setSelectedFacultyId(facultyId));
-  };
+  const dashboard = useDashboardOverview();
+  const operationalValue = (value: number) => (dashboard.operationsError ? "—" : String(value));
 
   return (
     <ModuleShell
-      description="Una consola editorial para priorizar eventos por facultad, preparar asistencia, revisar certificados y anticipar reportes sin mezclar responsabilidades de backend."
-      eyebrow="Operacion academica"
+      description="Una consola editorial para priorizar actividades por unidad organizativa, preparar asistencia, revisar certificados y anticipar reportes."
+      headingLabel="Operacion academica"
       title="Panel operativo SIPEG"
-      actions={
-        <Badge colorPalette="success" px={4} py={2} rounded="full" variant="subtle">
-          Frontend listo para API futura
-        </Badge>
-      }
     >
-      <Stack gap={8}>
-        <Box
-          bg="surface.raised"
-          borderColor="border.subtle"
-          borderWidth="1px"
-          p={{ base: 5, md: 6 }}
-          rounded="3xl"
-        >
-          <Text
-            color="text.muted"
-            fontSize="sm"
-            fontWeight="800"
-            letterSpacing="0.1em"
-            textTransform="uppercase"
-          >
-            Prioridad por facultad
-          </Text>
-          <HStack gap={3} mt={4} overflowX="auto" pb={1} wrap={{ base: "nowrap", md: "wrap" }}>
-            <Button
-              colorPalette="terracotta"
-              onClick={() => handleFacultyChange("all")}
-              rounded="full"
-              size="sm"
-              variant={selectedFacultyId === "all" ? "solid" : "outline"}
+      <AsyncStateView error={dashboard.error} isLoading={dashboard.isLoading}>
+        <Stack gap={8}>
+          <Surface padding="normal">
+            <Text
+              color="text.muted"
+              fontSize="sm"
+              fontWeight="800"
+              letterSpacing="0.1em"
+              textTransform="uppercase"
             >
-              Todas
-            </Button>
-            {faculties.map((faculty) => (
+              Prioridad por unidad organizativa
+            </Text>
+            <HStack gap={3} mt={4} overflowX="auto" pb={1} wrap={{ base: "nowrap", md: "wrap" }}>
               <Button
                 colorPalette="terracotta"
-                key={faculty.id}
-                onClick={() => handleFacultyChange(faculty.id)}
+                onClick={() => dashboard.onUnitChange("all")}
                 rounded="full"
                 size="sm"
-                variant={selectedFacultyId === faculty.id ? "solid" : "outline"}
+                variant={dashboard.selectedUnitId === "all" ? "solid" : "outline"}
               >
-                {faculty.shortName}
+                Todas
               </Button>
-            ))}
-          </HStack>
-        </Box>
+              {dashboard.unitOptions.map((option) => (
+                <Button
+                  colorPalette="terracotta"
+                  key={option.id}
+                  onClick={() => dashboard.onUnitChange(option.id)}
+                  rounded="full"
+                  size="sm"
+                  variant={dashboard.selectedUnitId === option.id ? "solid" : "outline"}
+                >
+                  {option.label.split(" - ")[0]}
+                </Button>
+              ))}
+            </HStack>
+          </Surface>
 
-        <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} gap={5}>
-          <MetricCard
-            detail="Eventos visibles con el filtro actual"
-            label="Eventos"
-            tone="primary"
-            value={String(metrics.visibleEvents)}
-          />
-          <MetricCard
-            detail="Registros confirmados en QR o codigo"
-            label="Asistencia"
-            tone="success"
-            value={String(metrics.confirmedAttendance)}
-          />
-          <MetricCard
-            detail="Certificados generados desde asistencia"
-            label="Certificados"
-            tone="warning"
-            value={String(metrics.generatedCertificates)}
-          />
-          <MetricCard
-            detail="Capacidad maxima inventariada"
-            label="Aulas"
-            tone="neutral"
-            value={String(metrics.availableCapacity)}
-          />
-        </SimpleGrid>
+          <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} gap={5}>
+            <MetricCard
+              appearance="standard"
+              detail="Actividades visibles con el filtro actual"
+              label="Actividades"
+              tone="primary"
+              value={String(dashboard.visibleActivityCount)}
+            />
+            <MetricCard
+              appearance="standard"
+              detail="Registros confirmados en QR o codigo"
+              label="Asistencia"
+              tone="success"
+              value={operationalValue(dashboard.confirmedAttendanceCount)}
+            />
+            <MetricCard
+              appearance="standard"
+              detail="Certificados generados desde asistencia"
+              label="Certificados"
+              tone="warning"
+              value={operationalValue(dashboard.generatedCertificatesCount)}
+            />
+            <MetricCard
+              appearance="standard"
+              detail="Capacidad maxima inventariada"
+              label="Aulas"
+              tone="neutral"
+              value={String(dashboard.totalCapacity)}
+            />
+          </SimpleGrid>
 
-        <SimpleGrid columns={{ base: 1, lg: 3 }} gap={5}>
-          <Box gridColumn={{ base: "auto", lg: "span 2" }}>
-            <Stack gap={4}>
-              <Text color="text.default" fontFamily="heading" fontSize="3xl" fontWeight="700">
-                Proximos eventos priorizados
-              </Text>
-              <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-                {visibleEvents.map((event) => (
-                  <EventCard
-                    classroom={classrooms.find((classroom) => classroom.id === event.classroomId)}
-                    event={event}
-                    faculty={faculties.find((faculty) => faculty.id === event.facultyId)}
-                    key={event.id}
-                    parentEvent={largeEvents.find(
-                      (largeEvent) => largeEvent.id === event.parentEventId,
-                    )}
-                    showDashboardDetails
-                  />
-                ))}
-              </SimpleGrid>
-            </Stack>
-          </Box>
-          <Stack
-            bg="surface.raised"
-            borderColor="border.subtle"
-            borderWidth="1px"
-            gap={5}
-            p={6}
-            rounded="3xl"
-          >
-            <Text color="text.default" fontFamily="heading" fontSize="3xl" fontWeight="700">
-              Pulso de reportes
-            </Text>
-            {reportMetrics.map((metric) => (
-              <HStack
-                borderBottomColor="border.subtle"
-                borderBottomWidth="1px"
-                gap={4}
-                justify="space-between"
-                key={metric.id}
-                pb={4}
-              >
-                <Box>
-                  <Text color="text.default" fontWeight="800">
-                    {metric.label}
-                  </Text>
-                  <Text color="text.muted" fontSize="sm">
-                    {metric.detail}
-                  </Text>
-                </Box>
-                <Text color="accent.solid" fontFamily="heading" fontSize="2xl" fontWeight="700">
-                  {metric.value}
-                </Text>
-              </HStack>
-            ))}
+          {dashboard.operationsError ? (
+            <StatusPanel role="alert">
+              Las metricas de asistencia y certificados no estan disponibles mientras el backend
+              publique sus contratos. El catalogo y las aulas siguen operativos.
+            </StatusPanel>
+          ) : null}
+
+          <Stack gap={4}>
+            <SectionHeader title="Proximas actividades priorizadas" />
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={5}>
+              {dashboard.recentRows.map((row) => (
+                <ActivityCard
+                  activity={row.activity}
+                  classroom={row.classroom}
+                  key={row.activity.id}
+                  program={row.program}
+                  showEnrolledCount
+                  unit={row.unit}
+                />
+              ))}
+            </SimpleGrid>
           </Stack>
-        </SimpleGrid>
-      </Stack>
+        </Stack>
+      </AsyncStateView>
     </ModuleShell>
   );
 }
