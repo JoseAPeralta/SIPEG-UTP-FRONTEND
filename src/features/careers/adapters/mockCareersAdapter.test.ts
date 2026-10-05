@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 
 import type { ApiError } from "@/app/adapters/http/apiClient";

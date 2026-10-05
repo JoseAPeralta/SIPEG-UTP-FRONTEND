@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { dehydrate, type Query } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 

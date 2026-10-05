@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 
 import { PASSWORD_RESET_MAX_LENGTH, PASSWORD_RESET_MIN_LENGTH } from "./passwordRecoveryValidation";
