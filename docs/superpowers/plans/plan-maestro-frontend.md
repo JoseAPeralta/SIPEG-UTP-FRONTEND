@@ -31,24 +31,24 @@ La identidad recomendada es **SIPEG como producto independiente configurado para
 
 ## Estado actual
 
-| Area                                                         | Estado frontend                                                                                                                                             | Disponibilidad backend                                      |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                                                                               | Disponible                                                  |
-| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                                                                           | Completo                                                    |
-| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                                                                                  | Completo                                                    |
-| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                                                                            | Completo                                                    |
-| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                                                                      | No aplica                                                   |
-| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                                                                         | Completo                                                    |
-| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                                                                           | Completo                                                    |
-| Permisos y colaboradores                                     | Scopes, guards, gestión local, herencia, overrides, invalidación y cobertura horizontal integrados (3.3–3.10); historial de vencidos pendiente por contrato | Completo para operaciones integradas; historial no expuesto |
-| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                                                                                                          | Completo                                                    |
-| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes                                                                                                  | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
-| Archivos y alertas                                           | Pendiente                                                                                                                                                   | Pendiente                                                   |
-| Propuestas de ponentes                                       | Shell mock                                                                                                                                                  | Pendiente                                                   |
-| Inscripcion y asistencia                                     | Shell mock                                                                                                                                                  | Pendiente                                                   |
-| Certificados                                                 | Shell mock                                                                                                                                                  | Pendiente                                                   |
-| Reportes y exportaciones                                     | Shell mock                                                                                                                                                  | Pendiente                                                   |
-| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                                                                                   | No aplica                                                   |
+| Area                                                         | Estado frontend                                                                                                                                                              | Disponibilidad backend                                      |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                                                                                                | Disponible                                                  |
+| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                                                                                            | Completo                                                    |
+| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                                                                                                   | Completo                                                    |
+| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                                                                                             | Completo                                                    |
+| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                                                                                       | No aplica                                                   |
+| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                                                                                          | Completo                                                    |
+| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                                                                                            | Completo                                                    |
+| Permisos y colaboradores                                     | Scopes, guards, gestión local, herencia, overrides, invalidación y cobertura horizontal integrados (3.3–3.10); historial de vencidos pendiente por contrato                  | Completo para operaciones integradas; historial no expuesto |
+| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                                                                                                                           | Completo                                                    |
+| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes                                                                                                                   | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
+| Archivos y alertas                                           | Alertas: listado privado (7.1), indicador global (7.2) y bandeja personal en `/perfil/alertas` (7.3); marcar leidas y limpieza por identidad pendientes; archivos pendientes | Pendiente                                                   |
+| Propuestas de ponentes                                       | Shell mock                                                                                                                                                                   | Pendiente                                                   |
+| Inscripcion y asistencia                                     | Shell mock                                                                                                                                                                   | Pendiente                                                   |
+| Certificados                                                 | Shell mock                                                                                                                                                                   | Pendiente                                                   |
+| Reportes y exportaciones                                     | Shell mock                                                                                                                                                                   | Pendiente                                                   |
+| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                                                                                                    | No aplica                                                   |
 
 El contrato OpenAPI vivo no estuvo disponible al redactar este plan. El estado backend se obtuvo de su plan maestro y codigo actual; cada fase debe reconfirmarlo mediante la CLI antes de implementarse.
 
@@ -876,14 +876,161 @@ Evidencia y cierre de Fase 3.10: `docs/superpowers/plans/2026-10-05-fase-3.10-au
 
 **Entregable:** bandeja personal y contador de alertas no leidas.
 
-- [ ] **7.1 Crear adapter y claves privadas.** Listar alertas propias con paginacion y filtros. Prueba: jamas se persisten.
-- [ ] **7.2 Anadir indicador global.** Mostrar conteo no leido en la navegacion con nombre accesible.
-- [ ] **7.3 Crear bandeja.** Traducir tipos y enlazar solo a destinos internos autorizados.
-- [ ] **7.4 Marcar leidas.** Implementar accion individual y "marcar todas" con actualizacion optimista y rollback. Prueba: un fallo restaura el contador correcto.
+- [x] **7.1 Crear adapter y claves privadas.** Listar alertas propias con paginacion y filtros. Prueba: jamas se persisten.
+- [x] **7.2 Anadir indicador global.** Mostrar conteo no leido en la navegacion con nombre accesible.
+- [x] **7.3 Crear bandeja.** Traducir tipos y enlazar solo a destinos internos autorizados.
+- [x] **7.4 Marcar leidas.** Implementar accion individual y "marcar todas" con actualizacion optimista y rollback. Prueba: un fallo restaura el contador correcto.
 - [ ] **7.5 Definir refresco.** Usar invalidacion tras acciones y una politica de polling solo si el contrato y carga lo justifican.
 - [ ] **7.6 Limpiar por identidad.** Login, logout o cambio de usuario deben descartar toda alerta cacheada.
 
 **Criterio de salida:** cada usuario ve y modifica solo sus alertas y el contador permanece consistente ante exito, fallo y logout.
+
+Evidencia y desviaciones de Fase 7.1: `docs/superpowers/plans/2026-10-05-fase-7.1-alertas-adapter-claves-privadas.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-05:** `GET /api/v1/alerts` requiere
+  `bearerAuth`, pagina con `page` (>=1) y `limit` (1..50, default 20), filtra por `isRead`
+  (`"true"|"false"`) y `type` (ocho valores) y devuelve `PaginatedAlerts` con `items`, `page`,
+  `limit`, `total` y `totalPages`. El destinatario lo toma el backend del token: la operacion no
+  acepta ningun parametro de identidad y el adapter no lo inventa.
+- **Solo lectura:** 7.1 integra el listado; `PATCH /api/v1/alerts/{id}/read` y
+  `POST /api/v1/alerts/read-all` existen en el contrato y quedan para 7.4. No se modifico ninguna
+  operacion.
+- **Claves privadas:** `alertsPage` y `alertsScope` se ligan al `userId` y nunca al token, y
+  `PERSISTED_QUERY_KEY_ROOTS` no cambio. Las pruebas de `queryKeys` y `queryPersistence` fijan que
+  una pagina exitosa de alertas jamas se deshidrata ni llega a `localStorage`.
+- **Mock honesto:** el adapter mock solo entrega la bandeja de demostracion a `user-1` y responde
+  vacio a cualquier otra identidad, de modo que la frontera de privacidad del contrato tambien se
+  reproduce en pruebas y Storybook.
+- **R8:** `/api/v1/alerts` quedo reservado a `src/features/alerts/adapters/` para impedir que un
+  agregado futuro reintroduzca una lectura duplicada.
+- **Sin UI:** no hay componentes, rutas ni stories en esta fase; el indicador, la bandeja y las
+  acciones de lectura pertenecen a 7.2-7.4. No aplican baselines ni inventario de componentes.
+- **Puertas:** `api:mocks-check` (303 verificaciones en 45 operaciones), `verify:quick` (1172 pruebas
+  en 178 archivos) y `pnpm run check` (formato, lint, tipos, suite, Storybook con axe y baselines, e
+  inventario) quedaron en verde.
+- **Fallo propio, corregido:** el primer `apiAlertsAdapter.test.ts` usaba `String(input)` sobre
+  `RequestInfo`; ESLint lo rechazo con `no-base-to-string` porque un `Request` se stringifica como
+  `[object Object]`. Se sustituyo por el helper `toUrl`, igual que en el test del composition root.
+
+Evidencia y desviaciones de Fase 7.2: `docs/superpowers/plans/2026-10-05-fase-7.2-indicador-global-alertas.md`.
+
+- **Sin cambio de contrato:** la fase no introduce, modifica ni elimina operaciones HTTP. El conteo
+  reutiliza `GET /api/v1/alerts` con `isRead=false` y `page=1`, ya verificado en 7.1, y proyecta
+  `total` con `select`; no se invento una operacion de conteo porque no existe. No aplica
+  `api:mocks-check` por cambio de integracion, aunque se ejecuto igualmente (303 verificaciones).
+- **Decision aprobada por el usuario el 2026-10-05:** el indicador es informativo en 7.2 (pildora
+  visible, sin enlace ni pagina provisional). 7.3 lo convertira en el acceso a la bandeja sin migrar
+  nada mas.
+- **Sin `role="status"`:** la primera intencion era anunciar el conteo con una region `status`, pero
+  eso habria hecho que `getByRole("status")` dejara de ser unico en toda pantalla autenticada
+  (`App.accountJourney.test.tsx:275` ya lo usa para el aviso de perfil y habria fallado con "found
+  multiple elements"). En su lugar la pildora usa `aria-live="polite" aria-atomic="true"` con el
+  texto completo visualmente oculto y la forma corta `aria-hidden`; el conteo se anuncia sin mover el
+  foco y sin duplicar el estado global. La prueba del componente fija que no existe `role="status"`.
+- **`total`, nunca `items.length`:** una bandeja paginada subcontaria; hay una prueba con `total: 21`
+  y un solo item, reforzada por la story `Several`.
+- **Sin placeholder entre identidades:** el hook no usa `placeholderData`; al cambiar de identidad la
+  clave cambia y no hay dato previo que mostrar. Una prueba con promesa controlada fija que el conteo
+  nuevo jamas reutiliza el viejo durante la carga.
+- **Un fallo no es cero:** el indicador muestra `Alertas · —` y el resumen "No se pudo actualizar el
+  conteo de alertas"; la UI nunca degrada un error a una afirmacion de bandeja vacia.
+- **Entrypoint enfocado:** `src/features/alerts/navigation` se sumo a `focusedPublicEntrypoints` de
+  `architecture.test.ts` para que `AppMenu` pueda cargar el indicador de forma diferida sin importar
+  el barrel completo de la feature, siguiendo el patron de `OperationalMenuLink`.
+- **Tolerancia de baseline, tercera observacion:** las stories `Standard User` y `Collaborator` de
+  `AppMenu` pasaron la comparacion visual con el texto viejo pese a tener la pildora nueva; el mismo
+  defecto de `maxDiffPixelRatio: 0.01` ya anotado en 1.7 y 1.9. Se eliminaron los seis baselines
+  afectados (`AppMenu` x3, `AdminLayout` x2 y `OperationsLayout` x1) y se regeneraron
+  deliberadamente: 162 comparaciones visuales con axe en verde, 12 baselines nuevos o actualizados,
+  ninguno inesperado segun `git status`.
+- **Puertas:** `verify:quick` (1192 pruebas en 181 archivos), `api:mocks-check` (303 verificaciones en
+  45 operaciones), `components:inventory:check`, `pnpm run check` completo (formato, lint, tipos,
+  suite, Storybook con `play`, axe y baselines, y build) quedaron en verde. El inventario paso de 44 a
+  45 componentes.
+- **Puerto 6007 ocupado:** la corrida afectada dejo un `http-server` huerfano que habria bloqueado la
+  regeneracion de baselines; se detuvo el proceso antes de continuar, como en la Fase 1.7.
+
+Evidencia y desviaciones de Fase 7.3: `docs/superpowers/plans/2026-10-05-fase-7.3-bandeja-personal-alertas.md`.
+
+- **Sin cambio de contrato:** la fase no introduce, modifica ni elimina operaciones HTTP. Reutiliza
+  `GET /api/v1/alerts` de 7.1 y `GET /api/v1/users/me/scopes` del descubrimiento de 3.x; ambos se
+  consultaron contra el backend vivo para confirmar filtros, destinos y forma de las claves.
+- **Decision aprobada por el usuario el 2026-10-05:** la bandeja vive en `/perfil/alertas` como
+  quinta seccion de «Mis alertas», despues de «Mis certificados». El indicador global enlaza ahi.
+- **Los enlaces no infieren autorizacion:** una alerta recibida no prueba acceso. El destino se
+  resuelve contra el descubrimiento, que ya exige un permiso efectivo, y una actividad no hereda el
+  acceso de su programa padre. Propuestas y certificados no tienen ruta de detalle y quedan
+  informativos, conforme al criterio de la spec de no exponer un destino inaccesible.
+- **Solo contextos operativos:** las rutas existentes de programa/actividad muestran permisos y
+  colaboracion, por eso el rotulo es «Ver contexto del programa/actividad»; enlazar como si fueran el
+  detalle del recurso habria prometido una pantalla que no existe.
+- **Fuga de identidad corregida en el listado de 7.1:** `useAlertsPage` usaba `keepPreviousData` sin
+  distinguir cuentas, de modo que un cambio de sesion mostraba durante un instante las alertas de la
+  identidad anterior. El placeholder ahora compara el propietario de la clave anterior y solo
+  conserva la pagina para la misma cuenta. Hay una prueba que reproduce el cambio de identidad.
+- **El fallo de permisos no oculta la bandeja:** si el descubrimiento falla o aun carga, las alertas
+  siguen visibles y sin enlaces, con aviso y reintento; un error de autorizacion no prueba que no
+  haya alertas.
+- **Etiquetas tipadas:** `alertLabels.ts` cubre los ocho tipos con un `Record<AlertType, string>` y
+  una prueba exige que no falte ninguno ni se repita; la UI nunca muestra el codigo del contrato.
+  El estado se muestra como «Sin leer»/«Leída», no solo con color.
+- **Sin marcar leidas:** 7.3 no muta nada; `PATCH /alerts/{id}/read` y `POST /alerts/read-all`
+  pertenecen a 7.4. Tampoco se invento paginacion en el servidor distinta de la contractual.
+- **Tolerancia de baseline, cuarta observacion:** las stories del indicador y de `AppMenu` que
+  cambiaron de altura por el objetivo tactil de 44 px pasaron la comparacion gracias a
+  `maxDiffPixelRatio: 0.01`; se eliminaron los 12 baselines afectados (`AppMenu` x3, `AdminLayout`
+  x2, `OperationsLayout` x1 e indicador x6) y se regeneraron deliberadamente. El balance final dejo
+  21 baselines nuevos o actualizados, todos revisados por captura.
+- **Puertas:** `verify:quick` (1215 pruebas en 185 archivos), `api:mocks-check` (303 verificaciones en
+  45 operaciones), Storybook con `play`, axe y 169 comparaciones visuales en verde,
+  `components:inventory:check` (46 componentes) y `pnpm run check` completo quedaron en verde.
+- **Defecto propio, corregido:** la primera `play` de `Populated` buscaba «Actividad actualizada» en
+  todo el canvas y encontraba tambien la opcion del filtro de tipo, de modo que `storybook:test:runner`
+  la rechazo por ambiguedad aunque el recorrido de Playwright hubiera pasado. Las aserciones de
+  `Populated` y `FilteredEmpty` quedaron acotadas a la lista de alertas.
+
+Evidencia y desviaciones de Fase 7.4: `docs/superpowers/plans/2026-10-05-fase-7.4-marcar-alertas-leidas.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-05:** `PATCH /api/v1/alerts/{id}/read`
+  (bearer, sin body, `200` con la alerta, `400/401/404`, idempotente y con el mismo `404` para
+  inexistente y ajena) y `POST /api/v1/alerts/read-all` (bearer, sin body, `200` con
+  `{ updatedCount }`). `api:mocks-check` paso con 310 verificaciones en 47 operaciones tras registrar
+  ambas.
+- **Una sola accion pendiente por identidad:** un guard de instancia impide que dos acciones
+  simultaneas generen snapshots que se pisen al hacer rollback; los controles se deshabilitan
+  mientras hay una accion en vuelo. El plan de la fase dejo esta decision registrada.
+- **Identidad fijada en las variables:** la mutacion viaja con el `userId` del momento de la
+  llamada, no con el render; `onMutate`, `onError` y `onSettled` comparan contra el store y no
+  escriben ni invalidan la cache de una cuenta que ya no es la actual. La primera version usaba un
+  ref actualizado en render y `eslint react-hooks/refs` la rechazo; mover la identidad a las
+  variables es ademas mas deterministico.
+- **Escrituras optimistas por filtro:** las paginas sin leer retiran la alerta y bajan `total`
+  (aunque el item viva en otra pagina), las paginas sin filtro cambian la insignia y las paginas de
+  leidas no se tocan porque no puede reconstruirse su contenido. `applyAlertRead` devuelve la misma
+  referencia cuando no hay cambio y jamas decrementa por una alerta que ya estaba leida.
+- **El mensaje de «marcar todas» usa `updatedCount`:** la cifra sale del servidor; una bandeja
+  vacia informa «No había alertas sin leer.» y nunca se usa `items.length`, que subcontaria una
+  bandeja paginada.
+- **Foco estable:** al retirar la tarjeta marcada, la vista mueve el foco a la lista o al estado
+  vacio; sin eso, el boton desaparecia y el foco caia al `body`. El mensaje de exito y el de error
+  se anuncian con `StatusPanel` (`status`/`alert`) y el texto del backend nunca se muestra.
+- **Marcar no depende de los permisos:** el descubrimiento de scopes sigue gobernando solo los
+  enlaces; un fallo de descubrimiento no impide marcar las alertas propias, que ya autoriza el
+  backend por token.
+- **Mock honesto:** cada instancia muta su propia copia, el fixture compartido no cambia, otra
+  identidad recibe `404` al marcar una alerta individual y `read-all` sin efecto, conforme al
+  contrato.
+- **Visual deliberado:** la bandeja suma el boton masivo y el boton por tarjeta, de modo que se
+  regeneraron sus 9 baselines (6 existentes y las stories nuevas `MarkOne`, `MarkAll` y
+  `ReadFailure`), revisados por captura; `MarkAll` monta tambien el indicador para fijar que el
+  conteo baja a cero con el mismo cliente de consultas. El inventario subio a 46 componentes (9
+  variantes de la bandeja).
+- **Lint de cierre:** ademas del ref en render, se corrigieron el tipo `Array<T>`, una asercion
+  redundante y una mutacion de variable capturada en callback que el compilador no puede seguir
+  (`no-unnecessary-condition`); el modelo usa `some` en lugar de un flag mutado.
+- **Puertas:** `verify:quick` (1252 pruebas en 187 archivos), Storybook con `play`, axe y 172
+  comparaciones visuales, `components:inventory:check` y `pnpm run check` completo quedaron en
+  verde.
 
 ---
 

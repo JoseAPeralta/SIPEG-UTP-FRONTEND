@@ -136,6 +136,100 @@
       "title": "Features/Activity Catalog/PublicActivityFilters"
     },
     {
+      "componentPath": "src/features/alerts/ui/AlertsInboxView.tsx",
+      "stories": [
+        {
+          "id": "features-alerts-alertsinboxview--access-failure",
+          "name": "Access Failure",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-alertsinboxview--empty",
+          "name": "Empty",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-alertsinboxview--failure",
+          "name": "Failure",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-alertsinboxview--filtered-empty",
+          "name": "Filtered Empty",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-alertsinboxview--loading",
+          "name": "Loading",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-alertsinboxview--mark-all",
+          "name": "Mark All",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-alertsinboxview--mark-one",
+          "name": "Mark One",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-alertsinboxview--populated",
+          "name": "Populated",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-alertsinboxview--read-failure",
+          "name": "Read Failure",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/alerts/ui/AlertsInboxView.stories.tsx",
+      "title": "Features/Alerts/AlertsInboxView"
+    },
+    {
+      "componentPath": "src/features/alerts/ui/UnreadAlertsIndicator.tsx",
+      "stories": [
+        {
+          "id": "features-alerts-unreadalertsindicator--current-page",
+          "name": "Current Page",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-unreadalertsindicator--failure",
+          "name": "Failure",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-unreadalertsindicator--loading",
+          "name": "Loading",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-unreadalertsindicator--no-session",
+          "name": "No Session",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-unreadalertsindicator--one",
+          "name": "One",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-unreadalertsindicator--several",
+          "name": "Several",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-alerts-unreadalertsindicator--zero",
+          "name": "Zero",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/alerts/ui/UnreadAlertsIndicator.stories.tsx",
+      "title": "Features/Alerts/UnreadAlertsIndicator"
+    },
+    {
       "componentPath": "src/features/auth/ui/ChangePasswordForm.tsx",
       "stories": [
         {

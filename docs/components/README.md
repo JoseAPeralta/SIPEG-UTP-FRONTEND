@@ -190,6 +190,22 @@ amenidad; los resultados no se persisten porque dependen de reservas y ventanas 
 consulta deja fuera una selección existente, la conserva marcada como no disponible para que el
 formulario no pierda información sin avisar.
 
+## Alertas
+
+Import publico: `@/features/alerts`. El menu principal carga el indicador de forma diferida desde el
+entrypoint enfocado `@/features/alerts/navigation`.
+
+| Modulo                  | Usar cuando                                                          | Evitar cuando                                | Requisitos                                        | Story                                                                                                 |
+| ----------------------- | -------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `AlertsInboxView`       | Una ruta personal necesita la bandeja privada con filtros y paginas. | Se muestra un resumen de conteo sin bandeja. | Sesion autenticada; adapters de alertas y scopes. | [`AlertsInboxView.stories.tsx`](../../src/features/alerts/ui/AlertsInboxView.stories.tsx)             |
+| `UnreadAlertsIndicator` | La navegacion necesita el acceso a la bandeja con el conteo.         | Se consulta o filtra la bandeja.             | Sesion autenticada; adapters de alertas; Query.   | [`UnreadAlertsIndicator.stories.tsx`](../../src/features/alerts/ui/UnreadAlertsIndicator.stories.tsx) |
+
+`AlertsInboxView` traduce los ocho tipos del contrato con `alertTypeLabels` y distingue «Sin leer»/«Leída» con texto, no solo color. Los filtros y la pagina son estado de la vista; `useAlertsInbox` compone el listado privado con el descubrimiento operativo y las acciones de lectura. Solo aparecen enlaces a contextos operativos autorizados (`/operaciones/programas/:id` y `/operaciones/actividades/:id`); una alerta recibida no prueba acceso, propuestas y certificados aun no tienen ruta de detalle y quedan informativos. Si el descubrimiento falla, las alertas se conservan visibles sin enlaces y con reintento.
+
+`AlertsInboxView` marca alertas como leidas con actualizacion optimista: «Marcar como leída» por tarjeta sin leer y «Marcar todas como leídas» para toda la cuenta, no solo para la pagina o el filtro visibles. El contador del indicador baja al instante porque ambas consultas comparten las mismas claves y el rollback restaura el snapshot exacto si el backend rechaza; el `updatedCount` del mensaje de exito sale del servidor. Una sola accion puede estar pendiente por identidad, los callbacks tardios no tocan la cache de otra cuenta y el foco pasa a la lista o al estado vacio cuando la tarjeta marcada desaparece, de modo que no queda en el `body`.
+
+El indicador enlaza a `/perfil/alertas`, quinta seccion del area personal, incluso mientras el conteo carga o falla; en esa ruta se marca con `aria-current`. El conteo sale de `total` de la primera pagina filtrada por `isRead=false`, nunca de los items visibles, y jamas se persiste. Un fallo de la consulta se anuncia como conteo no disponible (`—`) y no como cero, porque afirmar que no hay alertas exige una respuesta exitosa. La region usa `aria-live` discreto en lugar de `role="status"` para no duplicar el estado global del documento, y el texto completo viaja visualmente oculto junto a la forma corta `Alertas · N`.
+
 ## Catalogo De Actividades
 
 Import publico: `@/features/activity-catalog`.

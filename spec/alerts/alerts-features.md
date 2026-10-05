@@ -69,6 +69,20 @@ Acceptance criteria:
 
 ## Open Questions
 
-- Which alert types, filters, pagination fields, and read operations are contractual?
-- Is an unread-count operation available, or is the count returned with the inbox?
-- What refresh strategy is acceptable for backend load and user expectations?
+- Contract-confirmed on 2026-10-05: the inbox filters by `type` and `isRead` with `page`/`limit`
+  pagination, targets are `PROPOSAL | EVENT_PROGRAM | ACTIVITY | CERTIFICATE`, and read mutations are
+  `PATCH /alerts/{id}/read` and `POST /alerts/read-all`. There is no dedicated unread-count
+  operation; resolved on 2026-10-05 by 7.2: the indicator derives from
+  `GET /api/v1/alerts?isRead=false&page=1` and projects `total`, so it never subcounts a paginated
+  inbox.
+- Resolved on 2026-10-05 by 7.3: the inbox lives at `/perfil/alertas`, and a destination link is
+  offered only when the target appears in `GET /api/v1/users/me/scopes`; a received alert never
+  authorizes by itself and an activity does not inherit access from its parent program. Only
+  program and activity targets have an operational context today; proposals and certificates stay
+  informative until their detail routes exist.
+- Resolved on 2026-10-05 by 7.4: `PATCH /alerts/{id}/read` and `POST /alerts/read-all` are the only
+  read mutations. Both are idempotent and take the recipient from the token. The inbox allows one
+  read action per identity at a time, updates every cached page optimistically, restores the exact
+  snapshot on failure and revalidates the identity scope on settle; the success message of "mark
+  all" uses the server's `updatedCount`.
+- The refresh strategy for 7.5 is still open against backend load and user expectations.
