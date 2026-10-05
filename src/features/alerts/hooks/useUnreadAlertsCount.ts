@@ -6,6 +6,8 @@ import { useSessionStore } from "@/store/session";
 
 import type { AlertFilters } from "../model/alert";
 
+import { alertsQueryPolicy } from "./alertsQueryPolicy";
+
 const UNREAD_FILTERS: AlertFilters = { isRead: false };
 
 /**
@@ -15,6 +17,7 @@ const UNREAD_FILTERS: AlertFilters = { isRead: false };
  * `items` subestimaria cualquier bandeja con mas de una pagina. La clave es la misma que usara la
  * bandeja de 7.3, se liga al `userId` y nunca se persiste. Sin sesion o durante la restauracion no
  * se consulta; al cambiar de identidad no hay dato previo que mostrar porque la clave cambia.
+ * Comparte con la bandeja la politica de refresco de eventos de `alertsQueryPolicy`.
  */
 export function useUnreadAlertsCount() {
   const { alerts } = useAppAdapters();
@@ -23,6 +26,7 @@ export function useUnreadAlertsCount() {
   const canLoad = status === "authenticated" && userId !== undefined;
 
   const query = useQuery({
+    ...alertsQueryPolicy,
     enabled: canLoad,
     queryFn: () => alerts.loadAlertsPage(UNREAD_FILTERS, 1),
     queryKey: queryKeys.alertsPage(userId ?? "anonymous", UNREAD_FILTERS, 1),

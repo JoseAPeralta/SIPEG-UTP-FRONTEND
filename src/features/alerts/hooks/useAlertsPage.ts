@@ -6,18 +6,21 @@ import { useSessionStore } from "@/store/session";
 
 import type { AlertFilters } from "../model/alert";
 
+import { alertsQueryPolicy } from "./alertsQueryPolicy";
+
 /**
  * Una pagina de la bandeja privada de la sesion.
  *
  * La clave se liga al `userId` y nunca al token; las alertas no se persisten. `placeholderData`
  * conserva la pagina anterior mientras llega la nueva, de modo que cambiar de pagina o filtro no
- * vacia la bandeja.
+ * vacia la bandeja. La vigencia y los disparadores de refresco los fija `alertsQueryPolicy`.
  */
 export function useAlertsPage(filters: AlertFilters, page: number) {
   const { alerts } = useAppAdapters();
   const userId = useSessionStore((state) => state.currentUser?.id);
   const canLoad = userId !== undefined;
   const query = useQuery({
+    ...alertsQueryPolicy,
     enabled: canLoad,
     // Solo se conserva la pagina anterior cuando pertenece a la misma cuenta. La clave es
     // ["alerts", userId, filters, page], de modo que el indice 1 identifica al propietario.

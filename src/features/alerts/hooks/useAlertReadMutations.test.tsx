@@ -249,4 +249,83 @@ describe("useAlertReadMutations", () => {
       queryClient.getQueryData(queryKeys.alertsPage("user-2", { isRead: false }, 1)),
     ).toBeUndefined();
   });
+
+  it("should invalidate inactive pages without refetching them", async () => {
+    signIn();
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const pageTwoKey = queryKeys.alertsPage("user-1", { isRead: false }, 2);
+    const loadAlertsPage = vi
+      .fn<AlertsAdapter["loadAlertsPage"]>()
+      .mockResolvedValue(createAlertsPage({ items: [], total: 0 }));
+    const markAllAlertsRead = vi
+      .fn<AlertsAdapter["markAllAlertsRead"]>()
+      .mockResolvedValue({ updatedCount: 2 });
+
+    queryClient.setQueryData(
+      queryKeys.alertsPage("user-1", { isRead: false }, 1),
+      createAlertsPage({ items: [unreadAlert], total: 2 }),
+    );
+    queryClient.setQueryData(
+      pageTwoKey,
+      createAlertsPage({ page: 2, items: [secondUnreadAlert], total: 2 }),
+    );
+
+    const { result } = renderHookWithProviders(() => useAlertReadMutations(), {
+      adapters: buildAdapters({
+        alerts: buildAlertsAdapter({ loadAlertsPage, markAllAlertsRead }),
+      }),
+      queryClient,
+    });
+
+    await expect(result.current.markAllRead()).resolves.toEqual({ updatedCount: 2 });
+
+    expect(pageData(queryClient, { isRead: false }, 2)?.items).toEqual([]);
+    expect(queryClient.getQueryState(pageTwoKey)?.isInvalidated).toBe(true);
+    expect(loadAlertsPage).not.toHaveBeenCalled();
+  });
+
+  it("should not invalidate another identity's cached alerts", async () => {
+    signIn();
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const foreignKey = queryKeys.alertsPage("user-2", { isRead: false }, 1);
+    const foreignPage = createAlertsPage({ items: [unreadAlert], total: 1 });
+
+    queryClient.setQueryData(foreignKey, foreignPage);
+
+    const { result } = renderHookWithProviders(() => useAlertReadMutations(), {
+      adapters: buildAdapters(),
+      queryClient,
+    });
+
+    await result.current.markAllRead();
+
+    expect(queryClient.getQueryData(foreignKey)).toEqual(foreignPage);
+    expect(queryClient.getQueryState(foreignKey)?.isInvalidated).toBe(false);
+  });
+
+  it("should reconcile the observed page with the backend after a failed optimistic update", async () => {
+    signIn();
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const loadAlertsPage = vi
+      .fn<AlertsAdapter["loadAlertsPage"]>()
+      .mockResolvedValue(createAlertsPage({ items: [unreadAlert], total: 1 }));
+    const markAlertRead = vi
+      .fn<AlertsAdapter["markAlertRead"]>()
+      .mockRejectedValue(new Error("servicio caido"));
+
+    const { result } = renderHookWithProviders(
+      () => ({ page: useAlertsPage({ isRead: false }, 1), read: useAlertReadMutations() }),
+      {
+        adapters: buildAdapters({ alerts: buildAlertsAdapter({ loadAlertsPage, markAlertRead }) }),
+        queryClient,
+      },
+    );
+
+    await waitFor(() => expect(loadAlertsPage).toHaveBeenCalledTimes(1));
+
+    await expect(result.current.read.markRead(unreadAlert)).resolves.toBe(false);
+
+    await waitFor(() => expect(loadAlertsPage).toHaveBeenCalledTimes(2));
+    expect(pageData(queryClient, { isRead: false })?.items).toEqual([unreadAlert]);
+  });
 });
