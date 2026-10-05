@@ -85,4 +85,14 @@ Acceptance criteria:
   read action per identity at a time, updates every cached page optimistically, restores the exact
   snapshot on failure and revalidates the identity scope on settle; the success message of "mark
   all" uses the server's `updatedCount`.
-- The refresh strategy for 7.5 is still open against backend load and user expectations.
+- Resolved on 2026-10-05 by 7.5: the contract has no push operation, so refresh is event-driven and
+  never polls. The inbox and the unread indicator share the first unread page (`staleTime` 30 s) and
+  revalidate on mount with stale data, window focus and reconnect; the read mutations invalidate
+  only the identity scope, so inactive pages are marked stale without being fetched and another
+  identity's cache is never touched.
+- Resolved on 2026-10-05 by 7.6: login, logout, identity change and session end clear the query
+  client, so no alert survives to the next session. An in-memory session generation distinguishes
+  two accesses of the same account: read mutations capture the identity and generation at call time
+  and `onMutate`, `onError` and `onSettled` ignore results, rollbacks and revalidations that belong
+  to a discarded session. In-flight queries are cancelled and discarded by the same clear, which a
+  test pins. The generation is never persisted and never travels in a query key.

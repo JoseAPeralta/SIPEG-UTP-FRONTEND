@@ -31,24 +31,24 @@ La identidad recomendada es **SIPEG como producto independiente configurado para
 
 ## Estado actual
 
-| Area                                                         | Estado frontend                                                                                                                                                              | Disponibilidad backend                                      |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                                                                                                | Disponible                                                  |
-| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                                                                                            | Completo                                                    |
-| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                                                                                                   | Completo                                                    |
-| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                                                                                             | Completo                                                    |
-| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                                                                                       | No aplica                                                   |
-| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                                                                                          | Completo                                                    |
-| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                                                                                            | Completo                                                    |
-| Permisos y colaboradores                                     | Scopes, guards, gestión local, herencia, overrides, invalidación y cobertura horizontal integrados (3.3–3.10); historial de vencidos pendiente por contrato                  | Completo para operaciones integradas; historial no expuesto |
-| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                                                                                                                           | Completo                                                    |
-| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes                                                                                                                   | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
-| Archivos y alertas                                           | Alertas: listado privado (7.1), indicador global (7.2) y bandeja personal en `/perfil/alertas` (7.3); marcar leidas y limpieza por identidad pendientes; archivos pendientes | Pendiente                                                   |
-| Propuestas de ponentes                                       | Shell mock                                                                                                                                                                   | Pendiente                                                   |
-| Inscripcion y asistencia                                     | Shell mock                                                                                                                                                                   | Pendiente                                                   |
-| Certificados                                                 | Shell mock                                                                                                                                                                   | Pendiente                                                   |
-| Reportes y exportaciones                                     | Shell mock                                                                                                                                                                   | Pendiente                                                   |
-| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                                                                                                    | No aplica                                                   |
+| Area                                                         | Estado frontend                                                                                                                                                                                                          | Disponibilidad backend                                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                                                                                                                                            | Disponible                                                  |
+| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                                                                                                                                        | Completo                                                    |
+| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                                                                                                                                               | Completo                                                    |
+| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                                                                                                                                         | Completo                                                    |
+| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                                                                                                                                   | No aplica                                                   |
+| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                                                                                                                                      | Completo                                                    |
+| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                                                                                                                                        | Completo                                                    |
+| Permisos y colaboradores                                     | Scopes, guards, gestión local, herencia, overrides, invalidación y cobertura horizontal integrados (3.3–3.10); historial de vencidos pendiente por contrato                                                              | Completo para operaciones integradas; historial no expuesto |
+| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                                                                                                                                                                       | Completo                                                    |
+| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes                                                                                                                                                               | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
+| Archivos y alertas                                           | Alertas: listado privado (7.1), indicador global (7.2), bandeja personal en `/perfil/alertas` (7.3), marcado de leídas (7.4), política de refresco por eventos (7.5) y limpieza por identidad (7.6); archivos pendientes | Pendiente (archivos)                                        |
+| Propuestas de ponentes                                       | Shell mock                                                                                                                                                                                                               | Pendiente                                                   |
+| Inscripcion y asistencia                                     | Shell mock                                                                                                                                                                                                               | Pendiente                                                   |
+| Certificados                                                 | Shell mock                                                                                                                                                                                                               | Pendiente                                                   |
+| Reportes y exportaciones                                     | Shell mock                                                                                                                                                                                                               | Pendiente                                                   |
+| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                                                                                                                                                | No aplica                                                   |
 
 El contrato OpenAPI vivo no estuvo disponible al redactar este plan. El estado backend se obtuvo de su plan maestro y codigo actual; cada fase debe reconfirmarlo mediante la CLI antes de implementarse.
 
@@ -880,8 +880,8 @@ Evidencia y cierre de Fase 3.10: `docs/superpowers/plans/2026-10-05-fase-3.10-au
 - [x] **7.2 Anadir indicador global.** Mostrar conteo no leido en la navegacion con nombre accesible.
 - [x] **7.3 Crear bandeja.** Traducir tipos y enlazar solo a destinos internos autorizados.
 - [x] **7.4 Marcar leidas.** Implementar accion individual y "marcar todas" con actualizacion optimista y rollback. Prueba: un fallo restaura el contador correcto.
-- [ ] **7.5 Definir refresco.** Usar invalidacion tras acciones y una politica de polling solo si el contrato y carga lo justifican.
-- [ ] **7.6 Limpiar por identidad.** Login, logout o cambio de usuario deben descartar toda alerta cacheada.
+- [x] **7.5 Definir refresco.** Usar invalidacion tras acciones y una politica de polling solo si el contrato y carga lo justifican.
+- [x] **7.6 Limpiar por identidad.** Login, logout o cambio de usuario deben descartar toda alerta cacheada.
 
 **Criterio de salida:** cada usuario ve y modifica solo sus alertas y el contador permanece consistente ante exito, fallo y logout.
 
@@ -1031,6 +1031,95 @@ Evidencia y desviaciones de Fase 7.4: `docs/superpowers/plans/2026-10-05-fase-7.
 - **Puertas:** `verify:quick` (1252 pruebas en 187 archivos), Storybook con `play`, axe y 172
   comparaciones visuales, `components:inventory:check` y `pnpm run check` completo quedaron en
   verde.
+
+Evidencia y desviaciones de Fase 7.5: `docs/superpowers/plans/2026-10-05-fase-7.5-refresco-alertas.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-05:** `GET /api/v1/alerts` es la unica
+  lectura del dominio y no existe operacion de empuje (SSE, WebSocket ni canal equivalente). El
+  contrato no documenta intervalos sugeridos ni `Retry-After`, y no hay carga medida, de modo que
+  no hay base contractual para el sondeo. No se modifico ninguna operacion y no aplica
+  `api:mocks-check`.
+- **Decision aprobada por el usuario el 2026-10-05:** refresco por eventos, sin polling. La
+  invalidacion tras las acciones de lectura ya existia en 7.4; 7.5 fija la politica explicita y la
+  demuestra.
+- **Politica explicita:** `alertsQueryPolicy` declara `staleTime` de 30 s, `refetchOnMount`,
+  `refetchOnWindowFocus` y `refetchOnReconnect` activos y `refetchInterval` en `false`, y
+  `useAlertsPage` y `useUnreadAlertsCount` la aplican. La vigencia vive en la feature para que un
+  cambio futuro de los defaults globales no altere la politica de alertas en silencio.
+- **La politica se prueba contra defaults hostiles:** una prueba por disparador monta los hooks
+  sobre un cliente con `staleTime: 0` y los eventos en `false` (o `refetchInterval` de 1 s) segun
+  el caso, de modo que cada prueba falla si la politica dejara de aplicarse. Los cinco escenarios
+  de refresco fallaron antes de implementarla y pasaron despues. Otra prueba avanza 10 minutos con
+  temporizadores falsos y exige una sola peticion, y otra fija que la bandeja y el indicador
+  comparten la primera pagina sin leer con una unica llamada al adapter.
+- **Evidencia de invalidacion ampliada:** las paginas inactivas quedan invalidadas sin descargarse
+  (el adapter no recibe ninguna peticion), otra identidad conserva su cache sin invalidar, y tras
+  un fallo optimista la pagina observada se reconcilia con el backend en la revalidacion de
+  `onSettled`.
+- **Sin cambios de produccion en la mutacion:** las tres pruebas nuevas de
+  `useAlertReadMutations.test.tsx` pasaron sin tocar `useAlertReadMutations`; el unico codigo nuevo
+  es la politica y su aplicacion en los dos hooks de consulta.
+- **Sin cambios visuales:** no se tocaron componentes, rutas, stories ni baselines; no aplican
+  Storybook visual ni regeneracion de inventario.
+- **Prueba propia mal escrita, corregida:** la primera configuracion hostil ponia
+  `refetchInterval` de 1 s en todos los casos y contamino las pruebas de foco y reconexion con
+  sondeo; cada caso enciende ahora solo el default que necesita refutar. La misma version pasaba
+  los overrides en el nivel equivocado, un error que solo `tsc` detecta porque Vitest no
+  typechequea.
+- **Puertas:** `verify:quick` (1261 pruebas en 188 archivos), suite de alertas (97 pruebas en 14
+  archivos), Storybook con `play`, axe y 172 comparaciones visuales, `components:inventory:check`
+  (46 componentes) y `pnpm run check` completo quedaron en verde.
+- **Sin commits:** no se creo ningun commit; el usuario no lo solicito.
+
+Evidencia y desviaciones de Fase 7.6: `docs/superpowers/plans/2026-10-05-fase-7.6-limpieza-alertas-identidad.md`.
+
+- **Sin cambio contractual:** la fase no introduce, modifica ni elimina operaciones HTTP. La limpieza
+  es una garantia local de cache; el backend sigue siendo la autoridad y toma el destinatario del
+  token. No aplica `api:mocks-check`.
+- **La generacion de sesion vive en el store:** `setSession` la avanza cuando la identidad entrante
+  difiere de la actual (incluido el paso desde `null`), y `clearSession` y `endSession` la avanzan
+  siempre. Una rotacion de token o una edicion de perfil la conservan, porque no inician una sesion
+  nueva. `clearPreviousIdentityState` ademas la avanza de forma explicita al purgar, lo que cierra el
+  caso de un login que reemplaza la sesion viva con la misma identidad y que `setSession` no podia
+  detectar. Es un entero en memoria: no se persiste y no forma parte de ninguna clave de Query.
+- **El hueco real eran las mutaciones en vuelo:** `queryClient.clear()` limpia la cache y cancela las
+  consultas, pero TanStack Query no cancela una mutacion en curso y sus callbacks siguen ejecutandose.
+  Se verifico en el codigo de `@tanstack/query-core` 5.103.2: `Mutation.execute` invoca
+  `onError`/`onSettled` aunque la mutacion ya no pertenezca a la cache. Con el guard anterior, basado
+  solo en el `userId`, un fallo tardio tras logout y re-login de la misma cuenta restauraba el
+  snapshot obsoleto; ahora `onMutate`, `onError` y `onSettled` comparan identidad **y** generacion.
+- **El bloqueo es por generacion:** una accion descartada que aun esta en vuelo ya no impide que la
+  sesion nueva marque alertas; cada generacion tiene su propia accion pendiente y el bloqueo solo se
+  libera si sigue siendo el de esa llamada.
+- **Las consultas en vuelo si quedan cubiertas por la limpieza:** al destruir la consulta, TanStack
+  cancela su fetch y descarta la respuesta. Una prueba con `fetchQuery` diferido tras un logout fija
+  que la cache no se repuebla, para que un cambio futuro de la libreria no rompa la garantia en
+  silencio.
+- **La bandeja solo consulta con sesion autenticada:** `useAlertsPage` alinea su condicion con el
+  indicador (`status === "authenticated"`), de modo que un estado de restauracion no dispara
+  peticiones.
+- **Cobertura de la limpieza:** cinco pruebas nuevas en `useAuthSession.test.tsx` (login descarta
+  alertas de la identidad anterior, logout las descarta, la misma cuenta que vuelve a entrar no las
+  recupera, la rotacion de token las conserva y una peticion en vuelo no repuebla la cache) mas la
+  extension de la prueba de cierre desde otra pestana. Las cuatro pruebas de mutacion reproducen el
+  caso ABA y fallaron antes del guard; las cuatro primeras del store fallaron antes de la generacion
+  y una quinta fija el avance bajo demanda.
+- **Defecto de lint corregido:** `no-unnecessary-condition` rechazo un encadenamiento opcional sobre
+  el registro en vuelo, que TypeScript considera no nulo tras la asignacion. La liberacion del
+  bloqueo compara ahora la identidad del objeto, que ademas expresa mejor la intencion.
+- **Carrera en una prueba propia, corregida:** la prueba de exito tardio resolvia la promesa diferida
+  antes de que el adapter hubiera recibido la llamada, de modo que nunca se resolvia y agotaba el
+  tiempo. Se agrego la espera explicita a la invocacion del adapter.
+- **Puertas:** `test:related` (619 pruebas en 96 archivos), `verify:quick` (1276 pruebas en 188
+  archivos), `pnpm run build` y `components:inventory:check` (46 componentes) en verde. No hay
+  cambios visuales, de modo que no se regeneraron stories, baselines ni inventario.
+- **Desviacion registrada:** `pnpm run check` se inicio y el usuario lo aborto durante su ejecucion.
+  En su lugar se ejecutaron por separado `build` e inventario, que cierran los componentes
+  restantes; la suite de Storybook no se volvio a correr porque esta fase no toco UI. Queda como
+  verificacion pendiente para la proxima puerta completa.
+- **http-server huerfano:** el puerto 6007 estaba ocupado por un `http-server` de una corrida
+  anterior; se detuvo antes de continuar, como en las fases 1.7, 7.2 y 7.5.
+- **Sin commits:** no se creo ningun commit; el usuario no lo solicito.
 
 ---
 
