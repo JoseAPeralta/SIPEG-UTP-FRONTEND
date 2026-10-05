@@ -22,6 +22,7 @@ const personalAreaSections = [
   { content: /cambie su contrase[nñ]a/i, label: "Seguridad de la cuenta", path: "seguridad" },
   { content: /inscripciones/i, label: "Mis actividades", path: "actividades" },
   { content: /descargar los certificados/i, label: "Mis certificados", path: "certificados" },
+  { content: /revise las novedades/i, label: "Mis alertas", path: "alertas" },
 ] as const satisfies readonly { content: RegExp; label: string; path: string }[];
 
 const institutionalAdminRoutes = [
@@ -727,6 +728,7 @@ describe("App", () => {
     ["seguridad", /cambie su contrase[nñ]a/i],
     ["actividades", /próximamente/i],
     ["certificados", /próximamente/i],
+    ["alertas", /mis alertas/i],
   ] satisfies [string, RegExp][])(
     "should render /perfil/%s as an independent destination",
     async (section, heading) => {
@@ -765,7 +767,7 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it.each(["datos", "seguridad", "actividades", "certificados"])(
+  it.each(["datos", "seguridad", "actividades", "certificados", "alertas"])(
     "should redirect /perfil/%s to login without a session",
     async (section) => {
       renderWithProviders(<App />, { route: `/perfil/${section}` });
@@ -789,6 +791,27 @@ describe("App", () => {
       screen.getByRole("link", { current: "page", name: "Seguridad de la cuenta" }),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText(/^nombre$/i)).not.toBeInTheDocument();
+  });
+
+  it("should open the personal alerts inbox from the global indicator", async () => {
+    const user = setupUser();
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+
+    renderWithProviders(<App />, { route: "/perfil/datos" });
+
+    await user.click(await screen.findByRole("link", { name: "Tienes 3 alertas sin leer" }));
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Mis alertas" }),
+    ).toBeInTheDocument();
+    const submenu = screen.getByRole("navigation", { name: /secciones del [aá]rea personal/i });
+
+    expect(
+      within(submenu).getByRole("link", { current: "page", name: "Mis alertas" }),
+    ).toBeInTheDocument();
   });
 
   it("should keep the security section usable when the institutional catalog fails", async () => {
@@ -912,7 +935,12 @@ describe("App", () => {
     expect(screen.getByText("Datos de la cuenta", { selector: "p" })).toBeVisible();
     expect(currentPersonalAreaSection()).toBe("Datos de la cuenta");
 
-    for (const label of ["Seguridad de la cuenta", "Mis actividades", "Mis certificados"]) {
+    for (const label of [
+      "Seguridad de la cuenta",
+      "Mis actividades",
+      "Mis certificados",
+      "Mis alertas",
+    ]) {
       await user.click(screen.getByRole("button", { name: /ver todas las secciones/i }));
 
       const submenu = screen.getByRole("navigation", { name: /secciones del [aá]rea personal/i });

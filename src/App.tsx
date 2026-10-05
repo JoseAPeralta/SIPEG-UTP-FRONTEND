@@ -34,6 +34,7 @@ const OperationsLayout = lazy(() =>
 const OrganizationalUnitDetailPage = lazy(() => import("@pages/OrganizationalUnitDetailPage"));
 const OrganizationalUnitsPage = lazy(() => import("@pages/OrganizationalUnitsPage"));
 const PersonalActivitiesPage = lazy(() => import("@pages/PersonalActivitiesPage"));
+const PersonalAlertsPage = lazy(() => import("@pages/PersonalAlertsPage"));
 const PersonalCertificatesPage = lazy(() => import("@pages/PersonalCertificatesPage"));
 const PersonalAreaLayout = lazy(() =>
   import("@/features/auth/personalArea").then(({ PersonalAreaLayout: Component }) => ({
@@ -132,6 +133,7 @@ export function App() {
               <Route path="seguridad" element={renderRoute(<ChangePasswordPage />)} />
               <Route path="actividades" element={renderRoute(<PersonalActivitiesPage />)} />
               <Route path="certificados" element={renderRoute(<PersonalCertificatesPage />)} />
+              <Route path="alertas" element={renderRoute(<PersonalAlertsPage />)} />
             </Route>
           </Route>
           <Route element={<RequireAdminSession />}>

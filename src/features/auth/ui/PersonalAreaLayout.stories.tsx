@@ -44,6 +44,7 @@ function PersonalAreaFrame({ active }: { active: string }) {
         />
         <Route path="perfil/actividades" element={<SectionPreview title="Mis actividades" />} />
         <Route path="perfil/certificados" element={<SectionPreview title="Mis certificados" />} />
+        <Route path="perfil/alertas" element={<SectionPreview title="Mis alertas" />} />
       </Route>
     </Routes>
   );
@@ -54,6 +55,7 @@ const sections = [
   { href: "/perfil/seguridad", label: "Seguridad de la cuenta" },
   { href: "/perfil/actividades", label: "Mis actividades" },
   { href: "/perfil/certificados", label: "Mis certificados" },
+  { href: "/perfil/alertas", label: "Mis alertas" },
 ] as const;
 
 const meta = {
@@ -62,7 +64,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Marco comun del area personal. Posee el unico `h1` del area, el submenu de cuatro secciones y el contenido de la seccion activa. En escritorio la navegacion es lateral y siempre visible; en movil es un desplegable local que conserva el nombre de la seccion actual a la vista. Cada seccion tiene ruta propia, de modo que el historial del navegador permite volver a la anterior.",
+          "Marco comun del area personal. Posee el unico `h1` del area, el submenu de cinco secciones y el contenido de la seccion activa. En escritorio la navegacion es lateral y siempre visible; en movil es un desplegable local que conserva el nombre de la seccion actual a la vista. Cada seccion tiene ruta propia, de modo que el historial del navegador permite volver a la anterior.",
       },
     },
     layout: "fullscreen",
@@ -111,7 +113,7 @@ export const DesktopSecuritySection: Story = {
     await expect(
       within(navigation).getByRole("link", { current: "page", name: "Seguridad de la cuenta" }),
     ).toBeVisible();
-    await expect(within(navigation).getAllByRole("link")).toHaveLength(4);
+    await expect(within(navigation).getAllByRole("link")).toHaveLength(5);
     await expect(canvas.getByText("Seguridad de la cuenta", { selector: "p" })).toBeVisible();
   },
 };
