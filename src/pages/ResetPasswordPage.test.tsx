@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
@@ -28,7 +28,7 @@ function createAdaptersWithAuth(auth: AuthAdapter) {
 }
 
 async function submitNewPassword(
-  user: ReturnType<typeof userEvent.setup>,
+  user: ReturnType<typeof setupUser>,
   password = "Nueva clave 2026",
 ) {
   await user.type(screen.getByLabelText(/nueva contrase[nñ]a/i), password);
@@ -51,7 +51,7 @@ describe("ResetPasswordPage", () => {
   });
 
   it("should decode a token that arrives percent-encoded", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy();
     renderWithProviders(<ResetPasswordPage />, {
       adapters: createAdaptersWithAuth(auth),
@@ -80,7 +80,7 @@ describe("ResetPasswordPage", () => {
   });
 
   it("should explain that the link is invalid or expired", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       resetPassword: vi.fn().mockRejectedValue(new PasswordRecoveryError("invalid")),
     });
@@ -95,7 +95,7 @@ describe("ResetPasswordPage", () => {
   });
 
   it("should explain throttling separately from an expired link", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       resetPassword: vi.fn().mockRejectedValue(new PasswordRecoveryError("throttled")),
     });
@@ -110,7 +110,7 @@ describe("ResetPasswordPage", () => {
   });
 
   it("should keep the form available after a recoverable failure", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       resetPassword: vi.fn().mockRejectedValue(new PasswordRecoveryError("invalid")),
     });
@@ -125,7 +125,7 @@ describe("ResetPasswordPage", () => {
   });
 
   it("should keep the token usable when the component mounts twice", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy();
     const { rerender } = renderWithProviders(<ResetPasswordPage />, {
       adapters: createAdaptersWithAuth(auth),
@@ -144,7 +144,7 @@ describe("ResetPasswordPage", () => {
   });
 
   it("should never expose the token in the document or the address bar", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       resetPassword: vi.fn().mockRejectedValue(new PasswordRecoveryError("invalid")),
     });

@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -78,7 +78,7 @@ describe("ActivityCard", () => {
   });
 
   it("should expand and collapse a long description", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const longDescription = "Detalle extenso ".repeat(20);
 
     renderCard({ activity: createActivity({ description: longDescription }) });
@@ -91,7 +91,7 @@ describe("ActivityCard", () => {
   });
 
   it("should report the selected activity", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const activity = createActivity({ id: "activity-9", name: "Actividad nueve" });
     const { onSelect } = renderCard({ activity });
 

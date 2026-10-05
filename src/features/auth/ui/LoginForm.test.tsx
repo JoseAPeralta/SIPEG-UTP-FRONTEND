@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
@@ -24,7 +24,7 @@ describe("LoginForm", () => {
   });
 
   it("should submit trimmed credentials", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(<LoginForm onSubmit={onSubmit} />);
 

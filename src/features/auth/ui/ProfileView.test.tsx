@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AuthAdapter, type CareersAdapter } from "@/app/adapters";
@@ -107,7 +107,7 @@ describe("ProfileView", () => {
   });
 
   it("should offer a retry when the catalog fails", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const loadCareers = vi
       .fn()
@@ -138,7 +138,7 @@ describe("ProfileView", () => {
   });
 
   it("should submit the contracted patch and confirm the update", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const tokens = authenticateSession();
     const updated = createAuthenticatedUser({ firstName: "Mariana Paula" });
     const auth = createAuthSpy({ updateCurrentUser: vi.fn().mockResolvedValue(updated) });
@@ -156,7 +156,7 @@ describe("ProfileView", () => {
   });
 
   it("should report a conflict without revealing the backend message", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const auth = createAuthSpy({
       updateCurrentUser: vi.fn().mockRejectedValue(new ProfileUpdateError("conflict")),
@@ -172,7 +172,7 @@ describe("ProfileView", () => {
   });
 
   it("should end the session when the server rejects the access token", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const auth = createAuthSpy({
       updateCurrentUser: vi.fn().mockRejectedValue(new ProfileUpdateError("unauthenticated")),
@@ -190,7 +190,7 @@ describe("ProfileView", () => {
   });
 
   it("should stop rendering the form once the session is gone", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const auth = createAuthSpy({
       updateCurrentUser: vi.fn().mockRejectedValue(new ProfileUpdateError("unauthenticated")),
@@ -205,7 +205,7 @@ describe("ProfileView", () => {
   });
 
   it("should keep the session when the update fails for another reason", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const tokens = authenticateSession();
     const auth = createAuthSpy({
       updateCurrentUser: vi.fn().mockRejectedValue(new ProfileUpdateError("invalid")),

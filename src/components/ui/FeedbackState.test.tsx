@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
@@ -22,7 +22,7 @@ describe("FeedbackState", () => {
   });
 
   it("should announce errors and offer the recovery action", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onRetry = vi.fn();
 
     renderWithProviders(

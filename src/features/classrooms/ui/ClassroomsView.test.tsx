@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters } from "@/app/adapters";
@@ -47,7 +47,7 @@ describe("ClassroomsView", () => {
   });
 
   it("translates the type and status filters into contract filters", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const loadClassrooms = vi.fn().mockResolvedValue([]);
     renderClassroomsView((adapters) => {
       adapters.classrooms.loadClassrooms = loadClassrooms;
@@ -70,7 +70,7 @@ describe("ClassroomsView", () => {
   });
 
   it("narrow the visible list with the local search", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderClassroomsView();
 
     await user.type(await screen.findByLabelText("Buscar aulas"), "Analitica");
@@ -80,7 +80,7 @@ describe("ClassroomsView", () => {
   });
 
   it("announces when no classroom matches", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderClassroomsView();
 
     await user.type(await screen.findByLabelText("Buscar aulas"), "inexistente");
@@ -89,7 +89,7 @@ describe("ClassroomsView", () => {
   });
 
   it("creates a classroom sending only the contract fields", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const createClassroom = vi.fn().mockResolvedValue({ availability: [] });
     renderClassroomsView((adapters) => {
       adapters.classrooms.createClassroom = createClassroom;
@@ -115,7 +115,7 @@ describe("ClassroomsView", () => {
   });
 
   it("explains a rejected creation without exposing the backend message", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderClassroomsView((adapters) => {
       adapters.classrooms.createClassroom = vi
         .fn()
@@ -132,7 +132,7 @@ describe("ClassroomsView", () => {
   });
 
   it("explains a missing permission instead of a raw failure", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderClassroomsView((adapters) => {
       adapters.classrooms.createClassroom = vi
         .fn()

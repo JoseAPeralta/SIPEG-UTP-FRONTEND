@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
@@ -9,7 +9,7 @@ import { ChangePasswordForm } from "./ChangePasswordForm";
 const request = { currentPassword: "sipeg-demo", newPassword: "Nueva clave 2026" };
 
 async function submitChange(
-  user: ReturnType<typeof userEvent.setup>,
+  user: ReturnType<typeof setupUser>,
   { currentPassword = "sipeg-demo", newPassword = "Nueva clave 2026" } = {},
 ) {
   if (currentPassword) {
@@ -23,7 +23,7 @@ async function submitChange(
 
 describe("ChangePasswordForm", () => {
   it("should submit only the current and the new password", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(<ChangePasswordForm onSubmit={onSubmit} />);
 
@@ -54,7 +54,7 @@ describe("ChangePasswordForm", () => {
   });
 
   it("should require the current password and focus it", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderWithProviders(<ChangePasswordForm onSubmit={onSubmit} />);
 
@@ -66,7 +66,7 @@ describe("ChangePasswordForm", () => {
   });
 
   it("should reject a new password shorter than the minimum", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderWithProviders(<ChangePasswordForm onSubmit={onSubmit} />);
 
@@ -78,7 +78,7 @@ describe("ChangePasswordForm", () => {
   });
 
   it("should reject a confirmation that does not match", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderWithProviders(<ChangePasswordForm onSubmit={onSubmit} />);
 
@@ -93,7 +93,7 @@ describe("ChangePasswordForm", () => {
   });
 
   it("should announce the service error and preserve the typed credentials", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(
       <ChangePasswordForm
         errorMessage="No fue posible validar el cambio con la contraseña actual."
@@ -109,7 +109,7 @@ describe("ChangePasswordForm", () => {
   });
 
   it("should toggle the visibility of every password", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(<ChangePasswordForm onSubmit={vi.fn()} />);
 
     expect(screen.getByLabelText(/contraseña actual/i)).toHaveAttribute("type", "password");
@@ -132,7 +132,7 @@ describe("ChangePasswordForm", () => {
   });
 
   it("should not send the request twice while submitting", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn(() => new Promise<void>(() => undefined));
     renderWithProviders(<ChangePasswordForm isSubmitting onSubmit={onSubmit} />);
 

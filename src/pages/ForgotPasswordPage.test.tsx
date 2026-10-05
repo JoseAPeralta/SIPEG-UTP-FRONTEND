@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
@@ -27,14 +27,14 @@ function createAdaptersWithAuth(auth: AuthAdapter) {
   return { ...createAppAdapters({ source: "mock" }), auth };
 }
 
-async function submitEmail(user: ReturnType<typeof userEvent.setup>, email: string) {
+async function submitEmail(user: ReturnType<typeof setupUser>, email: string) {
   await user.type(screen.getByRole("textbox", { name: /correo electr[oó]nico/i }), email);
   await user.click(screen.getByRole("button", { name: /enviar enlace/i }));
 }
 
 describe("ForgotPasswordPage", () => {
   it("should confirm a known address without revealing account existence", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy();
     renderWithProviders(<ForgotPasswordPage />, {
       adapters: createAdaptersWithAuth(auth),
@@ -51,7 +51,7 @@ describe("ForgotPasswordPage", () => {
   });
 
   it("should show the same confirmation for an unknown address", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(<ForgotPasswordPage />, {
       adapters: createAdaptersWithAuth(createAuthSpy()),
       route: "/forgot-password",
@@ -63,7 +63,7 @@ describe("ForgotPasswordPage", () => {
   });
 
   it("should not repeat the submitted address in the confirmation", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(<ForgotPasswordPage />, {
       adapters: createAdaptersWithAuth(createAuthSpy()),
       route: "/forgot-password",
@@ -77,7 +77,7 @@ describe("ForgotPasswordPage", () => {
   });
 
   it("should explain throttling and keep the form available", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       requestPasswordReset: vi.fn().mockRejectedValue(new PasswordRecoveryError("throttled")),
     });
@@ -95,7 +95,7 @@ describe("ForgotPasswordPage", () => {
   });
 
   it("should explain a service failure without backend wording", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       requestPasswordReset: vi.fn().mockRejectedValue(new PasswordRecoveryError("unknown")),
     });
@@ -112,7 +112,7 @@ describe("ForgotPasswordPage", () => {
   });
 
   it("should let the visitor request a link again after the confirmation", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(<ForgotPasswordPage />, {
       adapters: createAdaptersWithAuth(createAuthSpy()),
       route: "/forgot-password",

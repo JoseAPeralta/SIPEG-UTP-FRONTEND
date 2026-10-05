@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters } from "@/app/adapters";
@@ -91,7 +91,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("explains that a reserved classroom cannot be deactivated", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderDetail((adapters) => {
       adapters.classrooms.updateClassroom = vi
         .fn()
@@ -109,7 +109,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("reactivates an inactive classroom", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const updateClassroom = vi.fn().mockResolvedValue(createClassroomDetail({ isActive: true }));
     renderDetail((adapters) => {
       adapters.classrooms.updateClassroom = updateClassroom;
@@ -123,7 +123,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("sends only the editable fields when saving the classroom data", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const updateClassroom = vi.fn().mockResolvedValue(createClassroomDetail());
     renderDetail((adapters) => {
       adapters.classrooms.updateClassroom = updateClassroom;
@@ -146,7 +146,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("adds and removes an amenity", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const addClassroomAmenity = vi.fn().mockResolvedValue(createClassroomDetail());
     const removeClassroomAmenity = vi.fn().mockResolvedValue(createClassroomDetail());
     renderDetail((adapters) => {
@@ -166,7 +166,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("explains a duplicated amenity", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderDetail((adapters) => {
       adapters.classrooms.addClassroomAmenity = vi
         .fn()
@@ -182,7 +182,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("groups a new window under the ISO day that was selected", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const addClassroomAvailability = vi.fn().mockResolvedValue(createClassroomDetail());
     renderDetail((adapters) => {
       adapters.classrooms.addClassroomAvailability = addClassroomAvailability;
@@ -204,7 +204,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("explains an overlapping weekly window without exposing the backend message", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderDetail((adapters) => {
       adapters.classrooms.addClassroomAvailability = vi
         .fn()
@@ -224,7 +224,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("removes a weekly window by its own control", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const removeClassroomAvailability = vi.fn().mockResolvedValue(createClassroomDetail());
     renderDetail((adapters) => {
       adapters.classrooms.removeClassroomAvailability = removeClassroomAvailability;
@@ -239,7 +239,7 @@ describe("ClassroomDetailView", () => {
   });
 
   it("reports a classroom that disappeared while it was open", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderDetail((adapters) => {
       adapters.classrooms.removeClassroomAmenity = vi
         .fn()

@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
@@ -93,7 +93,7 @@ describe("ProfileForm", () => {
   });
 
   it("should submit only the fields that changed", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderForm({ onSubmit });
 
@@ -105,7 +105,7 @@ describe("ProfileForm", () => {
   });
 
   it("should submit the unit and career selected together", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderForm({ onSubmit });
 
@@ -117,7 +117,7 @@ describe("ProfileForm", () => {
   });
 
   it("should send a null unit and no career for the Otro option", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderForm({ onSubmit });
 
@@ -128,7 +128,7 @@ describe("ProfileForm", () => {
   });
 
   it("should block the career when the Otro option is selected", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderForm();
 
     await user.selectOptions(screen.getByLabelText(/unidad/i), "");
@@ -140,7 +140,7 @@ describe("ProfileForm", () => {
   });
 
   it("should clear the career selection when the unit changes", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderForm();
 
     await user.selectOptions(screen.getByLabelText(/unidad/i), "fic");
@@ -152,7 +152,7 @@ describe("ProfileForm", () => {
   });
 
   it("should disable the submit control when the assignment returns to its original state", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderForm();
 
     await user.selectOptions(screen.getByLabelText(/unidad/i), "fic");
@@ -186,7 +186,7 @@ describe("ProfileForm", () => {
   });
 
   it("should focus the first invalid name and not submit", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderForm({ onSubmit });
 
@@ -207,7 +207,7 @@ describe("ProfileForm", () => {
   });
 
   it("should disable the submit control until something changes", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderForm();
 
     const submit = screen.getByRole("button", { name: /guardar cambios/i });
@@ -227,7 +227,7 @@ describe("ProfileForm", () => {
   });
 
   it("should announce a service error and keep the typed values", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderForm({
       errorMessage: "No fue posible guardar su perfil. Intente de nuevo.",
@@ -248,7 +248,7 @@ describe("ProfileForm", () => {
   });
 
   it("should never include a read-only attribute in the submitted patch", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderForm({ onSubmit });
 

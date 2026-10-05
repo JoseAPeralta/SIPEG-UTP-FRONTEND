@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { useSessionStore } from "@/store/session";
@@ -32,7 +32,7 @@ describe("ActivityCatalogView", () => {
   });
 
   it("should filter activities by search text", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
 
     renderWithProviders(<ActivityCatalogView />);
 
@@ -50,7 +50,7 @@ describe("ActivityCatalogView", () => {
   });
 
   it("should select an event program as the working context", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
 
     renderWithProviders(<ActivityCatalogView />);
 
@@ -68,7 +68,7 @@ describe("ActivityCatalogView", () => {
   });
 
   it("should paginate the activity catalog", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
 
     renderWithProviders(<ActivityCatalogView />);
 

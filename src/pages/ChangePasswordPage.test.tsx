@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
@@ -38,7 +38,7 @@ function authenticateSession() {
   return tokens;
 }
 
-async function submitChange(user: ReturnType<typeof userEvent.setup>) {
+async function submitChange(user: ReturnType<typeof setupUser>) {
   await user.type(screen.getByLabelText(/contraseña actual/i), "sipeg-demo");
   await user.type(screen.getByLabelText(/^nueva contraseña/i), "Nueva clave 2026");
   await user.type(screen.getByLabelText(/confirmar contraseña/i), "Nueva clave 2026");
@@ -55,7 +55,7 @@ describe("ChangePasswordPage", () => {
   });
 
   it("should submit the current session credentials through the hook", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const tokens = authenticateSession();
     const auth = createAuthSpy();
     renderWithProviders(<ChangePasswordPage />, { adapters: createAdaptersWithAuth(auth) });
@@ -70,7 +70,7 @@ describe("ChangePasswordPage", () => {
   });
 
   it("should keep the session and explain that other sessions were closed", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const tokens = authenticateSession();
     renderWithProviders(<ChangePasswordPage />, { adapters: createAdaptersWithAuth() });
 
@@ -83,7 +83,7 @@ describe("ChangePasswordPage", () => {
   });
 
   it("should remove the credentials from the page after a successful change", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const { container } = renderWithProviders(<ChangePasswordPage />, {
       adapters: createAdaptersWithAuth(),
@@ -98,7 +98,7 @@ describe("ChangePasswordPage", () => {
   });
 
   it("should explain an invalid change and keep the typed values", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const auth = createAuthSpy({
       changePassword: vi.fn().mockRejectedValue(new PasswordChangeError("invalid")),
@@ -112,7 +112,7 @@ describe("ChangePasswordPage", () => {
   });
 
   it("should never reveal a backend message for an unexpected failure", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const auth = createAuthSpy({
       changePassword: vi.fn().mockRejectedValue(new Error("current password mismatch in database")),
@@ -128,7 +128,7 @@ describe("ChangePasswordPage", () => {
   });
 
   it("should report a throttled attempt", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const auth = createAuthSpy({
       changePassword: vi.fn().mockRejectedValue(new PasswordChangeError("throttled")),
@@ -141,7 +141,7 @@ describe("ChangePasswordPage", () => {
   });
 
   it("should report an expired session", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     authenticateSession();
     const auth = createAuthSpy({
       changePassword: vi.fn().mockRejectedValue(new PasswordChangeError("unauthenticated")),

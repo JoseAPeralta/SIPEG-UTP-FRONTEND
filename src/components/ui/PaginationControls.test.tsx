@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -32,7 +32,7 @@ describe("PaginationControls", () => {
   });
 
   it("should disable previous and keep next enabled on the first page", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const { onPageChange } = renderPaginationControls({ currentPage: 1 });
 
     expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
@@ -44,7 +44,7 @@ describe("PaginationControls", () => {
   });
 
   it("should disable next and keep previous enabled on the last page", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const { onPageChange } = renderPaginationControls({ currentPage: 5 });
 
     expect(screen.getByRole("button", { name: /anterior/i })).toBeEnabled();
@@ -56,7 +56,7 @@ describe("PaginationControls", () => {
   });
 
   it("should navigate to previous and next pages from a middle page", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const { onPageChange } = renderPaginationControls({ currentPage: 3 });
 
     await user.click(screen.getByRole("button", { name: /anterior/i }));
@@ -67,7 +67,7 @@ describe("PaginationControls", () => {
   });
 
   it("should notify when a specific page is selected", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const { onPageChange } = renderPaginationControls();
 
     await user.click(screen.getByRole("button", { name: "4" }));

@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AppAdapters } from "@/app/adapters";
@@ -52,7 +52,7 @@ describe("UserDetailView", () => {
       adapters.users = { ...adapters.users, updateUser };
     });
     await screen.findByRole("button", { name: "Guardar cambios" });
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Rol global" }), "ADMIN");
     await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
@@ -66,7 +66,7 @@ describe("UserDetailView", () => {
       adapters.users = { ...adapters.users, updateUser };
     });
     await screen.findByRole("button", { name: "Guardar cambios" });
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.click(screen.getByRole("button", { name: "Desactivar cuenta" }));
 
@@ -89,7 +89,7 @@ describe("UserDetailView", () => {
       adapters.users = { ...adapters.users, updateUser };
     });
     await screen.findByRole("button", { name: "Guardar cambios" });
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.click(screen.getByRole("button", { name: "Desactivar cuenta" }));
     await user.click(screen.getByRole("button", { name: /Confirmar desactivación/i }));

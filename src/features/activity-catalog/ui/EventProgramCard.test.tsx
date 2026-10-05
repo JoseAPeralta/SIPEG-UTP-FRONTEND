@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { createActivity, createEventProgram, createOrganizationalUnit } from "@/test/factories";
@@ -61,7 +61,7 @@ describe("EventProgramCard", () => {
   });
 
   it("should report the selected program", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSelect = vi.fn();
     const summary = createSummary();
 

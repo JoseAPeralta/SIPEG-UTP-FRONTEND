@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { createCareer, createOrganizationalUnit } from "@/test/factories";
@@ -18,7 +18,7 @@ const careers = [
   createCareer({ code: "OTROS", id: "career-other", name: "Otros", unitId: null }),
 ];
 
-async function completeRequiredFields(user: ReturnType<typeof userEvent.setup>) {
+async function completeRequiredFields(user: ReturnType<typeof setupUser>) {
   await user.type(screen.getByRole("textbox", { name: /^nombre$/i }), " Maria ");
   await user.type(screen.getByRole("textbox", { name: /apellido/i }), " Perez ");
   await user.type(screen.getByRole("textbox", { name: /c[eé]dula/i }), " 8-123-456 ");
@@ -31,7 +31,7 @@ async function completeRequiredFields(user: ReturnType<typeof userEvent.setup>) 
 
 describe("RegisterForm", () => {
   it("should enable careers for a faculty and submit trimmed contract fields", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(
       <RegisterForm
@@ -66,7 +66,7 @@ describe("RegisterForm", () => {
   });
 
   it("should clear and omit career when selecting a non-faculty unit", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(
       <RegisterForm
@@ -90,7 +90,7 @@ describe("RegisterForm", () => {
   });
 
   it("should validate password length and toggle its visibility", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(
       <RegisterForm careers={careers} onSubmit={vi.fn()} organizationalUnits={[faculty]} />,
     );
@@ -115,7 +115,7 @@ describe("RegisterForm", () => {
   });
 
   it("should never accept a password longer than the contract maximum", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(
       <RegisterForm careers={careers} onSubmit={onSubmit} organizationalUnits={[faculty]} />,
@@ -135,7 +135,7 @@ describe("RegisterForm", () => {
   });
 
   it("should present registration guidance with formal language", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(
       <RegisterForm careers={careers} onSubmit={vi.fn()} organizationalUnits={[faculty]} />,
     );

@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
@@ -8,7 +8,7 @@ import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 describe("ForgotPasswordForm", () => {
   it("should submit a trimmed email", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(<ForgotPasswordForm onSubmit={onSubmit} />);
 
@@ -22,7 +22,7 @@ describe("ForgotPasswordForm", () => {
   });
 
   it("should keep the email and focus the field when the email is malformed", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderWithProviders(<ForgotPasswordForm onSubmit={onSubmit} />);
 
@@ -36,7 +36,7 @@ describe("ForgotPasswordForm", () => {
   });
 
   it("should clear the local error once the email changes", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(<ForgotPasswordForm onSubmit={vi.fn()} />);
 
     const field = screen.getByRole("textbox", { name: /correo electr[oó]nico/i });
@@ -50,7 +50,7 @@ describe("ForgotPasswordForm", () => {
   });
 
   it("should announce the service error and preserve the typed email", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(
       <ForgotPasswordForm
         errorMessage="Ha enviado demasiadas solicitudes. Espere un momento e intente de nuevo."

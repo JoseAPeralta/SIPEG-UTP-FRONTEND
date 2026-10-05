@@ -1,6 +1,6 @@
 import { Button, Stack } from "@chakra-ui/react";
 import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -63,7 +63,7 @@ describe("ClassroomAvailabilitySelector", () => {
   });
 
   it("should list only returned classrooms and notify the controlled selection", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const classroom = createClassroom();
     const onSelectionChange = vi.fn();
     const { loadAvailableClassrooms } = renderSelector({
@@ -83,7 +83,7 @@ describe("ClassroomAvailabilitySelector", () => {
   });
 
   it("should explain a rejected availability request without exposing its backend message", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const { loadAvailableClassrooms } = renderSelector({
       loadAvailableClassrooms: vi
         .fn()
@@ -100,7 +100,7 @@ describe("ClassroomAvailabilitySelector", () => {
   });
 
   it("should preserve a selected classroom that becomes unavailable after a new search", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const classroom = createClassroom();
     const loadAvailableClassrooms = vi
       .fn()
@@ -132,7 +132,7 @@ describe("ClassroomAvailabilitySelector", () => {
       tokens: createAuthTokens(),
     });
 
-    const user = userEvent.setup();
+    const user = setupUser();
     const classroom = createClassroom();
     const loadAvailableClassrooms = vi
       .fn()

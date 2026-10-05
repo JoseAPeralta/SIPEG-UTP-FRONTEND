@@ -1,6 +1,6 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocation, useNavigate } from "react-router";
 
@@ -202,7 +202,7 @@ describe("App", () => {
   });
 
   it("should complete the recovery journey from the login form to a new password", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const adapters = createAppAdapters({ source: "mock" });
     const auth: AuthAdapter = {
       ...adapters.auth,
@@ -411,7 +411,7 @@ describe("App", () => {
   });
 
   it("should keep admin modules scoped to the selected event program", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
 
     renderWithProviders(<App />, { route: "/admin/asistencia" });
@@ -438,12 +438,12 @@ describe("App", () => {
   });
 
   it("should start and close a real adapter session from the navigation flow", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
 
     renderWithProviders(<App />, { route: "/login" });
 
     await user.type(
-      screen.getByRole("textbox", { name: /correo electr[oó]nico/i }),
+      await screen.findByRole("textbox", { name: /correo electr[oó]nico/i }),
       "mariana.rodriguez@example.edu",
     );
     await user.type(screen.getByLabelText(/contrase[nñ]a/i), "sipeg-demo");
@@ -471,7 +471,7 @@ describe("App", () => {
   });
 
   it("should send standard users to their personal area after login", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const adapters = createAppAdapters({ source: "mock" });
     const standardUserAuth: AuthAdapter = {
       ...adapters.auth,
@@ -501,7 +501,7 @@ describe("App", () => {
   });
 
   it("should clear the working context when the session closes", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     useSessionStore.getState().setSession({ currentUser: demoUser, tokens: demoTokens });
     useWorkingContextStore
       .getState()
@@ -756,7 +756,7 @@ describe("App", () => {
   });
 
   it("should move between sections by following the submenu", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     useSessionStore.getState().setSession({
       currentUser: createAuthenticatedUser({ globalRole: "USER" }),
       tokens: demoTokens,
@@ -778,7 +778,7 @@ describe("App", () => {
   it.each(personalAreaSections)(
     "should reach every other section from the submenu while on /perfil/$path",
     async (origin) => {
-      const user = userEvent.setup();
+      const user = setupUser();
       useSessionStore.getState().setSession({
         currentUser: createAuthenticatedUser({ globalRole: "USER" }),
         tokens: demoTokens,
@@ -802,7 +802,7 @@ describe("App", () => {
   );
 
   it("should return to the previous section with the browser history", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     useSessionStore.getState().setSession({
       currentUser: createAuthenticatedUser({ globalRole: "USER" }),
       tokens: demoTokens,
@@ -845,7 +845,7 @@ describe("App", () => {
   });
 
   it("should reach every personal section from the submenu on mobile", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     stubDesktopViewport(false);
     useSessionStore.getState().setSession({
       currentUser: createAuthenticatedUser({ globalRole: "USER" }),

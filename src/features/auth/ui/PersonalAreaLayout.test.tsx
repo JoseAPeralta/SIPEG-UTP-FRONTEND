@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { lazy, Suspense, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Route, Routes } from "react-router";
@@ -69,7 +69,7 @@ describe("PersonalAreaLayout", () => {
   });
 
   it("navega a otra seccion y deja el foco en el encabezado del destino", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     stubDesktopViewport(true);
     renderLayout("/perfil/datos");
 
@@ -83,7 +83,7 @@ describe("PersonalAreaLayout", () => {
   });
 
   it("enfoca el encabezado tambien al elegir la seccion que ya esta activa", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     stubDesktopViewport(true);
     renderLayout("/perfil/datos");
 
@@ -93,7 +93,7 @@ describe("PersonalAreaLayout", () => {
   });
 
   it("cierra el desplegable y enfoca el encabezado al elegir una seccion en movil", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     stubDesktopViewport(false);
     renderLayout("/perfil/datos");
 
@@ -108,7 +108,7 @@ describe("PersonalAreaLayout", () => {
   });
 
   it("devuelve el foco al boton al cerrar el desplegable con Escape", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     stubDesktopViewport(false);
     renderLayout("/perfil/datos");
 
@@ -120,7 +120,7 @@ describe("PersonalAreaLayout", () => {
   });
 
   it("no mueve el foco cuando la seccion cambia por el historial del navegador", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     stubDesktopViewport(true);
     renderLayout("/perfil/datos");
 
@@ -131,7 +131,7 @@ describe("PersonalAreaLayout", () => {
   });
 
   it("mantiene el desplegable abierto aunque la seccion destino siga cargando", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     stubDesktopViewport(false);
 
     renderWithProviders(

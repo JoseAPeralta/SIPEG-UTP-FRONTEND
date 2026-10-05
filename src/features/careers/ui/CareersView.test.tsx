@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters } from "@/app/adapters";
@@ -48,7 +48,7 @@ describe("CareersView", () => {
   });
 
   it("creates a faculty career from the administrative form", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const create = vi
       .fn()
       .mockResolvedValue(createCareer({ code: "DATA", name: "Ciencia de Datos" }));
@@ -71,7 +71,7 @@ describe("CareersView", () => {
   });
 
   it("explains a rejected faculty instead of rendering the backend error", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderCareersView((adapters) => {
       adapters.careers.createCareer = vi
         .fn()
@@ -89,7 +89,7 @@ describe("CareersView", () => {
   });
 
   it("explains conflicts without exposing backend messages", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderCareersView((adapters) => {
       adapters.careers.createCareer = vi
         .fn()

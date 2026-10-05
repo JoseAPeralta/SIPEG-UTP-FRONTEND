@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters } from "@/app/adapters";
@@ -32,7 +32,7 @@ beforeEach(() => {
 
 describe("OrganizationalUnitDetailView", () => {
   it("edits the unit and shows the default program and careers", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const updateOrganizationalUnit = vi
       .fn()
       .mockResolvedValue({ ...busyDetail, name: "Facultad de Sistemas e Informatica" });
@@ -61,7 +61,7 @@ describe("OrganizationalUnitDetailView", () => {
   });
 
   it("explains the default program conflict and allows retrying", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const deactivateOrganizationalUnit = vi
       .fn()
       .mockRejectedValueOnce(Object.assign(new Error("conflict"), { status: 409 }))

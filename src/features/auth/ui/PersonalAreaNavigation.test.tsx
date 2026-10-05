@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
@@ -81,7 +81,7 @@ describe("PersonalAreaNavigation", () => {
   });
 
   it("lista los cuatro enlaces en el orden del submenu al desplegar", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderNavigation({ isDesktop: false });
 
     await user.click(screen.getByRole("button", { name: /ver todas las secciones/i }));
@@ -99,7 +99,7 @@ describe("PersonalAreaNavigation", () => {
   });
 
   it("avisa al layout antes de navegar a otra seccion", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const props = renderNavigation({ isDesktop: false });
 
     await user.click(screen.getByRole("button", { name: /ver todas las secciones/i }));
@@ -109,7 +109,7 @@ describe("PersonalAreaNavigation", () => {
   });
 
   it("cierra el desplegable al elegir una seccion", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderNavigation({ isDesktop: false, route: "/perfil/datos" });
 
     await user.click(screen.getByRole("button", { name: /ver todas las secciones/i }));
@@ -120,7 +120,7 @@ describe("PersonalAreaNavigation", () => {
   });
 
   it("devuelve el foco al boton y cierra el desplegable con Escape", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderNavigation({ isDesktop: false });
 
     const toggle = screen.getByRole("button", { name: /ver todas las secciones/i });

@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { Route, Routes } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 
@@ -12,7 +12,7 @@ import { LogoutPage } from "./LogoutPage";
 
 describe("LogoutPage", () => {
   it("keeps a failed logout visible and lets the user retry revocation", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const adapters = createAppAdapters({ source: "mock" });
     const logout = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue(undefined);
     useSessionStore

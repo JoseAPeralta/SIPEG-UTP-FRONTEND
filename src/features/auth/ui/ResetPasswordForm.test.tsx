@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
@@ -8,7 +8,7 @@ import { ResetPasswordForm } from "./ResetPasswordForm";
 
 describe("ResetPasswordForm", () => {
   it("should submit the token and the new password without the confirmation", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(<ResetPasswordForm onSubmit={onSubmit} token="reset-token" />);
 
@@ -23,7 +23,7 @@ describe("ResetPasswordForm", () => {
   });
 
   it("should require at least 12 characters", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderWithProviders(<ResetPasswordForm onSubmit={onSubmit} token="reset-token" />);
 
@@ -36,7 +36,7 @@ describe("ResetPasswordForm", () => {
   });
 
   it("should cap the new password at 20 characters", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderWithProviders(<ResetPasswordForm onSubmit={onSubmit} token="reset-token" />);
 
@@ -48,7 +48,7 @@ describe("ResetPasswordForm", () => {
   });
 
   it("should reject a confirmation that does not match", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const onSubmit = vi.fn();
     renderWithProviders(<ResetPasswordForm onSubmit={onSubmit} token="reset-token" />);
 
@@ -67,7 +67,7 @@ describe("ResetPasswordForm", () => {
   });
 
   it("should toggle password visibility for both fields", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(<ResetPasswordForm onSubmit={vi.fn()} token="reset-token" />);
 
     const newPasswordField = screen.getByLabelText(/nueva contrase[nñ]a/i);
@@ -84,7 +84,7 @@ describe("ResetPasswordForm", () => {
   });
 
   it("should announce the service error and preserve the typed password", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     renderWithProviders(
       <ResetPasswordForm
         errorMessage="El enlace es inválido o ha expirado. Solicite uno nuevo."

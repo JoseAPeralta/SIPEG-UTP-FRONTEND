@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
@@ -146,7 +146,7 @@ describe("VerifyEmailPage", () => {
   });
 
   it("should let the user retry with the same link", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const verifyEmail = vi
       .fn()
       .mockRejectedValueOnce(new EmailVerificationError("unavailable"))

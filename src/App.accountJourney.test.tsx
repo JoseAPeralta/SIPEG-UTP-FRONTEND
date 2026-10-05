@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "@/App";
@@ -133,7 +133,7 @@ function createScenario() {
   };
 }
 
-async function registerThroughTheForm(user: ReturnType<typeof userEvent.setup>) {
+async function registerThroughTheForm(user: ReturnType<typeof setupUser>) {
   await user.selectOptions(
     await screen.findByRole("combobox", { name: /unidad \/ facultad/i }),
     "fisc",
@@ -150,7 +150,7 @@ async function registerThroughTheForm(user: ReturnType<typeof userEvent.setup>) 
   await user.click(screen.getByRole("button", { name: /crear cuenta/i }));
 }
 
-async function signInThroughTheForm(user: ReturnType<typeof userEvent.setup>) {
+async function signInThroughTheForm(user: ReturnType<typeof setupUser>) {
   await user.type(
     await screen.findByRole("textbox", { name: /correo electr[oó]nico/i }),
     PARTICIPANT_EMAIL,
@@ -160,7 +160,7 @@ async function signInThroughTheForm(user: ReturnType<typeof userEvent.setup>) {
 }
 
 async function signInAndOpenAccountData(
-  user: ReturnType<typeof userEvent.setup>,
+  user: ReturnType<typeof setupUser>,
   scenario: ReturnType<typeof createScenario>,
 ) {
   const renderResult = renderWithProviders(<App />, {
@@ -191,7 +191,7 @@ describe("App account journey", () => {
   });
 
   it("should create the account and ask for the email verification without signing in", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const scenario = createScenario();
 
     renderWithProviders(<App />, { adapters: scenario.adapters, route: "/registro" });
@@ -220,7 +220,7 @@ describe("App account journey", () => {
       route: "/registro",
     });
 
-    await registerThroughTheForm(userEvent.setup());
+    await registerThroughTheForm(setupUser());
     await screen.findByText(/cuenta creada correctamente/i);
     registerMount.unmount();
 
@@ -236,7 +236,7 @@ describe("App account journey", () => {
   });
 
   it("should sign in with the registered credentials and open the account data section", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const scenario = createScenario();
 
     renderWithProviders(<App />, { adapters: scenario.adapters, route: "/login" });
@@ -263,7 +263,7 @@ describe("App account journey", () => {
   });
 
   it("should save the editable profile and show it again after returning from another section", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const scenario = createScenario();
 
     await signInAndOpenAccountData(user, scenario);
@@ -290,7 +290,7 @@ describe("App account journey", () => {
   });
 
   it("should change the password from the security section and keep the current session", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const scenario = createScenario();
 
     await signInAndOpenAccountData(user, scenario);
@@ -317,7 +317,7 @@ describe("App account journey", () => {
   });
 
   it("should close the session, discard private data and block the personal area again", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const scenario = createScenario();
     const { unmount } = await signInAndOpenAccountData(user, scenario);
 
@@ -367,7 +367,7 @@ describe("App account journey", () => {
   });
 
   it("should never write credentials, profile or verification material to the browser storage", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const scenario = createScenario();
     const registerMount = renderWithProviders(<App />, {
       adapters: scenario.adapters,

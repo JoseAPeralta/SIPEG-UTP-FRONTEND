@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { useSessionStore } from "@/store/session";
@@ -35,7 +35,7 @@ describe("WorkingContextSelect", () => {
   });
 
   it("should store the selected activity", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
 
     renderWithProviders(<WorkingContextSelect />);
 
@@ -55,7 +55,7 @@ describe("WorkingContextSelect", () => {
   });
 
   it("should clear the context when the empty option is selected", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     useWorkingContextStore
       .getState()
       .setWorkingContext({ id: "program-innovation-week", kind: "eventProgram" });

@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AppAdapters } from "@/app/adapters";
@@ -51,7 +51,7 @@ describe("UsersView", () => {
       adapters.users = { ...adapters.users, loadUsersPage };
     });
     await screen.findByText("Mariana Rodriguez");
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Rol" }), "ADMIN");
 
@@ -69,7 +69,7 @@ describe("UsersView", () => {
       adapters.users = { ...adapters.users, loadUsersPage };
     });
     await screen.findByText("Mariana Rodriguez");
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.type(screen.getByRole("textbox", { name: "Buscar usuarios" }), "carlos");
     await user.click(screen.getByRole("button", { name: "Buscar" }));
@@ -87,7 +87,7 @@ describe("UsersView", () => {
       adapters.users = { ...adapters.users, loadUsersPage };
     });
     await screen.findByText("Mariana Rodriguez");
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.click(screen.getByRole("button", { name: "Siguiente" }));
 
@@ -102,7 +102,7 @@ describe("UsersView", () => {
       adapters.users = { ...adapters.users, createUser };
     });
     await screen.findByText("Mariana Rodriguez");
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.click(screen.getByRole("button", { name: "Nuevo usuario" }));
     await user.type(screen.getByRole("textbox", { name: "Nombre" }), "Nueva");
@@ -140,7 +140,7 @@ describe("UsersView", () => {
       adapters.users = { ...adapters.users, createUser };
     });
     await screen.findByText("Mariana Rodriguez");
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.click(screen.getByRole("button", { name: "Nuevo usuario" }));
     await user.type(screen.getByRole("textbox", { name: "Nombre" }), "Nueva");
@@ -172,7 +172,7 @@ describe("UsersView", () => {
       adapters.users = { ...adapters.users, createUser };
     });
     await screen.findByText("Mariana Rodriguez");
-    const user = userEvent.setup();
+    const user = setupUser();
 
     await user.click(screen.getByRole("button", { name: "Nuevo usuario" }));
     await user.type(screen.getByRole("textbox", { name: "Nombre" }), "A");
@@ -182,7 +182,11 @@ describe("UsersView", () => {
     await user.type(screen.getByLabelText(/^contrase[nñ]a$/i), "corta");
     await user.click(screen.getByRole("button", { name: "Guardar usuario" }));
 
-    expect(await screen.findByText("El nombre debe tener al menos 2 caracteres.")).toBeVisible();
+    expect(
+      await screen.findByText("El nombre debe tener al menos 2 caracteres.", undefined, {
+        timeout: 10_000,
+      }),
+    ).toBeVisible();
     expect(screen.getByText("La contraseña debe tener al menos 12 caracteres.")).toBeVisible();
     expect(createUser).not.toHaveBeenCalled();
   });

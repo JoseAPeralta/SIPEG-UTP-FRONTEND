@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { setupUser } from "@/test/user";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Route, Routes } from "react-router";
 
@@ -68,7 +68,7 @@ describe("LoginPage", () => {
   });
 
   it("should send a standard user to the personal area after authenticating", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const adapters = createAppAdapters({ source: "mock" });
     const auth = createAuthSpy({
       loadCurrentUser: vi.fn().mockResolvedValue(createAuthenticatedUser({ globalRole: "USER" })),
@@ -90,7 +90,7 @@ describe("LoginPage", () => {
   });
 
   it("should send an administrator to the operational panel after authenticating", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const adapters = createAppAdapters({ source: "mock" });
     const auth = createAuthSpy({
       loadCurrentUser: vi.fn().mockResolvedValue(createAuthenticatedUser({ globalRole: "ADMIN" })),
@@ -144,7 +144,7 @@ describe("LoginPage", () => {
   });
 
   it("should show a throttled message after too many attempts", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       login: vi.fn().mockRejectedValue(new AuthError("throttled")),
     });
@@ -162,7 +162,7 @@ describe("LoginPage", () => {
   });
 
   it("should answer an inactive account without revealing its state", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       login: vi.fn().mockRejectedValue(new AuthError("rejected")),
     });
@@ -182,7 +182,7 @@ describe("LoginPage", () => {
   });
 
   it("should answer an unverified email exactly like a wrong password", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       login: vi.fn().mockRejectedValue(new AuthError("rejected")),
     });
@@ -202,7 +202,7 @@ describe("LoginPage", () => {
   });
 
   it("should not report a connectivity problem as invalid credentials", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const auth = createAuthSpy({
       login: vi.fn().mockRejectedValue(new AuthError("unavailable")),
     });
