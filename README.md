@@ -16,7 +16,7 @@ Leyenda: `X` pendiente, `~` parcial, `✓` finalizada.
 | X      | Notificaciones por email   | Enviar avisos a usuarios o asistentes registrados cuando se creen, modifiquen o cancelen actividades.       |
 | X      | Programas de eventos       | Crear programas con nombre, fechas, etiqueta personalizada, banner, colaboradores y permisos.               |
 | X      | Actividades                | Crear actividades con nombre, tipo, ponentes, aula, fecha, hora, equipamiento requerido y banner.           |
-| X      | Herencia de permisos       | Heredar colaboradores y permisos desde programas de eventos hacia sus actividades por defecto.              |
+| ~      | Herencia de permisos       | Permisos efectivos con origen local, heredado o combinado y vigencia; overrides e historial pendientes.     |
 | ~      | Catalogo de actividades    | Lectura integrada disponible; faltan limites publicos definitivos, detalle y reduccion del fan-out.         |
 | ✓      | Autenticacion y sesion     | Iniciar sesion con la API real, restaurar la sesion, cerrar sesion y proteger rutas administrativas.        |
 | ~      | Filtros por unidad         | Filtra por unidad, tipo de actividad y programa; faltan tipo de unidad y prioridad por unidad seleccionada. |
@@ -30,6 +30,20 @@ Leyenda: `X` pendiente, `~` parcial, `✓` finalizada.
 | X      | Reportes y estadisticas    | Mostrar metricas de asistencia, certificados, ocupacion de aulas y actividades activas o pasadas.           |
 | X      | Exportaciones              | Preparar exportacion de reportes a Excel y PDF.                                                             |
 | ✓      | Adaptadores de datos       | Separar mocks del API real mediante puertos y adapters con `VITE_DATA_SOURCE`.                              |
+
+## Operaciones por contexto
+
+`/operaciones` descubre programas y actividades accesibles mediante `GET /api/v1/users/me/scopes`,
+incluidos contextos no públicos. Cada contexto tiene URL propia bajo `/operaciones/programas/:id`
+o `/operaciones/actividades/:id`, donde se consultan permisos propios y, con capacidad de delegación,
+se administran colaboradores locales. Las mutaciones refrescan descubrimiento y permisos afectados.
+El contexto operativo se expresa en la URL; no reutiliza el catálogo administrativo global.
+
+La administración institucional y de usuarios permanece exclusiva de ADMIN. El contrato actual no
+enumera personas con colaboración exclusivamente heredada ni el historial de permisos futuros o
+expirados. Los delegadores sin rol ADMIN agregan mediante identificador de cuenta, pues no existe una
+búsqueda de usuarios autorizada para ellos. La gestión de programas, actividades, asistencia,
+propuestas, certificados y reportes se incorporará en sus fases específicas.
 
 ## Stack
 
@@ -306,6 +320,44 @@ Para probar la PWA, genera el build y sirvelo localmente:
 pnpm run build
 pnpm run preview
 ```
+
+## Cloudflare Workers
+
+El frontend se publica con Workers Static Assets. `wrangler.jsonc` apunta al build de `dist`
+y configura el fallback a `index.html` para las rutas de React Router. Su `name` debe coincidir
+con el Worker creado en Cloudflare; el valor inicial es `sipeg-utp-frontend`.
+
+Configura Workers Builds con estos valores:
+
+| Ajuste         | Valor                       |
+| -------------- | --------------------------- |
+| Root directory | `/`                         |
+| Build command  | `pnpm run build`            |
+| Deploy command | `pnpm exec wrangler deploy` |
+
+En las variables del **build**, define `VITE_API_BASE_URL` con el origen HTTPS del backend
+(por ejemplo, `https://api.example.com`), sin `/api` ni `/api/v1`. Vite incorpora este valor
+al bundle; cambiarlo requiere un nuevo build. El backend se despliega por separado.
+
+Las variables `VITE_*` son publicas en el navegador: nunca deben contener tokens,
+contrasenas ni claves privadas. Configura las credenciales de despliegue en Cloudflare;
+no las agregues a `wrangler.jsonc` ni al repositorio publico. Los archivos `.env*` locales
+estan ignorados por Git, salvo `.env.example`, que contiene solo ejemplos.
+
+Wrangler esta fijado como dependencia de desarrollo y se instala desde `pnpm-lock.yaml`.
+`pnpm-workspace.yaml` autoriza el script de instalacion de su dependencia `workerd`, evitando
+`ERR_PNPM_IGNORED_BUILDS` durante la instalacion en CI.
+
+Para validar el empaquetado localmente sin publicar:
+
+```bash
+pnpm install --frozen-lockfile
+VITE_API_BASE_URL=https://api.example.com pnpm run build
+pnpm exec wrangler deploy --dry-run
+```
+
+Sustituye la URL de ejemplo por la real antes de publicar. Para desplegar el build validado
+desde una terminal autenticada en Cloudflare, ejecuta `pnpm exec wrangler deploy`.
 
 ## Docker
 

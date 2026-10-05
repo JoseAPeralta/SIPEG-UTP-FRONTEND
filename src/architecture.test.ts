@@ -170,6 +170,7 @@ function checkFeatureBarrel(file: SourceFileRecord, resolved: string): string | 
     "src/features/activity-catalog/public",
     "src/features/auth/personalArea",
     "src/features/auth/session",
+    "src/features/collaboration/navigation",
     "src/features/organizational-units/public",
   ]);
 

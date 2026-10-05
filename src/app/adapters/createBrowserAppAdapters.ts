@@ -24,6 +24,34 @@ export function createBrowserAppAdapters({
   const isApi = source === "api";
 
   return {
+    collaborators: createDeferredAdapter(async () =>
+      isApi
+        ? import("@/features/collaboration/adapters/apiCollaboratorsAdapter").then(
+            ({ createApiCollaboratorsAdapter }) =>
+              createApiCollaboratorsAdapter(apiOptions, readSessionAccessToken),
+          )
+        : import("@/features/collaboration/adapters/mockCollaboratorsAdapter").then(
+            ({ createMockCollaboratorsAdapter }) => createMockCollaboratorsAdapter(),
+          ),
+    ),
+    ownPermissions: createDeferredAdapter(async () =>
+      isApi
+        ? import("@/features/collaboration/adapters/apiOwnPermissionsAdapter").then(
+            ({ createApiOwnPermissionsAdapter }) =>
+              createApiOwnPermissionsAdapter(apiOptions, readSessionAccessToken),
+          )
+        : import("@/features/collaboration/adapters/mockOwnPermissionsAdapter").then(
+            async ({ createMockOwnPermissionsAdapter }) => {
+              const { createMockUserScopesAdapter } =
+                await import("@/features/collaboration/adapters/mockUserScopesAdapter");
+              return createMockOwnPermissionsAdapter(
+                createMockUserScopesAdapter(
+                  () => useSessionStore.getState().currentUser?.globalRole,
+                ),
+              );
+            },
+          ),
+    ),
     activityCatalog: createDeferredAdapter(async () =>
       isApi
         ? import("@/features/activity-catalog/adapters/apiActivityCatalogAdapter").then(
@@ -117,7 +145,8 @@ export function createBrowserAppAdapters({
               createApiUserScopesAdapter(apiOptions, readSessionAccessToken),
           )
         : import("@/features/collaboration/adapters/mockUserScopesAdapter").then(
-            ({ createMockUserScopesAdapter }) => createMockUserScopesAdapter(),
+            ({ createMockUserScopesAdapter }) =>
+              createMockUserScopesAdapter(() => useSessionStore.getState().currentUser?.globalRole),
           ),
     ),
   };

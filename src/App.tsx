@@ -24,6 +24,13 @@ const ForgotPasswordPage = lazy(() => import("@pages/ForgotPasswordPage"));
 const LandingPage = lazy(() => import("@pages/LandingPage"));
 const LoginPage = lazy(() => import("@pages/LoginPage"));
 const LogoutPage = lazy(() => import("@pages/LogoutPage"));
+const OperationsPage = lazy(() => import("@pages/OperationsPage"));
+const OperationalScopePage = lazy(() => import("@pages/OperationalScopePage"));
+const OperationsLayout = lazy(() =>
+  import("@/components/operationsShell").then(({ OperationsLayout: Component }) => ({
+    default: Component,
+  })),
+);
 const OrganizationalUnitDetailPage = lazy(() => import("@pages/OrganizationalUnitDetailPage"));
 const OrganizationalUnitsPage = lazy(() => import("@pages/OrganizationalUnitsPage"));
 const PersonalActivitiesPage = lazy(() => import("@pages/PersonalActivitiesPage"));
@@ -141,6 +148,19 @@ export function App() {
         </Route>
       </Route>
       <Route element={<RestoreGate />}>
+        <Route element={<RequireSession />}>
+          <Route path="operaciones" element={renderRoute(<OperationsLayout />)}>
+            <Route index element={renderRoute(<OperationsPage />)} />
+            <Route
+              path="programas/:programId"
+              element={renderRoute(<OperationalScopePage type="program" />)}
+            />
+            <Route
+              path="actividades/:activityId"
+              element={renderRoute(<OperationalScopePage type="activity" />)}
+            />
+          </Route>
+        </Route>
         <Route element={<RequireAdminSession />}>
           <Route path="admin" element={renderRoute(<AdminLayout />)}>
             <Route index element={renderRoute(<DashboardPage />)} />

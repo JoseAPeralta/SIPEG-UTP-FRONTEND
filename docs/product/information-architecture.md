@@ -105,11 +105,25 @@ El menu del panel enlaza todos estos modulos; ninguna ruta implementada queda hu
 
 ### Operaciones Por Capacidad
 
-La futura area `/operaciones` reunira programas, actividades, asistencia, certificados y reportes
-para colaboradores con capacidad efectiva. El contrato de descubrimiento ya existe: la Fase 3.4
-integro `features/collaboration` contra la operacion dedicada y paginada propuesta en
-[ADR-0014](../adr/adr-0014-scope-discovery-contract.md), sin N+1 sobre el catalogo publico. La
-navegacion por capacidad efectiva y las rutas de `/operaciones` pertenecen a la Fase 3.5.
+Las fases 3.5–3.7 incorporan el área `/operaciones` para colaboradores con capacidad efectiva.
+El descubrimiento consume la operación dedicada de 3.4, sin N+1 sobre el catálogo público.
+
+| Ruta                                   | Propósito                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------------ |
+| `/operaciones`                         | Contextos accesibles, incluidos los no públicos, o estado sin permisos.        |
+| `/operaciones/programas/:programId`    | Permisos propios y gestión de colaboradores locales del programa.              |
+| `/operaciones/actividades/:activityId` | Permisos propios, herencia y gestión de colaboradores locales de la actividad. |
+
+Todas exigen sesión. Los detalles verifican tipo e identificador contra los scopes descubiertos y
+confirman los permisos del contexto; una carga fallida no habilita acciones con datos anteriores.
+La gestión de colaboradores exige capacidad de delegación y un programa que permita cambios.
+El contexto operativo se expresa en la URL y no en el selector administrativo global. Los módulos
+de programas, actividades, asistencia, propuestas, certificados y reportes se añadirán a estas
+fronteras en sus fases correspondientes, con sus capacidades y contratos específicos.
+
+"Mis operaciones" aparece en el menú principal al descubrir scopes efectivos. ADMIN conserva
+además el panel administrativo y todos los roles conservan "Mi perfil". La entrada tras login sigue
+siendo `/admin` para ADMIN y `/perfil` para USER, sin esperar una segunda consulta para iniciar sesión.
 
 Los catalogos institucionales y la administracion global de usuarios continuaran siendo exclusivos
 de `ADMIN`. Los guards del frontend mejoran la experiencia, pero no sustituyen la autorizacion del

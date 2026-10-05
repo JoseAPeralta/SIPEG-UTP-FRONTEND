@@ -14,6 +14,9 @@ function adapter() {
 }
 
 describe("createMockUserScopesAdapter", () => {
+  it("does not expose the administrator scenario to an ordinary user", async () => {
+    expect(await createMockUserScopesAdapter(() => "USER").loadUserScopes()).toEqual([]);
+  });
   it("should derive every program and activity from the mock catalog", async () => {
     const scopes = await adapter().loadUserScopes();
 

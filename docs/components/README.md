@@ -71,6 +71,18 @@ _Guide_ se desactivan de forma explicita con `sidebarOnboardingChecklist` y
 `menuOnboardingChecklist` en `.storybook/main.ts`; su estado interno vive en ajustes de usuario y en
 la cache del proyecto, no en el repositorio.
 
+## Colaboración y operaciones
+
+| Componente                            | Import público                          | Uso e invariantes                                                                                                            | Story                                                                                                    |
+| ------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `PermissionList`                      | `@/features/collaboration`              | Lectura de procedencia y ventanas efectivas; no ofrece revocación.                                                           | `src/features/collaboration/ui/PermissionList.stories.tsx`                                               |
+| `OwnPermissionsView`                  | `@/features/collaboration`              | Consulta privada por identidad y scope; requiere providers de adapters y Query.                                              | `src/features/collaboration/ui/OwnPermissionsView.stories.tsx`                                           |
+| `CollaboratorsView`                   | `@/features/collaboration`              | Gestión local; `canManage` procede de permisos efectivos. ADMIN puede buscar personas; otros delegadores usan identificador. | `src/features/collaboration/ui/CollaboratorsView.stories.tsx`                                            |
+| `OperationalScopesView`               | `@/features/collaboration`              | Descubrimiento sin catálogo administrativo ni peticiones por cada scope.                                                     | `src/features/collaboration/ui/OperationalScopesView.stories.tsx`                                        |
+| `OperationalScopeView`                | `@/features/collaboration`              | Guard de tipo/id y capacidades; compone permisos y colaboradores sin cargar scopes ajenos.                                   | `src/features/collaboration/ui/OperationalScopeView.stories.tsx`                                         |
+| `OperationalMenuLink`                 | `@/features/collaboration/navigation`   | Enlace diferido, visible solo con scopes efectivos; requiere sesión y Query.                                                 | `src/features/collaboration/ui/OperationalMenuLink.stories.tsx`                                          |
+| `OperationsMenu` / `OperationsLayout` | `@/components/operationsShell` (layout) | Marco del área; contexto en URL con selector limitado a scopes descubiertos.                                                 | `src/components/layout/OperationsMenu.stories.tsx`, `src/components/layout/OperationsLayout.stories.tsx` |
+
 ## UI Compartida
 
 | Modulo                   | Import publico | Usar cuando                                                                                           | Evitar cuando                                                                | Requisitos                                                 | Story                                                                                              |

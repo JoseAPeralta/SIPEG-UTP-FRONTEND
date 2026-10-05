@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { useAppAdapters } from "@/app/adapters";
-import { queryKeys } from "@/app/query";
+import { useAppAdapters } from "@/app/adapters/context";
+import { queryKeys } from "@/app/query/keys";
 import { useSessionStore } from "@/store/session";
 
 import type { UserScopeFilters } from "../model/userScopes";
@@ -21,6 +21,8 @@ export function useUserScopes(filters: UserScopeFilters = {}) {
     enabled: canLoad,
     queryFn: () => userScopes.loadUserScopes(filters),
     queryKey: queryKeys.userScopes(userId ?? "anonymous", filters),
+    staleTime: 0,
+    refetchInterval: 60_000,
   });
 
   return {

@@ -9,7 +9,7 @@ import { createAppAdapters, type AuthAdapter } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";
-import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
+import { createAuthenticatedUser, createAuthTokens, createUserScope } from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
 import { stubDesktopViewport } from "@/test/viewport";
 import type { AuthTokens, GlobalRole } from "@/types/domain";
@@ -62,6 +62,60 @@ function currentPersonalAreaSection() {
 }
 
 describe("App", () => {
+  it.each([
+    { label: "Visualizador", grants: ["activity:read"], delegates: false },
+    { label: "Editor", grants: ["activity:read", "activity:update"], delegates: false },
+    { label: "Organizador", grants: ["activity:read", "permission:grant"], delegates: true },
+  ])("opens scoped operations for $label using effective grants", async ({ grants, delegates }) => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+    const permissions = grants.map((name) => ({
+      name,
+      origin: "LOCAL" as const,
+      validFrom: null,
+      validUntil: null,
+    }));
+    const scope = createUserScope({
+      type: "activity",
+      id: "private-activity",
+      name: "Actividad privada",
+      permissions,
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+    adapters.userScopes.loadUserScopes = vi.fn().mockResolvedValue([scope]);
+    adapters.ownPermissions.loadOwnPermissions = vi
+      .fn()
+      .mockResolvedValue({ scope: { type: "activity", id: scope.id }, permissions });
+    adapters.collaborators.loadCollaborators = vi.fn().mockResolvedValue([]);
+    renderWithProviders(<App />, { adapters, route: "/operaciones/actividades/private-activity" });
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Actividad privada" }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText("Ver actividades")).toBeInTheDocument();
+    if (delegates)
+      expect(
+        await screen.findByRole("button", { name: "Agregar colaborador" }),
+      ).toBeInTheDocument();
+    else
+      expect(screen.queryByRole("button", { name: "Agregar colaborador" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Usuarios" })).not.toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Mis operaciones" })).toBeInTheDocument();
+  });
+
+  it("denies a direct URL outside the discovered scopes", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+    adapters.userScopes.loadUserScopes = vi.fn().mockResolvedValue([]);
+    adapters.ownPermissions.loadOwnPermissions = vi.fn();
+    renderWithProviders(<App />, { adapters, route: "/operaciones/programas/foreign" });
+    expect(await screen.findByText("Contexto no autorizado")).toBeInTheDocument();
+    expect(adapters.ownPermissions.loadOwnPermissions).not.toHaveBeenCalled();
+  });
   beforeEach(() => {
     stubDesktopViewport(true);
     useSessionStore.getState().clearSession();

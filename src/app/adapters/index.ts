@@ -11,6 +11,8 @@ export type {
   AuthCredentials,
   CareersAdapter,
   ClassroomsAdapter,
+  CollaboratorsAdapter,
+  OwnPermissionsAdapter,
   OperationsAdapter,
   OrganizationalUnitsAdapter,
   PasswordChangePayload,

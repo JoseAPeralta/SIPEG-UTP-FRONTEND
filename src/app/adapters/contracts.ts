@@ -30,6 +30,18 @@ import type {
 } from "@/features/users/model/userRequests";
 import type { UserScope, UserScopeFilters } from "@/features/collaboration/model/userScopes";
 import type {
+  CollaborationScope,
+  OwnPermissions,
+} from "@/features/collaboration/model/ownPermissions";
+import type {
+  Collaborator,
+  EffectiveCollaborator,
+  AddCollaboratorRequest,
+  ChangeCollaboratorRoleRequest,
+  GrantPermissionRequest,
+  RevokePermissionRequest,
+} from "@/features/collaboration/model/collaborators";
+import type {
   AddClassroomAvailabilityRequest,
   CreateClassroomRequest,
   UpdateClassroomRequest,
@@ -222,6 +234,8 @@ export type UserScopesAdapter = {
 };
 
 export type AppAdapters = {
+  collaborators: CollaboratorsAdapter;
+  ownPermissions: OwnPermissionsAdapter;
   activityCatalog: ActivityCatalogAdapter;
   auth: AuthAdapter;
   careers: CareersAdapter;
@@ -232,4 +246,31 @@ export type AppAdapters = {
   registration: RegistrationAdapter;
   users: UsersAdapter;
   userScopes: UserScopesAdapter;
+};
+
+export type OwnPermissionsAdapter = {
+  loadOwnPermissions: (scope: CollaborationScope) => Promise<OwnPermissions>;
+};
+
+export type CollaboratorsAdapter = {
+  loadCollaborators: (scope: CollaborationScope) => Promise<EffectiveCollaborator[]>;
+  addCollaborator: (
+    scope: CollaborationScope,
+    input: AddCollaboratorRequest,
+  ) => Promise<Collaborator>;
+  changeCollaboratorRole: (
+    scope: CollaborationScope,
+    userId: string,
+    input: ChangeCollaboratorRoleRequest,
+  ) => Promise<Collaborator>;
+  /**
+   * Crea o reemplaza una concesion directa local. La respuesta trae las concesiones locales del
+   * colaborador, no su procedencia efectiva: el hook relee el listado en lugar de insertarla.
+   */
+  grantPermission: (
+    scope: CollaborationScope,
+    input: GrantPermissionRequest,
+  ) => Promise<Collaborator>;
+  removeCollaborator: (scope: CollaborationScope, userId: string) => Promise<void>;
+  revokePermission: (scope: CollaborationScope, input: RevokePermissionRequest) => Promise<void>;
 };

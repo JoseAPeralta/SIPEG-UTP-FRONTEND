@@ -15,8 +15,9 @@ La arquitectura de informacion vigente se documenta en
 [`docs/product/information-architecture.md`](docs/product/information-architecture.md). La Fase 0
 mantiene los modulos implementados bajo `/admin` y conserva aliases heredados. La Fase 3.4 integro
 el descubrimiento de scopes accesibles contra el contrato dedicado descrito en
-[ADR-0014](docs/adr/adr-0014-scope-discovery-contract.md); `/operaciones` y los guards por capacidad
-efectiva pertenecen a la Fase 3.5, que ya puede consumir esa lista sin N+1.
+[ADR-0014](docs/adr/adr-0014-scope-discovery-contract.md). Las fases 3.5–3.7 incorporan `/operaciones`,
+rutas por scope, lectura de permisos propios y gestión local de colaboradores por capacidad efectiva,
+sin N+1 de descubrimiento ni acceso al agregado operativo global.
 
 ## Alineacion Con El Backend
 
@@ -74,6 +75,17 @@ Persona que propone o imparte una actividad. Las propuestas se asocian a un prog
 Vista o exportacion con metricas de programas, actividades, asistencia y certificados.
 
 ### Contexto De Trabajo
+
+En el área operativa el scope vive en la URL `/operaciones/programas/:id` o
+`/operaciones/actividades/:id`; el selector usa solo scopes descubiertos. No se copia el catálogo
+administrativo ni se persisten permisos. Al vencer una ventana se reevalúan las capacidades; la
+lectura privada se refresca además periódicamente y ante cambios de colaboración propios.
+
+La procedencia `LOCAL`, `INHERITED` y `BOTH` viene del servidor y se traduce a texto. `source` es una
+modalidad de concesión distinta del origen. Los GET omiten grants futuros/expirados y personas con
+colaboración exclusivamente heredada: la UI no reconstruye ese historial ni ofrece revocación local
+del acceso heredado. Los defaults por rol del mock se inyectan únicamente como escenarios explícitos
+de prueba; no hay una matriz de autorización duplicada en producción.
 
 Seleccion activa del panel administrativo: un programa de eventos o una actividad. Asistencia, certificados y reportes operan sobre el contexto seleccionado. La seleccion vive en memoria durante la sesion del navegador y se limpia al cerrar sesion.
 

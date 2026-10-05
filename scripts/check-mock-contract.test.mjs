@@ -74,7 +74,8 @@ function buildDocument(expectations = CONTRACT_EXPECTATIONS) {
     // Varias operaciones comparten path (por ejemplo el listado y el alta de aulas), asi que el
     // metodo se acumula en el mismo item en lugar de reemplazarlo.
     const pathItem = (paths[expectation.path] ??= {});
-    pathItem[expectation.method.toLowerCase()] = operation;
+    const method = expectation.method.toLowerCase();
+    pathItem[method] = { ...pathItem[method], ...operation };
   }
 
   return {
@@ -190,6 +191,35 @@ describe("compareContract", () => {
           ],
         },
       },
+    });
+    for (const resource of ["event-programs", "activities"]) {
+      expect(CONTRACT_EXPECTATIONS).toContainEqual({
+        method: "DELETE",
+        path: `/api/v1/${resource}/{id}/permissions/{permission}`,
+      });
+    }
+  });
+
+  it("should track collaborator provenance and own scope permissions", () => {
+    for (const resource of ["event-programs", "activities"]) {
+      expect(CONTRACT_EXPECTATIONS).toContainEqual({
+        method: "GET",
+        path: `/api/v1/${resource}/{id}/collaborators`,
+        schema: "CollaboratorListPermission",
+        required: ["name", "source", "origin", "validFrom", "validUntil", "effective"],
+        enums: { source: ["ROLE_DEFAULT", "OVERRIDE"], origin: ["LOCAL", "INHERITED", "BOTH"] },
+      });
+      expect(CONTRACT_EXPECTATIONS).toContainEqual({
+        method: "DELETE",
+        path: `/api/v1/${resource}/{id}/collaborators/{userId}`,
+      });
+    }
+    expect(CONTRACT_EXPECTATIONS).toContainEqual({
+      method: "GET",
+      path: "/api/v1/users/me/permissions",
+      schema: "OwnPermission",
+      required: ["name", "origin", "validFrom", "validUntil"],
+      enums: { origin: ["LOCAL", "INHERITED", "BOTH"] },
     });
   });
 
