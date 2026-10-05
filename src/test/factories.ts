@@ -18,6 +18,22 @@ import type {
 } from "@/features/classrooms/model/classroomDetail";
 import type { AdminUser } from "@/features/users/model/adminUser";
 import type { UserScope } from "@/features/collaboration/model/userScopes";
+import type { EffectiveCollaborator } from "@/features/collaboration/model/collaborators";
+
+export function createEffectiveCollaborator(
+  overrides: Partial<EffectiveCollaborator> = {},
+): EffectiveCollaborator {
+  return {
+    userId: "target",
+    firstName: "Ana",
+    lastName: "Pérez",
+    email: "ana@example.test",
+    role: "VIEWER",
+    createdAt: "2026-01-01T00:00:00Z",
+    permissions: [],
+    ...overrides,
+  };
+}
 
 export function createAuthenticatedUser(
   overrides: Partial<AuthenticatedUser> = {},

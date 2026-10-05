@@ -15,6 +15,10 @@ import { createApiClassroomsAdapter } from "@/features/classrooms/adapters/apiCl
 import { createMockClassroomsAdapter } from "@/features/classrooms/adapters/mockClassroomsAdapter";
 import { createApiUserScopesAdapter } from "@/features/collaboration/adapters/apiUserScopesAdapter";
 import { createMockUserScopesAdapter } from "@/features/collaboration/adapters/mockUserScopesAdapter";
+import { createApiOwnPermissionsAdapter } from "@/features/collaboration/adapters/apiOwnPermissionsAdapter";
+import { createMockOwnPermissionsAdapter } from "@/features/collaboration/adapters/mockOwnPermissionsAdapter";
+import { createApiCollaboratorsAdapter } from "@/features/collaboration/adapters/apiCollaboratorsAdapter";
+import { createMockCollaboratorsAdapter } from "@/features/collaboration/adapters/mockCollaboratorsAdapter";
 import { createMockOperationsAdapter } from "@/features/operations/adapters/mockOperationsAdapter";
 import { createUnavailableOperationsAdapter } from "@/features/operations/adapters/unavailableOperationsAdapter";
 import { createApiOrganizationalUnitsAdapter } from "@/features/organizational-units/adapters/apiOrganizationalUnitsAdapter";
@@ -45,6 +49,8 @@ export function createAppAdapters({
 }: CreateAppAdaptersOptions = {}): AppAdapters {
   if (source === "api") {
     return {
+      collaborators: createApiCollaboratorsAdapter(apiOptions, readSessionAccessToken),
+      ownPermissions: createApiOwnPermissionsAdapter(apiOptions, readSessionAccessToken),
       activityCatalog: createApiActivityCatalogAdapter(
         {
           ...apiOptions,
@@ -63,7 +69,12 @@ export function createAppAdapters({
     };
   }
 
+  const userScopes = createMockUserScopesAdapter(
+    () => useSessionStore.getState().currentUser?.globalRole,
+  );
   return {
+    collaborators: createMockCollaboratorsAdapter(),
+    ownPermissions: createMockOwnPermissionsAdapter(userScopes),
     activityCatalog: createMockActivityCatalogAdapter(),
     auth: createMockAuthAdapter(),
     careers: createMockCareersAdapter(),
@@ -73,6 +84,6 @@ export function createAppAdapters({
     publicActivityCatalog: createMockPublicActivityCatalogAdapter(),
     registration: createMockRegistrationAdapter(),
     users: createMockUsersAdapter(),
-    userScopes: createMockUserScopesAdapter(),
+    userScopes,
   };
 }

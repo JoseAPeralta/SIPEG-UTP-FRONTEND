@@ -408,6 +408,44 @@ export const CONTRACT_EXPECTATIONS = [
     required: ["name", "origin", "validFrom", "validUntil"],
     enums: { origin: PERMISSION_ORIGINS },
   },
+  ...["event-programs", "activities"].flatMap((resource) => [
+    {
+      method: "GET",
+      path: `/api/v1/${resource}/{id}/collaborators`,
+      schema: "CollaboratorListDetail",
+      required: ["userId", "firstName", "lastName", "email", "role", "createdAt", "permissions"],
+      enums: { role: COLLABORATION_ROLES },
+    },
+    {
+      method: "GET",
+      path: `/api/v1/${resource}/{id}/collaborators`,
+      schema: "CollaboratorListPermission",
+      required: ["name", "source", "origin", "validFrom", "validUntil", "effective"],
+      enums: { source: ["ROLE_DEFAULT", "OVERRIDE"], origin: PERMISSION_ORIGINS },
+    },
+    { method: "DELETE", path: `/api/v1/${resource}/{id}/collaborators/{userId}` },
+    { method: "DELETE", path: `/api/v1/${resource}/{id}/permissions/{permission}` },
+    ...["POST", "PATCH"].map((method) => ({
+      method,
+      path: `/api/v1/${resource}/{id}/collaborators${method === "PATCH" ? "/{userId}" : ""}`,
+      schema: "Collaborator",
+      required: ["userId", "firstName", "lastName", "email", "role", "createdAt", "permissions"],
+      enums: { role: COLLABORATION_ROLES },
+    })),
+  ]),
+  {
+    method: "GET",
+    path: "/api/v1/users/me/permissions",
+    schema: "OwnPermissions",
+    required: ["scope", "permissions"],
+  },
+  {
+    method: "GET",
+    path: "/api/v1/users/me/permissions",
+    schema: "OwnPermission",
+    required: ["name", "origin", "validFrom", "validUntil"],
+    enums: { origin: PERMISSION_ORIGINS },
+  },
 ];
 
 const USAGE = `Usage:

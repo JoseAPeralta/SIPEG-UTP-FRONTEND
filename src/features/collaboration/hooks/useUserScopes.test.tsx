@@ -1,4 +1,4 @@
-import { waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AppAdapters } from "@/app/adapters";
@@ -76,6 +76,28 @@ describe("useUserScopes", () => {
     expect(queryClient.getQueryData(queryKeys.userScopes("user-1", { type: "activity" }))).toEqual([
       createUserScope(),
     ]);
+  });
+
+  it("should rediscover scopes on the security interval without another user action", async () => {
+    vi.useFakeTimers();
+    try {
+      useSessionStore.getState().setSession({
+        currentUser: createAuthenticatedUser({ id: "user-1" }),
+        tokens: createAuthTokens(),
+      });
+      const adapters = buildAdapters();
+      renderHookWithProviders(() => useUserScopes(), { adapters });
+
+      await act(() => Promise.resolve());
+      expect(adapters.userScopes.loadUserScopes).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(60_000);
+      });
+      expect(adapters.userScopes.loadUserScopes).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("should expose the loading failure", async () => {

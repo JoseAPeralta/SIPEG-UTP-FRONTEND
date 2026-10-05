@@ -1,4 +1,10 @@
 export { useUserScopes } from "./hooks/useUserScopes";
+export { OperationalScopesView } from "./ui/OperationalScopesView";
+export { OperationalScopeView } from "./ui/OperationalScopeView";
+export { OwnPermissionsView } from "./ui/OwnPermissionsView";
+export { PermissionList } from "./ui/PermissionList";
+export { CollaboratorsView } from "./ui/CollaboratorsView";
+export type { CollaborationScope, OwnPermissions } from "./model/ownPermissions";
 export type { CollaborationRole, PermissionName } from "./model/permissions";
 export {
   COLLABORATION_ROLES,

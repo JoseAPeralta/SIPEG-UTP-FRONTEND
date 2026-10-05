@@ -3,6 +3,8 @@ import { expect } from "storybook/test";
 
 import { useSessionStore } from "@/store/session";
 import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
+import { collaborationStorySession } from "@/test/collaborationStories";
+import { CollaborationStoryProviders } from "@/test/CollaborationStoryProviders";
 
 import { AppMenu } from "./AppMenu";
 
@@ -58,6 +60,7 @@ export const Administrator: Story = {
   },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("link", { name: /panel de administracion/i })).toBeVisible();
+    await expect(await canvas.findByRole("link", { name: "Mis operaciones" })).toBeVisible();
     await expect(canvas.getByRole("link", { name: /mi perfil/i })).toHaveAttribute(
       "href",
       "/perfil",
@@ -76,11 +79,31 @@ export const StandardUser: Story = {
   },
   play: async ({ canvas }) => {
     await expect(canvas.queryByRole("link", { name: /panel de administracion/i })).toBeNull();
+    await expect(canvas.queryByRole("link", { name: "Mis operaciones" })).toBeNull();
     await expect(canvas.getByRole("link", { name: /mi perfil/i })).toHaveAttribute(
       "href",
       "/perfil",
     );
     await expect(canvas.queryByRole("link", { name: /cambiar contrase[nñ]a/i })).toBeNull();
     await expect(canvas.getByRole("button", { name: /cerrar sesi[oó]n/i })).toBeVisible();
+  },
+};
+
+export const Collaborator: Story = {
+  beforeEach: () => collaborationStorySession(),
+  decorators: [
+    (Story) => (
+      <CollaborationStoryProviders scenario="read">
+        <Story />
+      </CollaborationStoryProviders>
+    ),
+  ],
+  play: async ({ canvas }) => {
+    await expect(await canvas.findByRole("link", { name: "Mis operaciones" })).toHaveAttribute(
+      "href",
+      "/operaciones",
+    );
+    await expect(canvas.queryByRole("link", { name: /panel de administracion/i })).toBeNull();
+    await expect(canvas.getByRole("link", { name: /mi perfil/i })).toBeVisible();
   },
 };

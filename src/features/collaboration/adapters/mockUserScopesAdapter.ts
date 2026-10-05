@@ -1,4 +1,5 @@
 import type { UserScopesAdapter } from "@/app/adapters/contracts";
+import type { GlobalRole } from "@/types/domain";
 import { mockActivityCatalog } from "@/data/mock/catalog";
 
 import { PERMISSION_NAMES } from "../model/permissions";
@@ -28,7 +29,9 @@ function compareScopes(left: UserScope, right: UserScope): number {
   return left.name.localeCompare(right.name) || left.id.localeCompare(right.id);
 }
 
-export function createMockUserScopesAdapter(): UserScopesAdapter {
+export function createMockUserScopesAdapter(
+  readRole: () => GlobalRole | undefined = () => "ADMIN",
+): UserScopesAdapter {
   const { activities, eventPrograms, organizationalUnits } = mockActivityCatalog;
 
   function unitReference(unitId: string): UserScopeOrganizationalUnit {
@@ -77,6 +80,7 @@ export function createMockUserScopesAdapter(): UserScopesAdapter {
 
   return {
     loadUserScopes(filters: UserScopeFilters = {}) {
+      if (readRole() !== "ADMIN") return Promise.resolve([]);
       const scopes = filters.type
         ? catalog.filter((scope) => scope.type === filters.type)
         : catalog;

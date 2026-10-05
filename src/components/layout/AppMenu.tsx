@@ -1,7 +1,14 @@
 import { Box, Button, Container, Flex, HStack, Heading, Skeleton } from "@chakra-ui/react";
 import { Link, NavLink, useNavigate } from "react-router";
+import { lazy, Suspense } from "react";
 
 import { useSessionStore } from "@/store/session";
+
+const OperationalMenuLink = lazy(() =>
+  import("@/features/collaboration/navigation").then(({ OperationalMenuLink: Component }) => ({
+    default: Component,
+  })),
+);
 
 type MenuLinkProps = {
   children: string;
@@ -86,6 +93,9 @@ export function AppMenu() {
                   <MenuLink to="/admin">Panel de administracion</MenuLink>
                 ) : null}
                 <MenuLink to="/perfil">Mi perfil</MenuLink>
+                <Suspense fallback={null}>
+                  <OperationalMenuLink />
+                </Suspense>
                 <Button
                   colorPalette="terracotta"
                   onClick={handleLogout}

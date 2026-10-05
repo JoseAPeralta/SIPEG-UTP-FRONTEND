@@ -1,8 +1,15 @@
 import type { AdminUserFilters, ClassroomFilters } from "@/app/adapters/contracts";
 import type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";
 import type { UserScopeFilters } from "@/features/collaboration/model/userScopes";
+import type { CollaborationScope } from "@/features/collaboration/model/ownPermissions";
 
 export const queryKeys = {
+  ownPermissions: (userId: string, scope: CollaborationScope) =>
+    ["own-permissions", userId, scope.type, scope.id] as const,
+  ownPermissionsScope: (userId: string) => ["own-permissions", userId] as const,
+  collaborators: (userId: string, scope: CollaborationScope) =>
+    ["collaborators", userId, scope.type, scope.id] as const,
+  collaboratorsScope: (userId: string) => ["collaborators", userId] as const,
   administrativeActivityCatalog: (userId: string) =>
     ["administrative-activity-catalog", userId] as const,
   administrativeCareers: (userId: string) => ["administrative-careers", userId] as const,
