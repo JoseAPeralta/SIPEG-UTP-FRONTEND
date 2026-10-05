@@ -77,6 +77,19 @@ describe("queryKeys prefixes", () => {
     expect(isPrefix(scoped, queryKeys.userScopes("user-2", { type: "activity" }))).toBe(false);
   });
 
+  it("should scope private alerts by identity across filters and pages", () => {
+    const scoped = queryKeys.alertsScope("user-1");
+
+    expect(isPrefix(scoped, queryKeys.alertsPage("user-1", { isRead: false }, 2))).toBe(true);
+    expect(isPrefix(scoped, queryKeys.alertsPage("user-1", {}, 1))).toBe(true);
+    expect(isPrefix(scoped, queryKeys.alertsPage("user-2", {}, 1))).toBe(false);
+  });
+
+  it("should never persist private alerts", () => {
+    expect(isPersistedQueryKey(queryKeys.alertsPage("user-1", {}, 1))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.alertsScope("user-1"))).toBe(false);
+  });
+
   it("should never persist discovered user scopes", () => {
     expect(isPersistedQueryKey(queryKeys.userScopes("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.userScopes("user-1", { type: "activity" }))).toBe(false);

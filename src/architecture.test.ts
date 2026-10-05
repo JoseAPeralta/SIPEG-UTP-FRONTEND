@@ -168,6 +168,7 @@ function checkFeatureBarrel(file: SourceFileRecord, resolved: string): string | 
 
   const focusedPublicEntrypoints = new Set([
     "src/features/activity-catalog/public",
+    "src/features/alerts/navigation",
     "src/features/auth/personalArea",
     "src/features/auth/session",
     "src/features/collaboration/navigation",
@@ -292,6 +293,7 @@ const operationsConsumers = new Set([
  * `/api/v1/users/me/scopes` when Fase 3.4 replaced the forbidden catalog N+1.
  */
 const ownedEndpoints: readonly { endpoint: string; owner: string }[] = [
+  { endpoint: "/api/v1/alerts", owner: "src/features/alerts/adapters/" },
   {
     endpoint: "/api/v1/organizational-units",
     owner: "src/features/organizational-units/adapters/",

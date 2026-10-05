@@ -14,6 +14,12 @@ import type {
 } from "@/types/domain";
 import type { OrganizationalUnitDetail } from "@/features/organizational-units/model/organizationalUnitDetail";
 import type {
+  Alert,
+  AlertFilters,
+  AlertsPage,
+  MarkAllAlertsReadResult,
+} from "@/features/alerts/model/alert";
+import type {
   CreateOrganizationalUnitRequest,
   UpdateOrganizationalUnitRequest,
 } from "@/features/organizational-units/model/organizationalUnitRequests";
@@ -233,7 +239,21 @@ export type UserScopesAdapter = {
   loadUserScopes: (filters?: UserScopeFilters) => Promise<UserScope[]>;
 };
 
+/**
+ * Bandeja privada de alertas.
+ *
+ * Ninguna operacion acepta destinatario: el backend toma la identidad del token. `loadAlertsPage`
+ * expone una pagina filtrada para la bandeja; recorrer todo el historial no tiene caso de uso.
+ * `markAlertRead` es idempotente y comparte el `404` entre una alerta inexistente y una ajena.
+ */
+export type AlertsAdapter = {
+  loadAlertsPage: (filters: AlertFilters, page: number) => Promise<AlertsPage>;
+  markAlertRead: (id: string) => Promise<Alert>;
+  markAllAlertsRead: () => Promise<MarkAllAlertsReadResult>;
+};
+
 export type AppAdapters = {
+  alerts: AlertsAdapter;
   collaborators: CollaboratorsAdapter;
   ownPermissions: OwnPermissionsAdapter;
   activityCatalog: ActivityCatalogAdapter;

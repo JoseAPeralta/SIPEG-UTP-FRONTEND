@@ -56,6 +56,8 @@ describe("isPersistedQueryKey", () => {
 
   it("should never persist identity-scoped or unregistered roots", () => {
     expect(isPersistedQueryKey(queryKeys.publicCareers)).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.alertsPage("user-1", {}, 1))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.alertsScope("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeActivityCatalog("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeCareers("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeClassrooms("user-1"))).toBe(false);
@@ -90,6 +92,9 @@ describe("createPersistenceOptions", () => {
     expect(
       shouldDehydrate?.(fakeQuery(queryKeys.administrativeActivityCatalog("user-1"), "success")),
     ).toBe(false);
+    expect(shouldDehydrate?.(fakeQuery(queryKeys.alertsPage("user-1", {}, 1), "success"))).toBe(
+      false,
+    );
     expect(shouldDehydrate?.(fakeQuery(queryKeys.operations("user-1"), "success"))).toBe(false);
     expect(shouldDehydrate?.(fakeQuery(queryKeys.publicActivityCatalog, "pending"))).toBe(false);
     expect(options.buster).toBe(`${QUERY_CACHE_SCHEMA_VERSION}:2026.09.25`);

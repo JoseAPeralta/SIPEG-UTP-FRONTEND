@@ -24,6 +24,16 @@ export function createBrowserAppAdapters({
   const isApi = source === "api";
 
   return {
+    alerts: createDeferredAdapter(async () =>
+      isApi
+        ? import("@/features/alerts/adapters/apiAlertsAdapter").then(({ createApiAlertsAdapter }) =>
+            createApiAlertsAdapter(apiOptions, readSessionAccessToken),
+          )
+        : import("@/features/alerts/adapters/mockAlertsAdapter").then(
+            ({ createMockAlertsAdapter }) =>
+              createMockAlertsAdapter(() => useSessionStore.getState().currentUser?.id),
+          ),
+    ),
     collaborators: createDeferredAdapter(async () =>
       isApi
         ? import("@/features/collaboration/adapters/apiCollaboratorsAdapter").then(

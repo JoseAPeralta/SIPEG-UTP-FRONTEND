@@ -17,8 +17,31 @@ import type {
   ClassroomDetail,
 } from "@/features/classrooms/model/classroomDetail";
 import type { AdminUser } from "@/features/users/model/adminUser";
+import type { Alert, AlertsPage } from "@/features/alerts/model/alert";
 import type { UserScope } from "@/features/collaboration/model/userScopes";
 import type { EffectiveCollaborator } from "@/features/collaboration/model/collaborators";
+
+export function createAlert(overrides: Partial<Alert> = {}): Alert {
+  return {
+    createdAt: "2026-06-21T15:30:00.000Z",
+    id: "alert-1",
+    isRead: false,
+    target: { id: "activity-1", kind: "ACTIVITY" },
+    type: "ACTIVITY_UPDATED",
+    ...overrides,
+  };
+}
+
+export function createAlertsPage(overrides: Partial<AlertsPage> = {}): AlertsPage {
+  return {
+    items: [createAlert()],
+    limit: 20,
+    page: 1,
+    total: 1,
+    totalPages: 1,
+    ...overrides,
+  };
+}
 
 export function createEffectiveCollaborator(
   overrides: Partial<EffectiveCollaborator> = {},

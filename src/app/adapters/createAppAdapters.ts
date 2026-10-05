@@ -1,5 +1,7 @@
 import type { AppAdapters } from "./contracts";
 import { resolveDataSource, type DataSource } from "./dataSource";
+import { createApiAlertsAdapter } from "@/features/alerts/adapters/apiAlertsAdapter";
+import { createMockAlertsAdapter } from "@/features/alerts/adapters/mockAlertsAdapter";
 import {
   createApiActivityCatalogAdapter,
   type ApiActivityCatalogAdapterOptions,
@@ -49,6 +51,7 @@ export function createAppAdapters({
 }: CreateAppAdaptersOptions = {}): AppAdapters {
   if (source === "api") {
     return {
+      alerts: createApiAlertsAdapter(apiOptions, readSessionAccessToken),
       collaborators: createApiCollaboratorsAdapter(apiOptions, readSessionAccessToken),
       ownPermissions: createApiOwnPermissionsAdapter(apiOptions, readSessionAccessToken),
       activityCatalog: createApiActivityCatalogAdapter(
@@ -73,6 +76,7 @@ export function createAppAdapters({
     () => useSessionStore.getState().currentUser?.globalRole,
   );
   return {
+    alerts: createMockAlertsAdapter(() => useSessionStore.getState().currentUser?.id),
     collaborators: createMockCollaboratorsAdapter(),
     ownPermissions: createMockOwnPermissionsAdapter(userScopes),
     activityCatalog: createMockActivityCatalogAdapter(),

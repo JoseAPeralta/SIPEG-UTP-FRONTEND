@@ -6,6 +6,7 @@ export type {
   ActivityCatalogAdapter,
   ActivityCatalogAccess,
   AdminUserFilters,
+  AlertsAdapter,
   AppAdapters,
   AuthAdapter,
   AuthCredentials,

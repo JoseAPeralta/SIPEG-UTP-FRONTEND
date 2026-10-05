@@ -1,9 +1,18 @@
 import type { AdminUserFilters, ClassroomFilters } from "@/app/adapters/contracts";
+import type { AlertFilters } from "@/features/alerts/model/alert";
 import type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";
 import type { UserScopeFilters } from "@/features/collaboration/model/userScopes";
 import type { CollaborationScope } from "@/features/collaboration/model/ownPermissions";
 
 export const queryKeys = {
+  /**
+   * Bandeja privada de alertas. Se liga siempre a la identidad, nunca al token, y jamas se agrega a
+   * `PERSISTED_QUERY_KEY_ROOTS`: una alerta es dato privado con vencimiento, no referencia offline.
+   */
+  alertsPage: (userId: string, filters: AlertFilters, page: number) =>
+    ["alerts", userId, filters, page] as const,
+  /** Prefijo por identidad que alcanza todas las paginas y filtros de la bandeja. */
+  alertsScope: (userId: string) => ["alerts", userId] as const,
   ownPermissions: (userId: string, scope: CollaborationScope) =>
     ["own-permissions", userId, scope.type, scope.id] as const,
   ownPermissionsScope: (userId: string) => ["own-permissions", userId] as const,

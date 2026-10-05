@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 
 import { mockActivityCatalog, mockOperationsReadModel } from "./catalog";
+import { alerts } from "./alerts";
 import { careers } from "./careers";
 import { users } from "./users";
 
@@ -24,6 +25,17 @@ const globalRoles = ["ADMIN", "USER"];
 const attendanceMethods = ["QR", "MANUAL"];
 const certificateStatuses = ["GENERATED", "PENDING"];
 const reportTrends = ["down", "stable", "up"];
+const alertTypes = [
+  "PROPOSAL_RECEIVED",
+  "PROPOSAL_UPDATED",
+  "PROPOSAL_RESPONDED",
+  "PROGRAM_UPDATED",
+  "PROGRAM_ARCHIVED",
+  "ACTIVITY_UPDATED",
+  "ACTIVITY_CANCELLED",
+  "CERTIFICATE_ISSUED",
+];
+const alertTargetKinds = ["PROPOSAL", "EVENT_PROGRAM", "ACTIVITY", "CERTIFICATE"];
 
 const { activities, classrooms, eventPrograms, organizationalUnits } = mockActivityCatalog;
 const { attendanceRecords, certificates, reportMetrics, speakerProposals } =
@@ -70,6 +82,13 @@ describe("mock contract vocabulary", () => {
     });
     reportMetrics.forEach((metric) => {
       expect(reportTrends).toContain(metric.trend);
+    });
+  });
+
+  it("should use only alert types and target kinds allowed by the contract", () => {
+    alerts.forEach((alert) => {
+      expect(alertTypes).toContain(alert.type);
+      expect(alertTargetKinds).toContain(alert.target.kind);
     });
   });
 });

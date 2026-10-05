@@ -29,6 +29,7 @@ describe("createAppAdapters", () => {
 
     expect(catalog.activities.length).toBeGreaterThan(0);
     expect(adapters.auth.login).toBeTypeOf("function");
+    await expect(adapters.alerts.loadAlertsPage({}, 1)).resolves.toBeTruthy();
     await expect(adapters.careers.loadCareers()).resolves.toBeTruthy();
     await expect(adapters.classrooms.loadClassrooms()).resolves.toBeTruthy();
     await expect(adapters.organizationalUnits.loadOrganizationalUnits()).resolves.toBeTruthy();
@@ -108,6 +109,23 @@ describe("createAppAdapters", () => {
     const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
 
     await expect(adapters.userScopes.loadUserScopes()).rejects.toThrow(/conectar/i);
+
+    const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
+
+    expect(new Headers(requestInit?.headers).get("Authorization")).toBe(
+      "Bearer session-access-token",
+    );
+  });
+
+  it("should authenticate the private alert inbox with the in-memory session token", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser(),
+      tokens: createAuthTokens({ accessToken: "session-access-token" }),
+    });
+    const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
+    const adapters = createAppAdapters({ apiOptions: { fetcher }, source: "api" });
+
+    await expect(adapters.alerts.loadAlertsPage({}, 1)).rejects.toThrow(/conectar/i);
 
     const requestInit = fetcher.mock.calls[0]?.[1] as RequestInit | undefined;
 

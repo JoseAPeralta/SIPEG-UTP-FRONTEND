@@ -30,6 +30,16 @@ const USER_SCOPE_STATUSES = [
   "ONGOING",
 ];
 const PERMISSION_ORIGINS = ["LOCAL", "INHERITED", "BOTH"];
+const ALERT_TYPES = [
+  "PROPOSAL_RECEIVED",
+  "PROPOSAL_UPDATED",
+  "PROPOSAL_RESPONDED",
+  "PROGRAM_UPDATED",
+  "PROGRAM_ARCHIVED",
+  "ACTIVITY_UPDATED",
+  "ACTIVITY_CANCELLED",
+  "CERTIFICATE_ISSUED",
+];
 const PERMISSION_NAMES = [
   "program:read",
   "program:create",
@@ -445,6 +455,32 @@ export const CONTRACT_EXPECTATIONS = [
     schema: "OwnPermission",
     required: ["name", "origin", "validFrom", "validUntil"],
     enums: { origin: PERMISSION_ORIGINS },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/alerts",
+    schema: "Alert",
+    required: ["id", "type", "isRead", "createdAt", "target"],
+    enums: { type: ALERT_TYPES },
+  },
+  {
+    method: "GET",
+    path: "/api/v1/alerts",
+    schema: "PaginatedAlerts",
+    required: ["items", "page", "limit", "total", "totalPages"],
+  },
+  {
+    method: "PATCH",
+    path: "/api/v1/alerts/{id}/read",
+    schema: "Alert",
+    required: ["id", "type", "isRead", "createdAt", "target"],
+    enums: { type: ALERT_TYPES },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/alerts/read-all",
+    schema: "MarkAllAlertsReadResult",
+    required: ["updatedCount"],
   },
 ];
 
