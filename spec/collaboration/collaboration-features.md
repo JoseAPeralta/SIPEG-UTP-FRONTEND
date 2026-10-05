@@ -72,6 +72,49 @@ Acceptance criteria:
 
 ## Quality Requirements
 
+### Alcance contractual de 3.5–3.7 (2026-10-04)
+
+- Los listados de colaboradores exigen ADMIN o `permission:grant`. Devuelven colaboradores locales
+  con procedencia efectiva de sus permisos; no enumeran personas exclusivamente heredadas. El
+  criterio "Inherited collaborators are shown" sigue pendiente de una operación que las exponga.
+- Los GET de permisos propios y colaboradores omiten concesiones futuras y expiradas. Se muestran
+  origen, modalidad de concesión cuando existe, ventana efectiva y estado al consultar, no un historial.
+- POST y PATCH retornan concesiones locales sin `origin` ni `effective`; la UI relee el listado para
+  mostrar herencia, en vez de tratar esas respuestas como detalles efectivos.
+- Eliminar la última persona activa capaz de delegar responde 409; los rechazos por subconjunto de
+  permisos se explican sin inferir una matriz por rol ni exponer mensajes internos.
+- ADMIN puede buscar personas con el listado administrativo existente. Un delegador sin rol ADMIN
+  debe conocer el identificador de la cuenta: no hay búsqueda de personas autorizada para él.
+- La coherencia tras mutaciones está centralizada en una sola política de invalidación por identidad
+  y scope: las consultas activas se reconsultan antes de completar la mutación, las inactivas quedan
+  marcadas y ninguna clave de otra identidad o pública se toca. Cambios de programa alcanzan
+  conservadoramente todas las fronteras de colaboración y permisos de la identidad por la herencia.
+- Un `403` de mutación no se interpreta como revocación total: la UI relee autorización y
+  descubrimiento, de modo que un permiso revocado apaga gestión, contexto y menú sin cerrar sesión, y
+  un fallo de esa reconsulta nunca reactiva acciones ni conserva datos como autorización válida.
+  3.10 cerro la cobertura horizontal: URL directa y navegacion en el cliente sobre el guard de
+  scope exacto, rechazo `403` del backend sobre descubrimiento favorable y reconciliacion de las
+  cinco mutaciones; 3.8 incorporo las mutaciones de overrides.
+
+### Alcance contractual de 3.8 (2026-10-05)
+
+- `POST /event-programs/{id}/permissions` y `POST /activities/{id}/permissions` crean o reemplazan una
+  concesión local con ventana opcional (`validFrom`/`validUntil` ISO 8601 o `null`);
+  `DELETE .../permissions/{permission}?userId=...` retira la concesión local. El frontend valida la
+  respuesta local con el mapper y relee el listado efectivo, que distingue procedencia.
+- Solo se ofrece revocar concesiones locales: un permiso exclusivamente heredado no muestra acción y
+  el origen `BOTH` advierte que el acceso heredado del programa continúa. En actividad, el backend
+  responde `409` si se intenta revocar un permiso heredado sin concesión local; la UI no produce ese
+  caso. Retirar `permission:grant` al último delegador activo también responde `409`.
+- El operador solo puede delegar permisos que posee y dentro de su propia vigencia. La UI limita las
+  opciones con sus permisos efectivos y explica el `403` sin exponer el mensaje del backend.
+- **Límite de vigencia:** los GET de colaboradores y permisos propios omiten concesiones futuras y
+  vencidas, y no existe una operación de historial. Por eso el criterio "los expirados dejan de
+  habilitar acciones sin desaparecer del historial mostrado" solo se cumple en su primera mitad: la
+  comprobación temporal local (`hasEffectivePermission` y `useAuthorizationTime`) impide que una
+  concesión vencida habilite acciones, pero una concesión vencida o futura no se muestra. Queda
+  pendiente de una lectura de historial publicada por el backend; no se modela en el frontend.
+
 - Authorization data is private, identity-scoped, and never persisted offline.
 - Permission origin and unavailable actions are understandable without color alone.
 - Horizontal access, direct URLs, invalidation, and conflict handling have automated tests.

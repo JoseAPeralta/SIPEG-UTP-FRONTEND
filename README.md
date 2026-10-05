@@ -16,7 +16,7 @@ Leyenda: `X` pendiente, `~` parcial, `✓` finalizada.
 | X      | Notificaciones por email   | Enviar avisos a usuarios o asistentes registrados cuando se creen, modifiquen o cancelen actividades.       |
 | X      | Programas de eventos       | Crear programas con nombre, fechas, etiqueta personalizada, banner, colaboradores y permisos.               |
 | X      | Actividades                | Crear actividades con nombre, tipo, ponentes, aula, fecha, hora, equipamiento requerido y banner.           |
-| X      | Herencia de permisos       | Heredar colaboradores y permisos desde programas de eventos hacia sus actividades por defecto.              |
+| ~      | Herencia de permisos       | Permisos efectivos con origen local, heredado o combinado y vigencia; overrides e historial pendientes.     |
 | ~      | Catalogo de actividades    | Lectura integrada disponible; faltan limites publicos definitivos, detalle y reduccion del fan-out.         |
 | ✓      | Autenticacion y sesion     | Iniciar sesion con la API real, restaurar la sesion, cerrar sesion y proteger rutas administrativas.        |
 | ~      | Filtros por unidad         | Filtra por unidad, tipo de actividad y programa; faltan tipo de unidad y prioridad por unidad seleccionada. |
@@ -30,6 +30,20 @@ Leyenda: `X` pendiente, `~` parcial, `✓` finalizada.
 | X      | Reportes y estadisticas    | Mostrar metricas de asistencia, certificados, ocupacion de aulas y actividades activas o pasadas.           |
 | X      | Exportaciones              | Preparar exportacion de reportes a Excel y PDF.                                                             |
 | ✓      | Adaptadores de datos       | Separar mocks del API real mediante puertos y adapters con `VITE_DATA_SOURCE`.                              |
+
+## Operaciones por contexto
+
+`/operaciones` descubre programas y actividades accesibles mediante `GET /api/v1/users/me/scopes`,
+incluidos contextos no públicos. Cada contexto tiene URL propia bajo `/operaciones/programas/:id`
+o `/operaciones/actividades/:id`, donde se consultan permisos propios y, con capacidad de delegación,
+se administran colaboradores locales. Las mutaciones refrescan descubrimiento y permisos afectados.
+El contexto operativo se expresa en la URL; no reutiliza el catálogo administrativo global.
+
+La administración institucional y de usuarios permanece exclusiva de ADMIN. El contrato actual no
+enumera personas con colaboración exclusivamente heredada ni el historial de permisos futuros o
+expirados. Los delegadores sin rol ADMIN agregan mediante identificador de cuenta, pues no existe una
+búsqueda de usuarios autorizada para ellos. La gestión de programas, actividades, asistencia,
+propuestas, certificados y reportes se incorporará en sus fases específicas.
 
 ## Stack
 

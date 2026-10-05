@@ -31,24 +31,24 @@ La identidad recomendada es **SIPEG como producto independiente configurado para
 
 ## Estado actual
 
-| Area                                                         | Estado frontend                                                                                        | Disponibilidad backend                  |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ | --------------------------------------- |
-| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                          | Disponible                              |
-| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                      | Completo                                |
-| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                             | Completo                                |
-| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                       | Completo                                |
-| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                 | No aplica                               |
-| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                    | Completo                                |
-| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                      | Completo                                |
-| Permisos y colaboradores                                     | Roles modelados (3.3) y descubrimiento de scopes integrado (3.4); colaboradores y overrides pendientes | Completo                                |
-| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                                                     | Completo                                |
-| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes                                             | 5.1-5.3 disponibles; 5.4-5.8 pendientes |
-| Archivos y alertas                                           | Pendiente                                                                                              | Pendiente                               |
-| Propuestas de ponentes                                       | Shell mock                                                                                             | Pendiente                               |
-| Inscripcion y asistencia                                     | Shell mock                                                                                             | Pendiente                               |
-| Certificados                                                 | Shell mock                                                                                             | Pendiente                               |
-| Reportes y exportaciones                                     | Shell mock                                                                                             | Pendiente                               |
-| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                              | No aplica                               |
+| Area                                                         | Estado frontend                                                                                                                                             | Disponibilidad backend                                      |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                                                                               | Disponible                                                  |
+| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                                                                           | Completo                                                    |
+| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                                                                                  | Completo                                                    |
+| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                                                                            | Completo                                                    |
+| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                                                                      | No aplica                                                   |
+| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                                                                         | Completo                                                    |
+| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                                                                           | Completo                                                    |
+| Permisos y colaboradores                                     | Scopes, guards, gestión local, herencia, overrides, invalidación y cobertura horizontal integrados (3.3–3.10); historial de vencidos pendiente por contrato | Completo para operaciones integradas; historial no expuesto |
+| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                                                                                                          | Completo                                                    |
+| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes                                                                                                  | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
+| Archivos y alertas                                           | Pendiente                                                                                                                                                   | Pendiente                                                   |
+| Propuestas de ponentes                                       | Shell mock                                                                                                                                                  | Pendiente                                                   |
+| Inscripcion y asistencia                                     | Shell mock                                                                                                                                                  | Pendiente                                                   |
+| Certificados                                                 | Shell mock                                                                                                                                                  | Pendiente                                                   |
+| Reportes y exportaciones                                     | Shell mock                                                                                                                                                  | Pendiente                                                   |
+| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                                                                                   | No aplica                                                   |
 
 El contrato OpenAPI vivo no estuvo disponible al redactar este plan. El estado backend se obtuvo de su plan maestro y codigo actual; cada fase debe reconfirmarlo mediante la CLI antes de implementarse.
 
@@ -612,12 +612,12 @@ Evidencia y desviaciones de Fase 2.2: `docs/superpowers/plans/2026-10-03-fase-2.
 - [x] **3.2 Administrar usuarios.** Implementar listado paginado, busqueda, filtros, detalle, creacion y edicion. Prueba: autodesactivacion, ultimo ADMIN, duplicados y relaciones invalidas muestran conflictos accionables.
 - [x] **3.3 Modelar permisos.** Tipar y traducir roles `VIEWER`, `EDITOR`, `ORGANIZER` y el catalogo canonico de permisos. Prueba: la UI nunca muestra `activity:update` u otros codigos crudos.
 - [x] **3.4 Resolver descubrimiento de scopes.** Acordar un contrato para conocer todos los programas y actividades accesibles al usuario. No implementar N+1 sobre el catalogo publico. Prueba: un colaborador descubre scopes no publicos sin conocer sus IDs previamente. **Integrada:** ADR-0014 aceptado; adapter, mapper, clave y hook en `features/collaboration`, con prueba de descubrimiento no publico.
-- [ ] **3.5 Evolucionar los guards.** Mantener catalogos institucionales y usuarios como ADMIN; habilitar modulos operativos por capacidad efectiva. Prueba: ADMIN, ORGANIZER, EDITOR, VIEWER y USER reciben navegacion diferente.
-- [ ] **3.6 Gestionar colaboradores.** Listar, agregar, cambiar rol y eliminar colaboradores en programas y actividades. Prueba: el ultimo delegador y los grants fuera del subconjunto producen feedback de conflicto.
-- [ ] **3.7 Mostrar herencia.** Diferenciar permisos `LOCAL`, `INHERITED` y `BOTH`, vigencia y estado efectivo. Prueba: un permiso heredado no ofrece revocacion local enganosa.
-- [ ] **3.8 Gestionar overrides.** Otorgar o revocar permisos directos con periodos de validez. Prueba: los expirados dejan de habilitar acciones sin desaparecer del historial mostrado.
-- [ ] **3.9 Invalidar autorizacion.** Cambios de colaboracion deben refrescar permisos, menus, detalles y contexto. Prueba: un permiso revocado desaparece sin reiniciar sesion.
-- [ ] **3.10 Cubrir autorizacion horizontal.** Probar acceso directo por URL ademas de navegacion visible; el `403` del backend sigue siendo autoritativo.
+- [x] **3.5 Evolucionar los guards.** Mantener catalogos institucionales y usuarios como ADMIN; habilitar entrada y scopes operativos por capacidad efectiva. Prueba: navegación ADMIN/colaborador/USER y fixtures efectivos de ORGANIZER, EDITOR y VIEWER; módulos específicos se conectan en sus fases.
+- [x] **3.6 Gestionar colaboradores.** Listar, agregar, cambiar rol y eliminar colaboradores locales en programas y actividades. Prueba: el ultimo delegador y los grants fuera del subconjunto producen feedback localizado.
+- [x] **3.7 Mostrar herencia.** Diferenciar permisos `LOCAL`, `INHERITED` y `BOTH`, vigencia y estado efectivo. Prueba: un permiso heredado no ofrece revocacion local enganosa. Los GET omiten historial y personas exclusivamente heredadas.
+- [x] **3.8 Gestionar overrides.** Otorgar o revocar permisos directos con periodos de validez. Prueba: los expirados dejan de habilitar acciones sin desaparecer del historial mostrado. **Integrada con el alcance contractual disponible:** el listado omite concesiones futuras y vencidas y no existe lectura de historial; la omisión queda registrada en la spec como bloqueo del backend.
+- [x] **3.9 Invalidar autorizacion.** Cambios de colaboracion deben refrescar permisos, menus, detalles y contexto. Prueba: un permiso revocado desaparece sin reiniciar sesion.
+- [x] **3.10 Cubrir autorizacion horizontal.** Probar acceso directo por URL ademas de navegacion visible; el `403` del backend sigue siendo autoritativo.
 
 **Criterio de salida:** usuarios y colaboradores pueden operar solo sobre sus scopes efectivos, con procedencia y vigencia comprensibles.
 
@@ -704,6 +704,112 @@ Evidencia y cierre de Fase 3.4: `docs/superpowers/plans/2026-10-04-fase-3.4-desc
   ningun adapter agregado reintroduzca la consulta duplicada.
 
 ---
+
+Evidencia y cierre de Fases 3.5–3.7:
+
+- Planes independientes: `2026-10-04-fase-3.5-guards-capacidades.md`,
+  `2026-10-04-fase-3.6-gestion-colaboradores.md` y `2026-10-04-fase-3.7-herencia-permisos.md`.
+  El usuario eligió ejecución directa ante la ausencia de runtime local para subagentes aislados.
+- `/operaciones` usa descubrimiento sin N+1; sus detalles verifican scope exacto y permisos propios.
+  No abre catálogos/usuarios a colaboradores ni consume el agregado operativo global.
+- Contrato vivo confirmado para las ocho operaciones de colaboradores y permisos propios.
+  ADMIN busca personas; delegadores no ADMIN usan identificador por falta de búsqueda contractual.
+- Se distinguen listados efectivos de respuestas locales de mutación. Las mutaciones invalidan
+  colaboradores, permisos propios y descubrimiento de la identidad; los cambios de programa
+  alcanzan conservadoramente lecturas de actividades por herencia. 3.8–3.10 permanecen pendientes.
+- Herencia y ventanas se muestran sin códigos crudos, sin revocación engañosa y sin inventar
+  historial o personas exclusivamente heredadas. La spec registra explícitamente el límite.
+- `verify:quick`, `api:mocks-check` (292 verificaciones / 41 entradas) y `check` verdes: 1114 pruebas,
+  build, 152 interacciones de Storybook, 152 axe/comparaciones visuales e inventario de 44 componentes.
+  Reflow a 320 px y zoom 200 % revisados; baselines nuevos y navegación afectados actualizados.
+
+Evidencia y cierre de Fase 3.9: `docs/superpowers/plans/2026-10-05-fase-3.9-invalidacion-autorizacion.md`.
+
+- **Sin cambio de contrato:** no se modifican operaciones, campos ni mocks; la fase solo relee las
+  fronteras existentes alrededor de un cambio de colaboración, por lo que no aplica `api:mocks-check`.
+- **Invalidación centralizada:** `features/collaboration/model/authorizationInvalidation.ts` decide
+  qué claves se invalidan por identidad y scope; las activas se reconsultan antes de completar la
+  mutación y las inactivas solo quedan marcadas. Otras identidades y las claves públicas no se tocan.
+- **Reconciliación de `403`:** un rechazo por permisos vuelve a leer autorización y descubrimiento;
+  un permiso revocado apaga gestión, contexto y menú sin cerrar sesión, y un `409` no dispara
+  reconsulta. El fallo de la relectura muestra error y jamás reactiva acciones.
+- **Recorrido demostrado:** pruebas de aplicación cubren pérdida de delegación, pérdida del último
+  permiso, conservación de sesión y contextos hermanos, y fallo de reconsulta; el intervalo de 60 s
+  de descubrimiento se prueba con temporizadores falsos.
+- **Defecto corregido:** `NativeSelect.Root disabled` no alcanza al `<select>` dentro de `Field.Root`.
+  `OperationsMenu` usa `Field.Root disabled` y su story deja de pasar de forma vacua. El patrón queda
+  pendiente en otros 11 usos fuera de la fase, registrado como deuda.
+- **Puertas:** `check` verde con **171 archivos / 1123 pruebas**, build, **153 play**, **153
+  comparaciones visuales con axe** e inventario de **44 componentes / 153 stories**; un baseline nuevo
+  revisado. Puerto 6007 ocupado de nuevo: tercera observación del defecto del harness.
+
+Evidencia y cierre de Fase 3.8: `docs/superpowers/plans/2026-10-05-fase-3.8-gestion-overrides.md`.
+
+- **Contrato verificado contra el backend vivo el 2026-10-05:** las cuatro operaciones de permisos
+  (`POST` en programa y actividad, `DELETE .../{permission}?userId=...` en ambos). Body con
+  `additionalProperties: false`, `validFrom`/`validUntil` ISO 8601 o `null`; `204` en la revocación.
+  `api:mocks-check` paso con 292 verificaciones en 43 operaciones tras registrar las dos `DELETE`.
+- **Ventanas de validez:** `permissionWindow.ts` convierte el valor local de `datetime-local` a
+  instante ISO con round-trip que rechaza fechas imposibles, y exige fin posterior al inicio y
+  futuro. Un inicio futuro se acepta: es una programación válida y el listado la muestra cuando
+  comienza su vigencia. La vigencia del propio delegador no se duplica en el cliente; el backend la
+  aplica y el `403` se explica con un mensaje propio.
+- **Alcance bloqueado por contrato:** los GET omiten concesiones futuras y vencidas y no existe
+  operación de historial. "Los expirados dejan de habilitar acciones" ya está cubierto por
+  `hasEffectivePermission` y `useAuthorizationTime` (revalidación en la frontera temporal), pero
+  "sin desaparecer del historial mostrado" es inalcanzable con el contrato vivo y queda escrito en
+  la spec. No se invento una operación ni se guardo una lista paralela de concesiones.
+- **Procedencia sin revocación engañosa:** solo se ofrece revocar concesiones con origen distinto de
+  `INHERITED`; un permiso exclusivamente heredado no muestra botón y la interfaz explica que se
+  retira en el programa. En origen `BOTH` el retiro local avisa que el acceso heredado continúa.
+- **Allowlists y respuestas locales:** el adapter reconstruye `{ userId, permission, validFrom,
+validUntil }` y la URL codifica permiso y `userId`; la respuesta del `POST` se valida con el mapper
+  local y no se inserta en la caché del listado efectivo, que se relee por la invalidación de 3.9.
+- **Mock con reglas del backend:** reotorgar reemplaza la ventana, otorgar sobre herencia produce
+  `BOTH`, revocar deja la mitad heredada como `ROLE_DEFAULT`/`INHERITED`, un permiso heredado sin
+  concesión local responde `409`, y el último delegador sigue protegido al retirar `permission:grant`.
+- **UI:** `CollaboratorPermissionManager` es composición privada de `CollaboratorsView`, por lo que
+  no entra al catálogo; la funcionalidad se cubre con tres stories nuevas con `play`, axe y baseline.
+  `CollaboratorsView` recibe del detalle operativo los permisos que el operador posee para limitar
+  las opciones, sin inventar una matriz por rol.
+- **Defecto del harness repetido:** el servidor estático de `storybook:test:affected` volvio a quedar
+  huerfano en el puerto 6007 en dos ocasiones mas (cuarta y quinta observaciones); se detuvo a mano.
+  El inventario generado estaba obsoleto desde 3.5–3.7 y se regenero, incorporando esos componentes
+  y las stories nuevas.
+- **Puertas:** `verify:quick` (172 archivos / 1135 pruebas), `api:mocks-check` (292 verificaciones /
+  43 operaciones), `storybook:test:affected` de las stories afectadas con axe sin violaciones y
+  `pnpm run check` completo: 156 interacciones `play`, 156 comparaciones visuales con axe, build e
+  inventario de **44 componentes / 156 stories**. 3 baselines nuevos revisados y el de Delegator
+  regenerado.
+
+Evidencia y cierre de Fase 3.10: `docs/superpowers/plans/2026-10-05-fase-3.10-autorizacion-horizontal.md`.
+
+- **Sin cambio de contrato ni de produccion:** la fase solo agrega pruebas; no toca operaciones,
+  adapters, mocks, claves Query, rutas ni UI. No aplica `api:mocks-check`.
+- **Cobertura de URL directa:** la suite de aplicacion recorre actividad y programa ajenos, el mismo
+  `id` con distinto tipo y la ausencia de trabajo autorizado. El guard de scope exacto no consulta
+  permisos, colaboradores ni PII de un contexto no descubierto, y un visitante anonimo termina en
+  el acceso.
+- **Cambio de contexto en el cliente:** navegar de un contexto autorizado a uno ajeno vuelve a
+  decidir, retira el contenido anterior y el historial regresa al contexto autorizado. La sesion
+  nunca se cierra por un rechazo de autorizacion, y un colaborador con scopes vigentes no gana
+  rutas administrativas ni dispara sus consultas.
+- **Autoridad del backend:** un `403` de permisos propios o del listado de colaboradores prevalece
+  sobre un descubrimiento favorable; no se habilitan acciones, no se muestra PII y no se filtra el
+  mensaje interno.
+- **Reconciliacion completa:** el `403` de las cinco mutaciones (alta, cambio de rol, retirada,
+  concesion y revocacion) relee permisos y descubrimiento sin cerrar sesion; el `409` no dispara
+  reconsulta.
+- **Aserciones validadas por mutacion:** quitar el tipo del guard (2 fallos), habilitar permisos sin
+  descubrimiento (5 fallos) y anular la reconciliacion (5 fallos) rompen las pruebas nuevas; las
+  tres mutaciones se revirtieron y los archivos de produccion quedaron intactos.
+- **Defecto de asercion, no de producto:** dos aserciones del adaptador se hicieron sincronas antes
+  de que la consulta disparara y fallaron bajo carga de la suite completa; se corrigieron con
+  `waitFor` y timeouts explicitos de `findBy`, sin tocar produccion.
+- **Puertas:** `verify:quick` y `check` verdes con **173 archivos / 1149 pruebas**, build, **156
+  interacciones y 156 comparaciones visuales con axe** e inventario de **44 componentes / 156
+  stories**. Sexta observacion del servidor huerfano en el puerto 6007: `check` fallo en Storybook
+  por un `http-server` previo y se detuvo antes de repetir la puerta.
 
 ## Fase 4 - Programas de eventos
 

@@ -71,7 +71,7 @@ src/
 - The HTTP adapter must follow the OpenAPI contract and validate payloads before exposing them.
 - Hooks own loading, filtering, pagination and selection logic; UI components receive props and callbacks.
 - Connected feature views may call a feature hook; pages stay thin.
-- Use explicit barrels (`src/components`, `features/*`) for public imports; cross-feature imports use the other feature's root barrel or an approved focused barrel such as `features/auth/session`, `features/auth/personalArea`, `features/activity-catalog/public` and `features/organizational-units/public`. Internal files import their direct neighbor to avoid cycles. Lazy-loaded pages keep direct imports.
+- Use explicit barrels (`src/components`, `features/*`) for public imports; cross-feature imports use the other feature's root barrel or an approved focused barrel such as `features/auth/session`, `features/auth/personalArea`, `features/activity-catalog/public`, `features/organizational-units/public` and `features/collaboration/navigation`. Internal files import their direct neighbor to avoid cycles. Lazy-loaded pages keep direct imports.
 - Startup code (`src/main.tsx`, `src/App.tsx`, the landing and the public agenda components) must import only focused entrypoints, never a root barrel: `@/components/root`, `@/components/appShell`, `@/components/publicUi`, `@/components/adminShell`, `@/app/adapters/browser`, `@/app/adapters/context`, `@/app/query/runtime`, `@/app/query/cache` and `@/app/query/publicCatalog`. `AdminLayout` and `PersonalAreaLayout` load on their route, and concrete feature adapters load on first port use. `src/architecture.test.ts` rules R9 to R11 enforce this.
 - Do not create a global `src/index.ts` barrel.
 
