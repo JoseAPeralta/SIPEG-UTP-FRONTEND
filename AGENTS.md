@@ -16,6 +16,7 @@ pnpm install
 pnpm run dev
 pnpm run build
 pnpm run verify:quick
+pnpm run test:related <archivos>
 pnpm run storybook:test:affected
 pnpm run check
 pnpm run test:harness
@@ -88,9 +89,10 @@ src/
 
 - Test runner: Vitest; environment: jsdom; setup file: `src/setupTests.ts`.
 - Colocate every test next to the file it tests; do not create `__tests__` directories.
-- Use `src/test/factories.ts` for data and `renderWithProviders` / `renderHookWithProviders` from `src/test/render.tsx` for providers.
+- Use `src/test/factories.ts` for data, `renderWithProviders` / `renderHookWithProviders` from `src/test/render.tsx` for providers and `setupUser` from `src/test/user.ts` for interactions.
+- Tests that never touch the DOM declare `// @vitest-environment node` on the first line; they skip the jsdom creation and run several times faster. Do not add the annotation to tests that import Testing Library, `@/test/render` or browser globals (`window`, `localStorage`, `matchMedia`, observers).
 - Prefer Testing Library with semantic queries; add tests for meaningful behavior: pure functions, mappers, adapters, hooks and UI.
-- Run `pnpm run verify:quick` in the agent inner loop and `pnpm run check` before integration; both include `pnpm test` for new or modified behavior.
+- While iterating, run only the tests related to the touched modules with `pnpm run test:related <archivos>`; it resolves importers from the Vite graph and needs no Git metadata. Before closing a phase, run the full `pnpm run verify:quick`: cross-cutting checks such as `src/architecture.test.ts` and the contract mock checks are not importers of individual modules. Run `pnpm run check` before integration; both include `pnpm test` for new or modified behavior.
 - For Storybook work, do not run the full suite on every change. Discover the touched stories and run only those:
 
   ```bash

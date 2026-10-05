@@ -38,6 +38,7 @@
     "test:auth:browser": "playwright test --config playwright.auth.config.ts",
     "test:coverage": "vitest run --coverage",
     "test:harness": "sh scripts/prepare-agent-workspace.test.sh && sh scripts/run-agent-sandbox.test.sh",
+    "test:related": "vitest related --run",
     "test:storybook": "pnpm run storybook:build && start-server-and-test storybook:serve http://127.0.0.1:6007 storybook:test:suite",
     "test:storybook:update": "pnpm run storybook:build && start-server-and-test storybook:serve http://127.0.0.1:6007 storybook:test:visual:update",
     "test:ui": "vitest --ui",
