@@ -1,4 +1,4 @@
-import { waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createAppAdapters, type AlertsAdapter, type AppAdapters } from "@/app/adapters";
@@ -327,5 +327,144 @@ describe("useAlertReadMutations", () => {
 
     await waitFor(() => expect(loadAlertsPage).toHaveBeenCalledTimes(2));
     expect(pageData(queryClient, { isRead: false })?.items).toEqual([unreadAlert]);
+  });
+
+  it("should ignore a late failure from a discarded session of the same account", async () => {
+    signIn("user-1");
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const unreadKey = queryKeys.alertsPage("user-1", { isRead: false }, 1);
+
+    queryClient.setQueryData(unreadKey, createAlertsPage({ items: [unreadAlert], total: 1 }));
+
+    let rejectMark: ((error: unknown) => void) | undefined;
+    const markAlertRead = vi.fn<AlertsAdapter["markAlertRead"]>(
+      () =>
+        new Promise((_resolve, reject) => {
+          rejectMark = reject;
+        }),
+    );
+    const { result } = renderHookWithProviders(() => useAlertReadMutations(), {
+      adapters: buildAdapters({ alerts: buildAlertsAdapter({ markAlertRead }) }),
+      queryClient,
+    });
+
+    const pending = result.current.markRead(unreadAlert);
+
+    await waitFor(() => expect(pageData(queryClient, { isRead: false })?.total).toBe(0));
+
+    // Logout y re-login con la misma cuenta: la sesion anterior ya no es la actual.
+    useSessionStore.getState().clearSession();
+    signIn("user-1");
+
+    rejectMark?.(Object.assign(new Error("no existe"), { status: 404 }));
+    await expect(pending).resolves.toBe(false);
+
+    expect(pageData(queryClient, { isRead: false })?.total).toBe(0);
+    expect(queryClient.getQueryState(unreadKey)?.isInvalidated).toBe(false);
+    expect(markAlertRead).toHaveBeenCalledTimes(1);
+  });
+
+  it("should not resurrect a cleared snapshot after the session is discarded", async () => {
+    signIn("user-1");
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const unreadKey = queryKeys.alertsPage("user-1", { isRead: false }, 1);
+
+    queryClient.setQueryData(unreadKey, createAlertsPage({ items: [unreadAlert], total: 1 }));
+
+    let rejectMark: ((error: unknown) => void) | undefined;
+    const markAlertRead = vi.fn<AlertsAdapter["markAlertRead"]>(
+      () =>
+        new Promise((_resolve, reject) => {
+          rejectMark = reject;
+        }),
+    );
+    const { result } = renderHookWithProviders(() => useAlertReadMutations(), {
+      adapters: buildAdapters({ alerts: buildAlertsAdapter({ markAlertRead }) }),
+      queryClient,
+    });
+
+    const pending = result.current.markRead(unreadAlert);
+
+    await waitFor(() => expect(pageData(queryClient, { isRead: false })?.total).toBe(0));
+
+    useSessionStore.getState().clearSession();
+    queryClient.clear();
+    signIn("user-1");
+
+    rejectMark?.(Object.assign(new Error("no existe"), { status: 404 }));
+    await expect(pending).resolves.toBe(false);
+
+    expect(queryClient.getQueryData(unreadKey)).toBeUndefined();
+  });
+
+  it("should not revalidate a discarded session after a late success", async () => {
+    signIn("user-1");
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const loadAlertsPage = vi
+      .fn<AlertsAdapter["loadAlertsPage"]>()
+      .mockResolvedValue(createAlertsPage({ items: [], total: 0 }));
+    let resolveMark: ((alert: Alert) => void) | undefined;
+    const markAlertRead = vi.fn<AlertsAdapter["markAlertRead"]>(
+      () =>
+        new Promise((resolve) => {
+          resolveMark = resolve;
+        }),
+    );
+    const { result } = renderHookWithProviders(
+      () => ({ page: useAlertsPage({ isRead: false }, 1), read: useAlertReadMutations() }),
+      {
+        adapters: buildAdapters({ alerts: buildAlertsAdapter({ loadAlertsPage, markAlertRead }) }),
+        queryClient,
+      },
+    );
+
+    await waitFor(() => expect(loadAlertsPage).toHaveBeenCalledTimes(1));
+
+    const pending = result.current.read.markRead(unreadAlert);
+
+    await waitFor(() => expect(markAlertRead).toHaveBeenCalledTimes(1));
+
+    act(() => {
+      useSessionStore.getState().clearSession();
+      signIn("user-1");
+    });
+
+    resolveMark?.(createAlert({ id: "alert-1", isRead: true }));
+    await expect(pending).resolves.toBe(true);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(loadAlertsPage).toHaveBeenCalledTimes(1);
+  });
+
+  it("should not block a new session behind a discarded action still in flight", async () => {
+    signIn("user-1");
+    let resolveFirst: ((alert: Alert) => void) | undefined;
+    const markAlertRead = vi
+      .fn<AlertsAdapter["markAlertRead"]>()
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirst = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(createAlert({ id: "alert-2", isRead: true }));
+    const { result } = renderHookWithProviders(() => useAlertReadMutations(), {
+      adapters: buildAdapters({ alerts: buildAlertsAdapter({ markAlertRead }) }),
+    });
+
+    const first = result.current.markRead(unreadAlert);
+
+    await waitFor(() => expect(markAlertRead).toHaveBeenCalledTimes(1));
+
+    useSessionStore.getState().clearSession();
+    signIn("user-1");
+
+    await expect(result.current.markRead(secondUnreadAlert)).resolves.toBe(true);
+    expect(markAlertRead).toHaveBeenCalledTimes(2);
+
+    resolveFirst?.(createAlert({ id: "alert-1", isRead: true }));
+    await expect(first).resolves.toBe(true);
   });
 });

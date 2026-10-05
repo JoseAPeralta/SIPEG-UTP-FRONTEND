@@ -5,6 +5,11 @@ import type { AuthenticatedUser, AuthTokens, SessionEndReason } from "@/types/do
 export type SessionStatus = "anonymous" | "authenticated" | "restoring";
 
 type SessionState = {
+  /**
+   * Advances the generation for a purge that is not a plain clear or end, such as a login that
+   * replaces the current session with the same identity.
+   */
+  advanceSessionGeneration: () => void;
   clearSession: () => void;
   currentUser: AuthenticatedUser | null;
   /**
@@ -22,24 +27,55 @@ type SessionState = {
    */
   replaceCurrentUser: (currentUser: AuthenticatedUser) => void;
   sessionEndReason: SessionEndReason | null;
+  /**
+   * Identifica la instancia de sesion viva en memoria. Avanza cuando una identidad distinta inicia
+   * sesion y cuando la actual se limpia o termina, de modo que un callback que sobrevive a su sesion
+   * puede reconocer que ya no pertenece a la actual aunque la cuenta siguiente use el mismo `id`.
+   * Nunca se persiste ni forma parte de una clave de Query.
+   */
+  sessionGeneration: number;
   setSession: (session: { currentUser: AuthenticatedUser; tokens: AuthTokens }) => void;
   status: SessionStatus;
   tokens: AuthTokens | null;
 };
 
 export const useSessionStore = create<SessionState>()((set) => ({
+  advanceSessionGeneration: () =>
+    set((state) => ({ sessionGeneration: state.sessionGeneration + 1 })),
   clearSession: () =>
-    set({ currentUser: null, sessionEndReason: null, status: "anonymous", tokens: null }),
+    set((state) => ({
+      currentUser: null,
+      sessionEndReason: null,
+      sessionGeneration: state.sessionGeneration + 1,
+      status: "anonymous",
+      tokens: null,
+    })),
   currentUser: null,
   endSession: (reason) =>
-    set({ currentUser: null, sessionEndReason: reason, status: "anonymous", tokens: null }),
+    set((state) => ({
+      currentUser: null,
+      sessionEndReason: reason,
+      sessionGeneration: state.sessionGeneration + 1,
+      status: "anonymous",
+      tokens: null,
+    })),
   finishRestoration: () =>
     set((state) => (state.status === "restoring" ? { status: "anonymous" } : state)),
   replaceCurrentUser: (currentUser) =>
     set((state) => (state.currentUser?.id === currentUser.id ? { currentUser } : state)),
   sessionEndReason: null,
+  sessionGeneration: 0,
   setSession: ({ currentUser, tokens }) =>
-    set({ currentUser, sessionEndReason: null, status: "authenticated", tokens }),
+    set((state) => ({
+      currentUser,
+      sessionEndReason: null,
+      sessionGeneration:
+        state.currentUser?.id === currentUser.id
+          ? state.sessionGeneration
+          : state.sessionGeneration + 1,
+      status: "authenticated",
+      tokens,
+    })),
   status: "restoring",
   tokens: null,
 }));

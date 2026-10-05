@@ -11,14 +11,16 @@ import { alertsQueryPolicy } from "./alertsQueryPolicy";
 /**
  * Una pagina de la bandeja privada de la sesion.
  *
- * La clave se liga al `userId` y nunca al token; las alertas no se persisten. `placeholderData`
- * conserva la pagina anterior mientras llega la nueva, de modo que cambiar de pagina o filtro no
- * vacia la bandeja. La vigencia y los disparadores de refresco los fija `alertsQueryPolicy`.
+ * La clave se liga al `userId` y nunca al token; las alertas no se persisten. Solo consulta con
+ * sesion autenticada, igual que el indicador. `placeholderData` conserva la pagina anterior mientras
+ * llega la nueva, de modo que cambiar de pagina o filtro no vacia la bandeja. La vigencia y los
+ * disparadores de refresco los fija `alertsQueryPolicy`.
  */
 export function useAlertsPage(filters: AlertFilters, page: number) {
   const { alerts } = useAppAdapters();
+  const status = useSessionStore((state) => state.status);
   const userId = useSessionStore((state) => state.currentUser?.id);
-  const canLoad = userId !== undefined;
+  const canLoad = status === "authenticated" && userId !== undefined;
   const query = useQuery({
     ...alertsQueryPolicy,
     enabled: canLoad,

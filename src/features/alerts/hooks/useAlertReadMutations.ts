@@ -15,13 +15,15 @@ type AlertsSnapshot = [readonly unknown[], AlertsPage | undefined][];
 /**
  * Variables de la mutacion.
  *
- * La identidad viaja fijada al momento de la llamada: los callbacks tardios comparan contra ella y
- * no contra el render actual, de modo que un cambio de sesion en vuelo nunca escribe en la cache
- * de la cuenta que ya no es la actual.
+ * La identidad y la generacion viajan fijadas al momento de la llamada: los callbacks tardios
+ * comparan contra ellas y no contra el render actual, de modo que un cambio de sesion en vuelo nunca
+ * escribe en la cache de la cuenta que ya no es la actual, ni siquiera si vuelve a entrar la misma
+ * cuenta.
  */
 type AlertReadVariables = {
   intent: AlertReadIntent;
   userId: string;
+  sessionGeneration: number;
 };
 
 function readFilters(queryKey: readonly unknown[]): AlertFilters {
@@ -32,8 +34,18 @@ function readFilters(queryKey: readonly unknown[]): AlertFilters {
   return candidate;
 }
 
-function currentUserId(): string {
-  return useSessionStore.getState().currentUser?.id ?? ANONYMOUS_USER;
+/**
+ * Una accion solo escribe si la identidad y la generacion capturadas al iniciarla siguen siendo las
+ * de la sesion viva. La generacion distingue dos accesos de la misma cuenta, caso que el `userId`
+ * por si solo no puede detectar.
+ */
+function isCurrentIdentity(userId: string, sessionGeneration: number): boolean {
+  const state = useSessionStore.getState();
+
+  return (
+    (state.currentUser?.id ?? ANONYMOUS_USER) === userId &&
+    state.sessionGeneration === sessionGeneration
+  );
 }
 
 /**
@@ -41,14 +53,15 @@ function currentUserId(): string {
  *
  * `cancelQueries` evita que un refetch en vuelo pise la escritura optimista; el snapshot completo
  * del scope permite restaurar items y contadores exactos si el backend rechaza. Una unica accion
- * pendiente por instancia impide que dos rollbacks se pisen entre si. Los callbacks tardios
- * comparan la identidad fijada al inicio antes de escribir o invalidar: tras un cambio de sesion,
- * la cache de la cuenta anterior no se toca ni se revalida con el token nuevo.
+ * pendiente por generacion impide que dos rollbacks se pisen entre si, sin bloquear a una sesion
+ * nueva detras de una accion descartada. Los callbacks tardios comparan la identidad y la generacion
+ * fijadas al inicio antes de escribir o invalidar: tras un cambio de sesion, la cache de la cuenta
+ * anterior no se toca ni se revalida con el token nuevo.
  */
 export function useAlertReadMutations() {
   const { alerts } = useAppAdapters();
   const queryClient = useQueryClient();
-  const inFlightRef = useRef(false);
+  const inFlightRef = useRef<{ sessionGeneration: number } | null>(null);
 
   const mutation = useMutation<
     Alert | MarkAllAlertsReadResult,
@@ -58,17 +71,17 @@ export function useAlertReadMutations() {
   >({
     mutationFn: ({ intent }: AlertReadVariables) =>
       intent.kind === "one" ? alerts.markAlertRead(intent.alertId) : alerts.markAllAlertsRead(),
-    onError: (_error, { userId }, context) => {
-      if (currentUserId() !== userId) return;
+    onError: (_error, { sessionGeneration, userId }, context) => {
+      if (!isCurrentIdentity(userId, sessionGeneration)) return;
 
       for (const [key, page] of context?.snapshots ?? []) {
         queryClient.setQueryData(key, page);
       }
     },
-    onMutate: async ({ intent, userId }) => {
+    onMutate: async ({ intent, sessionGeneration, userId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.alertsScope(userId) });
 
-      if (currentUserId() !== userId) return { snapshots: [] };
+      if (!isCurrentIdentity(userId, sessionGeneration)) return { snapshots: [] };
 
       const snapshots = queryClient.getQueriesData<AlertsPage>({
         queryKey: queryKeys.alertsScope(userId),
@@ -83,24 +96,32 @@ export function useAlertReadMutations() {
 
       return { snapshots };
     },
-    onSettled: (_data, _error, { userId }) => {
-      if (currentUserId() !== userId) return;
+    onSettled: (_data, _error, { sessionGeneration, userId }) => {
+      if (!isCurrentIdentity(userId, sessionGeneration)) return;
 
       void queryClient.invalidateQueries({ queryKey: queryKeys.alertsScope(userId) });
     },
   });
 
   const run = async (intent: AlertReadIntent): Promise<unknown> => {
-    if (inFlightRef.current) return undefined;
+    const { currentUser, sessionGeneration } = useSessionStore.getState();
+    const userId = currentUser?.id ?? ANONYMOUS_USER;
 
-    inFlightRef.current = true;
+    if (inFlightRef.current?.sessionGeneration === sessionGeneration) return undefined;
+
+    const inFlight = { sessionGeneration };
+    inFlightRef.current = inFlight;
     try {
-      return await mutation.mutateAsync({ intent, userId: currentUserId() });
+      return await mutation.mutateAsync({ intent, sessionGeneration, userId });
     } catch {
       // El fallo se expone por `error`; la vista muestra el copy localizado.
       return undefined;
     } finally {
-      inFlightRef.current = false;
+      // Solo libera el bloqueo si sigue siendo la accion de esta llamada: una sesion nueva pudo
+      // haber registrado la suya mientras esta estaba en vuelo.
+      if (inFlightRef.current === inFlight) {
+        inFlightRef.current = null;
+      }
     }
   };
 

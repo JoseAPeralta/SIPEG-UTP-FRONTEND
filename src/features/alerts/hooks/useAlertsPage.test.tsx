@@ -56,6 +56,19 @@ describe("useAlertsPage", () => {
     expect(adapters.alerts.loadAlertsPage).not.toHaveBeenCalled();
   });
 
+  it("should not query while the session is not authenticated", () => {
+    useSessionStore.setState({
+      currentUser: createAuthenticatedUser({ id: "user-1" }),
+      status: "restoring",
+    });
+    const adapters = buildAdapters();
+
+    const { result } = renderHookWithProviders(() => useAlertsPage(filters, 1), { adapters });
+
+    expect(result.current.page).toBeNull();
+    expect(adapters.alerts.loadAlertsPage).not.toHaveBeenCalled();
+  });
+
   it("should request one filtered page under the identity key", async () => {
     signIn();
     const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
