@@ -9,7 +9,7 @@ export class ClassroomsMappingError extends Error {
   }
 }
 
-const CLASSROOM_TYPES: readonly ClassroomType[] = ["CLASSROOM", "LABORATORY"];
+const CLASSROOM_TYPES: readonly ClassroomType[] = ["CLASSROOM", "CONFERENCE_ROOM", "LABORATORY"];
 
 /** El contrato numera los dias de lunes a domingo y exige horas HH:mm. */
 const ISO_WEEK_DAYS: readonly number[] = [1, 2, 3, 4, 5, 6, 7];

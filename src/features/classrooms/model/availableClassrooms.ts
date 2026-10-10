@@ -29,6 +29,30 @@ export function normalizeAvailableClassroomsCriteria(
   };
 }
 
+/**
+ * Compara los criterios vigentes del formulario con la instantanea que produjo los resultados.
+ *
+ * Cuando difieren, los resultados visibles pertenecen a una necesidad anterior y no deben usarse
+ * para elegir un aula: el componente los marca como desactualizados.
+ */
+export function areAvailableClassroomsCriteriaEqual(
+  left: AvailableClassroomsCriteria | null,
+  right: AvailableClassroomsCriteria,
+): boolean {
+  if (left === null) return false;
+
+  const normalized = normalizeAvailableClassroomsCriteria(right);
+
+  return (
+    left.amenity === normalized.amenity &&
+    left.date === normalized.date &&
+    left.endTime === normalized.endTime &&
+    left.minCapacity === normalized.minCapacity &&
+    left.startTime === normalized.startTime &&
+    left.type === normalized.type
+  );
+}
+
 /** The client only sends a search once every mandatory contract value is usable. */
 export function isAvailableClassroomsCriteriaValid(criteria: AvailableClassroomsCriteria): boolean {
   const normalized = normalizeAvailableClassroomsCriteria(criteria);

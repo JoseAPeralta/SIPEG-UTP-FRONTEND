@@ -15,11 +15,7 @@ import {
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 
 export function useDashboardOverview() {
-  const {
-    catalog,
-    error: catalogError,
-    isLoading: isCatalogLoading,
-  } = useActivityCatalog("administrative");
+  const { catalog, error: catalogError, isLoading: isCatalogLoading } = useActivityCatalog();
   const { error: operationsError, isLoading: isOperationsLoading, operations } = useOperations();
   const selectedUnitId = useUnitPreferenceStore((state) => state.selectedUnitId);
   const setSelectedUnitId = useUnitPreferenceStore((state) => state.setSelectedUnitId);

@@ -3,7 +3,7 @@ import { Stack } from "@chakra-ui/react";
 import { expect, fn, userEvent, within } from "storybook/test";
 
 import {
-  createActivity,
+  createActivitySummary,
   createClassroom,
   createEventProgram,
   createOrganizationalUnit,
@@ -11,32 +11,32 @@ import {
 
 import { ActivityCard } from "./ActivityCard";
 
-const activity = createActivity({
+const activity = createActivitySummary({
   description:
     "Una sesion practica para explorar herramientas digitales aplicadas a la docencia universitaria.",
   speakers: [{ firstName: "Ana", id: "speaker-ana", lastName: "Perez" }],
 });
 
 const newTypeActivities = [
-  createActivity({
+  createActivitySummary({
     description: "Exposicion magistral de un experto invitado ante un auditorio amplio.",
     id: "activity-conference",
     name: "Conferencia magistral: universidad y sociedad",
     type: "CONFERENCE",
   }),
-  createActivity({
+  createActivitySummary({
     description: "Especialistas debaten un tema guiados por un moderador y el publico.",
     id: "activity-panel",
     name: "Panel: futuro de la formacion en ingenieria",
     type: "PANEL",
   }),
-  createActivity({
+  createActivitySummary({
     description: "Formacion estructurada de varias sesiones con objetivos y evaluacion.",
     id: "activity-course",
     name: "Curso de fundamentos de automatizacion industrial",
     type: "COURSE",
   }),
-  createActivity({
+  createActivitySummary({
     description: "Reto con reglas, jueces y ranking entre equipos participantes.",
     id: "activity-competition",
     name: "Competencia de robotica de rescate",
@@ -63,7 +63,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Tarjeta de actividad para catalogos publicos, resumenes con inscritos y seleccion de contexto administrativo.",
+          "Tarjeta de resumen de una actividad para el catalogo administrativo. El listado no expone inscritos ni equipamiento: la tarjeta enlaza al detalle, que si los consulta al abrirse.",
       },
     },
   },
@@ -73,11 +73,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Public: Story = {};
-
-export const WithEnrollmentCount: Story = {
-  args: {
-    showEnrolledCount: true,
+export const Public: Story = {
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("link", { name: /ver detalle de actividad de prueba/i }),
+    ).toHaveAttribute("href", "/admin/actividades/activity-1");
   },
 };
 
@@ -105,7 +105,9 @@ export const Selected: Story = {
 
 export const LongDescription: Story = {
   args: {
-    activity: createActivity({ description: "Detalle extenso de la actividad. ".repeat(12) }),
+    activity: createActivitySummary({
+      description: "Detalle extenso de la actividad. ".repeat(12),
+    }),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

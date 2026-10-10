@@ -12,7 +12,7 @@ import {
   summarizeCatalog,
 } from "./catalogSelectors";
 import {
-  createActivity,
+  createActivitySummary,
   createCatalog,
   createClassroom,
   createEventProgram,
@@ -21,17 +21,15 @@ import {
 
 const catalog = createCatalog({
   activities: [
-    createActivity({
+    createActivitySummary({
       date: "2026-06-16",
-      enrolledCount: 30,
       id: "activity-late",
       name: "Ciberseguridad en servicios estudiantiles",
       startTime: "14:00",
       type: "TALK",
     }),
-    createActivity({
+    createActivitySummary({
       date: "2026-06-15",
-      enrolledCount: 20,
       id: "activity-early",
       name: "Campus inteligente y datos abiertos",
       startTime: "09:00",
@@ -55,7 +53,7 @@ describe("buildActivityRows", () => {
 
   it("should skip activities with dangling program references", () => {
     const dangling = createCatalog({
-      activities: [createActivity({ eventProgramId: "program-missing" })],
+      activities: [createActivitySummary({ eventProgramId: "program-missing" })],
     });
 
     expect(buildActivityRows(dangling)).toHaveLength(0);
@@ -63,7 +61,7 @@ describe("buildActivityRows", () => {
 
   it("should keep a null classroom when the activity has none", () => {
     const withoutClassroom = createCatalog({
-      activities: [createActivity({ classroomId: null })],
+      activities: [createActivitySummary({ classroomId: null })],
     });
 
     expect(buildActivityRows(withoutClassroom)[0]?.classroom).toBeNull();
@@ -159,10 +157,10 @@ describe("paginateActivityRows", () => {
 });
 
 describe("summarizeCatalog", () => {
-  it("should total programs, units, activities and enrolled attendees", () => {
+  it("should total programs, units and activities without inventing enrollment totals", () => {
     expect(summarizeCatalog(catalog)).toEqual({
       activityCount: 2,
-      enrolledCount: 50,
+      enrolledCount: null,
       programCount: 1,
       unitCount: 1,
     });
@@ -170,12 +168,12 @@ describe("summarizeCatalog", () => {
 });
 
 describe("buildProgramSummaries", () => {
-  it("should aggregate activity and attendee totals per program", () => {
+  it("should aggregate activity totals per program without enrollment totals", () => {
     const summaries = buildProgramSummaries(catalog);
 
     expect(summaries).toHaveLength(1);
     expect(summaries[0]?.activityCount).toBe(2);
-    expect(summaries[0]?.enrolledCount).toBe(50);
+    expect(summaries[0]?.enrolledCount).toBeNull();
     expect(summaries[0]?.unit.id).toBe("fic");
   });
 

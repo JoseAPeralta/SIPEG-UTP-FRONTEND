@@ -86,20 +86,23 @@ hasta que intente renovar su credencial de refresco y el backend la rechace.
 
 En Fase 0 todas las rutas implementadas del panel exigen sesion y rol global `ADMIN`:
 
-| Ruta                        | Modulo                                                           |
-| --------------------------- | ---------------------------------------------------------------- |
-| `/admin`                    | Resumen operativo.                                               |
-| `/admin/eventos`            | Catalogo administrativo y contexto.                              |
-| `/admin/aulas`              | Inventario, filtros y alta de aulas.                             |
-| `/admin/aulas/:classroomId` | Detalle, estado, amenidades y disponibilidad semanal de un aula. |
-| `/admin/unidades`           | Consulta administrativa de unidades organizativas.               |
-| `/admin/carreras`           | Administracion de carreras institucionales y globales.           |
-| `/admin/ponentes`           | Read model transitorio de propuestas.                            |
-| `/admin/usuarios`           | Listado paginado, busqueda, filtros y alta de usuarios.          |
-| `/admin/usuarios/:userId`   | Detalle, rol, estado, unidad y carrera de una cuenta.            |
-| `/admin/asistencia`         | Read model transitorio de asistencia.                            |
-| `/admin/certificados`       | Read model transitorio de certificados.                          |
-| `/admin/reportes`           | Read model transitorio de reportes.                              |
+| Ruta                                      | Modulo                                                           |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| `/admin`                                  | Resumen operativo.                                               |
+| `/admin/eventos`                          | Catalogo administrativo y contexto.                              |
+| `/admin/programas`                        | Listado y ciclo de vida de programas.                            |
+| `/admin/programas/:programId/actividades` | Actividades del programa: filtros, alta y detalle.               |
+| `/admin/actividades/:activityId`          | Detalle y edicion de una actividad.                              |
+| `/admin/aulas`                            | Inventario, filtros y alta de aulas.                             |
+| `/admin/aulas/:classroomId`               | Detalle, estado, amenidades y disponibilidad semanal de un aula. |
+| `/admin/unidades`                         | Consulta administrativa de unidades organizativas.               |
+| `/admin/carreras`                         | Administracion de carreras institucionales y globales.           |
+| `/admin/ponentes`                         | Read model transitorio de propuestas.                            |
+| `/admin/usuarios`                         | Listado paginado, busqueda, filtros y alta de usuarios.          |
+| `/admin/usuarios/:userId`                 | Detalle, rol, estado, unidad y carrera de una cuenta.            |
+| `/admin/asistencia`                       | Read model transitorio de asistencia.                            |
+| `/admin/certificados`                     | Read model transitorio de certificados.                          |
+| `/admin/reportes`                         | Read model transitorio de reportes.                              |
 
 El menu del panel enlaza todos estos modulos; ninguna ruta implementada queda huerfana.
 
@@ -108,11 +111,13 @@ El menu del panel enlaza todos estos modulos; ninguna ruta implementada queda hu
 Las fases 3.5–3.7 incorporan el área `/operaciones` para colaboradores con capacidad efectiva.
 El descubrimiento consume la operación dedicada de 3.4, sin N+1 sobre el catálogo público.
 
-| Ruta                                   | Propósito                                                                      |
-| -------------------------------------- | ------------------------------------------------------------------------------ |
-| `/operaciones`                         | Contextos accesibles, incluidos los no públicos, o estado sin permisos.        |
-| `/operaciones/programas/:programId`    | Permisos propios y gestión de colaboradores locales del programa.              |
-| `/operaciones/actividades/:activityId` | Permisos propios, herencia y gestión de colaboradores locales de la actividad. |
+| Ruta                                            | Propósito                                                                      |
+| ----------------------------------------------- | ------------------------------------------------------------------------------ |
+| `/operaciones`                                  | Contextos accesibles, incluidos los no públicos, o estado sin permisos.        |
+| `/operaciones/programas/:programId`             | Permisos propios y gestión de colaboradores locales del programa.              |
+| `/operaciones/programas/:programId/actividades` | Actividades del programa según las capacidades efectivas.                      |
+| `/operaciones/actividades/:activityId`          | Permisos propios, herencia y gestión de colaboradores locales de la actividad. |
+| `/operaciones/actividades/:activityId/detalle`  | Detalle y edición de la actividad según las capacidades efectivas.             |
 
 Todas exigen sesión. Los detalles verifican tipo e identificador contra los scopes descubiertos y
 confirman los permisos del contexto; una carga fallida no habilita acciones con datos anteriores.

@@ -1,14 +1,24 @@
-import { Badge, Box, Button, HStack, Stack, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, HStack, Link, Stack, Text } from "@chakra-ui/react";
 import { useState } from "react";
+import { Link as RouterLink } from "react-router";
 
 import { Surface } from "@/components/publicUi";
 import { getActivityTypeColorKey, getUnitColorKey } from "@theme/index";
 import { formatActivityDate } from "@/utils/dateFormatting";
 
-import { activityTypeLabels } from "../model/catalogLabels";
+import { activityStatusLabels, activityTypeLabels } from "../model/catalogLabels";
 import type { PublicActivityRow } from "../model/publicCatalogSelectors";
 
 const DESCRIPTION_PREVIEW_LENGTH = 128;
+
+const statusColorPalette: Record<
+  PublicActivityRow["activity"]["status"],
+  "neutral" | "success" | "terracotta"
+> = {
+  COMPLETED: "neutral",
+  ONGOING: "success",
+  SCHEDULED: "terracotta",
+};
 
 export type PublicActivityCardProps = {
   /** Fila de la agenda publica: la actividad y su unidad ya resueltas. */
@@ -53,17 +63,23 @@ export function PublicActivityCard({ row }: PublicActivityCardProps) {
           <Badge bg={`type.bg.${typeColorKey}`} color={`type.fg.${typeColorKey}`} rounded="full">
             {activityTypeLabels[activity.type]}
           </Badge>
+          <Badge colorPalette={statusColorPalette[activity.status]} rounded="full" variant="subtle">
+            {activityStatusLabels[activity.status]}
+          </Badge>
         </HStack>
         <Box>
-          <Text
+          <Link
+            _hover={{ color: "accent.solid", textDecoration: "underline" }}
+            asChild
             color="text.default"
             fontFamily="heading"
             fontSize="2xl"
             fontWeight="700"
             lineHeight="1.08"
+            textDecoration="none"
           >
-            {activity.name}
-          </Text>
+            <RouterLink to={`/actividades/${activity.id}`}>{activity.name}</RouterLink>
+          </Link>
           <Text color="text.muted" fontSize="sm" mt={2}>
             {formatActivityDate(activity.date)} · {activity.startTime} - {activity.endTime}
             {activity.classroom ? ` · ${activity.classroom.name}` : ""}

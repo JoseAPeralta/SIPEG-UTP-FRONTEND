@@ -1,18 +1,20 @@
 ---
 title: "ADR-0005: Activity Catalog Fan-Out for Detail Fields"
-status: "Accepted"
+status: "Superseded"
 date: "2026-09-25"
 authors: "SIPEG-UTP Team"
 tags: ["architecture", "decision", "activities", "openapi", "adapters"]
 supersedes: ""
-superseded_by: ""
+superseded_by: "ADR-0016"
 ---
 
 # ADR-0005: Activity Catalog Fan-Out for Detail Fields
 
 ## Status
 
-**Accepted**
+**Superseded by [ADR-0016](./adr-0016-resumenes-actividades-detalle-bajo-demanda.md)** — 2026-10-08.
+The composite catalog now reads listing summaries and requests the detail only when an activity is
+opened; aggregate metrics wait for a contracted aggregate.
 
 ## Context
 

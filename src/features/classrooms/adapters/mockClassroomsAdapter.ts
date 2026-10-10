@@ -102,11 +102,15 @@ function matchesFilters(
 
 export type CreateMockClassroomsAdapterOptions = {
   activities?: readonly Activity[];
+  /** Registro vivo de actividades de la composicion; sin el, la opcion `activities`. */
+  readActivities?: () => readonly Activity[];
 };
 
 export function createMockClassroomsAdapter({
   activities: activityCatalog = mockActivities,
+  readActivities,
 }: CreateMockClassroomsAdapterOptions = {}): ClassroomsAdapter {
+  const readCatalog = readActivities ?? (() => activityCatalog);
   const catalog: ClassroomDetail[] = classrooms.map((classroom) => ({
     ...structuredClone(classroom),
     availability: structuredClone(classroomAvailability[classroom.id] ?? []),
@@ -183,7 +187,7 @@ export function createMockClassroomsAdapter({
               classroom.isActive &&
               matchesFilters(classroom, normalized) &&
               coversInterval(classroom, normalized) &&
-              !isOccupied(classroom.id, normalized, activityCatalog),
+              !isOccupied(classroom.id, normalized, readCatalog()),
           ),
         ),
       );
@@ -225,7 +229,7 @@ export function createMockClassroomsAdapter({
 
     updateClassroom(classroomId, request: UpdateClassroomRequest) {
       const classroom = findOrReject(classroomId);
-      if (request.isActive === false && isReserved(classroomId, activityCatalog)) {
+      if (request.isActive === false && isReserved(classroomId, readCatalog())) {
         return Promise.reject(conflict());
       }
 

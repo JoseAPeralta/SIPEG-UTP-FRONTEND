@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { ApiError } from "@/app/adapters/http/apiClient";
 import { createActivity } from "@/test/factories";
+import type { Activity } from "@/types/domain";
 
 import { createMockClassroomsAdapter } from "./mockClassroomsAdapter";
 
@@ -108,6 +109,30 @@ describe("createMockClassroomsAdapter", () => {
       (await scheduled.loadAvailableClassrooms!(criteria)).map((room) => room.id),
     ).not.toContain("lab-01");
     expect((await completed.loadAvailableClassrooms!(criteria)).map((room) => room.id)).toContain(
+      "lab-01",
+    );
+  });
+
+  it("should read current activities through the composition reader", async () => {
+    let current: Activity[] = [
+      createActivity({
+        classroomId: "lab-01",
+        date: "2026-08-03",
+        endTime: "09:00",
+        startTime: "08:30",
+        status: "SCHEDULED",
+      }),
+    ];
+    const adapter = createMockClassroomsAdapter({ readActivities: () => current });
+    const criteria = { date: "2026-08-03", endTime: "09:00", startTime: "08:00" };
+
+    expect((await adapter.loadAvailableClassrooms!(criteria)).map((room) => room.id)).not.toContain(
+      "lab-01",
+    );
+
+    current = [];
+
+    expect((await adapter.loadAvailableClassrooms!(criteria)).map((room) => room.id)).toContain(
       "lab-01",
     );
   });

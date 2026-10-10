@@ -13,5 +13,9 @@ export type {
 } from "./model/classroomRequests";
 export { weekDayLabel, weekDayLabels } from "./model/weekDay";
 export { ClassroomDetailView } from "./ui/ClassroomDetailView";
-export { ClassroomAvailabilitySelector } from "./ui/ClassroomAvailabilitySelector";
+export {
+  ClassroomAvailabilitySelector,
+  type ClassroomAvailabilitySelectorProps,
+  type ClassroomSelection,
+} from "./ui/ClassroomAvailabilitySelector";
 export { ClassroomsView } from "./ui/ClassroomsView";

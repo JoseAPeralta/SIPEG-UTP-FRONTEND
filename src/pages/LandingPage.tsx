@@ -11,7 +11,15 @@ import {
   PublicActivityCard,
   PublicActivityFilters,
   usePublicActivities,
+  type PublicCatalogPeriod,
 } from "@/features/activity-catalog/public";
+
+const periodHeadings: Record<PublicCatalogPeriod, string> = {
+  all: "Todas las actividades",
+  available: "Actividades disponibles",
+  past: "Actividades pasadas",
+  upcoming: "Próximas actividades",
+};
 
 const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-label="Agenda academica SIPEG">
@@ -47,6 +55,7 @@ const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
 
 export function LandingPage() {
   const page = usePublicActivities();
+  const periodHeading = periodHeadings[page.period];
 
   return (
     <Box bg="surface.canvas" color="text.default">
@@ -59,7 +68,7 @@ export function LandingPage() {
                   Agenda publica
                 </Badge>
                 <Badge colorPalette="terracotta" px={4} py={2} rounded="full" variant="surface">
-                  Actividades disponibles
+                  {periodHeading}
                 </Badge>
               </HStack>
               <Stack gap={4}>
@@ -106,13 +115,23 @@ export function LandingPage() {
           <Stack gap={6}>
             <PublicActivityFilters
               filteredCount={page.filteredCount}
+              onClearFilters={page.onClearFilters}
+              onPeriodChange={page.onPeriodChange}
+              onProgramFilterChange={page.onProgramFilterChange}
+              onSearchTermChange={page.onSearchTermChange}
               onSortDirectionChange={page.onSortDirectionChange}
               onTypeFilterChange={page.onTypeFilterChange}
               onUnitFilterChange={page.onUnitFilterChange}
+              onUnitTypeFilterChange={page.onUnitTypeFilterChange}
+              period={page.period}
+              programFilter={page.programFilter}
+              programOptions={page.programOptions}
               rows={page.rows}
+              searchTerm={page.searchTerm}
               sortDirection={page.sortDirection}
               typeFilter={page.typeFilter}
               unitFilter={page.unitFilter}
+              unitTypeFilter={page.unitTypeFilter}
             />
 
             <Box as="section" aria-labelledby="public-activities-title">
@@ -120,7 +139,7 @@ export function LandingPage() {
                 <SectionHeader
                   headingLabel="Calendario publico"
                   id="public-activities-title"
-                  title="Actividades disponibles"
+                  title={periodHeading}
                 />
 
                 {page.pagination.rows.length > 0 ? (
@@ -131,7 +150,7 @@ export function LandingPage() {
                   </SimpleGrid>
                 ) : (
                   <FeedbackState
-                    description="Cambie la unidad o el tipo de actividad para ver mas opciones disponibles."
+                    description="Cambie el periodo, la busqueda o los filtros para ver mas opciones disponibles."
                     padding="roomy"
                     title="No hay actividades con esos filtros"
                   />

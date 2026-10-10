@@ -2,6 +2,7 @@ import { screen, within } from "@testing-library/react";
 import { setupUser } from "@/test/user";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { mockActivityCatalog } from "@/data/mock/activityCatalog";
 import { useSessionStore } from "@/store/session";
 import { useWorkingContextStore } from "@/store/workingContext";
 import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
@@ -26,8 +27,11 @@ describe("ActivityCatalogView", () => {
     renderWithProviders(<ActivityCatalogView />);
 
     expect(await screen.findByText("9 programas")).toBeInTheDocument();
-    expect(screen.getByText("36 actividades")).toBeInTheDocument();
+    expect(
+      screen.getByText(`${mockActivityCatalog.activities.length} actividades`),
+    ).toBeInTheDocument();
     expect(screen.getByText(/personas registradas/i)).toBeInTheDocument();
+    expect(screen.getAllByText("No disponible").length).toBeGreaterThan(0);
     expect(screen.getByText("4 unidades")).toBeInTheDocument();
   });
 

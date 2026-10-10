@@ -3,6 +3,7 @@ import type {
   ActivityType,
   OrganizationalUnitType,
   PublicActivity,
+  PublicActivityStatus,
   PublicClassroom,
   PublicEventProgram,
   PublicOrganizationalUnit,
@@ -28,11 +29,29 @@ const ACTIVITY_TYPES: readonly ActivityType[] = [
 
 const ORGANIZATIONAL_UNIT_TYPES: readonly OrganizationalUnitType[] = ["FACULTY", "SUBDIRECTORATE"];
 
+/**
+ * Estados que el listado publico puede exponer.
+ *
+ * `DRAFT` y `CANCELLED` son administrativos: el backend los omite para
+ * anonimos, y un valor fuera de este conjunto significa que la respuesta no
+ * pertenece a la agenda publica.
+ */
+const PUBLIC_ACTIVITY_STATUSES: readonly PublicActivityStatus[] = [
+  "SCHEDULED",
+  "ONGOING",
+  "COMPLETED",
+];
+
 function fail(context: string, detail: string): never {
   throw new PublicActivityMappingError(`${context}: ${detail}`);
 }
 
-function readObject(value: unknown, context: string): Record<string, unknown> {
+/**
+ * Lectores compartidos entre el listado y el detalle publicos. Se exportan para
+ * que `publicActivityDetailMapper` reutilice la misma validacion en lugar de
+ * duplicarla.
+ */
+export function readObject(value: unknown, context: string): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     fail(context, "se esperaba un objeto");
   }
@@ -40,7 +59,7 @@ function readObject(value: unknown, context: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function readString(value: unknown, context: string): string {
+export function readString(value: unknown, context: string): string {
   if (typeof value !== "string" || value.trim().length === 0) {
     fail(context, "se esperaba un texto no vacio");
   }
@@ -48,7 +67,7 @@ function readString(value: unknown, context: string): string {
   return value;
 }
 
-function readNullableString(value: unknown, context: string): string | null {
+export function readNullableString(value: unknown, context: string): string | null {
   if (value === null || value === undefined) {
     return null;
   }
@@ -60,7 +79,19 @@ function readNullableString(value: unknown, context: string): string | null {
   return value;
 }
 
-function readNullableNumber(value: unknown, context: string): number | null {
+/**
+ * Variante estricta para campos que el contrato exige presentes aunque puedan
+ * ser nulos, como `cancelReason` del detalle.
+ */
+export function readRequiredNullableString(value: unknown, context: string): string | null {
+  if (value === undefined) {
+    fail(context, "se esperaba un texto o null");
+  }
+
+  return readNullableString(value, context);
+}
+
+export function readNullableNumber(value: unknown, context: string): number | null {
   if (value === null || value === undefined) {
     return null;
   }
@@ -72,7 +103,15 @@ function readNullableNumber(value: unknown, context: string): number | null {
   return value;
 }
 
-function readArray(value: unknown, context: string): unknown[] {
+export function readNumber(value: unknown, context: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    fail(context, "se esperaba un numero");
+  }
+
+  return value;
+}
+
+export function readArray(value: unknown, context: string): unknown[] {
   if (!Array.isArray(value)) {
     fail(context, "se esperaba una lista");
   }
@@ -80,7 +119,11 @@ function readArray(value: unknown, context: string): unknown[] {
   return value;
 }
 
-function readEnum<T extends string>(value: unknown, allowed: readonly T[], context: string): T {
+export function readEnum<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  context: string,
+): T {
   if (typeof value !== "string" || !allowed.includes(value as T)) {
     fail(context, `valor fuera del contrato: ${String(value)}`);
   }
@@ -153,10 +196,14 @@ function mapUnit(raw: unknown, context: string): PublicOrganizationalUnit {
   };
 }
 
-/** Mapea un `ActivityListItem` del listado publico de actividades. */
-export function mapPublicActivity(raw: unknown, context = "activity"): PublicActivity {
-  const activity = readObject(raw, context);
-
+/**
+ * Campos comunes del listado y del detalle publicos. El estado queda fuera
+ * porque cada mapper valida su propio conjunto de estados.
+ */
+export function mapPublicActivityBase(
+  activity: Record<string, unknown>,
+  context: string,
+): Omit<PublicActivity, "status"> {
   return {
     bannerUrl: readNullableString(activity["bannerUrl"], `${context}.bannerUrl`),
     capacity: readNullableNumber(activity["capacity"], `${context}.capacity`),
@@ -173,6 +220,16 @@ export function mapPublicActivity(raw: unknown, context = "activity"): PublicAct
     startTime: readString(activity["startTime"], `${context}.startTime`),
     type: readEnum(activity["type"], ACTIVITY_TYPES, `${context}.type`),
     unit: mapUnit(activity["organizationalUnit"], `${context}.organizationalUnit`),
+  };
+}
+
+/** Mapea un `ActivityListItem` del listado publico de actividades. */
+export function mapPublicActivity(raw: unknown, context = "activity"): PublicActivity {
+  const activity = readObject(raw, context);
+
+  return {
+    ...mapPublicActivityBase(activity, context),
+    status: readEnum(activity["status"], PUBLIC_ACTIVITY_STATUSES, `${context}.status`),
   };
 }
 
@@ -204,12 +261,4 @@ export function mapPublicActivityCatalog(
     total: readNumber(data["total"], `${context}.data.total`),
     totalPages: readNumber(data["totalPages"], `${context}.data.totalPages`),
   };
-}
-
-function readNumber(value: unknown, context: string): number {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    fail(context, "se esperaba un numero");
-  }
-
-  return value;
 }

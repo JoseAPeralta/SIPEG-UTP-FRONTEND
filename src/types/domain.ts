@@ -101,6 +101,8 @@ export type ActivityType =
 
 export type ActivityStatus = "DRAFT" | "SCHEDULED" | "ONGOING" | "COMPLETED" | "CANCELLED";
 
+export type PublicActivityStatus = Exclude<ActivityStatus, "DRAFT" | "CANCELLED">;
+
 export type ActivitySpeaker = {
   firstName: string;
   id: string;
@@ -127,7 +129,7 @@ export type Activity = {
   type: ActivityType;
 };
 
-export type ClassroomType = "LABORATORY" | "CLASSROOM";
+export type ClassroomType = "LABORATORY" | "CLASSROOM" | "CONFERENCE_ROOM";
 
 export type Classroom = {
   amenities: string[];
@@ -182,8 +184,21 @@ export type ReportMetric = {
   value: string;
 };
 
+/**
+ * Actividad tal como la exponen los listados (`ActivityListItem` y `EventProgramActivityItem`).
+ *
+ * La tarjeta y los resumenes usan este modelo; el detalle (`ActivityDetail`) agrega
+ * `cancelReason`, `equipment`, `enrolledCount` y `checkedInCount`, que solo se consultan al abrir
+ * una actividad. Modelarlos como dos tipos impide que una tarjeta dependa de un dato que el
+ * listado no le da.
+ */
+export type ActivitySummary = Omit<
+  Activity,
+  "cancelReason" | "checkedInCount" | "enrolledCount" | "equipment"
+>;
+
 export type ActivityCatalog = {
-  activities: Activity[];
+  activities: ActivitySummary[];
   classrooms: Classroom[];
   eventPrograms: EventProgram[];
   organizationalUnits: OrganizationalUnit[];
@@ -212,6 +227,7 @@ export type PublicActivity = {
   readonly program: PublicEventProgram;
   readonly speakers: readonly ActivitySpeaker[];
   readonly startTime: string;
+  readonly status: PublicActivityStatus;
   readonly type: ActivityType;
   readonly unit: PublicOrganizationalUnit;
 };

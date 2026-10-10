@@ -107,6 +107,8 @@ describe("createApiAuthAdapter", () => {
     );
     const request = fetcher.mock.calls[0]?.[1] as RequestInit;
     expect(new Headers(request.headers).get("Content-Type")).toBe("application/json");
+    // El login debe poder recibir la cookie HttpOnly que fija el backend.
+    expect(request.credentials).toBe("include");
     expect(readJsonBody(request)).toEqual({
       email: "admin@example.edu",
       password: "secret",
@@ -164,6 +166,8 @@ describe("createApiAuthAdapter", () => {
     const request = fetcher.mock.calls[0]?.[1] as RequestInit;
     expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/api/v1/auth/verify-email");
     expect(new Headers(request.headers).get("Content-Type")).toBe("application/json");
+    // Verificar el correo no depende de la cookie de sesion.
+    expect(request.credentials).toBe("omit");
     expect(readJsonBody(request)).toEqual({ token: "verify-token" });
   });
 
@@ -179,6 +183,7 @@ describe("createApiAuthAdapter", () => {
     expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/api/v1/auth/forgot-password");
     expect(new Headers(request.headers).get("Authorization")).toBeNull();
     expect(new Headers(request.headers).get("Content-Type")).toBe("application/json");
+    expect(request.credentials).toBe("omit");
     expect(readJsonBody(request)).toEqual({ email: "admin@example.edu" });
   });
 
@@ -193,6 +198,7 @@ describe("createApiAuthAdapter", () => {
     const request = fetcher.mock.calls[0]?.[1] as RequestInit;
     expect(fetcher.mock.calls[0]?.[0]).toBe("https://api.test/api/v1/auth/reset-password");
     expect(new Headers(request.headers).get("Authorization")).toBeNull();
+    expect(request.credentials).toBe("omit");
     expect(readJsonBody(request)).toEqual({
       newPassword: "Nueva clave 2026",
       token: "reset-token",

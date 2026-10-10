@@ -1,99 +1,87 @@
-import type { ActivityCatalogAccess, ActivityCatalogAdapter } from "@/app/adapters/contracts";
+import type { ActivityCatalogAdapter, EventProgramsAdapter } from "@/app/adapters/contracts";
 import {
   apiRequest,
   type ApiClientOptions,
   type ApiRequestAuth,
 } from "@/app/adapters/http/apiClient";
-import {
-  mapActivity,
-  mapActivityId,
-  mapEventProgram,
-  readEnvelopeData,
-  readPaginatedPage,
-} from "./activityCatalogMapper";
+import type { ActivitySummary } from "@/types/domain";
+
+import { readCatalogActivitiesPage } from "./activityCatalogMapper";
 
 const PAGE_LIMIT = 50;
 
 export type ApiActivityCatalogAdapterOptions = Pick<ApiClientOptions, "environment" | "fetcher">;
 
 type AccessTokenReader = () => string | null | undefined;
+type AuthReader = () => ApiRequestAuth;
 
-async function loadAllItems(
+/**
+ * El catalogo compuesto siempre es administrativo. Cada operacion lee el token en el momento de la
+ * peticion: si la sesion rota entre paginas, las siguientes usan el Bearer vigente y ninguna sale
+ * sin `Authorization`.
+ */
+function readBearerAuth(readAccessToken: AccessTokenReader): ApiRequestAuth {
+  return { accessToken: readAccessToken(), mode: "bearer" };
+}
+
+/**
+ * Recorre las paginas del listado de actividades de un programa y las proyecta al resumen del
+ * contrato. Nunca solicita `GET /api/v1/activities/{id}` por cada fila: el detalle se consulta al
+ * abrir una actividad.
+ */
+async function loadActivitySummaries(
   path: string,
   options: ApiActivityCatalogAdapterOptions,
-  auth: ApiRequestAuth,
-): Promise<unknown[]> {
-  const items: unknown[] = [];
+  readAuth: AuthReader,
+  extraParams?: Readonly<Record<string, string>>,
+): Promise<ActivitySummary[]> {
+  const extraQuery = extraParams ? `&${new URLSearchParams(extraParams).toString()}` : "";
+  const activities: ActivitySummary[] = [];
   let page = 1;
   let totalPages: number;
 
   do {
-    const payload = await apiRequest<unknown>(`${path}?page=${page}&limit=${PAGE_LIMIT}`, {
-      ...options,
-      auth,
-    });
-    const parsedPage = readPaginatedPage(payload, path);
+    const payload = await apiRequest<unknown>(
+      `${path}?page=${page}&limit=${PAGE_LIMIT}${extraQuery}`,
+      {
+        ...options,
+        auth: readAuth(),
+      },
+    );
+    const parsedPage = readCatalogActivitiesPage(payload, path);
 
-    items.push(...parsedPage.items);
+    activities.push(...parsedPage.items);
     totalPages = parsedPage.totalPages;
     page += 1;
   } while (page <= totalPages);
 
-  return items;
-}
-
-async function loadActivity(
-  activityId: string,
-  options: ApiActivityCatalogAdapterOptions,
-  auth: ApiRequestAuth,
-) {
-  const context = `activities/${activityId}`;
-  const payload = await apiRequest<unknown>(
-    `/api/v1/activities/${encodeURIComponent(activityId)}`,
-    { ...options, auth },
-  );
-
-  return mapActivity(readEnvelopeData(payload, context), context);
+  return activities;
 }
 
 export function createApiActivityCatalogAdapter(
+  programs: EventProgramsAdapter,
   options: ApiActivityCatalogAdapterOptions = {},
   readAccessToken: AccessTokenReader = () => null,
 ): ActivityCatalogAdapter {
   return {
-    async loadCatalog(access: ActivityCatalogAccess) {
-      const auth: ApiRequestAuth =
-        access === "administrative"
-          ? { accessToken: readAccessToken(), mode: "bearer" }
-          : { mode: "none" };
-      const programPayloads = await loadAllItems("/api/v1/event-programs", options, auth);
-
-      const eventPrograms = programPayloads.map((program, index) =>
-        mapEventProgram(program, `eventPrograms[${index}]`),
-      );
-
-      // El detalle por actividad es necesario porque solo ActivityDetail
-      // (GET /api/v1/activities/{id}) expone equipment, enrolledCount, checkedInCount y
-      // cancelReason; ActivityListItem y EventProgramActivityItem los omiten.
-      const activityIdLists = await Promise.all(
-        eventPrograms.map(async (program) => {
-          const items = await loadAllItems(
+    async loadCatalog(mode = "active-programs") {
+      const allPrograms = mode === "all-programs";
+      const eventPrograms = allPrograms
+        ? await programs.loadEventPrograms("administrative", "ALL")
+        : await programs.loadEventPrograms("administrative");
+      const readAuth: AuthReader = () => readBearerAuth(readAccessToken);
+      const activityPages = await Promise.all(
+        eventPrograms.map((program) =>
+          loadActivitySummaries(
             `/api/v1/event-programs/${encodeURIComponent(program.id)}/activities`,
             options,
-            auth,
-          );
-
-          return items.map((item, index) =>
-            mapActivityId(item, `eventPrograms[${program.id}].activities[${index}]`),
-          );
-        }),
+            readAuth,
+            allPrograms ? { status: "ALL" } : undefined,
+          ),
+        ),
       );
 
-      const activities = await Promise.all(
-        activityIdLists.flat().map((activityId) => loadActivity(activityId, options, auth)),
-      );
-
-      return { activities, eventPrograms };
+      return { activities: activityPages.flat(), eventPrograms };
     },
   };
 }

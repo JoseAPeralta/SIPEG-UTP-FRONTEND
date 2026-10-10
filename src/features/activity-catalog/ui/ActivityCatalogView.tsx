@@ -40,9 +40,9 @@ export function ActivityCatalogView() {
             />
             <MetricCard
               appearance="summary"
-              detail="Inscripciones acumuladas."
+              detail="El listado no incluye un total de inscripciones; el detalle si lo expone."
               label="personas registradas"
-              value={String(page.summary?.enrolledCount ?? 0)}
+              value={String(page.summary?.enrolledCount ?? "No disponible")}
             />
             <MetricCard
               appearance="summary"

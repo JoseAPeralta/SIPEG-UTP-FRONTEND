@@ -2,25 +2,31 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect } from "storybook/test";
 
-import type { Classroom } from "@/types/domain";
-import { createClassroom } from "@/test/factories";
-
 import type { AvailableClassroomsCriteria } from "../model/availableClassrooms";
-import { ClassroomAvailabilitySelector } from "./ClassroomAvailabilitySelector";
+import {
+  ClassroomAvailabilitySelector,
+  type ClassroomSelection,
+} from "./ClassroomAvailabilitySelector";
 
 type SelectorStoryProps = {
+  assignedClassroom?: { id: string; name: string } | null;
   criteria: AvailableClassroomsCriteria;
-  selectedClassroom?: Classroom | null;
+  selected?: ClassroomSelection | null;
 };
 
-function SelectorStory({ criteria, selectedClassroom = null }: SelectorStoryProps) {
-  const [selected, setSelected] = useState(selectedClassroom);
+function SelectorStory({
+  assignedClassroom = null,
+  criteria,
+  selected = null,
+}: SelectorStoryProps) {
+  const [selection, setSelection] = useState(selected);
 
   return (
     <ClassroomAvailabilitySelector
+      assignedClassroom={assignedClassroom}
       criteria={criteria}
-      onSelectionChange={setSelected}
-      selectedClassroom={selected}
+      onSelectionChange={setSelection}
+      selected={selection}
     />
   );
 }
@@ -74,15 +80,7 @@ export const WithoutAvailableClassrooms: Story = {
 export const SelectedClassroomUnavailable: Story = {
   args: {
     criteria: { date: "2026-07-09", endTime: "09:30", startTime: "09:00" },
-    selectedClassroom: createClassroom({
-      amenities: ["tables", "whiteboard"],
-      building: "Edificio de Aulas",
-      capacity: 48,
-      floor: 1,
-      id: "aula-10",
-      name: "Aula 10B",
-      type: "CLASSROOM",
-    }),
+    selected: { id: "aula-10", label: "Aula 10B · Aula · 48 personas · Mesas, Pizarra" },
   },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Consultar aulas" }));
@@ -90,5 +88,24 @@ export const SelectedClassroomUnavailable: Story = {
     await expect(await canvas.findByRole("alert")).toHaveTextContent(
       "El aula seleccionada ya no está disponible para estos criterios.",
     );
+  },
+};
+
+export const AssignedClassroomKept: Story = {
+  args: {
+    assignedClassroom: { id: "aula-10", name: "Aula 10B" },
+    criteria: { date: "2026-07-09", endTime: "09:30", startTime: "09:00" },
+    selected: { id: "aula-10", label: "Aula 10B · Aula asignada; se validará al guardar" },
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Consultar aulas" }));
+
+    await expect(
+      await canvas.findByText("No hay aulas disponibles para estos criterios"),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("option", { name: /aula 10b.*asignada; se validará al guardar/i }),
+    ).toBeVisible();
+    await expect(canvas.queryByRole("alert")).toBeNull();
   },
 };

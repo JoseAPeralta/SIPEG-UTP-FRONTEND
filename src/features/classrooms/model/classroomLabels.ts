@@ -2,6 +2,7 @@ import type { ClassroomType } from "@/types/domain";
 
 export const classroomTypeLabels: Record<ClassroomType, string> = {
   CLASSROOM: "Aula",
+  CONFERENCE_ROOM: "Sala de conferencias",
   LABORATORY: "Laboratorio",
 };
 

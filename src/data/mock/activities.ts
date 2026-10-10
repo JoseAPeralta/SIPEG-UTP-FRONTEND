@@ -598,4 +598,37 @@ export const activities: Activity[] = [
     startTime: "09:30",
     type: "CONFERENCE",
   }),
+
+  createActivity({
+    classroomId: "auditorium-01",
+    date: "2026-10-06",
+    description:
+      "Jornada en curso sobre acompanamiento academico, tutoria entre pares y seguimiento de estudiantes de nuevo ingreso.",
+    endTime: "12:30",
+    equipment: ["Audio", "Proyector"],
+    id: "activity-academic-support-ongoing",
+    name: "Acompanamiento academico en curso",
+    eventProgramId: "program-fisc-default",
+    enrolledCount: 86,
+    speakers: [speakers.sofia],
+    startTime: "09:00",
+    status: "ONGOING",
+    type: "SEMINAR",
+  }),
+  createActivity({
+    classroomId: "aula-10",
+    date: "2026-09-30",
+    description:
+      "Taller finalizado sobre redaccion de informes tecnicos, citas y presentacion de resultados de laboratorio.",
+    endTime: "16:00",
+    equipment: ["Pizarra", "Proyector"],
+    id: "activity-technical-writing-completed",
+    name: "Redaccion de informes tecnicos",
+    eventProgramId: "program-fic-default",
+    enrolledCount: 43,
+    speakers: [speakers.isabel],
+    startTime: "14:00",
+    status: "COMPLETED",
+    type: "WORKSHOP",
+  }),
 ];

@@ -54,7 +54,7 @@ export function EventProgramCard({ isSelected = false, onSelect, summary }: Even
               Inscritos
             </Text>
             <Text color="text.default" fontSize="xl" fontWeight="800">
-              {enrolledCount}
+              {enrolledCount ?? "No disponible"}
             </Text>
           </Box>
         </HStack>

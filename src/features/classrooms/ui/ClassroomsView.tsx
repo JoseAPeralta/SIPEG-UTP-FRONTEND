@@ -120,6 +120,7 @@ export function ClassroomsView() {
                   <option value="">Todos</option>
                   <option value="CLASSROOM">Aula</option>
                   <option value="LABORATORY">Laboratorio</option>
+                  <option value="CONFERENCE_ROOM">Sala de conferencias</option>
                 </NativeSelect.Field>
               </NativeSelect.Root>
             </Field.Root>

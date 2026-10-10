@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 
+import type { ActivitySummary } from "@/types/domain";
+
 import { useOperations } from "@/features/operations";
 import { useWorkingContext } from "@/features/working-context";
 
@@ -8,14 +10,24 @@ import {
   countGeneratedCertificates,
   filterAttendanceByScope,
   filterCertificatesByScope,
-  sumEnrolledCount,
 } from "../model/scopeMetrics";
+
+export type ReportsOverviewReport = {
+  activities: ActivitySummary[];
+  confirmedAttendanceCount: number;
+  /**
+   * `null` mientras el listado no publique un total agregado: sumarlo exigiria una peticion de
+   * detalle por actividad, que 5.9 elimino del catalogo.
+   */
+  enrolledCount: number | null;
+  generatedCertificatesCount: number;
+};
 
 export function useReportsOverview() {
   const { catalog, error: catalogError, isLoading: isCatalogLoading, scope } = useWorkingContext();
   const { error: operationsError, isLoading: isOperationsLoading, operations } = useOperations();
 
-  const report = useMemo(() => {
+  const report = useMemo<ReportsOverviewReport | null>(() => {
     if (!catalog || !operations || !scope) {
       return null;
     }
@@ -31,7 +43,7 @@ export function useReportsOverview() {
     return {
       activities,
       confirmedAttendanceCount: countConfirmedAttendance(attendanceRecords),
-      enrolledCount: sumEnrolledCount(activities),
+      enrolledCount: null,
       generatedCertificatesCount: countGeneratedCertificates(certificates),
     };
   }, [catalog, operations, scope]);

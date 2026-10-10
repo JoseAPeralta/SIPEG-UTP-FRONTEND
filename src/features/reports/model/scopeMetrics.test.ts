@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createActivity, createAttendanceRecord, createCertificate } from "@/test/factories";
+import { createAttendanceRecord, createCertificate } from "@/test/factories";
 
 import {
   countConfirmedAttendance,
@@ -10,7 +10,6 @@ import {
   countQrAttendance,
   filterAttendanceByScope,
   filterCertificatesByScope,
-  sumEnrolledCount,
 } from "./scopeMetrics";
 
 describe("filterAttendanceByScope", () => {
@@ -79,20 +78,5 @@ describe("countGeneratedCertificates", () => {
     ];
 
     expect(countGeneratedCertificates(certificates)).toBe(1);
-  });
-});
-
-describe("sumEnrolledCount", () => {
-  it("should add the enrolled count of every activity", () => {
-    const activities = [
-      createActivity({ enrolledCount: 10, id: "activity-1" }),
-      createActivity({ enrolledCount: 32, id: "activity-2" }),
-    ];
-
-    expect(sumEnrolledCount(activities)).toBe(42);
-  });
-
-  it("should return zero for an empty list", () => {
-    expect(sumEnrolledCount([])).toBe(0);
   });
 });

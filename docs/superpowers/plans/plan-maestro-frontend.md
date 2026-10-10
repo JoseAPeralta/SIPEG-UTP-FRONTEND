@@ -31,24 +31,24 @@ La identidad recomendada es **SIPEG como producto independiente configurado para
 
 ## Estado actual
 
-| Area                                                         | Estado frontend                                                                                                                                                                                                          | Disponibilidad backend                                      |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                                                                                                                                            | Disponible                                                  |
-| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                                                                                                                                        | Completo                                                    |
-| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                                                                                                                                               | Completo                                                    |
-| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                                                                                                                                         | Completo                                                    |
-| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                                                                                                                                   | No aplica                                                   |
-| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                                                                                                                                      | Completo                                                    |
-| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                                                                                                                                        | Completo                                                    |
-| Permisos y colaboradores                                     | Scopes, guards, gestión local, herencia, overrides, invalidación y cobertura horizontal integrados (3.3–3.10); historial de vencidos pendiente por contrato                                                              | Completo para operaciones integradas; historial no expuesto |
-| Programas                                                    | Lectura integrada; CRUD y ciclo de vida pendientes                                                                                                                                                                       | Completo                                                    |
-| Actividades                                                  | Catalogo integrado mediante fan-out; mutaciones pendientes                                                                                                                                                               | 5.1-5.3 disponibles; 5.4-5.8 pendientes                     |
-| Archivos y alertas                                           | Alertas: listado privado (7.1), indicador global (7.2), bandeja personal en `/perfil/alertas` (7.3), marcado de leídas (7.4), política de refresco por eventos (7.5) y limpieza por identidad (7.6); archivos pendientes | Pendiente (archivos)                                        |
-| Propuestas de ponentes                                       | Shell mock                                                                                                                                                                                                               | Pendiente                                                   |
-| Inscripcion y asistencia                                     | Shell mock                                                                                                                                                                                                               | Pendiente                                                   |
-| Certificados                                                 | Shell mock                                                                                                                                                                                                               | Pendiente                                                   |
-| Reportes y exportaciones                                     | Shell mock                                                                                                                                                                                                               | Pendiente                                                   |
-| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                                                                                                                                                | No aplica                                                   |
+| Area                                                         | Estado frontend                                                                                                                                                                                                                                                                            | Disponibilidad backend                                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| Base tecnica, tema, PWA, Docker, adapters, Query y Storybook | Implementada; falta registrar baseline actual                                                                                                                                                                                                                                              | Disponible                                                  |
+| Registro, verificacion, login, refresh y logout              | Integrado con API                                                                                                                                                                                                                                                                          | Completo                                                    |
+| Perfil, recuperacion y cambio de contrasena                  | Integrada en 1.4, 1.5 y 1.6; area personal ampliada en 1.7                                                                                                                                                                                                                                 | Completo                                                    |
+| Estados de cuenta y fallos de sesion                         | Integrada en 1.8                                                                                                                                                                                                                                                                           | Completo                                                    |
+| Submenu del area personal                                    | Implementada en 1.9 con marco comun, cuatro rutas y submenu responsive                                                                                                                                                                                                                     | No aplica                                                   |
+| Administracion de usuarios                                   | Lectura integrada en 3.1; CRUD, filtros y detalle pendientes en 3.2                                                                                                                                                                                                                        | Completo                                                    |
+| Unidades, carreras y aulas                                   | Unidades con lectura; carreras y aulas administradas en 2.3 y 2.4                                                                                                                                                                                                                          | Completo                                                    |
+| Permisos y colaboradores                                     | Scopes, guards, gestión local, herencia, overrides, invalidación y cobertura horizontal integrados (3.3–3.10); historial de vencidos pendiente por contrato                                                                                                                                | Completo para operaciones integradas; historial no expuesto |
+| Programas                                                    | Módulo y lectura administrativa en 4.1; listado filtrado y paginado en 4.2; creación en 4.3; edición, ciclo de vida y agenda permanente en 4.4–4.6; colaboradores por programa en 4.7; contexto de trabajo con programas legibles en 4.8 y cobertura de formularios y ciclo de vida en 4.9 | Completo                                                    |
+| Actividades                                                  | Catalogo integrado; administracion, ciclo de vida, eliminacion, bloqueo de notificacion, resumenes con detalle bajo demanda y publicacion/privacidad por identidad implementados y verificados (baselines, inventario y `check` verdes)                                                    | 5.1-5.11 completadas                                        |
+| Archivos y alertas                                           | Alertas: listado privado (7.1), indicador global (7.2), bandeja personal en `/perfil/alertas` (7.3), marcado de leídas (7.4), política de refresco por eventos (7.5) y limpieza por identidad (7.6); archivos pendientes                                                                   | Pendiente (archivos)                                        |
+| Propuestas de ponentes                                       | Shell mock                                                                                                                                                                                                                                                                                 | Pendiente                                                   |
+| Inscripcion y asistencia                                     | Shell mock                                                                                                                                                                                                                                                                                 | Pendiente                                                   |
+| Certificados                                                 | Shell mock                                                                                                                                                                                                                                                                                 | Pendiente                                                   |
+| Reportes y exportaciones                                     | Shell mock                                                                                                                                                                                                                                                                                 | Pendiente                                                   |
+| Accesibilidad y pruebas visuales                             | Infraestructura existente; cobertura funcional incompleta                                                                                                                                                                                                                                  | No aplica                                                   |
 
 El contrato OpenAPI vivo no estuvo disponible al redactar este plan. El estado backend se obtuvo de su plan maestro y codigo actual; cada fase debe reconfirmarlo mediante la CLI antes de implementarse.
 
@@ -817,17 +817,168 @@ Evidencia y cierre de Fase 3.10: `docs/superpowers/plans/2026-10-05-fase-3.10-au
 
 **Entregable:** ciclo administrativo completo de `EventProgram`.
 
-- [ ] **4.1 Crear modulo de administracion.** Separar el CRUD de programas de la composicion publica `activity-catalog`. Prueba: catalogo y formularios no dependen entre si.
-- [ ] **4.2 Listar por estado.** Anadir busqueda, unidad, estado, fechas y paginacion administrativa. Prueba: ADMIN o colaborador autorizado puede consultar borradores y archivados sin contaminar la cache publica.
-- [ ] **4.3 Crear programas adicionales.** Capturar nombre, descripcion, fechas, etiqueta y banner cuando Fase 6 este disponible. Prueba: rango invalido y unidad inactiva se informan antes y despues del envio.
-- [ ] **4.4 Editar y publicar.** Respetar campos inmutables y transicion `DRAFT -> ACTIVE`. Prueba: un archivado no muestra acciones de edicion.
-- [ ] **4.5 Archivar y reactivar.** Usar acciones explicitas, nunca `DELETE`. Prueba: programas default y programas con actividades activas presentan el `409` correctamente.
-- [ ] **4.6 Tratar el programa predeterminado.** Mostrarlo como agenda permanente, sin fechas ni controles incompatibles. Prueba: la UI no permite archivarlo mientras la unidad este activa.
-- [ ] **4.7 Integrar colaboradores.** Incluir la experiencia de Fase 3 en el detalle del programa.
-- [ ] **4.8 Integrar contexto de trabajo.** Seleccionar programas legibles y limpiar una seleccion que deje de ser accesible.
-- [ ] **4.9 Probar formularios y ciclo de vida.** Cubrir movil, teclado, confirmaciones y errores concurrentes.
+- [x] **4.1 Crear modulo de administracion.** Separar el CRUD de programas de la composicion publica `activity-catalog`. Prueba: catalogo y formularios no dependen entre si. Frontera propia de lectura, mapper, adapters API/mock y consulta administrativa; formularios y mutaciones se incorporan en 4.3–4.6.
+- [x] **4.2 Listar por estado.** Anadir busqueda, unidad, estado, fechas y paginacion administrativa. Prueba: ADMIN o colaborador autorizado puede consultar borradores y archivados sin contaminar la cache publica.
+  - Precision contractual aprobada: el GET solo honra estados no publicos para ADMIN; los colaboradores conservan `/operaciones`, y el contrato no admite filtros por fecha, asi que las fechas se muestran y el filtro queda pendiente. Evidencia: `2026-10-06-fase-4.2-listado-programas.md`.
+- [x] **4.3 Crear programas adicionales.** Capturar nombre, descripcion, fechas, etiqueta y banner cuando Fase 6 este disponible. Prueba: rango invalido y unidad inactiva se informan antes y despues del envio.
+  - El banner queda para Fase 6, como ya advertia el punto; el resto del alta se integro en `/admin/programas` con validacion local y explicacion conjunta del `400` contractual. Evidencia: `2026-10-06-fase-4.3-creacion-programas.md`.
+- [x] **4.4 Editar y publicar.** Respetar campos inmutables y transicion `DRAFT -> ACTIVE`. Prueba: un archivado no muestra acciones de edicion.
+- [x] **4.5 Archivar y reactivar.** Usar acciones explicitas, nunca `DELETE`. Prueba: programas default y programas con actividades activas presentan el `409` correctamente.
+- [x] **4.6 Tratar el programa predeterminado.** Mostrarlo como agenda permanente, sin fechas ni controles incompatibles. Prueba: la UI no permite archivarlo mientras la unidad este activa.
+- [x] **4.7 Integrar colaboradores.** Incluir la experiencia de Fase 3 en el detalle del programa.
+- [x] **4.8 Integrar contexto de trabajo.** Seleccionar programas legibles y limpiar una seleccion que deje de ser accesible.
+- [x] **4.9 Probar formularios y ciclo de vida.** Cubrir movil, teclado, confirmaciones y errores concurrentes.
 
 **Criterio de salida:** se puede crear, publicar, editar, archivar y reactivar programas respetando unidad, permisos y programa predeterminado.
+
+Evidencia y alcance de Fase 4.1: `docs/superpowers/plans/2026-10-06-fase-4.1-modulo-programas.md`.
+
+- `EventProgramsAdapter` y `features/event-programs` son independientes de `activity-catalog`;
+  ambos composition roots inyectan el puerto en el catálogo, diferido en navegador.
+- `useEventPrograms` lee programas sin cargar actividades, aulas ni unidades; su clave administrativa
+  está ligada a la identidad y nunca se persiste. R8 reserva el listado de programas y R12 impide
+  depender del catálogo desde la administración de programas.
+- GET de programas verificado contra OpenAPI vivo; filtros y UI quedan en 4.2. La agenda pública
+  conserva su puerto de actividades de una sola petición.
+- Cierre: `verify:quick` y `check` verdes (1.311 pruebas, build, Storybook con 172 comparaciones
+  visuales/axe e inventario); `api:mocks-check` verde con 310 verificaciones en 47 operaciones.
+
+Evidencia y alcance de Fase 4.2: `docs/superpowers/plans/2026-10-06-fase-4.2-listado-programas.md`.
+
+- `/admin/programas` compone busqueda, unidad, estado y paginacion del servidor mediante
+  `loadEventProgramsPage`; `useEventProgramsPage` liga identidad, filtros y pagina en claves privadas
+  que nunca se persisten y no contaminan la cache publica.
+- Precision contractual aprobada: el GET solo honra estados no publicos para ADMIN, de modo que la
+  pantalla es exclusiva de ese rol y los colaboradores conservan `/operaciones`; OpenAPI no admite
+  filtros por fecha, asi que las fechas se muestran y el filtro queda pendiente.
+- La unidad viaja embebida en cada resultado; el catalogo de unidades solo puebla el filtro y su
+  fallo no oculta el listado. El fixture gano un borrador y un archivado para demostrar todos los
+  estados sin alterar la lectura publica, que sigue filtrando ACTIVE.
+- Cierre: `verify:quick` verde (1.341 pruebas), `api:mocks-check` verde (310 verificaciones) y `check`
+  verde con build, 175 pruebas de interaccion, 175 comparaciones visuales/axe e inventario.
+
+Evidencia y alcance de Fase 4.3: `docs/superpowers/plans/2026-10-06-fase-4.3-creacion-programas.md`.
+
+- `POST /api/v1/event-programs` exige `program:create`; sin scope de colaboracion, solo ADMIN, de modo
+  que la accion vive en `/admin/programas` y el backend conserva la autoridad final. El programa nace
+  como borrador no predeterminado para una unidad activa.
+- La validacion local cubre nombre, limites de texto, fechas reales y rango, y que la unidad siga
+  activa; el contrato no distingue con codigos un rango invalido de una unidad inactiva, asi que el
+  `400` ofrece una explicacion conjunta. El adapter reconstruye el body con allowlist y el exito
+  invalida por prefijo todas las paginas del listado.
+- `CreateEventProgramForm` es el primer formulario del modulo, con story, axe y baseline propios; el
+  mock pasa a tener coleccion por instancia y consulta las unidades de su misma composicion para
+  reproducir el rechazo de una unidad desactivada.
+- Hallazgo de accesibilidad en el boton de envio: con `loading`, el texto se oculta y axe detectaba
+  `button-name`. Se corrigio con `loadingText`, que mantiene el nombre accesible durante el envio.
+- Puertas: `api:mocks-check` verde (321 verificaciones en 48 operaciones); `verify:quick` verde
+  (198 archivos, 1.389 pruebas); `check` verde con build, 180 pruebas de interaccion, 180
+  comparaciones visuales/axe e inventario (48 componentes).
+
+Evidencia y alcance de Fases 4.4–4.6: `docs/superpowers/plans/2026-10-06-fase-4.4-4.6-ciclo-vida-programas.md`.
+
+- **Panel, no ruta de detalle:** `GET /api/v1/event-programs/{id}` solo devuelve programas activos y
+  responde `404` a borradores y archivados, incluso con Bearer de ADMIN. La edicion y el ciclo de vida
+  usan el registro ya validado del listado, de modo que no se pierde ningun estado y no se inventa una
+  operacion de detalle administrativa.
+- **Contrato verificado:** `PATCH /api/v1/event-programs/{id}` (Bearer; `status` solo `const ACTIVE`,
+  unica transicion `DRAFT -> ACTIVE`), `POST .../archive` y `POST .../reactivate` (Bearer). El
+  `DELETE` del contrato solo declara que no esta permitido: la UI nunca lo ofrece.
+- **Matriz de acciones por programa:** un archivado solo se reactiva; un borrador se edita, publica o
+  archiva; un adicional activo, completado o cancelado se edita o archiva; la agenda permanente se
+  edita sin fechas y dirige su ciclo de vida a la unidad. Un archivado no muestra edicion y el
+  predeterminado no muestra archivo ni reactivacion directa.
+- **Request con allowlist:** `UpdateEventProgramRequest` omite unidad, `isDefault` y cualquier
+  propiedad inyectada; la validacion de edicion exige fechas reales y rango solo para adicionales y
+  omite las fechas de la agenda permanente por completo.
+- **Invalidacion precisa:** cada exito refresca por prefijo las paginas administrativas de programas,
+  el catalogo administrativo y la agenda publica; un cambio de la agenda permanente refresca ademas
+  el detalle de su unidad en ambas fronteras. Los cambios de unidad (crear, desactivar, reactivar)
+  refrescan ahora el listado independiente de programas, porque alteran su agenda permanente.
+- **Fallo `conflict` nuevo:** el `409` deja de ser `unknown`; archivo y publicacion explican la
+  restriccion aplicable sin distinguir causas que el contrato no separa y sin mostrar el mensaje del
+  backend.
+- **Mock determinista:** una semilla (`eventProgramsWithRunningActivities`) reproduce el `409` de
+  actividades sin terminar sin depender de la fecha de ejecucion; el mock valida ademas que las
+  fechas no dejen actividades fuera del rango, que la agenda permanente no reciba fechas y que la
+  publicacion solo ocurra desde borrador.
+- **Accesibilidad:** la confirmacion usa `role="group"` con etiqueta que nombra la accion y el
+  programa, el foco vuelve al control de apertura al cancelar y al listado al completar; las tarjetas
+  son `article` con el nombre del programa como etiqueta. `EditEventProgramForm` conserva el nombre
+  accesible durante el envio con `loadingText`.
+- **Aislamiento de stories:** el runner completo de Storybook reutiliza el adapter mock del `preview`
+  entre stories del mismo archivo; la story de edicion renombraba el programa que la de archivo
+  buscaba y ambas fallaban solo en la corrida completa. La edicion paso a un programa que ninguna
+  otra story referencia y la agenda permanente espera la lista con `findByRole`.
+- **Puertas:** `pnpm run check` verde (format, lint, suite Vitest, build, 204 stories con `play`, axe y
+  comparacion visual, e inventario) y `api:mocks-check` verde (356 verificaciones en 51 operaciones).
+
+Evidencia y alcance de Fases 4.7–4.8: `docs/superpowers/plans/2026-10-06-fase-4.7-colaboradores-programas.md`
+y `docs/superpowers/plans/2026-10-06-fase-4.8-contexto-programas.md`.
+
+- **Colaboradores en el panel:** cada tarjeta de `/admin/programas` ofrece «Colaboradores» y compone
+  `CollaboratorsView` sobre el registro validado del listado; el detalle contractual solo devuelve
+  programas activos, así que no se creó una ruta de detalle administrativa.
+- **Archivados consultables:** `CollaboratorsView` acepta `readOnly`, conserva la lista y los
+  permisos efectivos y retira toda acción de modificación; un `409` recupera releyendo colaboradores
+  y el listado de programas (`onRefreshContext`), conservando lo escrito.
+- **Mocks con estado compartido:** `MockEventProgramRegistry` conecta programas y colaboradores por
+  instancia de composición, de modo que crear, archivar y reactivar se reflejan en la colaboración
+  y en el descubrimiento de scopes; el registro se comparte también en la composición diferida.
+- **Contexto con programas legibles:** `ActivityCatalogAdapter.loadCatalog("all-programs")` recorre
+  programas y actividades con `status=ALL`, y las unidades se unen activas + inactivas (`isActive=all`
+  para aulas). La modalidad vive bajo claves propias por identidad que los prefijos de invalidación
+  existentes alcanzan y nunca se persisten.
+- **Reconciliación:** una lectura completa, concluida y sin error retira una selección confirmada
+  como ausente y la anuncia; durante carga, refresco o fallo la selección se conserva y no se
+  presenta como vigente. Un programa archivado legible mantiene su selección.
+- **Selección desde el listado:** «Usar como contexto» y la insignia «Contexto seleccionado» en las
+  tarjetas; el selector ofrece todos los programas legibles con su estado en español, y muestra
+  error con reintento.
+- **Pérdida de acceso operativo:** un contexto previamente autorizado que desaparece del
+  descubrimiento navega con `replace` a `/operaciones` con un anuncio; un error de red no se
+  confunde con pérdida confirmada y el acceso directo no autorizado conserva su guard.
+- **Puertas:** `pnpm run check` verde (format, lint, 1.626 pruebas, build, 211 stories con `play`,
+  axe y comparación visual, e inventario) y `api:mocks-check` verde (356 verificaciones en 51
+  operaciones).
+
+Evidencia y alcance de Fase 4.9: `docs/superpowers/plans/2026-10-06-fase-4.9-pruebas-programas.md`.
+
+- **Un solo panel y una sola petición:** `EventProgramsView` cierra la edición, la confirmación o los
+  colaboradores al abrir el alta, y deshabilita las acciones de tarjeta y «Nuevo programa» mientras
+  hay una creación o mutación pendiente. Lo fija una prueba de concurrencia con promesas controladas
+  que además confirma una única petición por acción y la vuelta a la normalidad tras el rechazo.
+- **Teclado y errores asociados:** el alta recibe el foco en «Nombre» al montarse, `Tab` recorre los
+  seis campos y los dos botones, `Enter` envía y cada campo inválido expone `aria-invalid` con su
+  mensaje accesible. La edición ya partía de esa base y conserva su mensaje honesto.
+- **Conflicto concurrente:** el `409` de edición ya no atribuye siempre el conflicto a las fechas:
+  nombra también el archivo por otra persona. Tras `conflict` o `notFound`, el formulario y la
+  confirmación ofrecen «Actualizar listado»; la lectura no repite la mutación, conserva lo escrito y
+  la fila refrescada ajusta sus acciones (un programa ahora archivado solo ofrece «Reactivar»).
+- **Recorrido completo:** una prueba de ciclo de vida con el mock de estado compartido recorre alta
+  como borrador, edición, publicación, archivo y reactivación sobre el mismo programa, observando
+  insignias, acciones, anuncios y foco. La agenda permanente se confirma sin archivo ni reactivación.
+- **Stories aisladas:** `EventProgramsView` monta su propia composición mock y su cliente Query por
+  story (`EventProgramsStoryProviders`), lo que elimina el estado compartido entre stories; se
+  añadieron `ConfirmingByKeyboard`, `ConflictRecovery` y `LifecycleFlow` y se retiró la edición
+  defensiva que evitaba pisar a otra story.
+- **Prueba de navegador:** `.storybook/event-programs.browser.ts` se ejecuta dentro de la puerta de
+  Storybook solo cuando la corrida incluye stories de programas. Cubre `Enter` real sobre el alta con
+  foco en «Nombre», reflujo a 320 px sin desbordamiento en alta y confirmación, objetivos táctiles de
+  24 x 24 px (AA) y axe sobre la confirmación móvil, incluido su hover.
+- **Hallazgo de contraste, corregido:** el hover `solid/90` de Chakra bajaba el texto blanco de los
+  botones sólidos por debajo de AA sobre superficies claras (el rojo de archivo medía ~4.3:1). El tema
+  usa ahora la escala 600 opaca, que coincide con el hover documentado en `DESIGN.md`; la confirmación
+  de reactivación pasó al verde `success` del tema, que mantiene AA. El axe del navegador audita el
+  hover a propósito para que no vuelva a pasar inadvertido.
+- **Defecto de arnés corregido:** `run-storybook-tests.mjs` terminaba el `pnpm` padre pero dejaba vivo
+  al `http-server` nieto, ocupando el puerto 6007 para la corrida siguiente. El servidor se lanza en
+  su propio grupo de procesos y se termina el grupo completo; tres corridas seguidas dejan el puerto
+  libre. `pnpm run test:harness` sigue verde.
+- **Puertas:** `pnpm run verify:quick` verde (212 archivos, 1.639 pruebas) y `pnpm run check` verde
+  (format, lint, suite, build, 214 stories + 3 pruebas de navegador con `play`, axe y comparación
+  visual, e inventario). Se regeneraron deliberadamente los baselines de `CreateEventProgramForm` y
+  `EditEventProgramForm` «Rejected By Server» tras revisar el preview.
 
 ---
 
@@ -837,19 +988,39 @@ Evidencia y cierre de Fase 3.10: `docs/superpowers/plans/2026-10-05-fase-3.10-au
 
 **Entregable:** descubrimiento publico y administracion completa de `Activity`.
 
-- [ ] **5.1 Separar lectura publica y administrativa.** El adapter publico no enviara credenciales; el administrativo usara filtros y permisos. Prueba: borradores y canceladas nunca llegan a la vista anonima.
-- [ ] **5.2 Corregir el catalogo publico.** Mostrar proximas, disponibles y pasadas; filtrar por unidad, tipo de unidad, programa y tipo de actividad; priorizar la unidad seleccionada. Prueba: filtros combinan con logica AND y la paginacion vuelve a pagina uno.
-- [ ] **5.3 Crear detalle publico.** Mostrar programa, unidad, ponentes, aula, horario, cupo y estado. Prueba: un ID no publicable responde con estado vacio o 404, no con datos administrativos.
-- [ ] **5.4 Crear administracion de actividades.** Anadir listado, detalle y formulario para nombre, tipo, descripcion, ponentes, aula, fecha, horas, capacidad, equipo y banner.
-- [ ] **5.5 Integrar disponibilidad.** El selector de aula debe considerar horario, capacidad y amenidades. Prueba: conflictos `409` conservan datos del formulario para corregirlos.
-- [ ] **5.6 Publicar, despublicar y cancelar.** Presentar solo transiciones admitidas y solicitar motivo de cancelacion cuando corresponda. Prueba: `COMPLETED` y `CANCELLED` no ofrecen edicion invalida.
-- [ ] **5.7 Bloquear eliminacion hasta contrato.** No exponer `DELETE` antes de que la Fase 5.4 backend publique la regla de retencion.
-- [ ] **5.8 Bloquear notificacion ficticia.** No mostrar `notifyAttendees` hasta que el backend defina campo, obligatoriedad y resultado.
-- [ ] **5.9 Reducir fan-out.** Usar listados paginados para tarjetas y solicitar detalle solo al abrir una actividad. Prueba: cargar el catalogo no produce una peticion adicional por actividad.
-- [ ] **5.10 Invalidar vistas relacionadas.** Mutaciones actualizan programa, catalogo publico, administrativo, dashboard, aulas y contexto.
-- [ ] **5.11 Cubrir publicacion y privacidad.** Probar acceso anonimo, ADMIN y colaborador a los distintos estados.
+- [x] **5.1 Separar lectura publica y administrativa.** El adapter publico no enviara credenciales; el administrativo usara filtros y permisos. Prueba: borradores y canceladas nunca llegan a la vista anonima.
+  - Evidencia: `2026-10-06-fase-5.1-lecturas-actividades.md`. ADR-0015 (politica de credenciales), `PublicActivityStatus` validado, catalogo compuesto solo administrativo y R13. Deuda previa: 2 stories `play` de programas (4.4–4.6) fallan y bloquean `check`.
+- [x] **5.2 Corregir el catalogo publico.** Mostrar proximas, disponibles y pasadas; filtrar por unidad, tipo de unidad, programa y tipo de actividad; priorizar la unidad seleccionada. Prueba: filtros combinan con logica AND y la paginacion vuelve a pagina uno.
+  - Evidencia: `2026-10-06-fase-5.2-catalogo-publico.md`. `when=all`, periodo/busqueda/programa/tipo de unidad, prioridad sin exclusion, badge de estado y baselines regenerados.
+- [x] **5.3 Crear detalle publico.** Mostrar programa, unidad, ponentes, aula, horario, cupo y estado. Prueba: un ID no publicable responde con estado vacio o 404, no con datos administrativos.
+  - Evidencia: `2026-10-06-fase-5.3-detalle-publico.md`. Ruta `/actividades/:activityId`, `getPublicActivity` sin credenciales con `404 -> null`, canceladas con aviso y motivo, y detalle fuera de la persistencia offline.
+- [x] **5.4 Crear administracion de actividades.** Anadir listado, detalle y formulario para nombre, tipo, descripcion, ponentes, aula, fecha, horas, capacidad, equipo y banner.
+- [x] **5.5 Integrar disponibilidad.** El selector de aula debe considerar horario, capacidad y amenidades. Prueba: conflictos `409` conservan datos del formulario para corregirlos.
+- [x] **5.6 Publicar, despublicar y cancelar.** Presentar solo transiciones admitidas y solicitar motivo de cancelacion cuando corresponda. Prueba: `COMPLETED` y `CANCELLED` no ofrecen edicion invalida.
+  - Evidencia: `2026-10-08-fase-5.6-ciclo-vida-actividades.md`. Modelo de transiciones y motivo opcional (`model/activityLifecycle`, limite 500 e idempotencia), `cancelActivity` en puerto y adapters, `canCancel`, mocks que comparten registro, `useActivityMutations` (`publish`/`unpublish`/`cancel`, invalidacion completa) y `ActivityLifecycleConfirmation` integrada en el detalle con panel unico, foco y anuncios. Contrato verificado (`PATCH` solo `DRAFT`/`SCHEDULED`). `verify:quick` (229 archivos, 1889 pruebas), `test:storybook` (246 play, axe y 249 visuales), baselines, inventario y `check` verdes.
+- [x] **5.7 Eliminar borradores bajo la regla de retencion.** El contrato ya publica `DELETE /api/v1/activities/{id}` (Bearer, sin cuerpo, `204` sin contenido; `activity:delete` o ADMIN; solo `DRAFT` de un programa `ACTIVE` sin asistencia ni alertas, si no `409`). Modelar la disponibilidad local, integrar el comando y documentar `ACT-007`; la elegibilidad completa la verifica el servidor.
+  - Evidencia: `2026-10-08-fase-5.7-eliminacion-y-retencion-actividades.md`. `deleteActivity` (sin cuerpo, `204`), `canDelete` + `canOfferActivityDeletion`, retencion en mocks (asistencia y alertas, incluidas `present:false` y leidas), `useDeleteActivity` con limpieza de cache/contexto, navegacion autorizada y anuncio, variante de eliminacion de la confirmacion + stories e integracion, y `ACT-007` documentado. El checker exige `204` sin contenido y sin request body. Puertas verdes (`api:mocks-check` 402 verificaciones en 55 operaciones, `verify:quick`, `test:storybook` y `check`).
+- [x] **5.8 Bloquear notificacion ficticia.** No mostrar `notifyAttendees` hasta que el backend defina campo, obligatoriedad y resultado.
+  - Proteccion completada y documentada en `spec/notifications/notifications-features.md` y `spec/activities/activities-features.md`: requests, serializacion, confirmaciones, mocks y checker descartan `notifyAttendees` (incluido `false`) y los anuncios describen solo la operacion realizada. Contrato consultado el 2026-10-08 sobre `POST /api/v1/activities`, `PATCH /api/v1/activities/{id}`, `POST /api/v1/activities/{id}/cancel` y `DELETE /api/v1/activities/{id}`. `NTF-002` y `NTF-004` siguen pendientes de contrato; la capacidad de notificar no queda implementada, mientras que la puerta final de baselines, inventario y `check` quedo verde.
+  - Evidencia: `ActivityNotificationBoundary.test.tsx` recorre edicion, publicacion, despublicacion, cancelacion, eliminacion, conflicto y descarte; `scripts/check-mock-contract.test.mjs` cubre la ausencia de `notifyAttendees`, la exigencia de `additionalProperties: false`, la revision ante un esquema no verificable y el `DELETE` sin cuerpo con `204`.
+- [x] **5.9 Reducir fan-out.** Usar listados paginados para tarjetas y solicitar detalle solo al abrir una actividad. Prueba: cargar el catalogo no produce una peticion adicional por actividad.
+  - Evidencia: `2026-10-08-fase-5.9-reduccion-fan-out-actividades.md`. `ActivitySummary` y proyeccion con allowlist compartida por API y mock, `readCatalogActivitiesPage` sobre los listados por programa, tarjetas con enlace al detalle, totales sin contrato como «No disponible», ADR-0016 que supersede el ADR-0005 y prueba de integracion que fija cero detalles al cargar, filtrar, paginar y seleccionar contexto.
+- [x] **5.10 Invalidar vistas relacionadas.** Mutaciones actualizan programa, catalogo publico, administrativo, dashboard, aulas y contexto.
+  - Evidencia: `2026-10-09-fase-5.10-invalidacion-vistas-actividades.md`. Matriz unica en `hooks/activityMutationReads.ts` compartida por alta, edicion, ciclo de vida y eliminacion: invalidacion por programa propietario (no por identidad completa ni por otros programas), catalogo administrativo en sus dos modalidades —dashboard y opciones de contexto incluidos—, agenda y detalle publicos, disponibilidad de aulas salvo en la eliminacion de un borrador —que por contrato nunca reserva—, y descubrimiento de scopes. El detalle privado cancela la lectura en vuelo y se escribe con la respuesta autoritativa; una respuesta de una generacion de sesion anterior no escribe cache privada; la eliminacion revalida la identidad tras las esperas antes de limpiar contexto y navegar. Prueba de integracion observable sobre cliente Query real para publicar, cancelar, crear, editar y eliminar.
+- [x] **5.11 Cubrir publicacion y privacidad.** Probar acceso anonimo, ADMIN y colaborador a los distintos estados.
+  - Evidencia: `2026-10-09-fase-5.11-publicacion-y-privacidad.md`. Matriz por estado e identidad en la frontera HTTP publica (sin `Authorization`, `credentials: "omit"` para visitante, `USER` y `ADMIN`), `ActivityDetailView.privacy.test.tsx` (ningun dato del detalle cacheado antes de confirmar `activity:read`, con fallo de descubrimiento reintentable y vencimiento reactivo via `useAuthorizationTime`), `App.activityPrivacy.test.tsx` (12 pruebas por router real, incluido programa archivado), persistencia real que solo conserva el catalogo publico y descarta toda lectura privada. Defecto de produccion detectado y corregido: `startTransition` sobre el input controlado de los filtros perdia pulsaciones bajo carga; defecto de arnes: el runner visual ahora exige `storyFinished` con `status: "success"` y la baseline corrupta de `filtering-activities` se regenero. `verify:quick` (235 archivos, 1930 pruebas), `api:mocks-check` (402 verificaciones), `test:storybook` (254) y `check` verdes.
 
-**Criterio de salida:** catalogo publico y administracion usan contratos y caches independientes; creacion, edicion y cancelacion estan integradas sin inventar eliminacion ni notificaciones.
+**Criterio de salida:** catalogo publico y administracion usan contratos y caches independientes; creacion, edicion, cancelacion y eliminacion de borradores usan los contratos publicados, sin inventar notificaciones.
+
+Evidencia y desviaciones de Fases 5.4 y 5.5: `docs/superpowers/plans/2026-10-07-fase-5.4-5.5-administracion-y-disponibilidad.md`.
+
+- **Administracion por programa:** `ProgramActivitiesView` pagina y filtra del servidor por programa (`status=ALL`), `ActivityDetailView` muestra el detalle completo con su edicion en linea y `ActivityForm` unifica alta y edicion. El formulario envia el contrato real (`maxCapacity`, ponentes inline, `bannerUrl`, `equipment`), nace como borrador y edita con diff: solo viaja lo modificado.
+- **Doble area:** rutas `/admin/programas/:programId/actividades`, `/admin/actividades/:activityId`, `/operaciones/programas/:programId/actividades` y `/operaciones/actividades/:activityId/detalle`, compartidas por ADMIN y colaboradores; las capacidades salen del descubrimiento de scopes (`activity:read|create|update`) y el backend conserva la autoridad final.
+- **Ponentes honestos:** el detalle no devuelve correo ni organizacion, asi que editar otro campo omite `speakers` y solo una edicion explicita reemplaza la lista.
+- **Aula asignada:** el selector la conserva etiquetada «Asignada; se validara al guardar» y nunca afirma un conflicto por su ausencia; los resultados de criterios anteriores quedan impracticables hasta reconsultar, y limpiar la asignacion siempre funciona.
+- **409 conserva el formulario:** un fallo de guardado no invalida nada, explica aula, horario o cambio de estado sin exponer el backend y ofrece «Actualizar actividad» para releer sin repetir la mutacion.
+- **CONFERENCE_ROOM:** el tipo de aula que el contrato ya publicaba se incorporo a tipos, etiquetas, mapper, mocks y comprobacion contractual.
+- **Puertas:** `pnpm run api:mocks-check` verde (356 verificaciones en 51 operaciones), `pnpm test` verde (219 archivos, 1.688 pruebas) y `pnpm run test:storybook` verde (53 suites, 224 pruebas con `play`, axe y comparacion visual, con 9 stories nuevas y baselines regenerados tras revisarlos).
 
 ---
 
@@ -1235,7 +1406,7 @@ Evidencia y desviaciones de Fase 7.6: `docs/superpowers/plans/2026-10-05-fase-7.
 | Submenu del area personal                |    1 | Rutas por seccion; lateral en escritorio y desplegable local en movil                                             |
 | Descubrimiento de scopes del colaborador |    3 | Contrato dedicado (ADR-0014, aceptado y consumido en 3.4); evitar consultar permiso programa por programa         |
 | Publicacion publica                      |    5 | `SCHEDULED/ONGOING` disponibles, `COMPLETED` pasadas; ocultar `DRAFT/CANCELLED`                                   |
-| Eliminacion de actividades               |    5 | No ofrecerla hasta que backend cierre retencion y Fase 5.4                                                        |
+| Eliminacion de actividades               |    5 | Contrato publicado: borradores de programas activos con permiso efectivo y retencion en servidor                  |
 | Subida de archivos                       |    6 | Esperar OpenAPI; no construir multipart o URLs por suposicion                                                     |
 | Escaneo QR                               |    9 | API nativa si cubre navegadores objetivo; fallback manual obligatorio                                             |
 | Certificados automaticos                 |   10 | Mostrar el comportamiento que decida el backend, sin jobs frontend                                                |

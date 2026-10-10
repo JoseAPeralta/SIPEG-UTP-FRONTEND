@@ -5,5 +5,4 @@ export {
   countQrAttendance,
   filterAttendanceByScope,
   filterCertificatesByScope,
-  sumEnrolledCount,
 } from "./model/scopeMetrics";

@@ -1,35 +1,39 @@
-import { Badge, Box, Button, HStack, Stack, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, HStack, Link, Stack, Text } from "@chakra-ui/react";
 import { useState } from "react";
+import { Link as RouterLink } from "react-router";
 
 import { Surface } from "@/components";
 import { getActivityTypeColorKey, getUnitColorKey } from "@theme/index";
-import type { Activity, Classroom, EventProgram, OrganizationalUnit } from "@/types/domain";
+import type { ActivitySummary, Classroom, EventProgram, OrganizationalUnit } from "@/types/domain";
 import { formatActivityDate } from "@/utils/dateFormatting";
 
+import { activityDetailPath } from "../model/activityRoutes";
 import { activityTypeLabels, getProgramBadgeLabel } from "../model/catalogLabels";
 
 const DESCRIPTION_PREVIEW_LENGTH = 128;
 
 export type ActivityCardProps = {
-  activity: Activity;
+  activity: ActivitySummary;
   classroom: Classroom | null;
   isSelected?: boolean;
-  onSelect?: ((activity: Activity) => void) | undefined;
+  onSelect?: ((activity: ActivitySummary) => void) | undefined;
   program: EventProgram;
-  showEnrolledCount?: boolean;
-  showEquipment?: boolean;
   unit: OrganizationalUnit;
 };
 
-/** Presents an activity in public, metrics or selectable working-context modes. */
+/**
+ * Presenta una actividad del listado en modo resumen o de seleccion de contexto.
+ *
+ * No acepta banderas de presentacion: el listado del contrato no expone inscritos ni equipamiento,
+ * que solo estan disponibles en el detalle. Por eso la tarjeta enlaza al detalle administrativo en
+ * lugar de fingir esos datos.
+ */
 export function ActivityCard({
   activity,
   classroom,
   isSelected = false,
   onSelect,
   program,
-  showEnrolledCount = false,
-  showEquipment = true,
   unit,
 }: ActivityCardProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -117,39 +121,22 @@ export function ActivityCard({
             </Stack>
           </Stack>
         ) : null}
-        <HStack align="start" gap={5} mt="auto" wrap="wrap">
-          {showEnrolledCount ? (
-            <Box>
-              <Text
-                color="text.muted"
-                fontSize="xs"
-                fontWeight="800"
-                letterSpacing="0.08em"
-                textTransform="uppercase"
-              >
-                Inscritos
-              </Text>
-              <Text color="text.default" fontSize="xl" fontWeight="800">
-                {activity.enrolledCount}
-              </Text>
-            </Box>
-          ) : null}
-          {showEquipment && activity.equipment.length > 0 ? (
-            <Box>
-              <Text
-                color="text.muted"
-                fontSize="xs"
-                fontWeight="800"
-                letterSpacing="0.08em"
-                textTransform="uppercase"
-              >
-                Equipamiento
-              </Text>
-              <Text color="text.default" fontSize="sm">
-                {activity.equipment.join(", ")}
-              </Text>
-            </Box>
-          ) : null}
+        <HStack gap={5} mt="auto" wrap="wrap">
+          <Link
+            _hover={{ color: "accent.solid", textDecoration: "underline" }}
+            asChild
+            color="text.default"
+            fontSize="sm"
+            fontWeight="700"
+            textDecoration="none"
+          >
+            <RouterLink
+              aria-label={`Ver detalle de ${activity.name}`}
+              to={activityDetailPath("administration", activity.id)}
+            >
+              Ver detalle
+            </RouterLink>
+          </Link>
         </HStack>
         {onSelect ? (
           <Button
