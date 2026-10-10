@@ -76,6 +76,19 @@ export const Denied: Story = {
     await expect(canvas.getByText("Colaboradores restringidos")).toBeVisible();
   },
 };
+export const ReadOnlyArchived: Story = {
+  args: { canManage: true, readOnly: true },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByText(
+        "El programa está archivado. Puede consultar sus colaboradores, pero no modificarlos.",
+      ),
+    ).toBeVisible();
+    await expect(canvas.queryByRole("button", { name: "Agregar colaborador" })).toBeNull();
+    await userEvent.click(await canvas.findByText("Ver permisos de Ana Pérez"));
+    await expect(canvas.getByText("Heredado del programa")).toBeVisible();
+  },
+};
 export const Error: Story = {
   parameters: { scenario: "listError" },
   play: async ({ canvas }) => {

@@ -13,10 +13,10 @@ import type { UserScopeFilters } from "../model/userScopes";
  * La autorizacion efectiva sigue perteneciendo al backend: esta lista solo describe donde puede
  * trabajar el usuario para navegacion y contexto.
  */
-export function useUserScopes(filters: UserScopeFilters = {}) {
+export function useUserScopes(filters: UserScopeFilters = {}, enabled = true) {
   const { userScopes } = useAppAdapters();
   const userId = useSessionStore((state) => state.currentUser?.id);
-  const canLoad = userId !== undefined;
+  const canLoad = userId !== undefined && enabled;
   const query = useQuery({
     enabled: canLoad,
     queryFn: () => userScopes.loadUserScopes(filters),
@@ -27,7 +27,9 @@ export function useUserScopes(filters: UserScopeFilters = {}) {
 
   return {
     error: query.error,
+    isFetching: query.isFetching,
     isLoading: query.isLoading,
+    isSuccess: query.isSuccess,
     refetch: canLoad ? query.refetch : () => Promise.resolve(undefined),
     scopes: query.data ?? null,
   };

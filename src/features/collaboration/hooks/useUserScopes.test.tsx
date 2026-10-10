@@ -100,6 +100,38 @@ describe("useUserScopes", () => {
     }
   });
 
+  it("should expose the fetching and success state of the discovery", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ id: "user-1" }),
+      tokens: createAuthTokens(),
+    });
+    let resolveNext: (() => void) | undefined;
+    const loadUserScopes = vi
+      .fn()
+      .mockResolvedValueOnce([createUserScope()])
+      .mockImplementationOnce(
+        () =>
+          new Promise<ReturnType<typeof createUserScope>[]>((resolve) => {
+            resolveNext = () => resolve([createUserScope()]);
+          }),
+      );
+    const adapters = buildAdapters({ userScopes: { loadUserScopes } });
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { result } = renderHookWithProviders(() => useUserScopes(), { adapters, queryClient });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.isFetching).toBe(false);
+
+    void queryClient.invalidateQueries({ queryKey: queryKeys.userScopesScope("user-1") });
+
+    await waitFor(() => expect(result.current.isFetching).toBe(true));
+
+    resolveNext?.();
+
+    await waitFor(() => expect(result.current.isFetching).toBe(false));
+    expect(result.current.isSuccess).toBe(true);
+  });
+
   it("should expose the loading failure", async () => {
     useSessionStore.getState().setSession({
       currentUser: createAuthenticatedUser({ id: "user-1" }),

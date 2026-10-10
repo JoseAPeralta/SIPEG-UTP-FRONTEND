@@ -15,6 +15,7 @@ describe("AdminMenu", () => {
 
     for (const { label, path } of [
       { label: /aulas/i, path: "/admin/aulas" },
+      { label: /programas/i, path: "/admin/programas" },
       { label: /unidades/i, path: "/admin/unidades" },
       { label: /carreras/i, path: "/admin/carreras" },
     ]) {

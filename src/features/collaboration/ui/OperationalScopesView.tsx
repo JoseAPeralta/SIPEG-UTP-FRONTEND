@@ -1,17 +1,38 @@
 import { Button, Heading, SimpleGrid, Stack, Text } from "@chakra-ui/react";
-import { Link } from "react-router";
-import { AsyncStateView, FeedbackState, ModuleShell, Surface } from "@/components";
+import { useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router";
+import { AsyncStateView, FeedbackState, ModuleShell, StatusPanel, Surface } from "@/components";
+import { readActivityDeletionNotice } from "@/features/activity-catalog";
 import { useOperationalAccess } from "../hooks/useOperationalAccess";
 import { operationalScopePath, scopeStatusLabels } from "../model/operationalNavigation";
+
+/** Aviso de contexto retirado transportado como estado de navegación; se conserva al releer. */
+function readContextLost(state: unknown): string | null {
+  if (typeof state !== "object" || state === null) return null;
+  const value = (state as { contextLost?: unknown }).contextLost;
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
 
 /** Entrada operativa sin catálogo administrativo ni consultas por cada recurso descubierto. */
 export function OperationalScopesView() {
   const { scopes, error, isLoading, refetch } = useOperationalAccess();
+  const locationState: unknown = useLocation().state;
+  const contextLost = readContextLost(locationState);
+  const deletionNotice = readActivityDeletionNotice(locationState);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (!deletionNotice) return;
+
+    headingRef.current?.focus();
+  }, [deletionNotice]);
+
   return (
     <ModuleShell
-      title="Mis operaciones"
-      headingLabel="Trabajo autorizado"
       description="Elija un programa o una actividad en los que tenga permisos vigentes."
+      headingLabel="Trabajo autorizado"
+      headingRef={headingRef}
+      title="Mis operaciones"
     >
       <AsyncStateView
         isLoading={isLoading}
@@ -20,6 +41,12 @@ export function OperationalScopesView() {
           void refetch();
         }}
       >
+        {deletionNotice ? <StatusPanel>{deletionNotice}</StatusPanel> : null}
+        {contextLost ? (
+          <StatusPanel>
+            El contexto «{contextLost}» ya no está disponible. Se retiró la selección.
+          </StatusPanel>
+        ) : null}
         {!scopes.length ? (
           <FeedbackState
             title="Sin contextos de trabajo"

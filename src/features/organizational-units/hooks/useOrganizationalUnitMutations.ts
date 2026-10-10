@@ -16,10 +16,11 @@ const ANONYMOUS_USER = "anonymous";
 
 /**
  * Un cambio de unidad alcanza a mas de un consumidor. Crear una unidad crea su programa
- * predeterminado y desactivarla lo archiva, de modo que ambos catalogos de actividades dependen de
- * esas transacciones. Editar el nombre altera la agenda publica, que embebe el nombre de la unidad,
- * pero no el catalogo administrativo, que recompone los nombres desde la lista de unidades. Las
- * claves administrativas se ligan a la identidad y nunca al token.
+ * predeterminado y desactivarla lo archiva, de modo que los dos catalogos de actividades y el
+ * listado independiente de programas dependen de esas transacciones. Editar el nombre altera la
+ * agenda publica, que embebe el nombre de la unidad, pero no el catalogo administrativo, que
+ * recompone los nombres desde la lista de unidades. Las claves administrativas se ligan a la
+ * identidad y nunca al token.
  */
 function invalidateUnitLists(queryClient: QueryClientLike, userId: string) {
   return Promise.all([
@@ -35,6 +36,17 @@ function invalidateActivityCatalogs(queryClient: QueryClientLike, userId: string
     queryClient.invalidateQueries({ queryKey: queryKeys.publicActivityCatalog }),
     queryClient.invalidateQueries({ queryKey: queryKeys.administrativeActivityCatalog(userId) }),
   ]);
+}
+
+/**
+ * Crear una unidad crea su programa predeterminado y el ciclo de vida de la unidad lo archiva o
+ * reactiva. El listado independiente de programas se refresca para no mostrar una agenda
+ * permanente desactualizada.
+ */
+function invalidateProgramLists(queryClient: QueryClientLike, userId: string) {
+  return queryClient.invalidateQueries({
+    queryKey: queryKeys.administrativeEventPrograms(userId),
+  });
 }
 
 function invalidateUnitDetail(queryClient: QueryClientLike, userId: string, unitId: string) {
@@ -64,6 +76,7 @@ export function useOrganizationalUnitMutations() {
     onSuccess: () =>
       invalidateUnitLists(queryClient, userId)
         .then(() => invalidateActivityCatalogs(queryClient, userId))
+        .then(() => invalidateProgramLists(queryClient, userId))
         .then(() => undefined),
   });
   const updateMutation = useMutation({
@@ -104,6 +117,7 @@ export function useOrganizationalUnitMutations() {
         invalidateUnitLists(queryClient, userId),
         invalidateUnitDetail(queryClient, userId, unitId),
         invalidateActivityCatalogs(queryClient, userId),
+        invalidateProgramLists(queryClient, userId),
       ]).then(() => undefined),
   });
   const reactivateMutation = useMutation({
@@ -117,6 +131,7 @@ export function useOrganizationalUnitMutations() {
         invalidateUnitLists(queryClient, userId),
         invalidateUnitDetail(queryClient, userId, unitId),
         invalidateActivityCatalogs(queryClient, userId),
+        invalidateProgramLists(queryClient, userId),
       ]).then(() => undefined),
   });
 

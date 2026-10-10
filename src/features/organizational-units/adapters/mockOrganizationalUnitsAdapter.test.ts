@@ -17,6 +17,21 @@ describe("createMockOrganizationalUnitsAdapter", () => {
     expect(second[0]?.name).toBe(originalName);
   });
 
+  it("should filter inactive units and keep the whole collection otherwise", async () => {
+    const adapter = createMockOrganizationalUnitsAdapter();
+    await adapter.deactivateOrganizationalUnit!("fic");
+
+    const all = await adapter.loadOrganizationalUnits({ isActive: "all" });
+    expect(all.map((unit) => unit.id)).toContain("fic");
+
+    const inactive = await adapter.loadOrganizationalUnits({ isActive: "inactive" });
+    expect(inactive.map((unit) => unit.id)).toEqual(["fic"]);
+    expect(inactive.every((unit) => !unit.isActive)).toBe(true);
+
+    const withoutFilters = await adapter.loadOrganizationalUnits();
+    expect(withoutFilters.map((unit) => unit.id)).toEqual(all.map((unit) => unit.id));
+  });
+
   it("should reject a duplicate code case-insensitively", async () => {
     const adapter = createMockOrganizationalUnitsAdapter();
 

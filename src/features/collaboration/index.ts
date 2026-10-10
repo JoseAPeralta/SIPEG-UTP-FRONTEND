@@ -1,4 +1,6 @@
 export { useUserScopes } from "./hooks/useUserScopes";
+export { useAuthorizationTime } from "./hooks/useAuthorizationTime";
+export { hasScopeCapability } from "./model/operationalCapabilities";
 export { OperationalScopesView } from "./ui/OperationalScopesView";
 export { OperationalScopeView } from "./ui/OperationalScopeView";
 export { OwnPermissionsView } from "./ui/OwnPermissionsView";

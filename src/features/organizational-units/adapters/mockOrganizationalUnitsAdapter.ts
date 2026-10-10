@@ -84,7 +84,18 @@ export function createMockOrganizationalUnitsAdapter(): OrganizationalUnitsAdapt
       if (!unit) return Promise.reject(new ApiError("No se encontro el recurso solicitado.", 404));
       return Promise.resolve(structuredClone(unit));
     },
-    loadOrganizationalUnits: () => Promise.resolve(structuredClone(units).map(toSummary)),
+    /**
+     * Sin filtro devuelve toda la coleccion, a diferencia del contrato real, que omite las
+     * inactivas: el panel de unidades y sus tests dependen de ese comportamiento historico. Solo
+     * el filtro explicito `inactive` recorta la lista; `all` y el default son equivalentes.
+     */
+    loadOrganizationalUnits: (filters = {}) => {
+      const summaries = structuredClone(units).map(toSummary);
+
+      return Promise.resolve(
+        filters.isActive === "inactive" ? summaries.filter((unit) => !unit.isActive) : summaries,
+      );
+    },
     reactivateOrganizationalUnit(unitId) {
       const unit = find(unitId);
       if (!unit) return Promise.reject(new ApiError("No se encontro el recurso solicitado.", 404));

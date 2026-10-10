@@ -1,5 +1,11 @@
 import type { EventProgram } from "@/types/domain";
 
+/**
+ * Programas adicionales con actividades publicadas que aun no terminan: reproducen el `409` del
+ * archivo sin depender de la fecha de ejecucion. Un programa creado en runtime nunca entra aqui.
+ */
+export const eventProgramsWithRunningActivities: readonly string[] = ["program-innovation-week"];
+
 export const eventPrograms: EventProgram[] = [
   {
     bannerUrl: null,
@@ -108,5 +114,29 @@ export const eventPrograms: EventProgram[] = [
     organizationalUnitId: "fisc",
     startDate: "2026-09-14",
     status: "ACTIVE",
+  },
+  {
+    bannerUrl: null,
+    description: "Programa en preparacion para la agenda de datos abiertos.",
+    endDate: "2026-11-20",
+    id: "program-data-governance-workshop",
+    isDefault: false,
+    label: "Gobernanza de datos",
+    name: "Taller de Gobernanza de Datos Abiertos",
+    organizationalUnitId: "fisc",
+    startDate: "2026-11-16",
+    status: "DRAFT",
+  },
+  {
+    bannerUrl: "robotics-competition.jpg",
+    description: "Competencia de robotica y automatizacion de la agenda anterior.",
+    endDate: "2024-11-08",
+    id: "program-robotics-competition-2024",
+    isDefault: false,
+    label: "Robotica 2024",
+    name: "Competencia de Robotica 2024",
+    organizationalUnitId: "fim",
+    startDate: "2024-11-04",
+    status: "ARCHIVED",
   },
 ];

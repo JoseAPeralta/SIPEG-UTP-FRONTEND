@@ -1,6 +1,7 @@
 import type {
   ActivityCatalog,
   EventProgram,
+  EventProgramStatus,
   OrganizationalUnit,
   WorkingContext,
 } from "@/types/domain";
@@ -18,6 +19,8 @@ export type WorkingContextOption = {
   id: string;
   kind: WorkingContext["kind"];
   label: string;
+  /** Estado del programa cuando la opcion es un programa; las actividades no lo declaran. */
+  status?: EventProgramStatus;
 };
 
 export type WorkingContextOptions = {
@@ -86,6 +89,7 @@ export function buildWorkingContextOptions(catalog: ActivityCatalog): WorkingCon
       id: program.id,
       kind: "eventProgram",
       label: program.name,
+      status: program.status,
     })),
   };
 }

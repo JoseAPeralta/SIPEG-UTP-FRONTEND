@@ -1,4 +1,6 @@
 import { screen } from "@testing-library/react";
+import { useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router";
 import { afterEach, expect, it, vi } from "vitest";
 import { createAppAdapters } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
@@ -62,6 +64,54 @@ it("offers permission reading without collaborator PII for viewers", async () =>
   expect(await screen.findByText("Ver actividades")).toBeInTheDocument();
   expect(screen.queryByText("Agregar persona")).not.toBeInTheDocument();
   expect(adapters.collaborators.loadCollaborators).not.toHaveBeenCalled();
+});
+/** Sonda de navegación: entrega el aviso de contexto retirado como estado de la ruta destino. */
+function ContextLostNavigator() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    void navigate("/operaciones", { state: { contextLost: "Taller X" } });
+  }, [navigate]);
+  return null;
+}
+/** Sonda de navegación: entrega el anuncio de eliminación como estado de la ruta destino. */
+function DeletionNoticeNavigator({ message }: { message: string }) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    void navigate("/operaciones", { state: { activityDeletionNotice: message } });
+  }, [message, navigate]);
+  return null;
+}
+it("anuncia el contexto retirado que llega en el estado de la navegación", async () => {
+  const adapters = adaptersFor([read]);
+  renderWithProviders(
+    <Routes>
+      <Route path="/inicio" element={<ContextLostNavigator />} />
+      <Route path="/operaciones" element={<OperationalScopesView />} />
+    </Routes>,
+    { adapters, route: "/inicio" },
+  );
+  expect(
+    await screen.findByText(
+      "El contexto «Taller X» ya no está disponible. Se retiró la selección.",
+    ),
+  ).toBeInTheDocument();
+});
+it("anuncia el borrador eliminado sin presentarlo como pérdida de acceso y enfoca el encabezado", async () => {
+  const adapters = adaptersFor([read]);
+  renderWithProviders(
+    <Routes>
+      <Route
+        path="/inicio"
+        element={<DeletionNoticeNavigator message="El borrador de «Taller X» se eliminó." />}
+      />
+      <Route path="/operaciones" element={<OperationalScopesView />} />
+    </Routes>,
+    { adapters, route: "/inicio" },
+  );
+
+  expect(await screen.findByText("El borrador de «Taller X» se eliminó.")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { level: 1, name: "Mis operaciones" })).toHaveFocus();
+  expect(screen.queryByText(/ya no está disponible/i)).not.toBeInTheDocument();
 });
 it("does not render authorized actions after the own-permissions service denies access", async () => {
   const adapters = adaptersFor([{ ...read, name: "permission:grant" }]);

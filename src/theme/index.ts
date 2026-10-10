@@ -1,6 +1,22 @@
-import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
+import { createSystem, defaultConfig, defineConfig, defineRecipe } from "@chakra-ui/react";
 
 import { activityTypeColorTokens, type DomainColorToken, unitColorTokens } from "./domainColors";
+
+/**
+ * Chakra aclara el fondo solido al pasar el puntero con `solid/90`; sobre superficies claras esa
+ * mezcla baja el contraste del texto blanco por debajo de AA. El tema usa la escala 600 opaca, que
+ * coincide con el hover documentado en `DESIGN.md` y conserva el contraste del texto.
+ */
+const accessibleSolidButton = defineRecipe({
+  variants: {
+    variant: {
+      solid: {
+        _expanded: { bg: "colorPalette.600" },
+        _hover: { bg: "colorPalette.600" },
+      },
+    },
+  },
+});
 
 function buildDomainSemanticColors() {
   const colors: Record<string, { value: { base: string; _dark: string } }> = {};
@@ -24,6 +40,9 @@ function buildDomainSemanticColors() {
 
 const config = defineConfig({
   theme: {
+    recipes: {
+      button: accessibleSolidButton,
+    },
     semanticTokens: {
       colors: {
         ...buildDomainSemanticColors(),
