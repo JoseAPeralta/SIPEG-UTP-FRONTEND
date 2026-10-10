@@ -27,7 +27,7 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
   snapshotPathTemplate: "{testDir}/__image_snapshots__/{arg}{ext}",
   testDir: ".storybook",
-  testMatch: "storybook.visual.ts",
+  testMatch: ["storybook.visual.ts", "event-programs.browser.ts"],
   use: {
     baseURL: process.env["SIPEG_STORYBOOK_URL"] ?? "http://127.0.0.1:6007",
     colorScheme: "light",

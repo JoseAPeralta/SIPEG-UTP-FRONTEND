@@ -186,9 +186,66 @@ regla adicional de disponibilidad.
 
 `ClassroomAvailabilitySelector` no duplica los campos del formulario de actividades: recibe sus
 criterios controlados y consulta solo cuando se pulsa "Consultar aulas". El contrato admite una sola
-amenidad; los resultados no se persisten porque dependen de reservas y ventanas vigentes. Si una nueva
-consulta deja fuera una selección existente, la conserva marcada como no disponible para que el
-formulario no pierda información sin avisar.
+amenidad; los resultados no se persisten porque dependen de reservas y ventanas vigentes. Si los
+criterios cambian despues de consultar, los resultados quedan marcados como desactualizados y no se
+puede elegir otra aula hasta reconsultar; limpiar la asignacion siempre funciona. Si una nueva
+consulta deja fuera una seleccion existente, la conserva marcada como no disponible para que el
+formulario no pierda informacion sin avisar. El aula asignada de la actividad en edicion se conserva
+etiquetada «Asignada; se validara al guardar» aunque la consulta no la devuelva: la operacion no
+puede excluir su propia reserva y el `PATCH` es quien valida al guardar.
+
+## Programas
+
+Import publico: `@/features/event-programs`.
+
+| Modulo                   | Import publico              | Usar cuando                                                                                     | Evitar cuando                               | Requisitos                                        | Story                                                                                                           |
+| ------------------------ | --------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `EventProgramsView`      | `@/features/event-programs` | Se lista la agenda y se edita, publica, archiva o reactiva un programa desde el panel.          | Se administran colaboradores o actividades. | Sesion `ADMIN`; adapters de programas y unidades. | [`EventProgramsView.stories.tsx`](../../src/features/event-programs/ui/EventProgramsView.stories.tsx)           |
+| `CreateEventProgramForm` | `@/features/event-programs` | Se captura un programa adicional en borrador con unidad, fechas y etiqueta.                     | Se edita un programa existente.             | `Provider`; unidades activas; callbacks.          | [`CreateEventProgramForm.stories.tsx`](../../src/features/event-programs/ui/CreateEventProgramForm.stories.tsx) |
+| `EditEventProgramForm`   | `@/features/event-programs` | Se editan nombre, etiqueta, descripcion y fechas de un programa, sin su unidad ni su identidad. | Se crea un programa o se cambia su estado.  | `Provider`; registro del listado; callbacks.      | [`EditEventProgramForm.stories.tsx`](../../src/features/event-programs/ui/EditEventProgramForm.stories.tsx)     |
+
+El listado es solo para `ADMIN`: el contrato honra los estados no publicos unicamente para ese rol y los
+colaboradores conservan el descubrimiento operativo en `/operaciones`. Arranca en "Todos"
+(`status=ALL`), porque omitir el parametro devuelve solo programas activos, y muestra la unidad
+embebida en cada resultado sin consultar el catalogo de unidades: esa consulta solo puebla el filtro
+y, si falla, el listado sigue visible con reintento propio. No existe filtro por fechas en OpenAPI;
+las fechas se muestran y la carencia queda registrada como pendiente contractual.
+
+`CreateEventProgramForm` valida antes del envio el rango real de fechas y que la unidad siga activa,
+reconstruye el request con allowlist y conserva lo escrito ante un rechazo. El contrato no distingue
+con codigos un rango invalido de una unidad inactiva: ambos comparten el `400` y la interfaz ofrece
+una explicacion conjunta sin exponer el mensaje del backend. El programa creado nace como borrador y
+puede quedar fuera de los filtros vigentes; el mensaje de exito lo advierte. El formulario recibe el
+foco en «Nombre» al montarse y cada error queda asociado a su control (`aria-invalid` y
+`aria-errormessage`), de modo que el recorrido completo funciona por teclado.
+
+La edicion y el ciclo de vida viven en un panel dentro de `EventProgramsView`, no en una ruta de
+detalle: `GET /api/v1/event-programs/{id}` solo devuelve programas activos, de modo que borradores y
+archivados se gestionan con el registro ya validado del listado. Publicar es el unico parche de
+estado que el contrato acepta (`DRAFT -> ACTIVE`); archivar y reactivar son acciones explicitas con
+confirmacion y nunca se ofrece borrado fisico. La agenda permanente se muestra sin fechas ni acciones
+de ciclo de vida: su unidad es el enlace para reactivarla. `EditEventProgramForm` omite la unidad y
+la bandera de programa predeterminado, y sus rechazos conservan lo escrito con un mensaje localizado
+que no distingue causas que el contrato no separa.
+
+Cada tarjeta ofrece tambien «Colaboradores»: el panel compone `CollaboratorsView` con el scope del
+programa seleccionado y aisla su estado por `key`. Un programa archivado se consulta en modo solo
+lectura y sin comandos de modificacion; la recuperacion de un `409` relee colaboradores y listado a
+la vez para reflejar un estado que cambio mientras el panel estaba abierto. «Usar como contexto»
+escribe solo `{ kind: "eventProgram", id }` en el store compartido y la tarjeta marca la seleccion
+vigente; la resolucion de actividades pertenece a `working-context`, con lo que la administracion de
+programas conserva su independencia del catalogo de actividades (R12). Los colaboradores siguen
+descubriendo su trabajo en `/operaciones`.
+
+La vista abre un solo panel a la vez y deshabilita las acciones de tarjeta mientras una creacion o
+mutacion esta pendiente, de modo que una resolucion tardia no cierra el panel nuevo. Tras un
+`conflict` o un `notFound`, `EditEventProgramForm` y la confirmacion ofrecen «Actualizar listado»:
+`onRefresh` e `isRefreshing` son opcionales y la lectura no repite la mutacion. El mensaje del `409`
+de edicion nombra tanto el archivo concurrente como las fechas fuera del rango, porque el contrato no
+los separa. Las stories de esta seccion montan su propia composicion mock y su cliente Query por
+story, incluidas `ConfirmingByKeyboard`, `ConflictRecovery` y `LifecycleFlow`; una prueba de navegador
+dentro de la puerta de Storybook cubre teclado real, reflujo a 320 px, objetivos tactiles y axe sobre
+la confirmacion movil y su estado hover.
 
 ## Alertas
 
@@ -210,18 +267,77 @@ El indicador enlaza a `/perfil/alertas`, quinta seccion del area personal, inclu
 
 Import publico: `@/features/activity-catalog`.
 
-| Modulo                | Usar cuando                                                                     | Evitar cuando                                 | Requisitos                                                        | Story                                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `ActivityCard`        | Se presenta una actividad publica, con inscritos o seleccionable como contexto. | Se necesita editar la actividad.              | `Activity`, `EventProgram`, `OrganizationalUnit` y aula opcional. | [`ActivityCard.stories.tsx`](../../src/features/activity-catalog/ui/ActivityCard.stories.tsx)         |
-| `EventProgramCard`    | Se resumen cifras de un programa y opcionalmente se selecciona como contexto.   | Se necesita un formulario de programa.        | `ProgramSummary`.                                                 | [`EventProgramCard.stories.tsx`](../../src/features/activity-catalog/ui/EventProgramCard.stories.tsx) |
-| `ActivityFilters`     | Se filtra el catalogo publico o administrativo.                                 | Los filtros pertenecen a otro dominio.        | Estado controlado; search, programa y limpiar son opcionales.     | [`ActivityFilters.stories.tsx`](../../src/features/activity-catalog/ui/ActivityFilters.stories.tsx)   |
-| `ActivityCatalogView` | Una ruta necesita la vista administrativa conectada completa.                   | Se necesita una pieza presentacional aislada. | Adapters, hook de catalogo y working context.                     | Cubierta por sus modulos presentacionales                                                             |
+| Modulo                          | Usar cuando                                                                                                                            | Evitar cuando                                        | Requisitos                                                                                  | Story                                                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `ActivityCard`                  | Se presenta el resumen de una actividad del catalogo administrativo y opcionalmente se selecciona como contexto.                       | Se necesita editar la actividad.                     | `ActivitySummary`, `EventProgram`, `OrganizationalUnit` y aula opcional; enlaza al detalle. | [`ActivityCard.stories.tsx`](../../src/features/activity-catalog/ui/ActivityCard.stories.tsx)                                   |
+| `EventProgramCard`              | Se resumen cifras de un programa y opcionalmente se selecciona como contexto.                                                          | Se necesita un formulario de programa.               | `ProgramSummary`; el total de inscritos muestra «No disponible» sin dato contractual.       | [`EventProgramCard.stories.tsx`](../../src/features/activity-catalog/ui/EventProgramCard.stories.tsx)                           |
+| `ActivityFilters`               | Se filtra el catalogo publico o administrativo.                                                                                        | Los filtros pertenecen a otro dominio.               | Estado controlado; search, programa y limpiar son opcionales.                               | [`ActivityFilters.stories.tsx`](../../src/features/activity-catalog/ui/ActivityFilters.stories.tsx)                             |
+| `ActivityCatalogView`           | Una ruta necesita la vista administrativa conectada completa.                                                                          | Se necesita una pieza presentacional aislada.        | Adapters, hook de catalogo y working context.                                               | [`ActivityCatalogView.stories.tsx`](../../src/features/activity-catalog/ui/ActivityCatalogView.stories.tsx)                     |
+| `PublicActivityCard`            | Se presenta una actividad de la agenda anonima con su estado localizado.                                                               | Se administra o edita la actividad.                  | `PublicActivityRow`; sin credenciales.                                                      | [`PublicActivityCard.stories.tsx`](../../src/features/activity-catalog/ui/PublicActivityCard.stories.tsx)                       |
+| `PublicActivityFilters`         | Se filtra la agenda publica por periodo, busqueda, unidad, tipo de unidad, programa y tipo, y se limpia todo.                          | Los filtros pertenecen al catalogo administrativo.   | Estado controlado; `programOptions` derivadas; callbacks.                                   | [`PublicActivityFilters.stories.tsx`](../../src/features/activity-catalog/ui/PublicActivityFilters.stories.tsx)                 |
+| `PublicActivityDetailView`      | Una ruta publica muestra el detalle de una actividad por su id, con cupos y aviso de cancelacion.                                      | Se administra o edita la actividad.                  | `activityId`; adapters publicos; router.                                                    | [`PublicActivityDetailView.stories.tsx`](../../src/features/activity-catalog/ui/PublicActivityDetailView.stories.tsx)           |
+| `ProgramActivitiesView`         | Se administran las actividades de un programa: filtros, paginacion, alta y acceso al detalle.                                          | Se consulta la agenda publica o el catalogo general. | `programId` y `mode`; adapters; Query; sesion.                                              | [`ProgramActivitiesView.stories.tsx`](../../src/features/activity-catalog/ui/ProgramActivitiesView.stories.tsx)                 |
+| `ActivityDetailView`            | Se consulta y edita una actividad concreta con su programa, aula, ponentes, equipo y contadores.                                       | Se lista un catalogo de actividades.                 | `activityId` y `mode`; adapters; Query; router.                                             | [`ActivityDetailView.stories.tsx`](../../src/features/activity-catalog/ui/ActivityDetailView.stories.tsx)                       |
+| `ActivityLifecycleConfirmation` | Se confirma publicar, despublicar, cancelar o eliminar un borrador, con motivo opcional solo al cancelar y recuperación de conflictos. | Se edita la actividad o se lista un catálogo.        | `Provider`; props controladas; callbacks.                                                   | [`ActivityLifecycleConfirmation.stories.tsx`](../../src/features/activity-catalog/ui/ActivityLifecycleConfirmation.stories.tsx) |
+| `ActivityForm`                  | Se captura o edita una actividad, incluidos ponentes, equipo, banner y aula disponible.                                                | La actividad ya tiene otra accion de ciclo de vida.  | `Provider`; adapters de aulas; `programName`; callbacks.                                    | [`ActivityForm.stories.tsx`](../../src/features/activity-catalog/ui/ActivityForm.stories.tsx)                                   |
+
+`ActivityCard` y `EventProgramCard` consumen resumenes: el listado de actividades del contrato no
+expone `enrolledCount`, `checkedInCount`, `equipment` ni `cancelReason`, asi que el total de
+inscritos muestra «No disponible» mientras no exista un agregado contractual y `ActivityCard`
+enlaza al detalle administrativo, que consulta `GET /api/v1/activities/{id}` solo al abrirse
+(ADR-0016). `ActivityCatalogView` compone la vista conectada completa y tiene story propia con
+`play`.
+
+La agenda publica (`@/features/activity-catalog/public`) descarga las paginas de
+`GET /api/v1/activities?when=all`, valida el estado efectivo de cada item y clasifica en el cliente:
+Disponibles = programadas o en curso; Proximas = programadas; Pasadas = completadas. Todos los filtros
+combinan con AND, la preferencia de unidad prioriza sin excluir y la paginacion vuelve a la primera
+pagina al cambiar cualquier filtro. Las tarjetas no piden detalle; el detalle publico llega en 5.3.
+
+La administracion (`ProgramActivitiesView` + `ActivityDetailView` + `ActivityForm`) vive en rutas por
+programa y es compartida entre `/admin` y `/operaciones`: las capacidades salen del descubrimiento de
+permisos (`activity:read`, `activity:create`, `activity:update`, `activity:cancel`) y el backend
+conserva la autoridad final. El listado pagina en el servidor con `status=ALL` para identidades
+autorizadas; el alta nace como borrador dentro del programa y la edicion envia solo los campos
+modificados. Los ponentes solo viajan cuando la persona los edita, porque el detalle del contrato no
+devuelve su correo ni su organizacion. Un `409` conserva todo lo escrito, explica aula, horario o
+cambio de estado sin exponer el mensaje del backend y ofrece «Actualizar actividad» para releer sin
+repetir la mutacion.
+
+`ActivityDetailView` compone `ActivityLifecycleConfirmation`: publicar y despublicar envian solo el
+`PATCH` de estado con `activity:update`, mientras que cancelar usa `POST .../cancel` con su permiso
+propio `activity:cancel` y un motivo opcional de hasta 500 caracteres. La cancelacion exige un
+programa activo, `COMPLETED` y `CANCELLED` no ofrecen transiciones, y una relectura que deje de
+admitir la accion conserva el texto y deshabilita la confirmacion.
+
+La eliminacion de borradores sigue la regla publicada: `DELETE /api/v1/activities/{id}` no envia
+cuerpo, responde `204` sin contenido y exige el permiso efectivo `activity:delete` o ADMIN; solo se
+aplica a una actividad `DRAFT` de un programa `ACTIVE`. La interfaz comprueba permiso y estados, pero
+no certifica la retencion: el servidor responde `409` cuando existen registros de asistencia o
+alertas que deben conservarse.
+
+`ActivityLifecycleConfirmation` cubre tambien la eliminacion con la accion `delete`: la etiqueta es
+«Eliminar borrador», no ofrece campo de motivo y confirma con un request vacio. La autoridad de
+elegibilidad es el servidor: la interfaz solo comprueba el permiso efectivo, el estado `DRAFT` y el
+programa `ACTIVE`, y el `409` de retencion conserva el borrador. El contrato no publica ninguna
+decision ni resultado de notificacion, de modo que ni los formularios ni las confirmaciones ofrecen
+un control para notificar, los cuerpos de escritura descartan `notifyAttendees` incluso con valor
+`false` y los anuncios describen unicamente la operacion completada. El `message` libre del envelope
+no se presenta como evidencia de envio; `NTF-002` y `NTF-004` siguen pendientes de contrato.
 
 ## Contexto De Trabajo
 
-| Modulo                 | Import publico               | Uso                                                    | Requisitos                                  | Story                                                                                                        |
-| ---------------------- | ---------------------------- | ------------------------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `WorkingContextSelect` | `@/features/working-context` | Seleccionar programa o actividad activa para el panel. | Adapters, sesion `ADMIN` y working context. | [`WorkingContextSelect.stories.tsx`](../../src/features/working-context/ui/WorkingContextSelect.stories.tsx) |
+| Modulo                 | Import publico               | Uso                                                            | Requisitos                                  | Story                                                                                                        |
+| ---------------------- | ---------------------------- | -------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `WorkingContextSelect` | `@/features/working-context` | Seleccionar un programa legible o una actividad para el panel. | Adapters, sesion `ADMIN` y working context. | [`WorkingContextSelect.stories.tsx`](../../src/features/working-context/ui/WorkingContextSelect.stories.tsx) |
+
+El selector administrativo usa la modalidad completa del catalogo: ofrece todos los programas
+legibles con su estado en español, incluidas agendas permanentes y programas archivados, y solo un
+`ADMIN` puede habilitarla. Una relectura completa, concluida y sin error reconcilia la seleccion: si
+el contexto desaparece se retira y se anuncia —sin bloquear el selector—, mientras que durante una
+carga, un refresco o un fallo la seleccion se conserva y no se presenta como vigente. Un fallo del
+catalogo muestra error y reintento, nunca la afirmacion de que no hay contextos. El contexto es
+`{ kind, id }` en memoria: se limpia al cerrar sesion y jamas se persiste.
 
 ## Definicion De Terminado
 

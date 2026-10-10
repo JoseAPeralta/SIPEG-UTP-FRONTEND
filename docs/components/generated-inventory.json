@@ -16,7 +16,7 @@
         {
           "id": "features-activity-catalog-activitycard--public",
           "name": "Public",
-          "tags": ["autodocs", "dev", "manifest", "test"]
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
           "id": "features-activity-catalog-activitycard--selectable",
@@ -27,15 +27,119 @@
           "id": "features-activity-catalog-activitycard--selected",
           "name": "Selected",
           "tags": ["autodocs", "dev", "manifest", "test"]
-        },
-        {
-          "id": "features-activity-catalog-activitycard--with-enrollment-count",
-          "name": "With Enrollment Count",
-          "tags": ["autodocs", "dev", "manifest", "test"]
         }
       ],
       "storyPath": "src/features/activity-catalog/ui/ActivityCard.stories.tsx",
       "title": "Features/Activity Catalog/ActivityCard"
+    },
+    {
+      "componentPath": null,
+      "stories": [
+        {
+          "id": "features-activity-catalog-activitycatalogview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycatalogview--filtering-activities",
+          "name": "Filtering Activities",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitycatalogview--selecting-working-context",
+          "name": "Selecting Working Context",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ActivityCatalogView.stories.tsx",
+      "title": "Features/Activity Catalog/ActivityCatalogView"
+    },
+    {
+      "componentPath": null,
+      "stories": [
+        {
+          "id": "features-activity-catalog-activitydetailview--archived-program",
+          "name": "Archived Program",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--cancel-only-permission",
+          "name": "Cancel Only Permission",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--cancelled-activity",
+          "name": "Cancelled Activity",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--concurrent-state-change",
+          "name": "Concurrent State Change",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--confirming-cancellation",
+          "name": "Confirming Cancellation",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--confirming-deletion",
+          "name": "Confirming Deletion",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--deletable-draft",
+          "name": "Deletable Draft",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--delete-rejected-by-retention",
+          "name": "Delete Rejected By Retention",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--editing-activity",
+          "name": "Editing Activity",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--insufficient-delete-permission",
+          "name": "Insufficient Delete Permission",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--lifecycle-flow",
+          "name": "Lifecycle Flow",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--ongoing-with-cancellation",
+          "name": "Ongoing With Cancellation",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--read-only-completed",
+          "name": "Read Only Completed",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--verifying-access",
+          "name": "Verifying Access",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitydetailview--without-read-access",
+          "name": "Without Read Access",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ActivityDetailView.stories.tsx",
+      "title": "Features/Activity Catalog/ActivityDetailView"
     },
     {
       "componentPath": "src/features/activity-catalog/ui/ActivityFilters.tsx",
@@ -55,6 +159,90 @@
       "title": "Features/Activity Catalog/ActivityFilters"
     },
     {
+      "componentPath": null,
+      "stories": [
+        {
+          "id": "features-activity-catalog-activityform--creating-activity",
+          "name": "Creating Activity",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activityform--editing-activity",
+          "name": "Editing Activity",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activityform--rejected-by-server",
+          "name": "Rejected By Server",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ActivityForm.stories.tsx",
+      "title": "Features/Activity Catalog/ActivityForm"
+    },
+    {
+      "componentPath": "src/features/activity-catalog/ui/ActivityLifecycleConfirmation.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--cancelling-with-reason",
+          "name": "Cancelling With Reason",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--cancelling-without-reason",
+          "name": "Cancelling Without Reason",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--confirming-publication",
+          "name": "Confirming Publication",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--confirming-unpublication",
+          "name": "Confirming Unpublication",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--conflict-recovery",
+          "name": "Conflict Recovery",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--deleting-draft",
+          "name": "Deleting Draft",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--deletion-not-allowed",
+          "name": "Deletion Not Allowed",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--deletion-rejected-by-history",
+          "name": "Deletion Rejected By History",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--not-allowed",
+          "name": "Not Allowed",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--over-limit-reason",
+          "name": "Over Limit Reason",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-activitylifecycleconfirmation--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ActivityLifecycleConfirmation.stories.tsx",
+      "title": "Features/Activity Catalog/ActivityLifecycleConfirmation"
+    },
+    {
       "componentPath": "src/features/activity-catalog/ui/EventProgramCard.tsx",
       "stories": [
         {
@@ -71,14 +259,46 @@
           "id": "features-activity-catalog-eventprogramcard--summary",
           "name": "Summary",
           "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
+          "id": "features-activity-catalog-eventprogramcard--with-attendee-total",
+          "name": "With Attendee Total",
+          "tags": ["autodocs", "dev", "manifest", "test"]
         }
       ],
       "storyPath": "src/features/activity-catalog/ui/EventProgramCard.stories.tsx",
       "title": "Features/Activity Catalog/EventProgramCard"
     },
     {
+      "componentPath": null,
+      "stories": [
+        {
+          "id": "features-activity-catalog-programactivitiesview--creating-activity",
+          "name": "Creating Activity",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-programactivitiesview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-programactivitiesview--searching-activities",
+          "name": "Searching Activities",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/ProgramActivitiesView.stories.tsx",
+      "title": "Features/Activity Catalog/ProgramActivitiesView"
+    },
+    {
       "componentPath": "src/features/activity-catalog/ui/PublicActivityCard.tsx",
       "stories": [
+        {
+          "id": "features-activity-catalog-publicactivitycard--completed",
+          "name": "Completed",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
         {
           "id": "features-activity-catalog-publicactivitycard--expands-a-long-description",
           "name": "Expands A Long Description",
@@ -90,9 +310,14 @@
           "tags": ["autodocs", "dev", "manifest", "test"]
         },
         {
+          "id": "features-activity-catalog-publicactivitycard--ongoing",
+          "name": "Ongoing",
+          "tags": ["autodocs", "dev", "manifest", "test"]
+        },
+        {
           "id": "features-activity-catalog-publicactivitycard--program-with-custom-label",
           "name": "Program With Custom Label",
-          "tags": ["autodocs", "dev", "manifest", "test"]
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
           "id": "features-activity-catalog-publicactivitycard--without-classroom",
@@ -109,6 +334,58 @@
       "title": "Features/Activity Catalog/PublicActivityCard"
     },
     {
+      "componentPath": "src/features/activity-catalog/ui/PublicActivityDetailView.tsx",
+      "stories": [
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--cancelled",
+          "name": "Cancelled",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--completed",
+          "name": "Completed",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--error",
+          "name": "Error",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--loading",
+          "name": "Loading",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--not-found",
+          "name": "Not Found",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--ongoing",
+          "name": "Ongoing",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--without-capacity",
+          "name": "Without Capacity",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivitydetailview--without-classroom-or-speakers",
+          "name": "Without Classroom Or Speakers",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/activity-catalog/ui/PublicActivityDetailView.stories.tsx",
+      "title": "Features/Activity Catalog/PublicActivityDetailView"
+    },
+    {
       "componentPath": "src/features/activity-catalog/ui/PublicActivityFilters.tsx",
       "stories": [
         {
@@ -117,8 +394,33 @@
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
+          "id": "features-activity-catalog-publicactivityfilters--clears-every-filter",
+          "name": "Clears Every Filter",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
           "id": "features-activity-catalog-publicactivityfilters--offers-only-units-present-in-the-agenda",
           "name": "Offers Only Units Present In The Agenda",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--searches-activities",
+          "name": "Searches Activities",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--selects-a-period",
+          "name": "Selects A Period",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--selects-a-program",
+          "name": "Selects A Program",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-activity-catalog-publicactivityfilters--selects-a-unit-type",
+          "name": "Selects A Unit Type",
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
@@ -437,6 +739,11 @@
       "componentPath": null,
       "stories": [
         {
+          "id": "features-classrooms-classroomavailabilityselector--assigned-classroom-kept",
+          "name": "Assigned Classroom Kept",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
           "id": "features-classrooms-classroomavailabilityselector--available-classrooms",
           "name": "Available Classrooms",
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
@@ -545,6 +852,11 @@
         {
           "id": "features-collaboration-collaboratorsview--permission-revoke",
           "name": "Permission Revoke",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-collaboration-collaboratorsview--read-only-archived",
+          "name": "Read Only Archived",
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
@@ -687,6 +999,137 @@
       "title": "Features/Collaboration/PermissionList"
     },
     {
+      "componentPath": "src/features/event-programs/ui/CreateEventProgramForm.tsx",
+      "stories": [
+        {
+          "id": "features-event-programs-createeventprogramform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-createeventprogramform--rejected-by-server",
+          "name": "Rejected By Server",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-createeventprogramform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-createeventprogramform--validation-errors",
+          "name": "Validation Errors",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/event-programs/ui/CreateEventProgramForm.stories.tsx",
+      "title": "Features/Event Programs/CreateEventProgramForm"
+    },
+    {
+      "componentPath": "src/features/event-programs/ui/EditEventProgramForm.tsx",
+      "stories": [
+        {
+          "id": "features-event-programs-editeventprogramform--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-editeventprogramform--permanent-agenda",
+          "name": "Permanent Agenda",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-editeventprogramform--rejected-by-server",
+          "name": "Rejected By Server",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-editeventprogramform--submitting",
+          "name": "Submitting",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-editeventprogramform--validation-errors",
+          "name": "Validation Errors",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/event-programs/ui/EditEventProgramForm.stories.tsx",
+      "title": "Features/Event Programs/EditEventProgramForm"
+    },
+    {
+      "componentPath": "src/features/event-programs/ui/EventProgramsView.tsx",
+      "stories": [
+        {
+          "id": "features-event-programs-eventprogramsview--archived-collaborators",
+          "name": "Archived Collaborators",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--archiving-program",
+          "name": "Archiving Program",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--confirming-by-keyboard",
+          "name": "Confirming By Keyboard",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--conflict-recovery",
+          "name": "Conflict Recovery",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--creating-program",
+          "name": "Creating Program",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--default",
+          "name": "Default",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--editing-program",
+          "name": "Editing Program",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--filtering-by-status",
+          "name": "Filtering By Status",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--lifecycle-flow",
+          "name": "Lifecycle Flow",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--managing-collaborators",
+          "name": "Managing Collaborators",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--permanent-agenda",
+          "name": "Permanent Agenda",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--searching-programs",
+          "name": "Searching Programs",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-event-programs-eventprogramsview--selecting-working-context",
+          "name": "Selecting Working Context",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        }
+      ],
+      "storyPath": "src/features/event-programs/ui/EventProgramsView.stories.tsx",
+      "title": "Features/Event Programs/EventProgramsView"
+    },
+    {
       "componentPath": "src/features/organizational-units/ui/OrganizationalUnitDetailView.tsx",
       "stories": [
         {
@@ -810,6 +1253,16 @@
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {
+          "id": "features-working-context-workingcontextselect--archived-program-selected",
+          "name": "Archived Program Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-working-context-workingcontextselect--catalog-error",
+          "name": "Catalog Error",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
           "id": "features-working-context-workingcontextselect--change-selection",
           "name": "Change Selection",
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
@@ -817,6 +1270,11 @@
         {
           "id": "features-working-context-workingcontextselect--program-selected",
           "name": "Program Selected",
+          "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
+        },
+        {
+          "id": "features-working-context-workingcontextselect--selection-revoked",
+          "name": "Selection Revoked",
           "tags": ["autodocs", "dev", "manifest", "play-fn", "test"]
         },
         {

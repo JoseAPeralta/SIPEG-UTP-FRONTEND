@@ -59,17 +59,20 @@ test.describe("Storybook visual and accessibility", () => {
     await page.addInitScript((globalName: string) => {
       const globals = globalThis as typeof globalThis & Record<string, unknown>;
 
-      globals[globalName] = new Promise<void>((resolve) => {
+      globals[globalName] = new Promise<string>((resolve) => {
         const subscribe = () => {
           const channel = globals["__STORYBOOK_ADDONS_CHANNEL__"] as
-            { once: (event: string, listener: () => void) => void } | undefined;
+            | {
+                once: (event: string, listener: (payload?: { status?: string }) => void) => void;
+              }
+            | undefined;
 
           if (!channel) {
             window.setTimeout(subscribe, 10);
             return;
           }
 
-          channel.once("storyFinished", () => resolve());
+          channel.once("storyFinished", (payload) => resolve(payload?.status ?? "unknown"));
         };
 
         subscribe();
@@ -83,11 +86,16 @@ test.describe("Storybook visual and accessibility", () => {
 
       const storyRoot = page.locator("#storybook-root");
       await expect(storyRoot).toBeVisible();
-      await page.evaluate(async (globalName: string) => {
+      const playStatus = await page.evaluate(async (globalName: string) => {
         const globals = globalThis as typeof globalThis & Record<string, unknown>;
 
-        await (globals[globalName] as Promise<void> | undefined);
+        return await (globals[globalName] as Promise<string> | undefined);
       }, PLAY_FINISHED_GLOBAL);
+      // Un play fallido deja la historia a medias: comparar o registrar una captura de ese estado
+      // congela una baseline incorrecta. Solo un cierre exitoso habilita la comparacion visual.
+      expect(playStatus, `El play de ${story.id} debe terminar en exito antes de la captura`).toBe(
+        "success",
+      );
       await page.evaluate(async () => {
         await document.fonts.ready;
       });

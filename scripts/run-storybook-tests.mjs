@@ -154,7 +154,20 @@ async function main() {
   }
 
   console.log(`Starting the static catalog server on ${STATIC_URL}...`);
-  const server = spawn("pnpm", ["run", "storybook:serve"], { cwd: PROJECT_ROOT, stdio: "ignore" });
+  // `storybook:serve` delega en http-server, un nieto que sobrevive si solo se señala a pnpm. El
+  // grupo de procesos propio permite terminar tambien a ese nieto y dejar el puerto libre.
+  const server = spawn("pnpm", ["run", "storybook:serve"], {
+    cwd: PROJECT_ROOT,
+    detached: true,
+    stdio: "ignore",
+  });
+  const stopServer = () => {
+    try {
+      process.kill(-server.pid, "SIGTERM");
+    } catch {
+      server.kill("SIGTERM");
+    }
+  };
 
   for (let attempt = 0; attempt < 100; attempt += 1) {
     if (await isListening(STATIC_PORT)) {
@@ -162,7 +175,7 @@ async function main() {
     }
 
     if (attempt === 99) {
-      server.kill("SIGTERM");
+      stopServer();
       throw new Error(`The static catalog server did not start on ${STATIC_URL}.`);
     }
 
@@ -184,7 +197,7 @@ async function main() {
       },
     );
   } finally {
-    server.kill("SIGTERM");
+    stopServer();
   }
 }
 

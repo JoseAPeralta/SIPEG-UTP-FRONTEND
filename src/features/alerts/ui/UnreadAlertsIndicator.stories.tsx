@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
-import { expect } from "storybook/test";
+import { expect, waitFor } from "storybook/test";
 
 import { AppAdaptersProvider, createAppAdapters, type AlertsAdapter } from "@/app/adapters";
 import { QueryProvider, createQueryClient } from "@/app/query";
@@ -239,6 +239,10 @@ export const CurrentPage: Story = {
   play: async ({ canvas }) => {
     const link = await canvas.findByRole("link", { name: "Tienes 2 alertas sin leer" });
 
-    await expect(link).toHaveAttribute("aria-current", "page");
+    // La navegacion del router del decorador ocurre despues del montaje; sin esta espera la
+    // asercion compite con el efecto y la historia falla de forma intermitente bajo carga.
+    await waitFor(async () => {
+      await expect(link).toHaveAttribute("aria-current", "page");
+    });
   },
 };

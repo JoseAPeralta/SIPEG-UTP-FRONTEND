@@ -14,9 +14,11 @@ const ACTIVITY_TYPES = [
   "OTHER",
 ];
 const ACTIVITY_STATUSES = ["DRAFT", "SCHEDULED", "ONGOING", "COMPLETED", "CANCELLED"];
+// El parche de edicion solo publica o despublica; nunca escribe un estado efectivo.
+const ACTIVITY_UPDATE_STATUSES = ["DRAFT", "SCHEDULED"];
 const EVENT_PROGRAM_STATUSES = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED", "ARCHIVED"];
 const ORGANIZATIONAL_UNIT_TYPES = ["FACULTY", "SUBDIRECTORATE"];
-const CLASSROOM_TYPES = ["LABORATORY", "CLASSROOM"];
+const CLASSROOM_TYPES = ["LABORATORY", "CLASSROOM", "CONFERENCE_ROOM"];
 const GLOBAL_ROLES = ["ADMIN", "USER"];
 const COLLABORATION_ROLES = ["VIEWER", "EDITOR", "ORGANIZER"];
 const USER_SCOPE_TYPES = ["program", "activity"];
@@ -83,8 +85,9 @@ export const CONTRACT_EXPECTATIONS = [
       "classroom",
       "eventProgram",
       "organizationalUnit",
+      "status",
     ],
-    enums: { type: ACTIVITY_TYPES },
+    enums: { type: ACTIVITY_TYPES, status: ACTIVITY_STATUSES },
   },
   {
     method: "GET",
@@ -135,8 +138,155 @@ export const CONTRACT_EXPECTATIONS = [
     enums: { type: ACTIVITY_TYPES, status: ACTIVITY_STATUSES },
   },
   {
+    method: "POST",
+    path: "/api/v1/activities",
+    // El alta de actividades no publica intencion de notificacion y su cuerpo JSON es estricto.
+    requestBody: { absentProperties: ["notifyAttendees"], additionalProperties: false },
+  },
+  {
+    method: "PATCH",
+    path: "/api/v1/activities/{id}",
+    schema: "ActivityDetail",
+    required: [
+      "id",
+      "name",
+      "description",
+      "type",
+      "date",
+      "startTime",
+      "endTime",
+      "capacity",
+      "bannerUrl",
+      "status",
+      "cancelReason",
+      "equipment",
+      "enrolledCount",
+      "checkedInCount",
+      "speakers",
+      "classroom",
+      "eventProgram",
+      "organizationalUnit",
+    ],
+    enums: { type: ACTIVITY_TYPES, status: ACTIVITY_STATUSES },
+    // Publicar o despublicar solo admite el cambio de estado; el resto de campos es la edicion.
+    // El cuerpo no publica intencion de notificacion y mantiene additionalProperties: false.
+    requestBody: {
+      enums: { status: ACTIVITY_UPDATE_STATUSES },
+      absentProperties: ["notifyAttendees"],
+      additionalProperties: false,
+    },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/activities/{id}/cancel",
+    schema: "ActivityDetail",
+    required: [
+      "id",
+      "name",
+      "description",
+      "type",
+      "date",
+      "startTime",
+      "endTime",
+      "capacity",
+      "bannerUrl",
+      "status",
+      "cancelReason",
+      "equipment",
+      "enrolledCount",
+      "checkedInCount",
+      "speakers",
+      "classroom",
+      "eventProgram",
+      "organizationalUnit",
+    ],
+    enums: { type: ACTIVITY_TYPES, status: ACTIVITY_STATUSES },
+    // El motivo de cancelacion es opcional y no declara enum; su limite de 500 vive en la spec.
+    // Tampoco publica intencion de notificacion.
+    requestBody: { absentProperties: ["notifyAttendees"], additionalProperties: false },
+  },
+  {
+    method: "DELETE",
+    path: "/api/v1/activities/{id}",
+    // La eliminacion responde 204 sin cuerpo y no declara request body.
+    response: { content: "absent", status: "204" },
+    requestBody: "absent",
+  },
+  {
     method: "GET",
     path: "/api/v1/event-programs",
+    schema: "EventProgramDetail",
+    required: [
+      "id",
+      "name",
+      "description",
+      "label",
+      "bannerUrl",
+      "isDefault",
+      "status",
+      "startDate",
+      "endDate",
+      "organizationalUnit",
+    ],
+    enums: { status: EVENT_PROGRAM_STATUSES },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/event-programs",
+    schema: "EventProgramDetail",
+    required: [
+      "id",
+      "name",
+      "description",
+      "label",
+      "bannerUrl",
+      "isDefault",
+      "status",
+      "startDate",
+      "endDate",
+      "organizationalUnit",
+    ],
+    enums: { status: EVENT_PROGRAM_STATUSES },
+  },
+  {
+    method: "PATCH",
+    path: "/api/v1/event-programs/{id}",
+    schema: "EventProgramDetail",
+    required: [
+      "id",
+      "name",
+      "description",
+      "label",
+      "bannerUrl",
+      "isDefault",
+      "status",
+      "startDate",
+      "endDate",
+      "organizationalUnit",
+    ],
+    enums: { status: EVENT_PROGRAM_STATUSES },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/event-programs/{id}/archive",
+    schema: "EventProgramDetail",
+    required: [
+      "id",
+      "name",
+      "description",
+      "label",
+      "bannerUrl",
+      "isDefault",
+      "status",
+      "startDate",
+      "endDate",
+      "organizationalUnit",
+    ],
+    enums: { status: EVENT_PROGRAM_STATUSES },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/event-programs/{id}/reactivate",
     schema: "EventProgramDetail",
     required: [
       "id",
@@ -532,11 +682,43 @@ export function compareContract(document, expectations = CONTRACT_EXPECTATIONS) 
       }
     }
 
-    if (expectation.requestBody) {
+    if (expectation.response) {
+      checks += 1;
+      const response = view.operation?.responses?.[expectation.response.status];
+
+      if (!response) {
+        issues.push(`${label}: falta la respuesta ${expectation.response.status} en el contrato.`);
+      } else if (expectation.response.content === "absent") {
+        if (Object.keys(response.content ?? {}).length > 0) {
+          issues.push(
+            `${label}: la respuesta ${expectation.response.status} debe ir sin cuerpo y el contrato ya declara contenido.`,
+          );
+        }
+      }
+    }
+
+    if (expectation.requestBody === "absent") {
+      checks += 1;
+      if (view.operation?.requestBody) {
+        issues.push(`${label}: la operacion no debe declarar requestBody.`);
+      }
+    } else if (expectation.requestBody) {
       const bodySchema = view.operation?.requestBody?.content?.["application/json"]?.schema;
 
       for (const [field, expectedValues] of Object.entries(expectation.requestBody.enums ?? {})) {
         checks += checkEnum(bodySchema, field, expectedValues, `${label} (requestBody)`, issues);
+      }
+
+      if (
+        expectation.requestBody.absentProperties ||
+        expectation.requestBody.additionalProperties !== undefined
+      ) {
+        checks += checkRequestBodyBlock(
+          bodySchema,
+          expectation.requestBody,
+          `${label} (requestBody)`,
+          issues,
+        );
       }
     }
   }
@@ -567,6 +749,46 @@ function checkEnum(schema, field, expectedValues, label, issues) {
         `${label}.${field}: nuevo valor ${value} en el contrato; actualiza dominio, mappers, mocks y tests.`,
       );
     }
+  }
+
+  return 1;
+}
+
+function checkRequestBodyBlock(schema, expected, label, issues) {
+  const properties = schema?.properties;
+  const inspectable =
+    schema &&
+    typeof schema === "object" &&
+    typeof schema.$ref !== "string" &&
+    !Array.isArray(schema.allOf) &&
+    !Array.isArray(schema.oneOf) &&
+    !Array.isArray(schema.anyOf) &&
+    properties &&
+    typeof properties === "object" &&
+    !Array.isArray(properties);
+
+  if (!inspectable) {
+    issues.push(
+      `${label}: el esquema de la petición no puede verificarse con certeza; requiere revisión del bloqueo de notificación de 5.8.`,
+    );
+    return 1;
+  }
+
+  for (const field of expected.absentProperties ?? []) {
+    if (Object.prototype.hasOwnProperty.call(properties, field)) {
+      issues.push(
+        `${label}: El contrato de la operación cambió: revise el bloqueo de notificación de 5.8 antes de integrar nuevos campos.`,
+      );
+    }
+  }
+
+  if (
+    expected.additionalProperties !== undefined &&
+    schema.additionalProperties !== expected.additionalProperties
+  ) {
+    issues.push(
+      `${label}: el contrato dejó de declarar additionalProperties: ${expected.additionalProperties}; revise el bloqueo de notificación de 5.8 antes de integrar nuevos campos.`,
+    );
   }
 
   return 1;
