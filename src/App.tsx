@@ -10,6 +10,7 @@ import {
 import { useSessionStore } from "@/store/session";
 
 const ActivityCatalogPage = lazy(() => import("@pages/ActivityCatalogPage"));
+const ActivityDetailPage = lazy(() => import("@pages/ActivityDetailPage"));
 const AdminLayout = lazy(() =>
   import("@/components/adminShell").then(({ AdminLayout: Component }) => ({ default: Component })),
 );
@@ -20,11 +21,14 @@ const ChangePasswordPage = lazy(() => import("@pages/ChangePasswordPage"));
 const ClassroomsPage = lazy(() => import("@pages/ClassroomsPage"));
 const ClassroomDetailPage = lazy(() => import("@pages/ClassroomDetailPage"));
 const DashboardPage = lazy(() => import("@pages/DashboardPage"));
+const EventProgramsPage = lazy(() => import("@pages/EventProgramsPage"));
 const ForgotPasswordPage = lazy(() => import("@pages/ForgotPasswordPage"));
 const LandingPage = lazy(() => import("@pages/LandingPage"));
 const LoginPage = lazy(() => import("@pages/LoginPage"));
 const LogoutPage = lazy(() => import("@pages/LogoutPage"));
 const OperationsPage = lazy(() => import("@pages/OperationsPage"));
+const OperationalActivitiesPage = lazy(() => import("@pages/OperationalActivitiesPage"));
+const OperationalActivityDetailPage = lazy(() => import("@pages/OperationalActivityDetailPage"));
 const OperationalScopePage = lazy(() => import("@pages/OperationalScopePage"));
 const OperationsLayout = lazy(() =>
   import("@/components/operationsShell").then(({ OperationsLayout: Component }) => ({
@@ -42,6 +46,8 @@ const PersonalAreaLayout = lazy(() =>
   })),
 );
 const ProfilePage = lazy(() => import("@pages/ProfilePage"));
+const ProgramActivitiesPage = lazy(() => import("@pages/ProgramActivitiesPage"));
+const PublicActivityDetailPage = lazy(() => import("@pages/PublicActivityDetailPage"));
 const ReportsPage = lazy(() => import("@pages/ReportsPage"));
 const RegisterPage = lazy(() => import("@pages/RegisterPage"));
 const ResetPasswordPage = lazy(() => import("@pages/ResetPasswordPage"));
@@ -115,6 +121,7 @@ export function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={renderRoute(<LandingPage />)} />
+        <Route path="actividades/:activityId" element={renderRoute(<PublicActivityDetailPage />)} />
         <Route path="login" element={renderRoute(<LoginPage />)} />
         <Route path="registro" element={renderRoute(<RegisterPage />)} />
         <Route path="forgot-password" element={renderRoute(<ForgotPasswordPage />)} />
@@ -158,8 +165,16 @@ export function App() {
               element={renderRoute(<OperationalScopePage type="program" />)}
             />
             <Route
+              path="programas/:programId/actividades"
+              element={renderRoute(<OperationalActivitiesPage />)}
+            />
+            <Route
               path="actividades/:activityId"
               element={renderRoute(<OperationalScopePage type="activity" />)}
+            />
+            <Route
+              path="actividades/:activityId/detalle"
+              element={renderRoute(<OperationalActivityDetailPage />)}
             />
           </Route>
         </Route>
@@ -167,6 +182,12 @@ export function App() {
           <Route path="admin" element={renderRoute(<AdminLayout />)}>
             <Route index element={renderRoute(<DashboardPage />)} />
             <Route path="eventos" element={renderRoute(<ActivityCatalogPage />)} />
+            <Route path="programas" element={renderRoute(<EventProgramsPage />)} />
+            <Route
+              path="programas/:programId/actividades"
+              element={renderRoute(<ProgramActivitiesPage />)}
+            />
+            <Route path="actividades/:activityId" element={renderRoute(<ActivityDetailPage />)} />
             <Route path="aulas" element={renderRoute(<ClassroomsPage />)} />
             <Route path="aulas/:classroomId" element={renderRoute(<ClassroomDetailPage />)} />
             <Route path="ponentes" element={renderRoute(<SpeakersPage />)} />

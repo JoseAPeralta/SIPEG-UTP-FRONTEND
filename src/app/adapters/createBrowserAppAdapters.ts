@@ -2,6 +2,8 @@ import type { ApiClientOptions } from "./http/apiClient";
 import type { AppAdapters } from "./contracts";
 import { resolveDataSource, type DataSource } from "./dataSource";
 import { createDeferredAdapter } from "./deferredAdapter";
+import type { MockActivityRegistry } from "@/features/activity-catalog/adapters/mockActivityRegistry";
+import type { MockEventProgramRegistry } from "@/features/event-programs/adapters/mockEventProgramsAdapter";
 import { useSessionStore } from "@/store/session";
 
 export type CreateBrowserAppAdaptersOptions = {
@@ -22,8 +24,69 @@ export function createBrowserAppAdapters({
   source = resolveDataSource(),
 }: CreateBrowserAppAdaptersOptions = {}): AppAdapters {
   const isApi = source === "api";
+  let mockActivityRegistryPromise: Promise<MockActivityRegistry> | undefined;
+  const getMockActivityRegistry = () =>
+    (mockActivityRegistryPromise ??=
+      import("@/features/activity-catalog/adapters/mockActivityRegistry").then((module) =>
+        module.createMockActivityRegistry(),
+      ));
+  let mockProgramRegistryPromise: Promise<MockEventProgramRegistry> | undefined;
+  const getMockProgramRegistry = () =>
+    (mockProgramRegistryPromise ??=
+      import("@/features/event-programs/adapters/mockEventProgramsAdapter").then((module) =>
+        module.createMockEventProgramRegistry(),
+      ));
+  const organizationalUnits = createDeferredAdapter<AppAdapters["organizationalUnits"]>(async () =>
+    isApi
+      ? import("@/features/organizational-units/adapters/apiOrganizationalUnitsAdapter").then(
+          ({ createApiOrganizationalUnitsAdapter }) =>
+            createApiOrganizationalUnitsAdapter(apiOptions, readSessionAccessToken),
+        )
+      : import("@/features/organizational-units/adapters/mockOrganizationalUnitsAdapter").then(
+          ({ createMockOrganizationalUnitsAdapter }) => createMockOrganizationalUnitsAdapter(),
+        ),
+  );
+  const eventPrograms = createDeferredAdapter<AppAdapters["eventPrograms"]>(async () =>
+    isApi
+      ? import("@/features/event-programs/adapters/apiEventProgramsAdapter").then(
+          ({ createApiEventProgramsAdapter }) =>
+            createApiEventProgramsAdapter(apiOptions, readSessionAccessToken),
+        )
+      : getMockProgramRegistry().then((registry) =>
+          import("@/features/event-programs/adapters/mockEventProgramsAdapter").then(
+            ({ createMockEventProgramsAdapter }) =>
+              createMockEventProgramsAdapter({
+                readGlobalRole: () => useSessionStore.getState().currentUser?.globalRole,
+                readOrganizationalUnits: () => organizationalUnits.loadOrganizationalUnits(),
+                registry,
+              }),
+          ),
+        ),
+  );
 
   return {
+    eventPrograms,
+    activities: createDeferredAdapter(async () =>
+      isApi
+        ? import("@/features/activity-catalog/adapters/apiActivitiesAdapter").then(
+            ({ createApiActivitiesAdapter }) =>
+              createApiActivitiesAdapter(apiOptions, readSessionAccessToken),
+          )
+        : getMockActivityRegistry().then((registry) =>
+            import("@/features/activity-catalog/adapters/mockActivitiesAdapter").then(
+              ({ createMockActivitiesAdapter, hasRetainedActivityHistory }) =>
+                createMockActivitiesAdapter({
+                  readCanDeleteActivity: () =>
+                    useSessionStore.getState().currentUser?.globalRole === "ADMIN",
+                  readEventPrograms: () => eventPrograms.loadEventPrograms("administrative", "ALL"),
+                  readGlobalRole: () => useSessionStore.getState().currentUser?.globalRole,
+                  readOrganizationalUnits: () => organizationalUnits.loadOrganizationalUnits(),
+                  readRetainedHistory: hasRetainedActivityHistory,
+                  registry,
+                }),
+            ),
+          ),
+    ),
     alerts: createDeferredAdapter(async () =>
       isApi
         ? import("@/features/alerts/adapters/apiAlertsAdapter").then(({ createApiAlertsAdapter }) =>
@@ -40,8 +103,16 @@ export function createBrowserAppAdapters({
             ({ createApiCollaboratorsAdapter }) =>
               createApiCollaboratorsAdapter(apiOptions, readSessionAccessToken),
           )
-        : import("@/features/collaboration/adapters/mockCollaboratorsAdapter").then(
-            ({ createMockCollaboratorsAdapter }) => createMockCollaboratorsAdapter(),
+        : Promise.all([getMockProgramRegistry(), getMockActivityRegistry()]).then(
+            ([programRegistry, activityRegistry]) =>
+              import("@/features/collaboration/adapters/mockCollaboratorsAdapter").then(
+                ({ createMockCollaboratorsAdapter }) =>
+                  createMockCollaboratorsAdapter({
+                    readActivityProgramId: (activityId) =>
+                      activityRegistry.get(activityId)?.eventProgramId,
+                    readProgramState: (programId) => programRegistry.get(programId)?.status ?? null,
+                  }),
+              ),
           ),
     ),
     ownPermissions: createDeferredAdapter(async () =>
@@ -66,10 +137,13 @@ export function createBrowserAppAdapters({
       isApi
         ? import("@/features/activity-catalog/adapters/apiActivityCatalogAdapter").then(
             ({ createApiActivityCatalogAdapter }) =>
-              createApiActivityCatalogAdapter(apiOptions, readSessionAccessToken),
+              createApiActivityCatalogAdapter(eventPrograms, apiOptions, readSessionAccessToken),
           )
-        : import("@/features/activity-catalog/adapters/mockActivityCatalogAdapter").then(
-            ({ createMockActivityCatalogAdapter }) => createMockActivityCatalogAdapter(),
+        : getMockActivityRegistry().then((registry) =>
+            import("@/features/activity-catalog/adapters/mockActivityCatalogAdapter").then(
+              ({ createMockActivityCatalogAdapter }) =>
+                createMockActivityCatalogAdapter(eventPrograms, { registry }),
+            ),
           ),
     ),
     auth: createDeferredAdapter(async () =>
@@ -96,8 +170,11 @@ export function createBrowserAppAdapters({
             ({ createApiClassroomsAdapter }) =>
               createApiClassroomsAdapter(apiOptions, readSessionAccessToken),
           )
-        : import("@/features/classrooms/adapters/mockClassroomsAdapter").then(
-            ({ createMockClassroomsAdapter }) => createMockClassroomsAdapter(),
+        : getMockActivityRegistry().then((registry) =>
+            import("@/features/classrooms/adapters/mockClassroomsAdapter").then(
+              ({ createMockClassroomsAdapter }) =>
+                createMockClassroomsAdapter({ readActivities: () => [...registry.values()] }),
+            ),
           ),
     ),
     operations: createDeferredAdapter(async () =>
@@ -109,25 +186,21 @@ export function createBrowserAppAdapters({
             ({ createMockOperationsAdapter }) => createMockOperationsAdapter(),
           ),
     ),
-    organizationalUnits: createDeferredAdapter(async () =>
-      isApi
-        ? import("@/features/organizational-units/adapters/apiOrganizationalUnitsAdapter").then(
-            ({ createApiOrganizationalUnitsAdapter }) =>
-              createApiOrganizationalUnitsAdapter(apiOptions, readSessionAccessToken),
-          )
-        : import("@/features/organizational-units/adapters/mockOrganizationalUnitsAdapter").then(
-            ({ createMockOrganizationalUnitsAdapter }) => createMockOrganizationalUnitsAdapter(),
-          ),
-    ),
+    organizationalUnits,
     publicActivityCatalog: createDeferredAdapter(async () =>
       isApi
         ? import("@/features/activity-catalog/adapters/apiPublicActivityCatalogAdapter").then(
             ({ createApiPublicActivityCatalogAdapter }) =>
               createApiPublicActivityCatalogAdapter(apiOptions),
           )
-        : import("@/features/activity-catalog/adapters/mockPublicActivityCatalogAdapter").then(
-            ({ createMockPublicActivityCatalogAdapter }) =>
-              createMockPublicActivityCatalogAdapter(),
+        : getMockActivityRegistry().then((registry) =>
+            import("@/features/activity-catalog/adapters/mockPublicActivityCatalogAdapter").then(
+              ({ createMockPublicActivityCatalogAdapter }) =>
+                createMockPublicActivityCatalogAdapter({
+                  readActivities: () => [...registry.values()],
+                  readEventPrograms: () => eventPrograms.loadEventPrograms("administrative", "ALL"),
+                }),
+            ),
           ),
     ),
     registration: createDeferredAdapter(async () =>
@@ -154,9 +227,16 @@ export function createBrowserAppAdapters({
             ({ createApiUserScopesAdapter }) =>
               createApiUserScopesAdapter(apiOptions, readSessionAccessToken),
           )
-        : import("@/features/collaboration/adapters/mockUserScopesAdapter").then(
-            ({ createMockUserScopesAdapter }) =>
-              createMockUserScopesAdapter(() => useSessionStore.getState().currentUser?.globalRole),
+        : Promise.all([getMockProgramRegistry(), getMockActivityRegistry()]).then(
+            ([programRegistry, activityRegistry]) =>
+              import("@/features/collaboration/adapters/mockUserScopesAdapter").then(
+                ({ createMockUserScopesAdapter }) =>
+                  createMockUserScopesAdapter(
+                    () => useSessionStore.getState().currentUser?.globalRole,
+                    () => [...programRegistry.values()],
+                    () => [...activityRegistry.values()],
+                  ),
+              ),
           ),
     ),
   };

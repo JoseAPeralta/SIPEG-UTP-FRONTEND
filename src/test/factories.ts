@@ -1,6 +1,7 @@
 import type {
   Activity,
   ActivityCatalog,
+  ActivitySummary,
   AuthenticatedUser,
   AuthTokens,
   AttendanceRecord,
@@ -10,13 +11,20 @@ import type {
   EventProgram,
   OperationsReadModel,
   OrganizationalUnit,
+  PublicActivity,
   SpeakerProposal,
 } from "@/types/domain";
 import type {
   ClassroomAvailability,
   ClassroomDetail,
 } from "@/features/classrooms/model/classroomDetail";
+import type { PublicActivityDetail } from "@/features/activity-catalog/model/publicActivityDetail";
+import type {
+  AdministrativeActivityDetail,
+  AdministrativeActivityListItem,
+} from "@/features/activity-catalog/model/administrativeActivity";
 import type { AdminUser } from "@/features/users/model/adminUser";
+import type { EventProgramListItem } from "@/features/event-programs/model/eventProgramList";
 import type { Alert, AlertsPage } from "@/features/alerts/model/alert";
 import type { UserScope } from "@/features/collaboration/model/userScopes";
 import type { EffectiveCollaborator } from "@/features/collaboration/model/collaborators";
@@ -211,6 +219,22 @@ export function createEventProgram(overrides: Partial<EventProgram> = {}): Event
   };
 }
 
+export function createEventProgramListItem(
+  overrides: Partial<EventProgramListItem> = {},
+): EventProgramListItem {
+  const { organizationalUnit, ...programOverrides } = overrides;
+
+  return {
+    ...createEventProgram(programOverrides),
+    organizationalUnit: {
+      id: "fic",
+      name: "Facultad de Ingenieria Civil",
+      type: "FACULTY",
+      ...organizationalUnit,
+    },
+  };
+}
+
 export function createClassroom(overrides: Partial<Classroom> = {}): Classroom {
   return {
     amenities: ["projector"],
@@ -265,11 +289,121 @@ export function createActivity(overrides: Partial<Activity> = {}): Activity {
   };
 }
 
+/** Resumen de listado: la misma actividad sin los campos que solo expone el detalle. */
+export function createActivitySummary(overrides: Partial<ActivitySummary> = {}): ActivitySummary {
+  return {
+    bannerUrl: null,
+    capacity: 40,
+    classroomId: "classroom-1",
+    date: "2026-06-15",
+    description: "Actividad de prueba",
+    endTime: "11:00",
+    eventProgramId: "program-1",
+    id: "activity-1",
+    name: "Actividad de prueba",
+    speakers: [],
+    startTime: "09:00",
+    status: "SCHEDULED",
+    type: "TALK",
+    ...overrides,
+  };
+}
+
+export function createPublicActivity(
+  overrides: Partial<PublicActivity> & { id: string },
+): PublicActivity {
+  return {
+    bannerUrl: null,
+    capacity: 40,
+    classroom: { building: "Edificio de Aulas", id: "classroom-1", name: "Aula 101" },
+    date: "2026-06-15",
+    description: "Actividad publica de prueba",
+    endTime: "11:00",
+    name: `Actividad ${overrides.id}`,
+    program: {
+      id: "program-1",
+      isDefault: false,
+      label: "Semana de innovacion",
+      name: "Semana de Innovacion Academica",
+    },
+    speakers: [{ firstName: "Ana", id: "speaker-1", lastName: "Perez" }],
+    startTime: "09:00",
+    status: "SCHEDULED",
+    type: "TALK",
+    unit: { backendId: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
+    ...overrides,
+  };
+}
+
+export function createPublicActivityDetail(
+  overrides: Partial<PublicActivityDetail> = {},
+): PublicActivityDetail {
+  return {
+    bannerUrl: null,
+    cancelReason: null,
+    capacity: 40,
+    classroom: { building: "Edificio de Aulas", id: "classroom-1", name: "Aula 101" },
+    date: "2026-06-15",
+    description: "Actividad publica de prueba",
+    endTime: "11:00",
+    enrolledCount: 0,
+    id: "activity-1",
+    name: `Actividad ${overrides.id ?? "activity-1"}`,
+    program: {
+      id: "program-1",
+      isDefault: false,
+      label: "Semana de innovacion",
+      name: "Semana de Innovacion Academica",
+    },
+    speakers: [{ firstName: "Ana", id: "speaker-1", lastName: "Perez" }],
+    startTime: "09:00",
+    status: "SCHEDULED",
+    type: "TALK",
+    unit: { backendId: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
+    ...overrides,
+  };
+}
+
+export function createAdministrativeActivityListItem(
+  overrides: Partial<AdministrativeActivityListItem> = {},
+): AdministrativeActivityListItem {
+  return {
+    bannerUrl: null,
+    capacity: 40,
+    classroom: { building: "Edificio de Aulas", id: "classroom-1", name: "Aula 101" },
+    date: "2026-06-15",
+    description: "Actividad de prueba",
+    endTime: "11:00",
+    eventProgram: { id: "program-1", label: "Semana de innovacion", name: "Programa de prueba" },
+    id: "activity-1",
+    name: "Actividad de prueba",
+    organizationalUnit: { id: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
+    speakers: [],
+    startTime: "09:00",
+    status: "SCHEDULED",
+    type: "TALK",
+    ...overrides,
+  };
+}
+
+export function createAdministrativeActivityDetail(
+  overrides: Partial<AdministrativeActivityDetail> = {},
+): AdministrativeActivityDetail {
+  return {
+    ...createAdministrativeActivityListItem(),
+    cancelReason: null,
+    checkedInCount: 0,
+    enrolledCount: 10,
+    equipment: ["Proyector"],
+    ...overrides,
+  };
+}
+
 export function createCatalog(overrides: Partial<ActivityCatalog> = {}): ActivityCatalog {
   const organizationalUnits = overrides.organizationalUnits ?? [createOrganizationalUnit()];
   const eventPrograms = overrides.eventPrograms ?? [createEventProgram()];
   const classrooms = overrides.classrooms ?? [createClassroom()];
-  const activities = overrides.activities ?? [createActivity()];
+  const activities = overrides.activities ?? [createActivitySummary()];
 
   return { activities, classrooms, eventPrograms, organizationalUnits };
 }
@@ -282,7 +416,7 @@ export function createActivityCatalogPayload(
   overrides: Partial<Pick<ActivityCatalog, "activities" | "eventPrograms">> = {},
 ): Pick<ActivityCatalog, "activities" | "eventPrograms"> {
   return {
-    activities: overrides.activities ?? [createActivity()],
+    activities: overrides.activities ?? [createActivitySummary()],
     eventPrograms: overrides.eventPrograms ?? [createEventProgram()],
   };
 }

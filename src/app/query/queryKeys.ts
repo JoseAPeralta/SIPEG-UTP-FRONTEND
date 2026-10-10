@@ -1,8 +1,10 @@
 import type { AdminUserFilters, ClassroomFilters } from "@/app/adapters/contracts";
+import type { EventProgramListFilters } from "@/features/event-programs/model/eventProgramList";
 import type { AlertFilters } from "@/features/alerts/model/alert";
 import type { AvailableClassroomsCriteria } from "@/features/classrooms/model/availableClassrooms";
 import type { UserScopeFilters } from "@/features/collaboration/model/userScopes";
 import type { CollaborationScope } from "@/features/collaboration/model/ownPermissions";
+import type { ActivityListFilters } from "@/features/activity-catalog/model/administrativeActivity";
 
 export const queryKeys = {
   /**
@@ -19,9 +21,57 @@ export const queryKeys = {
   collaborators: (userId: string, scope: CollaborationScope) =>
     ["collaborators", userId, scope.type, scope.id] as const,
   collaboratorsScope: (userId: string) => ["collaborators", userId] as const,
+  /**
+   * Administracion de actividades: pagina privada por identidad, programa, filtros y pagina.
+   * `activityAdministrationScope` alcanza todas las paginas y filtros de la identidad.
+   */
+  activityAdministrationPage: (
+    userId: string,
+    programId: string,
+    filters: ActivityListFilters,
+    page: number,
+  ) => ["activity-administration", userId, programId, filters, page] as const,
+  activityAdministrationScope: (userId: string) => ["activity-administration", userId] as const,
+  /**
+   * Prefijo por identidad y programa que alcanza todas las paginas y filtros del programa
+   * propietario; una mutacion de actividad no invalida las paginas de otro programa.
+   */
+  activityAdministrationProgramScope: (userId: string, programId: string) =>
+    ["activity-administration", userId, programId] as const,
+  /**
+   * Detalle privado por identidad y actividad; separado del listado porque una edicion debe
+   * refrescar el detalle sin descartar las paginas cacheadas.
+   */
+  activityAdministrationDetail: (userId: string, activityId: string) =>
+    ["activity-administration-detail", userId, activityId] as const,
+  activityAdministrationDetailScope: (userId: string) =>
+    ["activity-administration-detail", userId] as const,
   administrativeActivityCatalog: (userId: string) =>
     ["administrative-activity-catalog", userId] as const,
+  /**
+   * Catalogo administrativo completo (`all-programs`). El prefijo de dos segmentos
+   * `administrativeActivityCatalog(userId)` alcanza esta clave al invalidar, de modo que las
+   * mutaciones existentes siguen cubriendo ambas modalidades.
+   */
+  administrativeWorkingContextCatalog: (userId: string) =>
+    ["administrative-activity-catalog", userId, "all-programs"] as const,
   administrativeCareers: (userId: string) => ["administrative-careers", userId] as const,
+  /** Programas administrativos independientes del catálogo; privados y nunca persistidos. */
+  administrativeEventPrograms: (userId: string) =>
+    ["administrative-event-programs", userId] as const,
+  /**
+   * Programas en cualquier estado, incluidos borradores y archivados. La usa la administracion de
+   * actividades para resolver el programa propietario; el prefijo de dos segmentos que invalidan
+   * las mutaciones de programas ya la alcanza.
+   */
+  administrativeEventProgramsAll: (userId: string) =>
+    ["administrative-event-programs", userId, "ALL"] as const,
+  /** Una pagina filtrada del listado administrativo; se separa por filtros y pagina. */
+  administrativeEventProgramsPage: (
+    userId: string,
+    filters: EventProgramListFilters,
+    page: number,
+  ) => ["administrative-event-programs", userId, filters, page] as const,
   administrativeClassroomDetail: (userId: string, classroomId: string) =>
     ["administrative-classroom-detail", userId, classroomId] as const,
   administrativeClassrooms: (userId: string, filters: ClassroomFilters = {}) =>
@@ -38,6 +88,13 @@ export const queryKeys = {
     ["administrative-organizational-unit-detail", userId] as const,
   administrativeOrganizationalUnits: (userId: string) =>
     ["administrative-organizational-units", userId] as const,
+  /**
+   * Unidades administrativas en cualquier estado. El prefijo de dos segmentos
+   * `administrativeOrganizationalUnits(userId)` la alcanza al invalidar, asi que las mutaciones
+   * existentes invalidan tambien la modalidad completa.
+   */
+  administrativeOrganizationalUnitsAll: (userId: string) =>
+    ["administrative-organizational-units", userId, "all"] as const,
   administrativeUserDetail: (userId: string, targetUserId: string) =>
     ["administrative-user-detail", userId, targetUserId] as const,
   /** Listado administrativo aplanado (todas las paginas) que consumen los resumenes heredados. */
@@ -53,6 +110,12 @@ export const queryKeys = {
   availableClassroomsRoot: ["available-classrooms"],
   operations: (userId: string) => ["operations", userId] as const,
   publicActivityCatalog: ["public-activity-catalog"],
+  /**
+   * Detalle publico por actividad. Separado del listado porque una actividad
+   * puede cancelarse o completarse mientras la agenda sigue vigente; jamas se
+   * persiste ni incluye credenciales.
+   */
+  publicActivityDetail: (activityId: string) => ["public-activity-detail", activityId] as const,
   publicCareers: ["public-careers"],
   publicClassroomDetail: (classroomId: string) => ["public-classroom-detail", classroomId] as const,
   publicClassrooms: ["public-classrooms"],

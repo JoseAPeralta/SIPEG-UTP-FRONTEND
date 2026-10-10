@@ -172,6 +172,7 @@ function checkFeatureBarrel(file: SourceFileRecord, resolved: string): string | 
     "src/features/auth/personalArea",
     "src/features/auth/session",
     "src/features/collaboration/navigation",
+    "src/features/event-programs/public",
     "src/features/organizational-units/public",
   ]);
 
@@ -292,8 +293,14 @@ const operationsConsumers = new Set([
  * list when Fase 3.1 extracted `/api/v1/admin/users` from the operations aggregate, and
  * `/api/v1/users/me/scopes` when Fase 3.4 replaced the forbidden catalog N+1.
  */
-const ownedEndpoints: readonly { endpoint: string; owner: string }[] = [
+const ownedEndpoints: readonly { endpoint: string; owner: string; exact?: boolean }[] = [
+  {
+    endpoint: "/api/v1/event-programs",
+    owner: "src/features/event-programs/adapters/",
+    exact: true,
+  },
   { endpoint: "/api/v1/alerts", owner: "src/features/alerts/adapters/" },
+  { endpoint: "/api/v1/activities", owner: "src/features/activity-catalog/adapters/" },
   {
     endpoint: "/api/v1/organizational-units",
     owner: "src/features/organizational-units/adapters/",
@@ -308,8 +315,22 @@ function collectEndpointOwnershipViolations(files: SourceFileRecord[]): Violatio
   const violations: Violation[] = [];
 
   for (const file of files) {
-    for (const { endpoint, owner } of ownedEndpoints) {
-      if (!file.sourceText.includes(endpoint) || file.path.startsWith(owner)) {
+    for (const { endpoint, owner, exact } of ownedEndpoints) {
+      let containsEndpoint = file.sourceText.includes(endpoint);
+      if (exact) {
+        containsEndpoint = false;
+        const visit = (node: ts.Node) => {
+          const text = ts.isStringLiteralLike(node)
+            ? node.text
+            : ts.isTemplateExpression(node)
+              ? node.head.text
+              : null;
+          if (text === endpoint || text?.startsWith(`${endpoint}?`)) containsEndpoint = true;
+          ts.forEachChild(node, visit);
+        };
+        visit(file.sourceFile);
+      }
+      if (!containsEndpoint || file.path.startsWith(owner)) {
         continue;
       }
 
@@ -323,6 +344,38 @@ function collectEndpointOwnershipViolations(files: SourceFileRecord[]): Violatio
   }
 
   return violations;
+}
+
+function checkEventProgramsIndependence(file: SourceFileRecord, resolved: string): string | null {
+  if (
+    file.path.startsWith("src/features/event-programs/") &&
+    resolved.startsWith("src/features/activity-catalog")
+  ) {
+    return "programas debe consumir su puerto propio, sin depender de la composición de actividades.";
+  }
+  return null;
+}
+
+const compositeCatalogAdapterPath =
+  "src/features/activity-catalog/adapters/apiActivityCatalogAdapter.ts";
+
+/**
+ * R13: el catalogo compuesto es una lectura administrativa. Su adapter no puede volver a declarar
+ * `mode: "none"`: la lectura anonima pertenece a `publicActivityCatalog` y a un modelo distinto.
+ */
+function collectAnonymousCatalogViolations(files: SourceFileRecord[]): Violation[] {
+  return files
+    .filter(
+      (file) =>
+        file.path === compositeCatalogAdapterPath && /mode:\s*["']none["']/.test(file.sourceText),
+    )
+    .map((file) => ({
+      file: file.path,
+      remediation:
+        "deja el catalogo compuesto como lectura administrativa con Bearer; la agenda publica usa publicActivityCatalog.",
+      resolved: 'mode: "none"',
+      specifier: 'mode: "none"',
+    }));
 }
 
 function checkOperationsConsumer(file: SourceFileRecord, resolved: string): string | null {
@@ -353,6 +406,58 @@ function renderViolations(rule: string, violations: Violation[]): string {
 }
 
 describe("architecture fitness", () => {
+  it("R8: reserves the program listing while preserving subresource ownership", () => {
+    const listing = createSourceFileRecord(
+      "src/features/activity-catalog/adapters/apiActivityCatalogAdapter.ts",
+      'const path = "/api/v1/event-programs";',
+    );
+    const activities = createSourceFileRecord(
+      "src/features/activity-catalog/adapters/apiActivityCatalogAdapter.ts",
+      "const path = `/api/v1/event-programs/${id}/activities`;",
+    );
+    const collaborators = createSourceFileRecord(
+      "src/features/collaboration/adapters/apiCollaboratorsAdapter.ts",
+      "const path = `/api/v1/event-programs/${id}/collaborators`;",
+    );
+    expect(collectEndpointOwnershipViolations([listing])).toHaveLength(1);
+    expect(collectEndpointOwnershipViolations([activities, collaborators])).toHaveLength(0);
+  });
+
+  it("R12: rejects program administration depending on the activity composition", () => {
+    const fixture = createSourceFileRecord(
+      "src/features/event-programs/hooks/useEventPrograms.ts",
+      'import { useActivityCatalog } from "@/features/activity-catalog";',
+    );
+    expect(collectViolations([fixture], checkEventProgramsIndependence)).toHaveLength(1);
+  });
+
+  it("R12: program administration stays independent of the activity catalog", () => {
+    expect(
+      renderViolations(
+        "R12 programs",
+        collectViolations(sourceFiles, checkEventProgramsIndependence),
+      ),
+    ).toBe("");
+  });
+
+  it("R13: rejects the anonymous mode in the composite catalog adapter", () => {
+    const fixture = createSourceFileRecord(
+      compositeCatalogAdapterPath,
+      'const auth = { mode: "none" };',
+    );
+
+    expect(collectAnonymousCatalogViolations([fixture])).toHaveLength(1);
+  });
+
+  it("R13: accepts the Bearer-only composite catalog adapter", () => {
+    const fixture = createSourceFileRecord(
+      compositeCatalogAdapterPath,
+      'const auth = { accessToken: readAccessToken(), mode: "bearer" };',
+    );
+
+    expect(collectAnonymousCatalogViolations([fixture])).toHaveLength(0);
+  });
+
   it("detects deep feature imports from pages", () => {
     const fixture = createSourceFileRecord(
       "src/pages/UsersPage.tsx",
@@ -597,5 +702,13 @@ describe("architecture fitness", () => {
     );
 
     expect(violations).toEqual([]);
+  });
+
+  it("R13: the composite catalog adapter stays Bearer-only", () => {
+    const violations = collectAnonymousCatalogViolations(
+      sourceFiles.filter((file) => !isTestPath(file.path)),
+    );
+
+    expect(renderViolations("R13 composite catalog auth", violations)).toBe("");
   });
 });

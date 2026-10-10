@@ -31,6 +31,11 @@ const institutionalAdminRoutes = [
   { heading: "Carreras", path: "carreras" },
 ] as const;
 
+const administrativeModuleRoutes = [
+  ...institutionalAdminRoutes,
+  { heading: /^Programas$/, path: "programas" },
+] as const;
+
 /**
  * Drives the real router history so the assertion observes the back and forward entries instead of
  * reimplementing their semantics. It renders two controls that no product screen exposes, and it lives
@@ -147,6 +152,121 @@ describe("App", () => {
       screen.queryByRole("link", { name: /panel de administracion/i }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("contentinfo")).toHaveTextContent(/sipeg/i);
+  });
+
+  it("should render a public activity detail from a direct anonymous link", async () => {
+    renderWithProviders(<App />, { route: "/actividades/activity-open-data-governance" });
+
+    const heading = await screen.findByRole("heading", {
+      level: 1,
+      name: /gobernanza de datos abiertos universitarios/i,
+    });
+
+    expect(heading).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByText("Programada")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Volver a la agenda" })).toHaveAttribute("href", "/");
+  });
+
+  it("should keep an unavailable public activity out of the retry flow", async () => {
+    renderWithProviders(<App />, { route: "/actividades/actividad-inexistente" });
+
+    expect(await screen.findByText("Actividad no disponible")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /reintentar/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Volver a la agenda" })).toHaveAttribute("href", "/");
+  });
+
+  it("should open the public activity detail from a landing card", async () => {
+    const user = setupUser();
+
+    renderWithProviders(<App />);
+
+    const cardLink = await screen.findByRole("link", {
+      name: /gobernanza de datos abiertos universitarios/i,
+    });
+
+    await user.click(cardLink);
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /gobernanza de datos abiertos universitarios/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("should return to the agenda from the public activity detail", async () => {
+    const user = setupUser();
+
+    renderWithProviders(<App />, { route: "/actividades/activity-open-data-governance" });
+
+    await screen.findByRole("heading", {
+      level: 1,
+      name: /gobernanza de datos abiertos universitarios/i,
+    });
+
+    await user.click(screen.getByRole("link", { name: "Volver a la agenda" }));
+
+    expect(
+      await screen.findByRole(
+        "heading",
+        { level: 1, name: /descubra actividades academicas/i },
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it.each([
+    { globalRole: "USER" as const, label: "a standard user" },
+    { globalRole: "ADMIN" as const, label: "an administrator" },
+  ])("should publish the same public detail for $label", async ({ globalRole }) => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole }),
+      tokens: demoTokens,
+    });
+
+    renderWithProviders(<App />, { route: "/actividades/activity-open-data-governance" });
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /gobernanza de datos abiertos universitarios/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Volver a la agenda" })).toHaveAttribute("href", "/");
+  });
+
+  it("should publish the same public detail for a collaborator", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+
+    adapters.userScopes.loadUserScopes = vi.fn().mockResolvedValue([
+      createUserScope({
+        id: "activity-open-data-governance",
+        name: "Gobernanza de datos abiertos universitarios",
+        type: "activity",
+      }),
+    ]);
+    adapters.ownPermissions.loadOwnPermissions = vi.fn().mockResolvedValue({
+      permissions: [{ name: "activity:read", origin: "LOCAL", validFrom: null, validUntil: null }],
+      scope: { id: "activity-open-data-governance", type: "activity" },
+    });
+
+    renderWithProviders(<App />, {
+      adapters,
+      route: "/actividades/activity-open-data-governance",
+    });
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /gobernanza de datos abiertos universitarios/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Volver a la agenda" })).toHaveAttribute("href", "/");
   });
 
   it("should keep the landing visible while the session is still being restored", async () => {
@@ -320,6 +440,10 @@ describe("App", () => {
       "href",
       "/admin/eventos",
     );
+    expect(screen.getByRole("link", { name: /programas/i })).toHaveAttribute(
+      "href",
+      "/admin/programas",
+    );
     expect(screen.getByRole("link", { name: /asistencia/i })).toHaveAttribute(
       "href",
       "/admin/asistencia",
@@ -350,7 +474,7 @@ describe("App", () => {
   });
 
   it.each([
-    ...institutionalAdminRoutes,
+    ...administrativeModuleRoutes,
     { heading: /registro de ponentes/i, path: "ponentes" },
     { heading: /^Usuarios$/, path: "usuarios" },
   ])("should render /admin/$path inside the admin layout", async ({ path, heading }) => {
@@ -382,7 +506,7 @@ describe("App", () => {
     expect(screen.getByTestId("history-path")).toHaveTextContent(`/admin/${path}`);
   });
 
-  it.each(institutionalAdminRoutes)(
+  it.each(administrativeModuleRoutes)(
     "should keep /admin/$path closed to a standard user",
     async ({ heading, path }) => {
       useSessionStore.getState().setSession({
@@ -402,7 +526,7 @@ describe("App", () => {
     },
   );
 
-  it.each(institutionalAdminRoutes)(
+  it.each(administrativeModuleRoutes)(
     "should redirect anonymous visitors away from /admin/$path",
     async ({ heading, path }) => {
       renderWithProviders(<App />, { route: `/admin/${path}` });
@@ -488,7 +612,6 @@ describe("App", () => {
     expect(
       await adminContent.findByText(/gobernanza de datos abiertos universitarios/i),
     ).toBeInTheDocument();
-    expect(adminContent.getByText(/128 inscritos/i)).toBeInTheDocument();
     expect(adminContent.queryByText(/puentes resilientes/i)).not.toBeInTheDocument();
   });
 

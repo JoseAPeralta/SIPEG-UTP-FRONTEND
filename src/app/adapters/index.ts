@@ -13,6 +13,8 @@ export type {
   CareersAdapter,
   ClassroomsAdapter,
   CollaboratorsAdapter,
+  EventProgramsAccess,
+  EventProgramsAdapter,
   OwnPermissionsAdapter,
   OperationsAdapter,
   OrganizationalUnitsAdapter,

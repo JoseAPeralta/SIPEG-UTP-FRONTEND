@@ -95,6 +95,58 @@ describe("queryKeys prefixes", () => {
     expect(isPersistedQueryKey(queryKeys.userScopes("user-1", { type: "activity" }))).toBe(false);
   });
 
+  it("should scope activity administration pages by identity across programs, filters and pages", () => {
+    const scoped = queryKeys.activityAdministrationScope("user-1");
+
+    expect(
+      isPrefix(
+        scoped,
+        queryKeys.activityAdministrationPage("user-1", "program-1", { status: "ALL" }, 2),
+      ),
+    ).toBe(true);
+    expect(
+      isPrefix(scoped, queryKeys.activityAdministrationPage("user-2", "program-1", {}, 1)),
+    ).toBe(false);
+    expect(
+      isPrefix(
+        queryKeys.activityAdministrationDetailScope("user-1"),
+        queryKeys.activityAdministrationDetail("user-1", "activity-1"),
+      ),
+    ).toBe(true);
+    expect(
+      isPrefix(
+        queryKeys.activityAdministrationDetailScope("user-1"),
+        queryKeys.activityAdministrationDetail("user-2", "activity-1"),
+      ),
+    ).toBe(false);
+    expect(
+      isPrefix(
+        queryKeys.administrativeEventPrograms("user-1"),
+        queryKeys.administrativeEventProgramsAll("user-1"),
+      ),
+    ).toBe(true);
+  });
+
+  it("should scope activity administration pages to the owning program only", () => {
+    const scoped = queryKeys.activityAdministrationProgramScope("user-1", "program-1");
+
+    expect(
+      isPrefix(
+        scoped,
+        queryKeys.activityAdministrationPage("user-1", "program-1", { status: "ALL" }, 2),
+      ),
+    ).toBe(true);
+    expect(
+      isPrefix(
+        scoped,
+        queryKeys.activityAdministrationPage("user-1", "program-2", { status: "ALL" }, 2),
+      ),
+    ).toBe(false);
+    expect(
+      isPrefix(scoped, queryKeys.activityAdministrationPage("user-2", "program-1", {}, 1)),
+    ).toBe(false);
+  });
+
   it("should scope administrative user details to one identity", () => {
     expect(
       isPrefix(

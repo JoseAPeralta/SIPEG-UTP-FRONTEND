@@ -56,12 +56,33 @@ describe("isPersistedQueryKey", () => {
 
   it("should never persist identity-scoped or unregistered roots", () => {
     expect(isPersistedQueryKey(queryKeys.publicCareers)).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.publicActivityDetail("activity-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.alertsPage("user-1", {}, 1))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.alertsScope("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeActivityCatalog("user-1"))).toBe(false);
+    expect(
+      isPersistedQueryKey(
+        queryKeys.activityAdministrationPage("user-1", "program-1", { status: "ALL" }, 1),
+      ),
+    ).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.activityAdministrationScope("user-1"))).toBe(false);
+    expect(
+      isPersistedQueryKey(queryKeys.activityAdministrationProgramScope("user-1", "program-1")),
+    ).toBe(false);
+    expect(
+      isPersistedQueryKey(queryKeys.activityAdministrationDetail("user-1", "activity-1")),
+    ).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.activityAdministrationDetailScope("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.administrativeEventProgramsAll("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.administrativeWorkingContextCatalog("user-1"))).toBe(
+      false,
+    );
     expect(isPersistedQueryKey(queryKeys.administrativeCareers("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeClassrooms("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeOrganizationalUnits("user-1"))).toBe(false);
+    expect(isPersistedQueryKey(queryKeys.administrativeOrganizationalUnitsAll("user-1"))).toBe(
+      false,
+    );
     expect(isPersistedQueryKey(queryKeys.administrativeUsers("user-1"))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeUsersPage("user-1", {}, 1))).toBe(false);
     expect(isPersistedQueryKey(queryKeys.administrativeUserDetail("user-1", "user-2"))).toBe(false);
@@ -88,9 +109,22 @@ describe("createPersistenceOptions", () => {
     expect(shouldDehydrate?.(fakeQuery(queryKeys.publicActivityCatalog, "success"))).toBe(true);
     expect(shouldDehydrate?.(fakeQuery(queryKeys.publicOrganizationalUnits, "success"))).toBe(true);
     expect(shouldDehydrate?.(fakeQuery(queryKeys.publicClassrooms, "success"))).toBe(true);
+    expect(
+      shouldDehydrate?.(fakeQuery(queryKeys.publicActivityDetail("activity-1"), "success")),
+    ).toBe(false);
     expect(shouldDehydrate?.(fakeQuery(queryKeys.publicCareers, "success"))).toBe(false);
     expect(
       shouldDehydrate?.(fakeQuery(queryKeys.administrativeActivityCatalog("user-1"), "success")),
+    ).toBe(false);
+    expect(
+      shouldDehydrate?.(
+        fakeQuery(queryKeys.administrativeWorkingContextCatalog("user-1"), "success"),
+      ),
+    ).toBe(false);
+    expect(
+      shouldDehydrate?.(
+        fakeQuery(queryKeys.administrativeOrganizationalUnitsAll("user-1"), "success"),
+      ),
     ).toBe(false);
     expect(shouldDehydrate?.(fakeQuery(queryKeys.alertsPage("user-1", {}, 1), "success"))).toBe(
       false,
@@ -139,5 +173,52 @@ describe("queryCacheStorage", () => {
     clearPersistedQueryCache(storage);
 
     expect(storage.getItem(QUERY_CACHE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("should restore only the public catalog and drop every private activity read", async () => {
+    const storage = createMemoryStorage();
+    const persister = createQueryPersister(storage, 0);
+    const options = createPersistenceOptions(persister, { VITE_APP_VERSION: "privacy-test" });
+    const client = createQueryClient();
+    const privateName = "Borrador confidencial de acreditacion";
+
+    client.setQueryData(queryKeys.publicActivityCatalog, {
+      activities: [{ id: "public-1", name: "Actividad publica" }],
+    });
+    client.setQueryData(queryKeys.publicActivityDetail("draft-1"), {
+      id: "draft-1",
+      name: privateName,
+    });
+    client.setQueryData(
+      queryKeys.activityAdministrationPage("user-1", "program-1", { status: "ALL" }, 1),
+      { items: [{ id: "draft-1", name: privateName }] },
+    );
+    client.setQueryData(queryKeys.activityAdministrationDetail("user-1", "draft-1"), {
+      id: "draft-1",
+      name: privateName,
+    });
+    client.setQueryData(queryKeys.userScopes("user-1", {}), [{ id: "program-1" }]);
+
+    await persister.persistClient({
+      buster: options.buster ?? "privacy-test",
+      clientState: dehydrate(client, options.dehydrateOptions),
+      timestamp: Date.now(),
+    });
+
+    await vi.waitFor(() => {
+      expect(storage.getItem(QUERY_CACHE_STORAGE_KEY)).not.toBeNull();
+    });
+
+    const restored = await persister.restoreClient();
+    const keys = restored?.clientState.queries.map((query) => query.queryKey) ?? [];
+
+    expect(keys).toContainEqual(queryKeys.publicActivityCatalog);
+    expect(keys).not.toContainEqual(queryKeys.publicActivityDetail("draft-1"));
+    expect(keys).not.toContainEqual(
+      queryKeys.activityAdministrationPage("user-1", "program-1", { status: "ALL" }, 1),
+    );
+    expect(keys).not.toContainEqual(queryKeys.activityAdministrationDetail("user-1", "draft-1"));
+    expect(keys).not.toContainEqual(queryKeys.userScopes("user-1", {}));
+    expect(JSON.stringify(restored)).not.toContain(privateName);
   });
 });
