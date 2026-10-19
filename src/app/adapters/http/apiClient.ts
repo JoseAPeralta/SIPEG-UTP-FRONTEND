@@ -123,12 +123,15 @@ async function send(
   let response: Response;
 
   try {
+    // Las lecturas anonimas no llevan cookie: solo las operaciones que
+    // dependen de la sesion HttpOnly (Bearer, login, refresh, logout) la
+    // piden, o el llamador la impone de forma explicita.
+    const credentials = requestInit?.credentials ?? (auth.mode === "none" ? "omit" : "include");
+
     response = await fetcher(requestUrl, {
       ...requestInit,
       headers,
-      // La sesion viaja en una cookie HttpOnly: sin esto el navegador no la
-      // adjuntaria a una peticion entre orígenes, y cada pestana seria anonima.
-      credentials: "include",
+      credentials,
     });
   } catch {
     throw new ApiError(

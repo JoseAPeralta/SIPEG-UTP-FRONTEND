@@ -73,7 +73,7 @@ export function AttendancePage() {
                     {activity.name}
                   </Text>
                   <Text color="text.muted" fontSize="sm">
-                    {activity.enrolledCount} inscritos · {activity.date} {activity.startTime}
+                    {activity.date} {activity.startTime}
                   </Text>
                 </Box>
                 <Badge colorPalette="success" rounded="full" variant="subtle">

@@ -1,7 +1,8 @@
 import { screen } from "@testing-library/react";
 import { setupUser } from "@/test/user";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createAppAdapters } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
 import { useWorkingContextStore } from "@/store/workingContext";
 import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
@@ -66,5 +67,38 @@ describe("WorkingContextSelect", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: /contexto de trabajo/i }), "");
 
     expect(useWorkingContextStore.getState().workingContext).toBeNull();
+  });
+
+  it("should offer every readable program with its localized status", async () => {
+    renderWithProviders(<WorkingContextSelect />);
+
+    const option = await screen.findByRole("option", { name: /competencia de robotica 2024/i });
+
+    expect(option).toHaveTextContent(/archivado/i);
+  });
+
+  it("should announce a selection retired by reconciliation", async () => {
+    useWorkingContextStore.getState().noteRevokedSelection();
+
+    renderWithProviders(<WorkingContextSelect />);
+
+    expect(
+      await screen.findByText(/el contexto seleccionado ya no está disponible/i),
+    ).toBeVisible();
+  });
+
+  it("should offer a retry when the catalog fails", async () => {
+    const adapters = createAppAdapters({ source: "mock" });
+    adapters.activityCatalog = {
+      ...adapters.activityCatalog,
+      loadCatalog: vi.fn().mockRejectedValue(new Error("catalogo caido")),
+    };
+
+    renderWithProviders(<WorkingContextSelect />, { adapters });
+
+    expect(
+      await screen.findByText(/no se pudieron cargar los contextos de trabajo/i),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Reintentar" })).toBeVisible();
   });
 });

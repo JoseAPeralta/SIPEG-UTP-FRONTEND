@@ -7,7 +7,7 @@ import { EventProgramCard } from "./EventProgramCard";
 
 const summary = {
   activityCount: 8,
-  enrolledCount: 248,
+  enrolledCount: null,
   program: createEventProgram({ label: "Semana de innovacion" }),
   unit: createOrganizationalUnit({ code: "FISC" }),
 };
@@ -25,7 +25,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Resumen de un programa de eventos. La accion de contexto solo aparece al proporcionar onSelect.",
+          "Resumen de un programa de eventos. Los inscritos solo aparecen cuando el contrato los aporta; mientras el listado no publique un total agregado se muestra «No disponible». La accion de contexto solo aparece al proporcionar onSelect.",
       },
     },
   },
@@ -36,6 +36,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Summary: Story = {};
+
+export const WithAttendeeTotal: Story = {
+  args: {
+    summary: { ...summary, enrolledCount: 248 },
+  },
+};
 
 export const Selectable: Story = {
   args: {

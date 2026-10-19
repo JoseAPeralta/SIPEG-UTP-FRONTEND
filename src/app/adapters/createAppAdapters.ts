@@ -1,10 +1,18 @@
 import type { AppAdapters } from "./contracts";
 import { resolveDataSource, type DataSource } from "./dataSource";
+import { createApiAlertsAdapter } from "@/features/alerts/adapters/apiAlertsAdapter";
+import { createMockAlertsAdapter } from "@/features/alerts/adapters/mockAlertsAdapter";
 import {
   createApiActivityCatalogAdapter,
   type ApiActivityCatalogAdapterOptions,
 } from "@/features/activity-catalog/adapters/apiActivityCatalogAdapter";
 import { createMockActivityCatalogAdapter } from "@/features/activity-catalog/adapters/mockActivityCatalogAdapter";
+import { createApiActivitiesAdapter } from "@/features/activity-catalog/adapters/apiActivitiesAdapter";
+import {
+  createMockActivitiesAdapter,
+  hasRetainedActivityHistory,
+} from "@/features/activity-catalog/adapters/mockActivitiesAdapter";
+import { createMockActivityRegistry } from "@/features/activity-catalog/adapters/mockActivityRegistry";
 import { createApiPublicActivityCatalogAdapter } from "@/features/activity-catalog/adapters/apiPublicActivityCatalogAdapter";
 import { createMockPublicActivityCatalogAdapter } from "@/features/activity-catalog/adapters/mockPublicActivityCatalogAdapter";
 import { createApiAuthAdapter } from "@/features/auth/adapters/apiAuthAdapter";
@@ -13,6 +21,11 @@ import { createApiCareersAdapter } from "@/features/careers/adapters/apiCareersA
 import { createMockCareersAdapter } from "@/features/careers/adapters/mockCareersAdapter";
 import { createApiClassroomsAdapter } from "@/features/classrooms/adapters/apiClassroomsAdapter";
 import { createMockClassroomsAdapter } from "@/features/classrooms/adapters/mockClassroomsAdapter";
+import { createApiEventProgramsAdapter } from "@/features/event-programs/adapters/apiEventProgramsAdapter";
+import {
+  createMockEventProgramRegistry,
+  createMockEventProgramsAdapter,
+} from "@/features/event-programs/adapters/mockEventProgramsAdapter";
 import { createApiUserScopesAdapter } from "@/features/collaboration/adapters/apiUserScopesAdapter";
 import { createMockUserScopesAdapter } from "@/features/collaboration/adapters/mockUserScopesAdapter";
 import { createApiOwnPermissionsAdapter } from "@/features/collaboration/adapters/apiOwnPermissionsAdapter";
@@ -48,10 +61,14 @@ export function createAppAdapters({
   source = resolveDataSource(),
 }: CreateAppAdaptersOptions = {}): AppAdapters {
   if (source === "api") {
+    const eventPrograms = createApiEventProgramsAdapter(apiOptions, readSessionAccessToken);
     return {
+      activities: createApiActivitiesAdapter(apiOptions, readSessionAccessToken),
+      alerts: createApiAlertsAdapter(apiOptions, readSessionAccessToken),
       collaborators: createApiCollaboratorsAdapter(apiOptions, readSessionAccessToken),
       ownPermissions: createApiOwnPermissionsAdapter(apiOptions, readSessionAccessToken),
       activityCatalog: createApiActivityCatalogAdapter(
+        eventPrograms,
         {
           ...apiOptions,
         },
@@ -60,6 +77,7 @@ export function createAppAdapters({
       auth: createApiAuthAdapter(apiOptions),
       careers: createApiCareersAdapter(apiOptions, readSessionAccessToken),
       classrooms: createApiClassroomsAdapter(apiOptions, readSessionAccessToken),
+      eventPrograms,
       organizationalUnits: createApiOrganizationalUnitsAdapter(apiOptions, readSessionAccessToken),
       operations: createUnavailableOperationsAdapter(),
       publicActivityCatalog: createApiPublicActivityCatalogAdapter(apiOptions),
@@ -69,19 +87,49 @@ export function createAppAdapters({
     };
   }
 
+  const organizationalUnits = createMockOrganizationalUnitsAdapter();
+  const programRegistry = createMockEventProgramRegistry();
+  const activityRegistry = createMockActivityRegistry();
+  const eventPrograms = createMockEventProgramsAdapter({
+    readGlobalRole: () => useSessionStore.getState().currentUser?.globalRole,
+    readOrganizationalUnits: () => organizationalUnits.loadOrganizationalUnits(),
+    registry: programRegistry,
+  });
   const userScopes = createMockUserScopesAdapter(
     () => useSessionStore.getState().currentUser?.globalRole,
+    () => [...programRegistry.values()],
+    () => [...activityRegistry.values()],
   );
   return {
-    collaborators: createMockCollaboratorsAdapter(),
+    activities: createMockActivitiesAdapter({
+      readCanDeleteActivity: () => useSessionStore.getState().currentUser?.globalRole === "ADMIN",
+      readEventPrograms: () => eventPrograms.loadEventPrograms("administrative", "ALL"),
+      readGlobalRole: () => useSessionStore.getState().currentUser?.globalRole,
+      readOrganizationalUnits: () => organizationalUnits.loadOrganizationalUnits(),
+      readRetainedHistory: hasRetainedActivityHistory,
+      registry: activityRegistry,
+    }),
+    alerts: createMockAlertsAdapter(() => useSessionStore.getState().currentUser?.id),
+    collaborators: createMockCollaboratorsAdapter({
+      readActivityProgramId: (activityId) => activityRegistry.get(activityId)?.eventProgramId,
+      readProgramState: (programId) => programRegistry.get(programId)?.status ?? null,
+    }),
     ownPermissions: createMockOwnPermissionsAdapter(userScopes),
-    activityCatalog: createMockActivityCatalogAdapter(),
+    activityCatalog: createMockActivityCatalogAdapter(eventPrograms, {
+      registry: activityRegistry,
+    }),
     auth: createMockAuthAdapter(),
     careers: createMockCareersAdapter(),
-    classrooms: createMockClassroomsAdapter(),
-    organizationalUnits: createMockOrganizationalUnitsAdapter(),
+    classrooms: createMockClassroomsAdapter({
+      readActivities: () => [...activityRegistry.values()],
+    }),
+    eventPrograms,
+    organizationalUnits,
     operations: createMockOperationsAdapter(),
-    publicActivityCatalog: createMockPublicActivityCatalogAdapter(),
+    publicActivityCatalog: createMockPublicActivityCatalogAdapter({
+      readActivities: () => [...activityRegistry.values()],
+      readEventPrograms: () => eventPrograms.loadEventPrograms("administrative", "ALL"),
+    }),
     registration: createMockRegistrationAdapter(),
     users: createMockUsersAdapter(),
     userScopes,

@@ -1,4 +1,5 @@
-export type PersonalAreaSectionId = "actividades" | "certificados" | "datos" | "seguridad";
+export type PersonalAreaSectionId =
+  "actividades" | "alertas" | "certificados" | "datos" | "seguridad";
 
 export type PersonalAreaSection = {
   description: string;
@@ -34,6 +35,12 @@ const SECTIONS: Record<PersonalAreaSectionId, PersonalAreaSection> = {
     id: "certificados",
     label: "Mis certificados",
     path: "/perfil/certificados",
+  },
+  alertas: {
+    description: "Revise las novedades de su cuenta y abra el contexto autorizado de cada alerta.",
+    id: "alertas",
+    label: "Mis alertas",
+    path: "/perfil/alertas",
   },
 };
 

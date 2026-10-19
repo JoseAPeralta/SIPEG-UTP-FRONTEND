@@ -79,6 +79,77 @@ Acceptance criteria:
 
 ## Open Questions
 
-- Which owning operations accept notification intent, and what is the exact field and meaning?
-- Does the backend report queued, sent, delivered, partial, or failed outcomes?
+- What is the exact name and type of the notification input, and which owning operations accept it?
+- Is the input optional or required, and what does omitting it or each of its values mean?
+- Which actions does it apply to: creation, edition, publication, cancellation or deletion?
+- Who selects recipients, and can the frontend influence them beyond the contracted intent?
+- Does the backend report queued, sent, delivered, partial, rejected or failed outcomes?
+- What happens on success, rejection and repeated command execution?
+- Which communication result may the UI present honestly?
 - Is proposal-form forwarding supported, and who controls the destination?
+
+## Contract Notes (2026-10-08)
+
+The live contract was consulted on 2026-10-08. No activity operation publishes a notification input
+or result:
+
+| Operation                             | Published input              | Published result            | Notification                   |
+| ------------------------------------- | ---------------------------- | --------------------------- | ------------------------------ |
+| `POST /api/v1/activities`             | Activity creation data       | `201` with `ActivityDetail` | No contracted intent or result |
+| `PATCH /api/v1/activities/{id}`       | Editable fields and `status` | `200` with `ActivityDetail` | No contracted intent or result |
+| `POST /api/v1/activities/{id}/cancel` | Optional reason              | `200` with `ActivityDetail` | No contracted intent or result |
+| `DELETE /api/v1/activities/{id}`      | No body                      | `204` without body          | No contracted intent or result |
+
+- Directed searches for `notifyAttendees` and `notification` returned no operations.
+- No request declares `notifyAttendees`; every published JSON body uses `additionalProperties: false`.
+- `ActivityDetail` never declares delivery, queue, recipient or send results.
+- `DELETE` accepts no body.
+- The response envelope carries a free-text `message`; it is not a notification promise.
+
+The absence of these fields does not prove that the backend never performs automatic communications.
+
+## 5.8 Notification Block (2026-10-08)
+
+The 5.8 delivery verified the block; it did not implement the ability to notify.
+
+- `NTF-002` remains pending contract: the input, its obligatoriness, its meaning and the
+  backend-managed recipient selection are not published.
+- `NTF-004` remains pending contract: no operation reports a notification outcome.
+- Success announcements confirm only the completed operation (create, edit, publish, unpublish,
+  cancel or delete). The free-text `message` of the envelope is never presented as evidence of
+  delivery.
+- Request allowlists discard `notifyAttendees`, including `false`, and neither the forms nor the
+  lifecycle confirmations expose a notification control.
+
+Conditions to review the block in a later phase, once the owning operation documents:
+
+1. Exact name and type of the input.
+2. Whether it is optional or required.
+3. Meaning of omitting it and of each of its values.
+4. Actions it applies to.
+5. Recipient selection, managed by the backend.
+6. Success, rejection and repetition effects of the command.
+7. Which communication outcome the UI may honestly present.
+
+If the contract only confirms the action, the UI will keep not claiming email delivery.
+
+### Test Evidence (2026-10-08)
+
+- Checker `scripts/check-mock-contract.test.mjs`: "should declare the 5.8 notification block on every
+  activity write body", the drift cases that report an optional or required `notifyAttendees` in the
+  creation, update and cancellation bodies, the case where `additionalProperties` stops being `false`,
+  the case that requests a review when the request schema cannot be inspected, and the deletion
+  expectation of `204` without content and without request body. The failure message is «El contrato
+  de la operación cambió: revise el bloqueo de notificación de 5.8 antes de integrar nuevos campos.»
+- HTTP journey `src/features/activity-catalog/ui/ActivityNotificationBoundary.test.tsx`: edit with
+  diff and localized announcement, publication/unpublication/cancellation with exclusive bodies,
+  deletion with `204` and no body, recovery from a `409` by reading without resending, a discarded
+  confirmation that issues no command, and an envelope `message` about sent emails that is never
+  presented as a delivery result.
+- Adapter and UI suites mirror the boundary: `apiActivitiesAdapter.test.ts`,
+  `mockActivitiesAdapter.test.ts`, `ActivityForm.test.tsx`, `ActivityDetailView.test.tsx`,
+  `ProgramActivitiesView.test.tsx` and `ActivityLifecycleConfirmation.test.tsx` assert the absence of
+  notification controls and of fabricated results, and the matching stories repeat the assertions.
+
+This evidence is green in the targeted 5.8 suites; the final baselines, inventory and `check` gate
+still runs when the phase closes.

@@ -9,19 +9,25 @@ import {
 } from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
 import { setupUser } from "@/test/user";
+import type { EffectiveCollaborator } from "../model/collaborators";
 import { CollaboratorsView } from "./CollaboratorsView";
 
 afterEach(() => useSessionStore.getState().clearSession());
 const scope = { type: "activity" as const, id: "activity-1" };
 const person = createEffectiveCollaborator();
-function setup(canManage = true, collaborator = person) {
+function setup(
+  canManage = true,
+  collaborator: EffectiveCollaborator | null = person,
+  readOnly = false,
+) {
   useSessionStore.getState().setSession({
     currentUser: createAuthenticatedUser({ globalRole: "USER" }),
     tokens: createAuthTokens(),
   });
   const adapters = createAppAdapters({ source: "mock" });
+  adapters.users.loadUsersPage = vi.fn(adapters.users.loadUsersPage);
   adapters.collaborators = {
-    loadCollaborators: vi.fn().mockResolvedValue([collaborator]),
+    loadCollaborators: vi.fn().mockResolvedValue(collaborator ? [collaborator] : []),
     addCollaborator: vi.fn().mockResolvedValue(person),
     changeCollaboratorRole: vi.fn().mockResolvedValue(person),
     removeCollaborator: vi
@@ -30,7 +36,10 @@ function setup(canManage = true, collaborator = person) {
     grantPermission: vi.fn().mockResolvedValue(person),
     revokePermission: vi.fn().mockResolvedValue(undefined),
   };
-  renderWithProviders(<CollaboratorsView scope={scope} canManage={canManage} />, { adapters });
+  renderWithProviders(
+    <CollaboratorsView scope={scope} canManage={canManage} readOnly={readOnly} />,
+    { adapters },
+  );
   return adapters;
 }
 it("requires confirmation and explains conflicts without removing the row", async () => {
@@ -132,4 +141,52 @@ it("revokes local grants with an inheritance warning and never offers inherited-
     permission: "activity:update",
   });
   expect(await screen.findByText("Permiso revocado.")).toBeInTheDocument();
+});
+it("renders an archived program as read-only without mutation controls", async () => {
+  const user = setupUser();
+  const adapters = setup(
+    true,
+    createEffectiveCollaborator({
+      permissions: [
+        {
+          name: "activity:read",
+          source: "ROLE_DEFAULT",
+          origin: "INHERITED",
+          effective: true,
+          validFrom: null,
+          validUntil: null,
+        },
+      ],
+    }),
+    true,
+  );
+  expect(await screen.findByText("Ana Pérez")).toBeInTheDocument();
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "El programa está archivado. Puede consultar sus colaboradores, pero no modificarlos.",
+  );
+  expect(screen.queryByRole("button", { name: "Agregar colaborador" })).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Guardar rol de Ana Pérez" }),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Retirar a Ana Pérez" })).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("Permiso a otorgar")).not.toBeInTheDocument();
+  await user.click(screen.getByText("Ver permisos de Ana Pérez"));
+  expect(screen.getByText("Heredado del programa")).toBeInTheDocument();
+  expect(adapters.collaborators.loadCollaborators).toHaveBeenCalledWith(scope);
+  expect(adapters.collaborators.addCollaborator).not.toHaveBeenCalled();
+  expect(adapters.collaborators.changeCollaboratorRole).not.toHaveBeenCalled();
+  expect(adapters.collaborators.removeCollaborator).not.toHaveBeenCalled();
+  expect(adapters.collaborators.grantPermission).not.toHaveBeenCalled();
+  expect(adapters.collaborators.revokePermission).not.toHaveBeenCalled();
+  expect(adapters.users.loadUsersPage).not.toHaveBeenCalled();
+});
+it("explains an empty archived program without inviting to the add form", async () => {
+  const adapters = setup(true, null, true);
+  expect(
+    await screen.findByText("El programa no tiene colaboraciones locales registradas."),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Sin colaboradores locales")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Agregar colaborador" })).not.toBeInTheDocument();
+  expect(screen.queryByText(/Puede agregar una persona/)).not.toBeInTheDocument();
+  expect(adapters.collaborators.loadCollaborators).toHaveBeenCalledWith(scope);
 });

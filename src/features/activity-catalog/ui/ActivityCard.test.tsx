@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   createActivity,
+  createActivitySummary,
   createClassroom,
   createEventProgram,
   createOrganizationalUnit,
@@ -21,7 +22,7 @@ function renderCard(overrides: Partial<Parameters<typeof ActivityCard>[0]> = {})
 
   renderWithProviders(
     <ActivityCard
-      activity={createActivity({
+      activity={createActivitySummary({
         speakers: [{ firstName: "Ana", id: "speaker-ana", lastName: "Perez" }],
       })}
       classroom={classroom}
@@ -46,20 +47,21 @@ describe("ActivityCard", () => {
     expect(screen.getByText(/ana perez/i)).toBeInTheDocument();
   });
 
-  it("should show equipment by default", () => {
-    renderCard({ activity: createActivity({ equipment: ["Proyector"] }) });
+  it("should link to the administrative detail", () => {
+    renderCard();
 
-    expect(screen.getByText("Equipamiento")).toBeInTheDocument();
-    expect(screen.getByText("Proyector")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /ver detalle de actividad de prueba/i }),
+    ).toHaveAttribute("href", "/admin/actividades/activity-1");
   });
 
-  it("should hide equipment when disabled", () => {
+  it("should not render detail-only fields even if the payload includes them", () => {
     renderCard({
-      activity: createActivity({ equipment: ["Proyector"] }),
-      showEquipment: false,
+      activity: createActivity({ enrolledCount: 25, equipment: ["Proyector"] }),
     });
 
-    expect(screen.queryByText("Equipamiento")).not.toBeInTheDocument();
+    expect(screen.queryByText(/inscritos/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/equipamiento/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Proyector")).not.toBeInTheDocument();
   });
 

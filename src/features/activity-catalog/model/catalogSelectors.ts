@@ -1,6 +1,6 @@
 import type {
-  Activity,
   ActivityCatalog,
+  ActivitySummary,
   ActivityType,
   Classroom,
   EventProgram,
@@ -25,7 +25,7 @@ export type CatalogFilters = {
 };
 
 export type ActivityRow = {
-  activity: Activity;
+  activity: ActivitySummary;
   classroom: Classroom | null;
   program: EventProgram;
   unit: OrganizationalUnit;
@@ -39,14 +39,16 @@ export type PaginatedRows = {
 
 export type CatalogSummary = {
   activityCount: number;
-  enrolledCount: number;
+  /** `null` mientras el listado no publique un total agregado: el detalle si lo expone. */
+  enrolledCount: number | null;
   programCount: number;
   unitCount: number;
 };
 
 export type ProgramSummary = {
   activityCount: number;
-  enrolledCount: number;
+  /** `null` mientras el listado no publique un total agregado: el detalle si lo expone. */
+  enrolledCount: number | null;
   program: EventProgram;
   unit: OrganizationalUnit;
 };
@@ -160,10 +162,7 @@ export function paginateActivityRows(
 export function summarizeCatalog(catalog: ActivityCatalog): CatalogSummary {
   return {
     activityCount: catalog.activities.length,
-    enrolledCount: catalog.activities.reduce(
-      (total, activity) => total + activity.enrolledCount,
-      0,
-    ),
+    enrolledCount: null,
     programCount: catalog.eventPrograms.length,
     unitCount: catalog.organizationalUnits.length,
   };
@@ -186,7 +185,7 @@ export function buildProgramSummaries(catalog: ActivityCatalog): ProgramSummary[
     return [
       {
         activityCount: programRows.length,
-        enrolledCount: programRows.reduce((total, row) => total + row.activity.enrolledCount, 0),
+        enrolledCount: null,
         program,
         unit,
       },

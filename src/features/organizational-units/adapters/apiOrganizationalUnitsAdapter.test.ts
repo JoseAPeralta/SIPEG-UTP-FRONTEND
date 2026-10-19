@@ -63,6 +63,58 @@ describe("createApiOrganizationalUnitsAdapter", () => {
     }
   });
 
+  it("should merge both listings and deduplicate by id for the all filter", async () => {
+    const fetcher = vi.fn((input: RequestInfo | URL, requestInit?: RequestInit) => {
+      void requestInit;
+      const url = new URL(toUrl(input));
+
+      if (url.searchParams.get("isActive") === "false") {
+        return Promise.resolve(
+          response([unit, { ...unit, code: "FIC", id: "unit-2", isActive: false }]),
+        );
+      }
+
+      return Promise.resolve(response([unit]));
+    });
+
+    const result = await createApiOrganizationalUnitsAdapter({
+      environment,
+      fetcher,
+    }).loadOrganizationalUnits({ isActive: "all" });
+
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(result.map((candidate) => candidate.id)).toEqual(["unit-1", "unit-2"]);
+    const searchParams = fetcher.mock.calls.map(([input]) => new URL(toUrl(input)).searchParams);
+    expect(searchParams.map((params) => params.get("isActive"))).toEqual([null, "false"]);
+    for (const [, requestInit] of fetcher.mock.calls) {
+      expect(new Headers(requestInit?.headers).get("Authorization")).toBeNull();
+    }
+  });
+
+  it("should request only inactive units for the inactive filter", async () => {
+    const fetcher = vi.fn<typeof fetch>(() =>
+      Promise.resolve(response([{ ...unit, code: "FIC", id: "unit-2", isActive: false }])),
+    );
+
+    const result = await createApiOrganizationalUnitsAdapter({
+      environment,
+      fetcher,
+    }).loadOrganizationalUnits({ isActive: "inactive" });
+
+    const [input] = fetcher.mock.calls[0]!;
+    expect(new URL(toUrl(input)).searchParams.get("isActive")).toBe("false");
+    expect(result.map((candidate) => candidate.id)).toEqual(["unit-2"]);
+  });
+
+  it("should omit isActive by default", async () => {
+    const fetcher = vi.fn<typeof fetch>(() => Promise.resolve(response([unit])));
+
+    await createApiOrganizationalUnitsAdapter({ environment, fetcher }).loadOrganizationalUnits();
+
+    const [input] = fetcher.mock.calls[0]!;
+    expect(new URL(toUrl(input)).searchParams.has("isActive")).toBe(false);
+  });
+
   it("should create a unit with the current access token and map its detail", async () => {
     const fetcher = vi.fn(() =>
       Promise.resolve(

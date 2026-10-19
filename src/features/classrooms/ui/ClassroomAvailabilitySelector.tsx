@@ -6,19 +6,33 @@ import type { Classroom } from "@/types/domain";
 
 import { useAvailableClassrooms } from "../hooks/useAvailableClassrooms";
 import {
+  areAvailableClassroomsCriteriaEqual,
   isAvailableClassroomsCriteriaValid,
   type AvailableClassroomsCriteria,
 } from "../model/availableClassrooms";
 import { classroomTypeLabels, resolveAmenityLabel } from "../model/classroomLabels";
 
+/**
+ * Aula elegida: el identificador que viaja al request y la etiqueta visible.
+ *
+ * La etiqueta se conserva porque una busqueda posterior puede dejar de devolver el aula elegida y
+ * la opcion necesita un texto honesto, sin inventar datos de disponibilidad.
+ */
+export type ClassroomSelection = {
+  id: string;
+  label: string;
+};
+
 export type ClassroomAvailabilitySelectorProps = {
+  /** Aula asignada de la actividad en edicion; se muestra aunque la consulta ya no la devuelva. */
+  assignedClassroom?: { id: string; name: string } | null;
   /** The current activity need. Changing it does not query until the user requests another search. */
   criteria: AvailableClassroomsCriteria;
   disabled?: boolean;
-  /** Receives the complete classroom summary or `null` when the assignment is cleared. */
-  onSelectionChange: (classroom: Classroom | null) => void;
+  /** Recibe `null` al limpiar la asignación o el aula elegida con su etiqueta. */
+  onSelectionChange: (selection: ClassroomSelection | null) => void;
   /** The parent owns the selection so it can preserve unsaved form data across a failed search. */
-  selectedClassroom: Classroom | null;
+  selected: ClassroomSelection | null;
 };
 
 function classroomOptionLabel(classroom: Classroom): string {
@@ -28,6 +42,10 @@ function classroomOptionLabel(classroom: Classroom): string {
   return `${classroom.name} · ${type} · ${classroom.capacity} personas${
     amenities ? ` · ${amenities}` : ""
   }`;
+}
+
+function assignedOptionLabel(name: string): string {
+  return `${name} · Aula asignada; se validará al guardar`;
 }
 
 function failureMessage(
@@ -41,22 +59,38 @@ function failureMessage(
 }
 
 /**
- * Selects a room from the backend-authoritative availability result. It intentionally receives the
- * activity criteria instead of collecting a second copy of date, time, capacity and requirements.
+ * Selects a room from the backend-authoritative availability result.
+ *
+ * It intentionally receives the activity criteria instead of collecting a second copy of date,
+ * time, capacity and requirements. Results belong to the submitted snapshot: if the criteria
+ * change, the options become unpickable until the user searches again, but clearing the assignment
+ * and returning to the assigned room keep working.
  */
 export function ClassroomAvailabilitySelector({
+  assignedClassroom = null,
   criteria,
   disabled = false,
   onSelectionChange,
-  selectedClassroom,
+  selected,
 }: ClassroomAvailabilitySelectorProps) {
   const availability = useAvailableClassrooms();
   const canSearch = isAvailableClassroomsCriteriaValid(criteria);
   const failure = failureMessage(availability.failure);
   const classrooms = availability.classrooms;
-  const selectedIsUnavailable =
-    selectedClassroom !== null &&
-    classrooms?.every((classroom) => classroom.id !== selectedClassroom.id) === true;
+  const resultsAreStale =
+    availability.criteria !== null &&
+    !areAvailableClassroomsCriteriaEqual(availability.criteria, criteria);
+  const resultsOptionDisabled = disabled || availability.isLoading || resultsAreStale;
+  const assignedIsInResults =
+    assignedClassroom !== null &&
+    classrooms?.some((classroom) => classroom.id === assignedClassroom.id);
+  const selectedId = selected?.id ?? null;
+  const selectedIsMissing =
+    selectedId !== null &&
+    classrooms !== null &&
+    !resultsAreStale &&
+    selectedId !== assignedClassroom?.id &&
+    !classrooms.some((classroom) => classroom.id === selectedId);
 
   function selectClassroom(event: ChangeEvent<HTMLSelectElement>) {
     const classroomId = event.target.value;
@@ -66,7 +100,17 @@ export function ClassroomAvailabilitySelector({
     }
 
     const classroom = classrooms?.find((candidate) => candidate.id === classroomId);
-    if (classroom) onSelectionChange(classroom);
+    if (classroom) {
+      onSelectionChange({ id: classroom.id, label: classroomOptionLabel(classroom) });
+      return;
+    }
+    if (!assignedClassroom) return;
+    if (classroomId !== assignedClassroom.id) return;
+
+    onSelectionChange({
+      id: assignedClassroom.id,
+      label: assignedOptionLabel(assignedClassroom.name),
+    });
   }
 
   return (
@@ -107,24 +151,39 @@ export function ClassroomAvailabilitySelector({
               title="No hay aulas disponibles para estos criterios"
             />
           ) : null}
-          {selectedIsUnavailable ? (
+          {resultsAreStale ? (
+            <Text color="text.muted" role="status">
+              Los criterios cambiaron desde la última consulta. Consulte las aulas de nuevo para
+              elegir otra.
+            </Text>
+          ) : null}
+          {selectedIsMissing ? (
             <Text color="fg.error" role="alert">
               El aula seleccionada ya no está disponible para estos criterios.
             </Text>
           ) : null}
-          {classrooms !== null ? (
+          {classrooms !== null || assignedClassroom ? (
             <Field.Root>
               <Field.Label>Aula disponible</Field.Label>
               <NativeSelect.Root disabled={disabled || availability.isLoading}>
-                <NativeSelect.Field onChange={selectClassroom} value={selectedClassroom?.id ?? ""}>
+                <NativeSelect.Field onChange={selectClassroom} value={selected?.id ?? ""}>
                   <option value="">Sin aula asignada</option>
-                  {selectedIsUnavailable ? (
-                    <option disabled value={selectedClassroom.id}>
-                      {classroomOptionLabel(selectedClassroom)} (no disponible)
+                  {assignedClassroom && !assignedIsInResults ? (
+                    <option value={assignedClassroom.id}>
+                      {assignedOptionLabel(assignedClassroom.name)}
                     </option>
                   ) : null}
-                  {classrooms.map((classroom) => (
-                    <option key={classroom.id} value={classroom.id}>
+                  {selectedIsMissing && selected ? (
+                    <option disabled value={selected.id}>
+                      {selected.label} (no disponible)
+                    </option>
+                  ) : null}
+                  {(classrooms ?? []).map((classroom) => (
+                    <option
+                      disabled={resultsOptionDisabled}
+                      key={classroom.id}
+                      value={classroom.id}
+                    >
                       {classroomOptionLabel(classroom)}
                     </option>
                   ))}

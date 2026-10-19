@@ -82,6 +82,9 @@ function clearPreviousIdentityState(queryClient: QueryClient): void {
   clearPersistedQueryCache();
   window.localStorage.removeItem(LEGACY_SESSION_STORAGE_KEY);
   queryClient.clear();
+  // Un login invalida la sesion anterior aunque sea de la misma cuenta: los callbacks en vuelo de
+  // sus acciones ya no pueden restaurar nada sobre la cache recien limpiada.
+  useSessionStore.getState().advanceSessionGeneration();
   useWorkingContextStore.getState().clearWorkingContext();
   useUnitPreferenceStore.getState().setSelectedUnitId("all");
 }

@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 import { expect, fn, userEvent, within } from "storybook/test";
 
 import type { PublicActivity } from "@/types/domain";
 
-import { buildPublicActivityRows } from "../model/publicCatalogSelectors";
+import {
+  buildPublicActivityRows,
+  buildPublicProgramOptions,
+} from "../model/publicCatalogSelectors";
 
-import { PublicActivityFilters } from "./PublicActivityFilters";
+import { PublicActivityFilters, type PublicActivityFiltersProps } from "./PublicActivityFilters";
 
 function rowsFor(units: string[]): ReturnType<typeof buildPublicActivityRows> {
   const activities: PublicActivity[] = units.map((name, index) => ({
@@ -20,6 +24,7 @@ function rowsFor(units: string[]): ReturnType<typeof buildPublicActivityRows> {
     program: { id: "p", isDefault: true, label: null, name: "Programa de Eventos - Unidad" },
     speakers: [],
     startTime: "09:00",
+    status: "SCHEDULED",
     type: "TALK",
     unit: { backendId: `unit-${index}`, name, type: "FACULTY" },
   }));
@@ -32,21 +37,59 @@ const rows = rowsFor([
   "Facultad de Ingenieria de Sistemas Computacionales",
 ]);
 
+const programOptions = buildPublicProgramOptions(rows);
+
+/**
+ * El componente es controlado: el arnes conserva el termino para poder teclear
+ * una frase completa sin que cada pulsacion vuelva a escribir sobre el valor
+ * anterior.
+ */
+function StatefulSearchFilters(props: PublicActivityFiltersProps) {
+  const [searchTerm, setSearchTerm] = useState(props.searchTerm);
+
+  return (
+    <PublicActivityFilters
+      {...props}
+      onSearchTermChange={(value) => {
+        setSearchTerm(value);
+        props.onSearchTermChange(value);
+      }}
+      searchTerm={searchTerm}
+    />
+  );
+}
+
 const meta = {
   args: {
     filteredCount: 12,
+    onClearFilters: fn(),
+    onPeriodChange: fn(),
+    onProgramFilterChange: fn(),
+    onSearchTermChange: fn(),
     onSortDirectionChange: fn(),
     onTypeFilterChange: fn(),
     onUnitFilterChange: fn(),
+    onUnitTypeFilterChange: fn(),
+    period: "available",
+    programFilter: "all",
+    programOptions,
     rows,
+    searchTerm: "",
     sortDirection: "desc",
     typeFilter: "all",
     unitFilter: "all",
+    unitTypeFilter: "all",
   },
   argTypes: {
+    onClearFilters: { control: false },
+    onPeriodChange: { control: false },
+    onProgramFilterChange: { control: false },
+    onSearchTermChange: { control: false },
     onSortDirectionChange: { control: false },
     onTypeFilterChange: { control: false },
     onUnitFilterChange: { control: false },
+    onUnitTypeFilterChange: { control: false },
+    programOptions: { control: false },
     rows: { control: false },
   },
   component: PublicActivityFilters,
@@ -64,6 +107,23 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const SelectsAPeriod: Story = {
+  play: async ({ args, canvas }) => {
+    await userEvent.selectOptions(canvas.getByRole("combobox", { name: /periodo/i }), "past");
+
+    await expect(args.onPeriodChange).toHaveBeenCalledWith("past");
+  },
+};
+
+export const SearchesActivities: Story = {
+  play: async ({ args, canvas }) => {
+    await userEvent.type(canvas.getByRole("textbox", { name: /buscar actividades/i }), "drones");
+
+    await expect(args.onSearchTermChange).toHaveBeenLastCalledWith("drones");
+  },
+  render: (args) => <StatefulSearchFilters {...args} />,
+};
+
 export const SelectsAnOrganizationalUnit: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
@@ -74,6 +134,25 @@ export const SelectsAnOrganizationalUnit: Story = {
     );
 
     await expect(args.onUnitFilterChange).toHaveBeenCalledWith("FIC");
+  },
+};
+
+export const SelectsAUnitType: Story = {
+  play: async ({ args, canvas }) => {
+    await userEvent.selectOptions(
+      canvas.getByRole("combobox", { name: /tipo de unidad/i }),
+      "SUBDIRECTORATE",
+    );
+
+    await expect(args.onUnitTypeFilterChange).toHaveBeenCalledWith("SUBDIRECTORATE");
+  },
+};
+
+export const SelectsAProgram: Story = {
+  play: async ({ args, canvas }) => {
+    await userEvent.selectOptions(canvas.getByRole("combobox", { name: /programa/i }), "p");
+
+    await expect(args.onProgramFilterChange).toHaveBeenCalledWith("p");
   },
 };
 
@@ -97,6 +176,15 @@ export const ChangesTheSortOrder: Story = {
     await userEvent.selectOptions(canvas.getByRole("combobox", { name: /orden/i }), "asc");
 
     await expect(args.onSortDirectionChange).toHaveBeenCalledWith("asc");
+  },
+};
+
+export const ClearsEveryFilter: Story = {
+  args: { period: "past", programFilter: "p", searchTerm: "drones", typeFilter: "WORKSHOP" },
+  play: async ({ args, canvas }) => {
+    await userEvent.click(canvas.getByRole("button", { name: /limpiar filtros/i }));
+
+    await expect(args.onClearFilters).toHaveBeenCalledTimes(1);
   },
 };
 

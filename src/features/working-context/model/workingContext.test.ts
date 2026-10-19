@@ -75,6 +75,13 @@ describe("buildWorkingContextOptions", () => {
       "activity-3",
     ]);
   });
+
+  it("should expose the program status so the selector can localize it", () => {
+    const options = buildWorkingContextOptions(catalog);
+
+    expect(options.programs[0]).toMatchObject({ status: "ACTIVE" });
+    expect(options.activities[0]?.status).toBeUndefined();
+  });
 });
 
 describe("working context serialization", () => {

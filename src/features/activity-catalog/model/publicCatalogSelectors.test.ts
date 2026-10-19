@@ -6,11 +6,13 @@ import type { PublicActivity } from "@/types/domain";
 
 import {
   buildPublicActivityRows,
+  buildPublicProgramOptions,
   filterPublicActivityRows,
   paginatePublicActivityRows,
   publicActivityTypeOptions,
   summarizePublicCatalog,
   type PublicActivityRow,
+  type PublicCatalogPeriod,
 } from "./publicCatalogSelectors";
 
 function createActivity(overrides: Partial<PublicActivity> & { id: string }): PublicActivity {
@@ -30,6 +32,7 @@ function createActivity(overrides: Partial<PublicActivity> & { id: string }): Pu
     },
     speakers: [],
     startTime: "09:00",
+    status: "SCHEDULED",
     type: "TALK",
     unit: { backendId: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
     ...overrides,
@@ -41,10 +44,14 @@ function createRows(activities: PublicActivity[]): PublicActivityRow[] {
 }
 
 const defaultFilters = {
+  period: "all" as const,
+  preferredUnit: null,
+  programFilter: "all",
   searchTerm: "",
   sortDirection: "desc" as const,
   typeFilter: "all" as const,
   unitFilter: "all" as const,
+  unitTypeFilter: "all" as const,
 };
 
 describe("buildPublicActivityRows", () => {
@@ -174,6 +181,299 @@ describe("filterPublicActivityRows", () => {
         (row) => row.activity.id,
       ),
     ).toEqual(["a2"]);
+  });
+
+  it("should classify every period by the effective status", () => {
+    const periods = createRows([
+      createActivity({ date: "2026-10-10", id: "scheduled", status: "SCHEDULED" }),
+      createActivity({
+        date: "2026-10-10",
+        id: "ongoing",
+        startTime: "10:00",
+        status: "ONGOING",
+      }),
+      createActivity({ date: "2026-10-09", id: "completed", status: "COMPLETED" }),
+    ]);
+    const idsFor = (period: PublicCatalogPeriod) =>
+      filterPublicActivityRows(periods, { ...defaultFilters, period, sortDirection: "asc" })
+        .map((row) => row.activity.id)
+        .sort();
+
+    expect(idsFor("available")).toEqual(["ongoing", "scheduled"]);
+    expect(idsFor("upcoming")).toEqual(["scheduled"]);
+    expect(idsFor("past")).toEqual(["completed"]);
+    expect(idsFor("all")).toEqual(["completed", "ongoing", "scheduled"]);
+  });
+
+  it("should filter by event program", () => {
+    const withPrograms = createRows([
+      createActivity({
+        id: "a1",
+        program: { id: "program-1", isDefault: false, label: "Uno", name: "Programa Uno" },
+      }),
+      createActivity({
+        id: "a2",
+        program: { id: "program-2", isDefault: false, label: "Dos", name: "Programa Dos" },
+      }),
+    ]);
+
+    expect(
+      filterPublicActivityRows(withPrograms, { ...defaultFilters, programFilter: "program-2" }).map(
+        (row) => row.activity.id,
+      ),
+    ).toEqual(["a2"]);
+  });
+
+  it("should filter by organizational unit type", () => {
+    const withTypes = createRows([
+      createActivity({
+        id: "faculty",
+        unit: { backendId: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
+      }),
+      createActivity({
+        id: "subdirectorate",
+        unit: { backendId: "sub-acad", name: "Subdirección Académica", type: "SUBDIRECTORATE" },
+      }),
+    ]);
+
+    expect(
+      filterPublicActivityRows(withTypes, {
+        ...defaultFilters,
+        unitTypeFilter: "SUBDIRECTORATE",
+      }).map((row) => row.activity.id),
+    ).toEqual(["subdirectorate"]);
+  });
+
+  it("should combine every filter with AND and keep a single match", () => {
+    const combined = createRows([
+      createActivity({
+        classroom: { building: null, id: "c1", name: "Auditorio" },
+        date: "2026-10-14",
+        description: "Taller de drones para docentes",
+        id: "match",
+        program: { id: "p-target", isDefault: false, label: "Objetivo", name: "Programa Objetivo" },
+        status: "SCHEDULED",
+        type: "WORKSHOP",
+        unit: {
+          backendId: "fisc",
+          name: "Facultad de Ingenieria de Sistemas Computacionales",
+          type: "FACULTY",
+        },
+      }),
+      createActivity({
+        id: "other-program",
+        program: { id: "p-other", isDefault: false, label: "Otro", name: "Programa Otro" },
+        status: "SCHEDULED",
+        type: "WORKSHOP",
+        unit: {
+          backendId: "fisc",
+          name: "Facultad de Ingenieria de Sistemas Computacionales",
+          type: "FACULTY",
+        },
+      }),
+      createActivity({
+        id: "other-status",
+        program: { id: "p-target", isDefault: false, label: "Objetivo", name: "Programa Objetivo" },
+        status: "COMPLETED",
+        type: "WORKSHOP",
+        unit: {
+          backendId: "fisc",
+          name: "Facultad de Ingenieria de Sistemas Computacionales",
+          type: "FACULTY",
+        },
+      }),
+    ]);
+
+    const filtered = filterPublicActivityRows(combined, {
+      period: "upcoming",
+      preferredUnit: null,
+      programFilter: "p-target",
+      searchTerm: "drones",
+      sortDirection: "asc",
+      typeFilter: "WORKSHOP",
+      unitFilter: "FISC",
+      unitTypeFilter: "FACULTY",
+    });
+
+    expect(filtered.map((row) => row.activity.id)).toEqual(["match"]);
+  });
+
+  it("should prioritize the preferred unit without excluding other rows", () => {
+    const rows = createRows([
+      createActivity({
+        date: "2026-10-12",
+        id: "fic-late",
+        unit: { backendId: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
+      }),
+      createActivity({
+        date: "2026-10-10",
+        id: "fisc-first",
+        unit: {
+          backendId: "fisc",
+          name: "Facultad de Ingenieria de Sistemas Computacionales",
+          type: "FACULTY",
+        },
+      }),
+      createActivity({
+        date: "2026-10-14",
+        id: "fisc-last",
+        unit: {
+          backendId: "fisc",
+          name: "Facultad de Ingenieria de Sistemas Computacionales",
+          type: "FACULTY",
+        },
+      }),
+    ]);
+
+    const ordered = filterPublicActivityRows(rows, {
+      ...defaultFilters,
+      preferredUnit: "FISC",
+      sortDirection: "asc",
+    });
+
+    expect(ordered.map((row) => row.activity.id)).toEqual(["fisc-first", "fisc-last", "fic-late"]);
+  });
+
+  it("should prioritize a preferred unit by its backend id as well", () => {
+    const rows = createRows([
+      createActivity({
+        date: "2026-10-10",
+        id: "known",
+        unit: { backendId: "fic", name: "Facultad de Ingenieria Civil", type: "FACULTY" },
+      }),
+      createActivity({
+        date: "2026-10-11",
+        id: "unknown",
+        unit: { backendId: "nueva", name: "Facultad Inventada", type: "FACULTY" },
+      }),
+    ]);
+
+    const ordered = filterPublicActivityRows(rows, {
+      ...defaultFilters,
+      preferredUnit: "nueva",
+      sortDirection: "asc",
+    });
+
+    expect(ordered.map((row) => row.activity.id)).toEqual(["unknown", "known"]);
+  });
+
+  it("should ignore an all or empty preferred unit", () => {
+    const rows = createRows([
+      createActivity({ date: "2026-10-12", id: "a1" }),
+      createActivity({ date: "2026-10-10", id: "a2" }),
+    ]);
+
+    expect(
+      filterPublicActivityRows(rows, {
+        ...defaultFilters,
+        preferredUnit: "all",
+        sortDirection: "asc",
+      }).map((row) => row.activity.id),
+    ).toEqual(["a2", "a1"]);
+    expect(
+      filterPublicActivityRows(rows, {
+        ...defaultFilters,
+        preferredUnit: "",
+        sortDirection: "asc",
+      }).map((row) => row.activity.id),
+    ).toEqual(["a2", "a1"]);
+  });
+
+  it("should break equal timestamps by activity id", () => {
+    const rows = createRows([
+      createActivity({ date: "2026-10-10", id: "beta", startTime: "09:00" }),
+      createActivity({ date: "2026-10-10", id: "alpha", startTime: "09:00" }),
+    ]);
+
+    expect(
+      filterPublicActivityRows(rows, { ...defaultFilters, sortDirection: "asc" }).map(
+        (row) => row.activity.id,
+      ),
+    ).toEqual(["alpha", "beta"]);
+    expect(
+      filterPublicActivityRows(rows, { ...defaultFilters, sortDirection: "desc" }).map(
+        (row) => row.activity.id,
+      ),
+    ).toEqual(["beta", "alpha"]);
+  });
+
+  it("should keep an unknown unit filterable by unit type, program and activity type", () => {
+    const unknown = createRows([
+      createActivity({
+        id: "unknown",
+        program: {
+          id: "p-unknown",
+          isDefault: false,
+          label: "Especial",
+          name: "Programa Especial",
+        },
+        type: "CONFERENCE",
+        unit: { backendId: "nueva", name: "Facultad Inventada", type: "SUBDIRECTORATE" },
+      }),
+    ]);
+
+    expect(
+      filterPublicActivityRows(unknown, {
+        ...defaultFilters,
+        unitTypeFilter: "SUBDIRECTORATE",
+      }).map((row) => row.activity.id),
+    ).toEqual(["unknown"]);
+    expect(
+      filterPublicActivityRows(unknown, { ...defaultFilters, programFilter: "p-unknown" }).map(
+        (row) => row.activity.id,
+      ),
+    ).toEqual(["unknown"]);
+    expect(
+      filterPublicActivityRows(unknown, { ...defaultFilters, typeFilter: "CONFERENCE" }).map(
+        (row) => row.activity.id,
+      ),
+    ).toEqual(["unknown"]);
+  });
+});
+
+describe("buildPublicProgramOptions", () => {
+  it("should group every program once and sort it by its Spanish label", () => {
+    const rows = createRows([
+      createActivity({
+        id: "a1",
+        program: { id: "p-b", isDefault: false, label: "Zeta", name: "Programa Zeta" },
+      }),
+      createActivity({
+        id: "a2",
+        program: { id: "p-a", isDefault: false, label: "Alfa", name: "Programa Alfa" },
+      }),
+      createActivity({
+        id: "a3",
+        program: { id: "p-b", isDefault: false, label: "Zeta", name: "Programa Zeta" },
+      }),
+    ]);
+
+    expect(buildPublicProgramOptions(rows)).toEqual([
+      { id: "p-a", label: "Alfa" },
+      { id: "p-b", label: "Zeta" },
+    ]);
+  });
+
+  it("should fall back to the program name when there is no label", () => {
+    const rows = createRows([
+      createActivity({
+        id: "a1",
+        program: {
+          id: "p-default",
+          isDefault: true,
+          label: null,
+          name: "Programa de Eventos - Unidad",
+        },
+      }),
+    ]);
+
+    expect(buildPublicProgramOptions(rows)).toEqual([
+      { id: "p-default", label: "Programa de Eventos - Unidad" },
+    ]);
+  });
+
+  it("should return no options without rows", () => {
+    expect(buildPublicProgramOptions([])).toEqual([]);
   });
 });
 

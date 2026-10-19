@@ -1,4 +1,6 @@
-import type { ActivityStatus, ActivityType, EventProgramStatus } from "@/types/domain";
+import type { ActivityStatus, ActivityType } from "@/types/domain";
+
+export { eventProgramStatusLabels } from "@/features/event-programs/public";
 
 export const activityTypeLabels: Record<ActivityType, string> = {
   COMPETITION: "Competencia",
@@ -17,14 +19,6 @@ export const activityStatusLabels: Record<ActivityStatus, string> = {
   DRAFT: "Borrador",
   ONGOING: "En curso",
   SCHEDULED: "Programada",
-};
-
-export const eventProgramStatusLabels: Record<EventProgramStatus, string> = {
-  ACTIVE: "Activo",
-  ARCHIVED: "Archivado",
-  CANCELLED: "Cancelado",
-  COMPLETED: "Completado",
-  DRAFT: "Borrador",
 };
 
 /** Campos de un programa de eventos que decide la etiqueta de su badge. */

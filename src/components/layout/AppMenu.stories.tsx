@@ -27,6 +27,7 @@ export const LoggedOut: Story = {
     await expect(canvas.getByRole("link", { name: /iniciar sesi[oó]n/i })).toBeVisible();
     await expect(canvas.queryByRole("link", { name: /cambiar contraseña/i })).toBeNull();
     await expect(canvas.queryByRole("link", { name: /mi perfil/i })).toBeNull();
+    await expect(canvas.queryByText(/alertas/i)).toBeNull();
   },
 };
 
@@ -48,6 +49,7 @@ export const RestoringSession: Story = {
     await expect(canvas.queryByRole("link", { name: /iniciar sesi[oó]n/i })).toBeNull();
     await expect(canvas.queryByRole("link", { name: /registrarse/i })).toBeNull();
     await expect(canvas.getByRole("link", { name: /^sipeg$/i })).toBeVisible();
+    await expect(canvas.queryByText(/alertas/i)).toBeNull();
   },
 };
 
@@ -61,6 +63,9 @@ export const Administrator: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("link", { name: /panel de administracion/i })).toBeVisible();
     await expect(await canvas.findByRole("link", { name: "Mis operaciones" })).toBeVisible();
+    const alertsLink = await canvas.findByRole("link", { name: "Tienes 3 alertas sin leer" });
+
+    await expect(alertsLink).toHaveAttribute("href", "/perfil/alertas");
     await expect(canvas.getByRole("link", { name: /mi perfil/i })).toHaveAttribute(
       "href",
       "/perfil",
@@ -80,6 +85,9 @@ export const StandardUser: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.queryByRole("link", { name: /panel de administracion/i })).toBeNull();
     await expect(canvas.queryByRole("link", { name: "Mis operaciones" })).toBeNull();
+    await expect(
+      await canvas.findByRole("link", { name: "Tienes 3 alertas sin leer" }),
+    ).toHaveAttribute("href", "/perfil/alertas");
     await expect(canvas.getByRole("link", { name: /mi perfil/i })).toHaveAttribute(
       "href",
       "/perfil",
@@ -105,5 +113,8 @@ export const Collaborator: Story = {
     );
     await expect(canvas.queryByRole("link", { name: /panel de administracion/i })).toBeNull();
     await expect(canvas.getByRole("link", { name: /mi perfil/i })).toBeVisible();
+    await expect(
+      await canvas.findByRole("link", { name: "Tienes 3 alertas sin leer" }),
+    ).toHaveAttribute("href", "/perfil/alertas");
   },
 };

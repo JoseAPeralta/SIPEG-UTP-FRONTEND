@@ -26,6 +26,28 @@ export function createApiOrganizationalUnitsAdapter(
   options: ApiOrganizationalUnitsAdapterOptions = {},
   readAccessToken: AccessTokenReader = () => null,
 ): OrganizationalUnitsAdapter {
+  async function loadPaginatedUnits(params: URLSearchParams) {
+    const units = [];
+    let page = 1;
+    let totalPages: number;
+
+    do {
+      const pageParams = new URLSearchParams(params);
+      pageParams.set("page", String(page));
+      pageParams.set("limit", String(PAGE_LIMIT));
+      const payload = await apiRequest<unknown>(
+        `/api/v1/organizational-units?${pageParams.toString()}`,
+        { ...options, auth: { mode: "none" } },
+      );
+      const result = mapOrganizationalUnitsPage(payload);
+      units.push(...result.items);
+      totalPages = result.totalPages;
+      page += 1;
+    } while (page <= totalPages);
+
+    return units;
+  }
+
   return {
     async createOrganizationalUnit(request: CreateOrganizationalUnitRequest) {
       const payload = await apiRequest<unknown>("/api/v1/organizational-units", {
@@ -58,23 +80,27 @@ export function createApiOrganizationalUnitsAdapter(
 
       return mapOrganizationalUnitDetail(payload, "organizationalUnits.detail");
     },
-    async loadOrganizationalUnits() {
-      const units = [];
-      let page = 1;
-      let totalPages: number;
+    async loadOrganizationalUnits(filters = {}) {
+      if (filters.isActive === "all") {
+        const [active, inactive] = await Promise.all([
+          loadPaginatedUnits(new URLSearchParams()),
+          loadPaginatedUnits(new URLSearchParams({ isActive: "false" })),
+        ]);
+        const seen = new Set<string>();
 
-      do {
-        const payload = await apiRequest<unknown>(
-          `/api/v1/organizational-units?page=${page}&limit=${PAGE_LIMIT}`,
-          { ...options, auth: { mode: "none" } },
-        );
-        const result = mapOrganizationalUnitsPage(payload);
-        units.push(...result.items);
-        totalPages = result.totalPages;
-        page += 1;
-      } while (page <= totalPages);
+        return [...active, ...inactive].filter((candidate) => {
+          if (seen.has(candidate.id)) return false;
+          seen.add(candidate.id);
+          return true;
+        });
+      }
 
-      return units;
+      const params =
+        filters.isActive === "inactive"
+          ? new URLSearchParams({ isActive: "false" })
+          : new URLSearchParams();
+
+      return loadPaginatedUnits(params);
     },
 
     async reactivateOrganizationalUnit(unitId: string) {

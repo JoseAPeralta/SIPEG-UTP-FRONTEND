@@ -4,6 +4,12 @@ import { lazy, Suspense } from "react";
 
 import { useSessionStore } from "@/store/session";
 
+const UnreadAlertsIndicator = lazy(() =>
+  import("@/features/alerts/navigation").then(({ UnreadAlertsIndicator: Component }) => ({
+    default: Component,
+  })),
+);
+
 const OperationalMenuLink = lazy(() =>
   import("@/features/collaboration/navigation").then(({ OperationalMenuLink: Component }) => ({
     default: Component,
@@ -93,6 +99,9 @@ export function AppMenu() {
                   <MenuLink to="/admin">Panel de administracion</MenuLink>
                 ) : null}
                 <MenuLink to="/perfil">Mi perfil</MenuLink>
+                <Suspense fallback={null}>
+                  <UnreadAlertsIndicator />
+                </Suspense>
                 <Suspense fallback={null}>
                   <OperationalMenuLink />
                 </Suspense>

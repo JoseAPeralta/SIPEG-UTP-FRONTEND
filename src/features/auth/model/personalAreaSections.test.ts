@@ -5,12 +5,13 @@ import { describe, expect, it } from "vitest";
 import { PERSONAL_AREA_SECTIONS, resolvePersonalAreaSection } from "./personalAreaSections";
 
 describe("personalAreaSections", () => {
-  it("declarar las cuatro secciones en el orden del submenu", () => {
+  it("declarar las cinco secciones en el orden del submenu", () => {
     expect(PERSONAL_AREA_SECTIONS.map((section) => section.id)).toEqual([
       "datos",
       "seguridad",
       "actividades",
       "certificados",
+      "alertas",
     ]);
   });
 
@@ -19,6 +20,7 @@ describe("personalAreaSections", () => {
     expect(resolvePersonalAreaSection("/perfil/seguridad").id).toBe("seguridad");
     expect(resolvePersonalAreaSection("/perfil/actividades").id).toBe("actividades");
     expect(resolvePersonalAreaSection("/perfil/certificados").id).toBe("certificados");
+    expect(resolvePersonalAreaSection("/perfil/alertas").id).toBe("alertas");
   });
 
   it("usa nombres de producto completos y no codigos de ruta", () => {
@@ -27,6 +29,7 @@ describe("personalAreaSections", () => {
       "Seguridad de la cuenta",
       "Mis actividades",
       "Mis certificados",
+      "Mis alertas",
     ]);
   });
 

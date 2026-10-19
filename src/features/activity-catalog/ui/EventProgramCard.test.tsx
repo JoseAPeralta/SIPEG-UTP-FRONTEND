@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import { setupUser } from "@/test/user";
 import { describe, expect, it, vi } from "vitest";
 
-import { createActivity, createEventProgram, createOrganizationalUnit } from "@/test/factories";
+import { createEventProgram, createOrganizationalUnit } from "@/test/factories";
 import { renderWithProviders } from "@/test/render";
 
 import type { ProgramSummary } from "../model/catalogSelectors";
@@ -13,7 +13,7 @@ const unit = createOrganizationalUnit({ code: "FISC" });
 function createSummary(overrides: Partial<ProgramSummary> = {}): ProgramSummary {
   return {
     activityCount: 3,
-    enrolledCount: 120,
+    enrolledCount: null,
     program: createEventProgram({ label: "Semana de innovacion" }),
     unit,
     ...overrides,
@@ -21,11 +21,11 @@ function createSummary(overrides: Partial<ProgramSummary> = {}): ProgramSummary 
 }
 
 describe("EventProgramCard", () => {
-  it("should show the date range, activity count and attendee total", () => {
+  it("should show the date range, activity count and an unavailable attendee total", () => {
     renderWithProviders(<EventProgramCard summary={createSummary()} />);
 
-    expect(screen.getByText(/3/)).toBeInTheDocument();
-    expect(screen.getByText(/120/)).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("No disponible")).toBeInTheDocument();
     expect(screen.getByText(/15/)).toBeInTheDocument();
     expect(screen.getByText("Semana de innovacion")).toBeInTheDocument();
     expect(screen.queryByText("FISC")).not.toBeInTheDocument();
@@ -76,12 +76,9 @@ describe("EventProgramCard", () => {
     expect(onSelect).toHaveBeenCalledWith(summary.program);
   });
 
-  it("should keep the summary count independent from activities", () => {
-    renderWithProviders(
-      <EventProgramCard summary={createSummary({ activityCount: 0, enrolledCount: 0 })} />,
-    );
+  it("should show the attendee total when a summary carries one", () => {
+    renderWithProviders(<EventProgramCard summary={createSummary({ enrolledCount: 120 })} />);
 
-    expect(screen.getByText(/agenda permanente|15/i)).toBeInTheDocument();
-    expect(createActivity({}).id).toBe("activity-1");
+    expect(screen.getByText("120")).toBeInTheDocument();
   });
 });

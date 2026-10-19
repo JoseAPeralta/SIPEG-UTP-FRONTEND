@@ -45,7 +45,7 @@ describe("useActivityCatalog", () => {
 
   it("should compose programs, activities, units and classrooms from their own adapters", async () => {
     const adapters = buildAdapters();
-    const { result } = renderHookWithProviders(() => useActivityCatalog("administrative"), {
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), {
       adapters,
     });
 
@@ -65,8 +65,8 @@ describe("useActivityCatalog", () => {
     const adapters = buildAdapters();
     const { result } = renderHookWithProviders(
       () => ({
-        first: useActivityCatalog("administrative"),
-        second: useActivityCatalog("administrative"),
+        first: useActivityCatalog(),
+        second: useActivityCatalog(),
       }),
       { adapters },
     );
@@ -75,35 +75,17 @@ describe("useActivityCatalog", () => {
     await waitFor(() => expect(result.current.second.isLoading).toBe(false));
 
     expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledTimes(1);
-    expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledWith("administrative");
+    expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledWith();
     expect(adapters.organizationalUnits.loadOrganizationalUnits).toHaveBeenCalledTimes(1);
     expect(adapters.classrooms.loadClassrooms).toHaveBeenCalledTimes(1);
     expect(result.current.second.catalog).not.toBeNull();
-  });
-
-  it("should keep public and administrative catalog caches separate", async () => {
-    const adapters = buildAdapters();
-    const { result } = renderHookWithProviders(
-      () => ({
-        administrative: useActivityCatalog("administrative"),
-        public: useActivityCatalog("public"),
-      }),
-      { adapters },
-    );
-
-    await waitFor(() => expect(result.current.administrative.isLoading).toBe(false));
-    await waitFor(() => expect(result.current.public.isLoading).toBe(false));
-
-    expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledTimes(2);
-    expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledWith("administrative");
-    expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledWith("public");
   });
 
   it("should expose the catalog error without data", async () => {
     const adapters = buildAdapters({
       activityCatalog: { loadCatalog: vi.fn().mockRejectedValue(new Error("catalogo caido")) },
     });
-    const { result } = renderHookWithProviders(() => useActivityCatalog("administrative"), {
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), {
       adapters,
     });
 
@@ -118,7 +100,7 @@ describe("useActivityCatalog", () => {
     const adapters = buildAdapters({
       classrooms: { loadClassrooms: vi.fn().mockRejectedValue(new Error("aulas caidas")) },
     });
-    const { result } = renderHookWithProviders(() => useActivityCatalog("administrative"), {
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), {
       adapters,
     });
 
@@ -139,7 +121,7 @@ describe("useActivityCatalog", () => {
         ),
       },
     });
-    const { result } = renderHookWithProviders(() => useActivityCatalog("administrative"), {
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), {
       adapters,
     });
 
@@ -152,7 +134,7 @@ describe("useActivityCatalog", () => {
 
   it("should refetch every composed resource on demand", async () => {
     const adapters = buildAdapters();
-    const { result } = renderHookWithProviders(() => useActivityCatalog("administrative"), {
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), {
       adapters,
     });
 
@@ -167,10 +149,10 @@ describe("useActivityCatalog", () => {
     expect(adapters.classrooms.loadClassrooms).toHaveBeenCalledTimes(2);
   });
 
-  it("should scope the administrative key by user id without the token", async () => {
+  it("should scope every administrative key by user id without the token", async () => {
     const adapters = buildAdapters();
     const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
-    const { result } = renderHookWithProviders(() => useActivityCatalog("administrative"), {
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), {
       adapters,
       queryClient,
     });
@@ -184,13 +166,46 @@ describe("useActivityCatalog", () => {
     expect(keys).toContainEqual(queryKeys.administrativeActivityCatalog("user-1"));
     expect(keys).toContainEqual(queryKeys.administrativeOrganizationalUnits("user-1"));
     expect(keys).toContainEqual(queryKeys.administrativeClassrooms("user-1"));
+    expect(keys).not.toContainEqual(queryKeys.publicActivityCatalog);
+    expect(keys).not.toContainEqual(queryKeys.publicOrganizationalUnits);
+    expect(keys).not.toContainEqual(queryKeys.publicClassrooms);
     expect(JSON.stringify(keys)).not.toContain("secret-token");
+  });
+
+  it("should keep a separate cache entry per identity", async () => {
+    const adapters = buildAdapters();
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), {
+      adapters,
+      queryClient,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    act(() => {
+      useSessionStore.getState().setSession({
+        currentUser: createAuthenticatedUser({ id: "user-2" }),
+        tokens: createAuthTokens({ accessToken: "other-token" }),
+      });
+    });
+
+    await waitFor(() => expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledTimes(2));
+
+    const keys = queryClient
+      .getQueryCache()
+      .getAll()
+      .map((query) => query.queryKey);
+    expect(keys).toContainEqual(queryKeys.administrativeActivityCatalog("user-1"));
+    expect(keys).toContainEqual(queryKeys.administrativeActivityCatalog("user-2"));
+    expect(queryKeys.administrativeActivityCatalog("user-1")).not.toEqual(
+      queryKeys.administrativeActivityCatalog("user-2"),
+    );
   });
 
   it("should not load or refetch the administrative catalog anonymously", async () => {
     useSessionStore.getState().clearSession();
     const adapters = buildAdapters();
-    const { result } = renderHookWithProviders(() => useActivityCatalog("administrative"), {
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), {
       adapters,
     });
 
@@ -203,13 +218,98 @@ describe("useActivityCatalog", () => {
     expect(adapters.classrooms.loadClassrooms).not.toHaveBeenCalled();
   });
 
-  it("should load the public catalog anonymously", async () => {
-    useSessionStore.getState().clearSession();
+  it("should compose the complete working context for an administrator", async () => {
     const adapters = buildAdapters();
-    const { result } = renderHookWithProviders(() => useActivityCatalog("public"), { adapters });
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { result } = renderHookWithProviders(() => useActivityCatalog({ mode: "all-programs" }), {
+      adapters,
+      queryClient,
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledWith("public");
+
+    expect(adapters.activityCatalog.loadCatalog).toHaveBeenCalledWith("all-programs");
+    expect(adapters.organizationalUnits.loadOrganizationalUnits).toHaveBeenCalledWith({
+      isActive: "all",
+    });
+    expect(adapters.classrooms.loadClassrooms).toHaveBeenCalledWith({ isActive: "all" });
     expect(result.current.catalog).not.toBeNull();
+
+    const keys = queryClient
+      .getQueryCache()
+      .getAll()
+      .map((query) => query.queryKey);
+    expect(keys).toContainEqual(queryKeys.administrativeWorkingContextCatalog("user-1"));
+    expect(keys).toContainEqual(queryKeys.administrativeOrganizationalUnitsAll("user-1"));
+    expect(keys).toContainEqual(queryKeys.administrativeClassrooms("user-1", { isActive: "all" }));
+  });
+
+  it("should not load the complete working context for a regular user", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER", id: "user-1" }),
+      tokens: createAuthTokens({ accessToken: "secret-token" }),
+    });
+    const adapters = buildAdapters();
+    const { result } = renderHookWithProviders(() => useActivityCatalog({ mode: "all-programs" }), {
+      adapters,
+    });
+
+    expect(result.current.catalog).toBeNull();
+    await waitFor(() => expect(result.current.isFetching).toBe(false));
+
+    expect(adapters.activityCatalog.loadCatalog).not.toHaveBeenCalled();
+    expect(result.current.catalog).toBeNull();
+  });
+
+  it("should expose the combined fetching state", async () => {
+    const adapters = buildAdapters();
+    const { result } = renderHookWithProviders(() => useActivityCatalog(), { adapters });
+
+    expect(result.current.isFetching).toBe(true);
+    await waitFor(() => expect(result.current.isFetching).toBe(false));
+  });
+
+  it("should accept inactive references that exist in the complete mode", async () => {
+    const adapters = buildAdapters({
+      classrooms: {
+        loadClassrooms: vi
+          .fn()
+          .mockResolvedValue([createClassroom({ id: "classroom-1", isActive: false })]),
+      },
+      organizationalUnits: {
+        loadOrganizationalUnits: vi
+          .fn()
+          .mockResolvedValue([createOrganizationalUnit({ id: "fic", isActive: false })]),
+      },
+    });
+    const { result } = renderHookWithProviders(() => useActivityCatalog({ mode: "all-programs" }), {
+      adapters,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.error).toBeNull();
+    expect(result.current.catalog?.classrooms[0]?.isActive).toBe(false);
+    expect(result.current.catalog?.organizationalUnits[0]?.isActive).toBe(false);
+  });
+
+  it("should still report a dangling reference in the complete mode", async () => {
+    const adapters = buildAdapters({
+      activityCatalog: {
+        loadCatalog: vi.fn().mockResolvedValue(
+          createActivityCatalogPayload({
+            activities: [createActivity({ classroomId: "aula-inexistente" })],
+          }),
+        ),
+      },
+    });
+    const { result } = renderHookWithProviders(() => useActivityCatalog({ mode: "all-programs" }), {
+      adapters,
+    });
+
+    await waitFor(() => expect(result.current.error).not.toBeNull());
+
+    expect(result.current.error?.message).toMatch(/aula-inexistente/);
+    expect(result.current.catalog).toBeNull();
   });
 });

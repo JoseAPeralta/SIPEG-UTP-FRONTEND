@@ -32,10 +32,11 @@ export function ReportsPage() {
           value: String(report.activities.length),
         },
         {
-          detail: "Inscripciones registradas",
+          detail:
+            "El listado de actividades no publica un total agregado; el detalle si lo expone.",
           id: "metric-enrolled",
           label: "Inscritos",
-          value: String(report.enrolledCount),
+          value: String(report.enrolledCount ?? "No disponible"),
         },
         {
           detail: "Asistencias confirmadas",

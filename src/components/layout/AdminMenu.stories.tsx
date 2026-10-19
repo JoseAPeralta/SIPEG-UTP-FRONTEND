@@ -57,6 +57,7 @@ export const Administrator: Story = {
     for (const label of [
       /panel/i,
       /eventos/i,
+      /programas/i,
       /aulas/i,
       /ponentes/i,
       /usuarios/i,
@@ -69,6 +70,10 @@ export const Administrator: Story = {
       await expect(within(panelNavigation).getByRole("link", { name: label })).toBeVisible();
     }
 
+    await expect(canvas.getByRole("link", { name: /programas/i })).toHaveAttribute(
+      "href",
+      "/admin/programas",
+    );
     await expect(canvas.getByRole("link", { name: /aulas/i })).toHaveAttribute(
       "href",
       "/admin/aulas",

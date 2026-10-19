@@ -76,6 +76,57 @@ describe("createMockUserScopesAdapter", () => {
     });
   });
 
+  it("should discover programs that exist only in the same composition", async () => {
+    const created = {
+      ...eventPrograms[0]!,
+      id: "program-created-1",
+      name: "Programa creado en la composicion",
+      status: "DRAFT" as const,
+    };
+    const mock = createMockUserScopesAdapter(
+      () => "ADMIN",
+      () => [...eventPrograms, created],
+    );
+
+    const scopes = await mock.loadUserScopes({ type: "program" });
+    const discovered = scopes.find((scope) => scope.id === "program-created-1");
+
+    expect(discovered?.name).toBe("Programa creado en la composicion");
+    expect(discovered?.status).toBe("DRAFT");
+  });
+
+  it("should read the current activities instead of the frozen fixture", async () => {
+    const removed = activities[0]!;
+    const current = activities.filter((activity) => activity.id !== removed.id);
+    const mock = createMockUserScopesAdapter(
+      () => "ADMIN",
+      () => eventPrograms,
+      () => current,
+    );
+
+    const scopes = await mock.loadUserScopes({ type: "activity" });
+
+    expect(scopes.map((scope) => scope.id).sort()).toEqual(current.map((a) => a.id).sort());
+    expect(scopes.map((scope) => scope.id)).not.toContain(removed.id);
+  });
+
+  it("should discover activities that exist only in the same composition", async () => {
+    const created = {
+      ...activities[0]!,
+      id: "activity-created-in-runtime",
+      name: "Actividad creada en la composicion",
+    };
+    const mock = createMockUserScopesAdapter(
+      () => "ADMIN",
+      () => eventPrograms,
+      () => [...activities, created],
+    );
+
+    const scopes = await mock.loadUserScopes({ type: "activity" });
+
+    expect(scopes.map((scope) => scope.id)).toContain("activity-created-in-runtime");
+  });
+
   it("should return clones so callers cannot mutate the catalog", async () => {
     const mock = adapter();
     const first = await mock.loadUserScopes();

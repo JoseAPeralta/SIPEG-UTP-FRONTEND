@@ -5,6 +5,7 @@ import { useAppAdapters } from "@/app/adapters";
 import { queryKeys } from "@/app/query";
 
 import {
+  areAvailableClassroomsCriteriaEqual,
   isAvailableClassroomsCriteriaValid,
   normalizeAvailableClassroomsCriteria,
   type AvailableClassroomsCriteria,
@@ -18,22 +19,6 @@ function resolveFailure(error: Error | null): AvailableClassroomsFailure | null 
   const status = "status" in error ? (error as { status?: unknown }).status : undefined;
 
   return status === 400 ? "invalidRequest" : "unknown";
-}
-
-function isSameCriteria(
-  left: AvailableClassroomsCriteria | null,
-  right: AvailableClassroomsCriteria,
-): boolean {
-  if (left === null) return false;
-
-  return (
-    left.amenity === right.amenity &&
-    left.date === right.date &&
-    left.endTime === right.endTime &&
-    left.minCapacity === right.minCapacity &&
-    left.startTime === right.startTime &&
-    left.type === right.type
-  );
 }
 
 /**
@@ -60,7 +45,7 @@ export function useAvailableClassrooms() {
     const normalized = normalizeAvailableClassroomsCriteria(nextCriteria);
     if (!isAvailableClassroomsCriteriaValid(normalized)) return;
 
-    if (isSameCriteria(criteria, normalized)) {
+    if (areAvailableClassroomsCriteriaEqual(criteria, normalized)) {
       void query.refetch();
       return;
     }

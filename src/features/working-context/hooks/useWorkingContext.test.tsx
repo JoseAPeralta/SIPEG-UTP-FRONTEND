@@ -1,9 +1,16 @@
 import { act, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createAppAdapters } from "@/app/adapters";
 import { useSessionStore } from "@/store/session";
 import { useWorkingContextStore } from "@/store/workingContext";
-import { createAuthenticatedUser, createAuthTokens } from "@/test/factories";
+import {
+  createActivityCatalogPayload,
+  createAuthenticatedUser,
+  createAuthTokens,
+  createClassroom,
+  createOrganizationalUnit,
+} from "@/test/factories";
 import { renderHookWithProviders } from "@/test/render";
 
 import { useWorkingContext } from "./useWorkingContext";
@@ -69,5 +76,101 @@ describe("useWorkingContext", () => {
 
     act(() => result.current.onValueChange(""));
     expect(useWorkingContextStore.getState().workingContext).toBeNull();
+  });
+
+  it("should resolve an archived program that remains readable", async () => {
+    useWorkingContextStore
+      .getState()
+      .setWorkingContext({ id: "program-robotics-competition-2024", kind: "eventProgram" });
+
+    const { result } = renderHookWithProviders(() => useWorkingContext());
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.scope?.program.status).toBe("ARCHIVED");
+    expect(result.current.scope?.unit.code).toBe("FIM");
+  });
+
+  it("should retire a selection that a complete read confirms as absent", async () => {
+    useWorkingContextStore
+      .getState()
+      .setWorkingContext({ id: "program-missing", kind: "eventProgram" });
+
+    const { result } = renderHookWithProviders(() => useWorkingContext());
+
+    await waitFor(() => expect(useWorkingContextStore.getState().workingContext).toBeNull());
+    expect(result.current.selectionRevoked).toBe(true);
+  });
+
+  it("should keep the selection while the catalog fails", async () => {
+    const adapters = createAppAdapters({ source: "mock" });
+    adapters.activityCatalog = {
+      ...adapters.activityCatalog,
+      loadCatalog: vi.fn().mockRejectedValue(new Error("catalogo caido")),
+    };
+    useWorkingContextStore
+      .getState()
+      .setWorkingContext({ id: "program-missing", kind: "eventProgram" });
+
+    const { result } = renderHookWithProviders(() => useWorkingContext(), { adapters });
+
+    await waitFor(() => expect(result.current.error).not.toBeNull());
+    expect(useWorkingContextStore.getState().workingContext).toEqual({
+      id: "program-missing",
+      kind: "eventProgram",
+    });
+    expect(result.current.selectionRevoked).toBe(false);
+  });
+
+  it("should keep the selection while a complete read is still in flight", async () => {
+    let resolveCatalog: (value: ReturnType<typeof createActivityCatalogPayload>) => void = () =>
+      undefined;
+    const pending = new Promise<ReturnType<typeof createActivityCatalogPayload>>((resolve) => {
+      resolveCatalog = resolve;
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+    adapters.activityCatalog = {
+      ...adapters.activityCatalog,
+      loadCatalog: vi.fn().mockReturnValue(pending),
+    };
+    adapters.organizationalUnits = {
+      ...adapters.organizationalUnits,
+      loadOrganizationalUnits: vi.fn().mockResolvedValue([createOrganizationalUnit({ id: "fic" })]),
+    };
+    adapters.classrooms = {
+      ...adapters.classrooms,
+      loadClassrooms: vi.fn().mockResolvedValue([createClassroom()]),
+    };
+    useWorkingContextStore
+      .getState()
+      .setWorkingContext({ id: "program-missing", kind: "eventProgram" });
+
+    const { result } = renderHookWithProviders(() => useWorkingContext(), { adapters });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(true));
+    expect(useWorkingContextStore.getState().workingContext).not.toBeNull();
+
+    await act(() => {
+      resolveCatalog(createActivityCatalogPayload());
+      return Promise.resolve();
+    });
+    await waitFor(() => expect(useWorkingContextStore.getState().workingContext).toBeNull());
+    expect(result.current.selectionRevoked).toBe(true);
+  });
+
+  it("should reset the revoked notice with a new selection", async () => {
+    useWorkingContextStore
+      .getState()
+      .setWorkingContext({ id: "program-missing", kind: "eventProgram" });
+
+    const { result } = renderHookWithProviders(() => useWorkingContext());
+
+    await waitFor(() => expect(result.current.selectionRevoked).toBe(true));
+
+    act(() => result.current.onValueChange("eventProgram:program-innovation-week"));
+    expect(result.current.selectionRevoked).toBe(false);
+    expect(useWorkingContextStore.getState().workingContext).toEqual({
+      id: "program-innovation-week",
+      kind: "eventProgram",
+    });
   });
 });

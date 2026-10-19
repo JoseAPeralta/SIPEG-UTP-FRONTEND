@@ -27,6 +27,7 @@ describe("useSessionStore", () => {
     useSessionStore.setState({
       currentUser: null,
       sessionEndReason: null,
+      sessionGeneration: 0,
       status: "restoring",
       tokens: null,
     });
@@ -155,5 +156,59 @@ describe("useSessionStore", () => {
     useSessionStore.getState().clearSession();
 
     expect(useSessionStore.getState().sessionEndReason).toBeNull();
+  });
+
+  it("should start a new session generation when an identity begins", () => {
+    expect(useSessionStore.getState().sessionGeneration).toBe(0);
+
+    useSessionStore.getState().setSession({ currentUser, tokens });
+
+    expect(useSessionStore.getState().sessionGeneration).toBe(1);
+  });
+
+  it("should advance the session generation when a different identity starts", () => {
+    useSessionStore.getState().setSession({ currentUser, tokens });
+    const generation = useSessionStore.getState().sessionGeneration;
+
+    useSessionStore.getState().setSession({
+      currentUser: { ...currentUser, id: "user-2" },
+      tokens,
+    });
+
+    expect(useSessionStore.getState().sessionGeneration).toBe(generation + 1);
+  });
+
+  it("should advance the session generation when the session is cleared or ended", () => {
+    useSessionStore.getState().setSession({ currentUser, tokens });
+    const afterLogin = useSessionStore.getState().sessionGeneration;
+
+    useSessionStore.getState().endSession("expired");
+    expect(useSessionStore.getState().sessionGeneration).toBe(afterLogin + 1);
+
+    useSessionStore.getState().setSession({ currentUser, tokens });
+    const afterSecondLogin = useSessionStore.getState().sessionGeneration;
+
+    useSessionStore.getState().clearSession();
+    expect(useSessionStore.getState().sessionGeneration).toBe(afterSecondLogin + 1);
+  });
+
+  it("should keep the session generation across token rotations and profile updates", () => {
+    useSessionStore.getState().setSession({ currentUser, tokens });
+    const generation = useSessionStore.getState().sessionGeneration;
+
+    useSessionStore
+      .getState()
+      .setSession({ currentUser, tokens: { ...tokens, accessToken: "rotated-access-token" } });
+    useSessionStore.getState().replaceCurrentUser({ ...currentUser, firstName: "Mariana Paula" });
+
+    expect(useSessionStore.getState().sessionGeneration).toBe(generation);
+  });
+
+  it("should advance the session generation on demand", () => {
+    const generation = useSessionStore.getState().sessionGeneration;
+
+    useSessionStore.getState().advanceSessionGeneration();
+
+    expect(useSessionStore.getState().sessionGeneration).toBe(generation + 1);
   });
 });

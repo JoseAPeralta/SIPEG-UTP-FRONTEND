@@ -22,12 +22,18 @@ const personalAreaSections = [
   { content: /cambie su contrase[nñ]a/i, label: "Seguridad de la cuenta", path: "seguridad" },
   { content: /inscripciones/i, label: "Mis actividades", path: "actividades" },
   { content: /descargar los certificados/i, label: "Mis certificados", path: "certificados" },
+  { content: /revise las novedades/i, label: "Mis alertas", path: "alertas" },
 ] as const satisfies readonly { content: RegExp; label: string; path: string }[];
 
 const institutionalAdminRoutes = [
   { heading: /^Aulas$/, path: "aulas" },
   { heading: "Unidades organizativas", path: "unidades" },
   { heading: "Carreras", path: "carreras" },
+] as const;
+
+const administrativeModuleRoutes = [
+  ...institutionalAdminRoutes,
+  { heading: /^Programas$/, path: "programas" },
 ] as const;
 
 /**
@@ -146,6 +152,121 @@ describe("App", () => {
       screen.queryByRole("link", { name: /panel de administracion/i }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("contentinfo")).toHaveTextContent(/sipeg/i);
+  });
+
+  it("should render a public activity detail from a direct anonymous link", async () => {
+    renderWithProviders(<App />, { route: "/actividades/activity-open-data-governance" });
+
+    const heading = await screen.findByRole("heading", {
+      level: 1,
+      name: /gobernanza de datos abiertos universitarios/i,
+    });
+
+    expect(heading).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByText("Programada")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Volver a la agenda" })).toHaveAttribute("href", "/");
+  });
+
+  it("should keep an unavailable public activity out of the retry flow", async () => {
+    renderWithProviders(<App />, { route: "/actividades/actividad-inexistente" });
+
+    expect(await screen.findByText("Actividad no disponible")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /reintentar/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Volver a la agenda" })).toHaveAttribute("href", "/");
+  });
+
+  it("should open the public activity detail from a landing card", async () => {
+    const user = setupUser();
+
+    renderWithProviders(<App />);
+
+    const cardLink = await screen.findByRole("link", {
+      name: /gobernanza de datos abiertos universitarios/i,
+    });
+
+    await user.click(cardLink);
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /gobernanza de datos abiertos universitarios/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("should return to the agenda from the public activity detail", async () => {
+    const user = setupUser();
+
+    renderWithProviders(<App />, { route: "/actividades/activity-open-data-governance" });
+
+    await screen.findByRole("heading", {
+      level: 1,
+      name: /gobernanza de datos abiertos universitarios/i,
+    });
+
+    await user.click(screen.getByRole("link", { name: "Volver a la agenda" }));
+
+    expect(
+      await screen.findByRole(
+        "heading",
+        { level: 1, name: /descubra actividades academicas/i },
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it.each([
+    { globalRole: "USER" as const, label: "a standard user" },
+    { globalRole: "ADMIN" as const, label: "an administrator" },
+  ])("should publish the same public detail for $label", async ({ globalRole }) => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole }),
+      tokens: demoTokens,
+    });
+
+    renderWithProviders(<App />, { route: "/actividades/activity-open-data-governance" });
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /gobernanza de datos abiertos universitarios/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Volver a la agenda" })).toHaveAttribute("href", "/");
+  });
+
+  it("should publish the same public detail for a collaborator", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+
+    adapters.userScopes.loadUserScopes = vi.fn().mockResolvedValue([
+      createUserScope({
+        id: "activity-open-data-governance",
+        name: "Gobernanza de datos abiertos universitarios",
+        type: "activity",
+      }),
+    ]);
+    adapters.ownPermissions.loadOwnPermissions = vi.fn().mockResolvedValue({
+      permissions: [{ name: "activity:read", origin: "LOCAL", validFrom: null, validUntil: null }],
+      scope: { id: "activity-open-data-governance", type: "activity" },
+    });
+
+    renderWithProviders(<App />, {
+      adapters,
+      route: "/actividades/activity-open-data-governance",
+    });
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /gobernanza de datos abiertos universitarios/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Volver a la agenda" })).toHaveAttribute("href", "/");
   });
 
   it("should keep the landing visible while the session is still being restored", async () => {
@@ -319,6 +440,10 @@ describe("App", () => {
       "href",
       "/admin/eventos",
     );
+    expect(screen.getByRole("link", { name: /programas/i })).toHaveAttribute(
+      "href",
+      "/admin/programas",
+    );
     expect(screen.getByRole("link", { name: /asistencia/i })).toHaveAttribute(
       "href",
       "/admin/asistencia",
@@ -349,7 +474,7 @@ describe("App", () => {
   });
 
   it.each([
-    ...institutionalAdminRoutes,
+    ...administrativeModuleRoutes,
     { heading: /registro de ponentes/i, path: "ponentes" },
     { heading: /^Usuarios$/, path: "usuarios" },
   ])("should render /admin/$path inside the admin layout", async ({ path, heading }) => {
@@ -381,7 +506,7 @@ describe("App", () => {
     expect(screen.getByTestId("history-path")).toHaveTextContent(`/admin/${path}`);
   });
 
-  it.each(institutionalAdminRoutes)(
+  it.each(administrativeModuleRoutes)(
     "should keep /admin/$path closed to a standard user",
     async ({ heading, path }) => {
       useSessionStore.getState().setSession({
@@ -401,7 +526,7 @@ describe("App", () => {
     },
   );
 
-  it.each(institutionalAdminRoutes)(
+  it.each(administrativeModuleRoutes)(
     "should redirect anonymous visitors away from /admin/$path",
     async ({ heading, path }) => {
       renderWithProviders(<App />, { route: `/admin/${path}` });
@@ -487,7 +612,6 @@ describe("App", () => {
     expect(
       await adminContent.findByText(/gobernanza de datos abiertos universitarios/i),
     ).toBeInTheDocument();
-    expect(adminContent.getByText(/128 inscritos/i)).toBeInTheDocument();
     expect(adminContent.queryByText(/puentes resilientes/i)).not.toBeInTheDocument();
   });
 
@@ -727,6 +851,7 @@ describe("App", () => {
     ["seguridad", /cambie su contrase[nñ]a/i],
     ["actividades", /próximamente/i],
     ["certificados", /próximamente/i],
+    ["alertas", /mis alertas/i],
   ] satisfies [string, RegExp][])(
     "should render /perfil/%s as an independent destination",
     async (section, heading) => {
@@ -765,7 +890,7 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it.each(["datos", "seguridad", "actividades", "certificados"])(
+  it.each(["datos", "seguridad", "actividades", "certificados", "alertas"])(
     "should redirect /perfil/%s to login without a session",
     async (section) => {
       renderWithProviders(<App />, { route: `/perfil/${section}` });
@@ -789,6 +914,27 @@ describe("App", () => {
       screen.getByRole("link", { current: "page", name: "Seguridad de la cuenta" }),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText(/^nombre$/i)).not.toBeInTheDocument();
+  });
+
+  it("should open the personal alerts inbox from the global indicator", async () => {
+    const user = setupUser();
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ globalRole: "USER" }),
+      tokens: demoTokens,
+    });
+
+    renderWithProviders(<App />, { route: "/perfil/datos" });
+
+    await user.click(await screen.findByRole("link", { name: "Tienes 3 alertas sin leer" }));
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Mis alertas" }),
+    ).toBeInTheDocument();
+    const submenu = screen.getByRole("navigation", { name: /secciones del [aá]rea personal/i });
+
+    expect(
+      within(submenu).getByRole("link", { current: "page", name: "Mis alertas" }),
+    ).toBeInTheDocument();
   });
 
   it("should keep the security section usable when the institutional catalog fails", async () => {
@@ -912,7 +1058,12 @@ describe("App", () => {
     expect(screen.getByText("Datos de la cuenta", { selector: "p" })).toBeVisible();
     expect(currentPersonalAreaSection()).toBe("Datos de la cuenta");
 
-    for (const label of ["Seguridad de la cuenta", "Mis actividades", "Mis certificados"]) {
+    for (const label of [
+      "Seguridad de la cuenta",
+      "Mis actividades",
+      "Mis certificados",
+      "Mis alertas",
+    ]) {
       await user.click(screen.getByRole("button", { name: /ver todas las secciones/i }));
 
       const submenu = screen.getByRole("navigation", { name: /secciones del [aá]rea personal/i });

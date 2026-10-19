@@ -105,7 +105,6 @@ export function DashboardPage() {
                   classroom={row.classroom}
                   key={row.activity.id}
                   program={row.program}
-                  showEnrolledCount
                   unit={row.unit}
                 />
               ))}

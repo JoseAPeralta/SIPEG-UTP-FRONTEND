@@ -11,6 +11,7 @@ import {
 import { useSessionStore } from "@/store/session";
 import { useUnitPreferenceStore } from "@/store/unitPreference";
 import { useWorkingContextStore } from "@/store/workingContext";
+import { createAlertsPage } from "@/test/factories";
 import { renderHookWithProviders } from "@/test/render";
 import type { AuthenticatedUser, AuthTokens } from "@/types/domain";
 
@@ -144,6 +145,10 @@ describe("auth session hooks", () => {
       await result.current.login({ email: currentUser.email, password: "secret" });
     });
     queryClient.setQueryData(["private", currentUser.id], { secret: true });
+    queryClient.setQueryData(
+      queryKeys.alertsPage(currentUser.id, { isRead: false }, 1),
+      createAlertsPage({ total: 2 }),
+    );
     act(() => {
       channel.onmessage?.(new MessageEvent("message", { data: { kind: "session-ended" } }));
     });
@@ -153,6 +158,7 @@ describe("auth session hooks", () => {
       tokens: null,
     });
     expect(queryClient.getQueryData(["private", currentUser.id])).toBeUndefined();
+    expect(queryClient.getQueryCache().findAll({ queryKey: ["alerts"] })).toHaveLength(0);
     expect(auth.logout).not.toHaveBeenCalled();
   });
 
@@ -452,6 +458,138 @@ describe("auth session hooks", () => {
     });
 
     expect(useSessionStore.getState().sessionEndReason).toBeNull();
+  });
+
+  it("should discard cached alerts from a previous identity on login", async () => {
+    const auth = createAuthAdapter();
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    queryClient.setQueryData(
+      queryKeys.alertsPage("user-0", { isRead: false }, 1),
+      createAlertsPage({ total: 2 }),
+    );
+    queryClient.setQueryData(
+      queryKeys.alertsPage(currentUser.id, { isRead: false }, 1),
+      createAlertsPage({ total: 1 }),
+    );
+    const { result } = renderHookWithProviders(() => useLogin(), {
+      adapters: createAdapters(auth),
+      queryClient,
+    });
+
+    await act(async () => {
+      await result.current.login({ email: currentUser.email, password: "secret" });
+    });
+
+    expect(queryClient.getQueryCache().findAll({ queryKey: ["alerts"] })).toHaveLength(0);
+  });
+
+  it("should discard cached alerts on logout", async () => {
+    const auth = createAuthAdapter();
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    useSessionStore.getState().setSession({ currentUser, tokens });
+    queryClient.setQueryData(
+      queryKeys.alertsPage(currentUser.id, { isRead: false }, 1),
+      createAlertsPage({ total: 4 }),
+    );
+    const { result } = renderHookWithProviders(() => useLogout(), {
+      adapters: createAdapters(auth),
+      queryClient,
+    });
+
+    await act(async () => {
+      await result.current.logout();
+    });
+
+    expect(queryClient.getQueryCache().findAll({ queryKey: ["alerts"] })).toHaveLength(0);
+    expect(useSessionStore.getState().status).toBe("anonymous");
+  });
+
+  it("should not restore alerts when the same account signs in again", async () => {
+    const auth = createAuthAdapter();
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const alertKey = queryKeys.alertsPage(currentUser.id, { isRead: false }, 1);
+    const { result } = renderHookWithProviders(() => ({ login: useLogin(), logout: useLogout() }), {
+      adapters: createAdapters(auth),
+      queryClient,
+    });
+
+    await act(async () => {
+      await result.current.login.login({ email: currentUser.email, password: "secret" });
+    });
+    queryClient.setQueryData(alertKey, createAlertsPage({ total: 3 }));
+    const generationBeforeLogout = useSessionStore.getState().sessionGeneration;
+
+    await act(async () => {
+      await result.current.logout.logout();
+    });
+    expect(queryClient.getQueryData(alertKey)).toBeUndefined();
+
+    await act(async () => {
+      await result.current.login.login({ email: currentUser.email, password: "secret" });
+    });
+
+    expect(useSessionStore.getState().sessionGeneration).toBeGreaterThan(generationBeforeLogout);
+    expect(queryClient.getQueryData(alertKey)).toBeUndefined();
+  });
+
+  it("should keep cached alerts when the access token rotates", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime("2026-09-26T12:00:00.000Z");
+    const auth = createAuthAdapter({
+      login: vi.fn().mockResolvedValue({
+        ...tokens,
+        accessTokenExpiresAt: "2026-09-26T12:01:01.000Z",
+      }),
+    });
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const alertKey = queryKeys.alertsPage(currentUser.id, { isRead: false }, 1);
+    const alertsPage = createAlertsPage({ total: 2 });
+    const { result } = renderHookWithProviders(
+      () => ({ login: useLogin(), renewal: useProactiveTokenRenewal() }),
+      { adapters: createAdapters(auth), queryClient },
+    );
+
+    await act(async () => {
+      await result.current.login.login({ email: currentUser.email, password: "secret" });
+    });
+    queryClient.setQueryData(alertKey, alertsPage);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_500);
+    });
+
+    expect(auth.refresh).toHaveBeenCalledTimes(1);
+    expect(queryClient.getQueryData(alertKey)).toEqual(alertsPage);
+  });
+
+  it("should not let an in-flight alert request repopulate the cache after logout", async () => {
+    const auth = createAuthAdapter();
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    useSessionStore.getState().setSession({ currentUser, tokens });
+    const alertKey = queryKeys.alertsPage(currentUser.id, { isRead: false }, 1);
+    let resolvePage: ((page: ReturnType<typeof createAlertsPage>) => void) | undefined;
+    const pendingPage = queryClient
+      .fetchQuery({
+        queryKey: alertKey,
+        queryFn: () =>
+          new Promise<ReturnType<typeof createAlertsPage>>((resolve) => {
+            resolvePage = resolve;
+          }),
+      })
+      .catch(() => undefined);
+    const { result } = renderHookWithProviders(() => useLogout(), {
+      adapters: createAdapters(auth),
+      queryClient,
+    });
+
+    await act(async () => {
+      await result.current.logout();
+    });
+
+    resolvePage?.(createAlertsPage({ total: 2 }));
+    await pendingPage;
+
+    expect(queryClient.getQueryData(alertKey)).toBeUndefined();
   });
 
   afterEach(() => {

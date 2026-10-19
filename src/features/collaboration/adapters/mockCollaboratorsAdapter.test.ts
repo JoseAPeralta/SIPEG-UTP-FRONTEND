@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { createMockCollaboratorsAdapter } from "./mockCollaboratorsAdapter";
 
 const scope = { type: "program" as const, id: "program-fisc-default" };
@@ -162,4 +162,82 @@ it("rejects grants for people who are not collaborators", async () => {
       validUntil: null,
     }),
   ).rejects.toMatchObject({ status: 404 });
+});
+
+const runtimeScope = { type: "program" as const, id: "program-created-in-runtime" };
+const unknownScope = { type: "program" as const, id: "program-unknown" };
+
+it("honors an archived state reported by the composition reader", async () => {
+  const adapter = createMockCollaboratorsAdapter({ readProgramState: () => "ARCHIVED" });
+
+  await expect(adapter.loadCollaborators(scope)).resolves.toBeTruthy();
+  await expect(
+    adapter.addCollaborator(scope, { userId: "user-2", role: "EDITOR" }),
+  ).rejects.toMatchObject({ status: 409 });
+  await expect(
+    adapter.changeCollaboratorRole(scope, "user-1", { role: "VIEWER" }),
+  ).rejects.toMatchObject({ status: 409 });
+  await expect(adapter.removeCollaborator(scope, "user-1")).rejects.toMatchObject({ status: 409 });
+  await expect(
+    adapter.grantPermission(scope, {
+      userId: "user-1",
+      permission: "activity:read",
+      validFrom: null,
+      validUntil: null,
+    }),
+  ).rejects.toMatchObject({ status: 409 });
+});
+
+it("accepts programs that only exist in the composition", async () => {
+  const adapter = createMockCollaboratorsAdapter({ readProgramState: () => "ACTIVE" });
+
+  await expect(adapter.loadCollaborators(runtimeScope)).resolves.toEqual([]);
+  await expect(
+    adapter.addCollaborator(runtimeScope, { userId: "user-2", role: "EDITOR" }),
+  ).resolves.toMatchObject({ userId: "user-2" });
+});
+
+it("derives the program of an activity scope for the composition reader", async () => {
+  const readProgramState = vi.fn((programId: string) =>
+    programId === "program-innovation-week" ? ("ARCHIVED" as const) : null,
+  );
+  const adapter = createMockCollaboratorsAdapter({ readProgramState });
+
+  await expect(
+    adapter.addCollaborator(
+      { type: "activity", id: "activity-open-data-governance" },
+      { userId: "user-2", role: "EDITOR" },
+    ),
+  ).rejects.toMatchObject({ status: 409 });
+  expect(readProgramState).toHaveBeenCalledWith("program-innovation-week");
+});
+
+it("still rejects a program absent from the fixture without a reader", async () => {
+  const adapter = createMockCollaboratorsAdapter();
+
+  await expect(adapter.loadCollaborators(unknownScope)).rejects.toMatchObject({ status: 404 });
+});
+
+const deletedActivityScope = { type: "activity" as const, id: "activity-open-data-governance" };
+
+it("treats a deleted activity as a missing resource even with a fixture entry", async () => {
+  const adapter = createMockCollaboratorsAdapter({
+    initial: [{ scope: deletedActivityScope, collaborators: [person] }],
+    readActivityProgramId: () => undefined,
+  });
+
+  await expect(adapter.loadCollaborators(deletedActivityScope)).rejects.toMatchObject({
+    status: 404,
+  });
+});
+
+it("resolves an activity that only exists in the composition", async () => {
+  const runtimeActivityScope = { type: "activity" as const, id: "activity-runtime" };
+  const adapter = createMockCollaboratorsAdapter({
+    readActivityProgramId: (activityId) =>
+      activityId === "activity-runtime" ? "program-created" : undefined,
+    readProgramState: () => "ACTIVE",
+  });
+
+  await expect(adapter.loadCollaborators(runtimeActivityScope)).resolves.toEqual([]);
 });

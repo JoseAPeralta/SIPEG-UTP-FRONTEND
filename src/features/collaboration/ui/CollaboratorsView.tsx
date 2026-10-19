@@ -22,10 +22,20 @@ export type CollaboratorsViewProps = {
   scope: CollaborationScope;
   canManage: boolean;
   /**
+   * Contexto archivado en modo consulta. Quien lo activa ya acreditó autorización de lectura:
+   * no concede acceso por sí mismo.
+   */
+  readOnly?: boolean;
+  /**
    * Permisos que el operador puede delegar. Se omite el filtro cuando el llamador no lo conoce; el
    * backend rechaza igualmente lo que el actor no posee.
    */
   grantablePermissions?: readonly PermissionName[];
+  /**
+   * Relectura del registro que origina el contexto al recuperarse de un fallo: un `409` puede
+   * significar que el programa cambió de estado mientras el panel estaba abierto.
+   */
+  onRefreshContext?: () => Promise<unknown>;
 };
 
 function AdminPersonSearch({
@@ -102,11 +112,13 @@ function CollaboratorRow({
   person,
   mutations,
   grantablePermissions,
+  readOnly,
   onSuccess,
 }: {
   person: EffectiveCollaborator;
   mutations: ReturnType<typeof useCollaboratorMutations>;
   grantablePermissions: readonly PermissionName[];
+  readOnly: boolean;
   onSuccess: (message: string) => void;
 }) {
   const [role, setRole] = useState(person.role);
@@ -121,69 +133,71 @@ function CollaboratorRow({
         </Heading>
         <Text overflowWrap="anywhere">{person.email}</Text>
         <Text>Rol actual: {resolveCollaborationRoleLabel(person.role)}</Text>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (mutations.isPending) return;
-            mutations.reset();
-            void mutations
-              .change(person.userId, { role })
-              .then(() => onSuccess("Rol actualizado."))
-              .catch(() => undefined);
-          }}
-        >
-          <Stack gap={3}>
-            <Field.Root>
-              <Field.Label>Rol de {name}</Field.Label>
-              <NativeSelect.Root disabled={mutations.isPending}>
-                <NativeSelect.Field
+        {readOnly ? null : (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (mutations.isPending) return;
+              mutations.reset();
+              void mutations
+                .change(person.userId, { role })
+                .then(() => onSuccess("Rol actualizado."))
+                .catch(() => undefined);
+            }}
+          >
+            <Stack gap={3}>
+              <Field.Root>
+                <Field.Label>Rol de {name}</Field.Label>
+                <NativeSelect.Root disabled={mutations.isPending}>
+                  <NativeSelect.Field
+                    minH="44px"
+                    value={role}
+                    onChange={(event) => {
+                      if (isCollaborationRole(event.target.value)) setRole(event.target.value);
+                    }}
+                  >
+                    {COLLABORATION_ROLES.map((value) => (
+                      <option key={value} value={value}>
+                        {resolveCollaborationRoleLabel(value)}
+                      </option>
+                    ))}
+                  </NativeSelect.Field>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+              <HStack wrap="wrap">
+                <Button
+                  type="submit"
+                  maxW="full"
+                  whiteSpace="normal"
+                  height="auto"
+                  py={2}
                   minH="44px"
-                  value={role}
-                  onChange={(event) => {
-                    if (isCollaborationRole(event.target.value)) setRole(event.target.value);
+                  disabled={mutations.isPending || role === person.role}
+                >
+                  Guardar rol de {name}
+                </Button>
+                <Button
+                  ref={removeButton}
+                  maxW="full"
+                  whiteSpace="normal"
+                  height="auto"
+                  py={2}
+                  variant="outline"
+                  minH="44px"
+                  disabled={mutations.isPending}
+                  onClick={() => {
+                    mutations.reset();
+                    setConfirm(true);
                   }}
                 >
-                  {COLLABORATION_ROLES.map((value) => (
-                    <option key={value} value={value}>
-                      {resolveCollaborationRoleLabel(value)}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Field.Root>
-            <HStack wrap="wrap">
-              <Button
-                type="submit"
-                maxW="full"
-                whiteSpace="normal"
-                height="auto"
-                py={2}
-                minH="44px"
-                disabled={mutations.isPending || role === person.role}
-              >
-                Guardar rol de {name}
-              </Button>
-              <Button
-                ref={removeButton}
-                maxW="full"
-                whiteSpace="normal"
-                height="auto"
-                py={2}
-                variant="outline"
-                minH="44px"
-                disabled={mutations.isPending}
-                onClick={() => {
-                  mutations.reset();
-                  setConfirm(true);
-                }}
-              >
-                Retirar a {name}
-              </Button>
-            </HStack>
-          </Stack>
-        </form>
-        {confirm ? (
+                  Retirar a {name}
+                </Button>
+              </HStack>
+            </Stack>
+          </form>
+        )}
+        {!readOnly && confirm ? (
           <Stack gap={2} role="group" aria-label={`Confirmar retirada de ${name}`}>
             <Text>
               ¿Retirar la colaboración local de {name}? Los permisos heredados del programa pueden
@@ -232,12 +246,14 @@ function CollaboratorRow({
           </summary>
           <Stack gap={4} pt={3}>
             <PermissionList permissions={person.permissions} />
-            <CollaboratorPermissionManager
-              person={person}
-              grantablePermissions={grantablePermissions}
-              mutations={mutations}
-              onSuccess={onSuccess}
-            />
+            {readOnly ? null : (
+              <CollaboratorPermissionManager
+                person={person}
+                grantablePermissions={grantablePermissions}
+                mutations={mutations}
+                onSuccess={onSuccess}
+              />
+            )}
           </Stack>
         </details>
       </Stack>
@@ -249,15 +265,18 @@ function CollaboratorRow({
 export function CollaboratorsView({
   scope,
   canManage,
+  readOnly = false,
   grantablePermissions = PERMISSION_NAMES,
+  onRefreshContext,
 }: CollaboratorsViewProps) {
-  const query = useCollaborators(scope, canManage);
+  const canRead = canManage || readOnly;
+  const query = useCollaborators(scope, canRead);
   const mutations = useCollaboratorMutations(scope);
   const isAdmin = useSessionStore((state) => state.currentUser?.globalRole === "ADMIN");
   const [target, setTarget] = useState("");
   const [role, setRole] = useState<CollaborationRole>("VIEWER");
   const [success, setSuccess] = useState<string | null>(null);
-  if (!canManage)
+  if (!canRead)
     return (
       <FeedbackState
         title="Colaboradores restringidos"
@@ -277,6 +296,11 @@ export function CollaboratorsView({
           void query.refetch();
         }}
       >
+        {readOnly ? (
+          <Text role="status">
+            El programa está archivado. Puede consultar sus colaboradores, pero no modificarlos.
+          </Text>
+        ) : null}
         {success ? <Text role="status">{success}</Text> : null}
         {mutations.failure ? (
           <Stack gap={2}>
@@ -285,84 +309,94 @@ export function CollaboratorsView({
               variant="outline"
               minH="44px"
               onClick={() => {
-                void query.refetch();
+                void Promise.all([query.refetch(), onRefreshContext?.() ?? Promise.resolve()]);
               }}
             >
               Actualizar colaboradores
             </Button>
           </Stack>
         ) : null}
-        <Surface padding="normal">
-          <Stack gap={4}>
-            <Heading as="h3" size="md">
-              Agregar persona
-            </Heading>
-            {isAdmin ? (
-              <AdminPersonSearch disabled={mutations.isPending} onSelect={setTarget} />
-            ) : null}
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (mutations.isPending || !target.trim()) return;
-                mutations.reset();
-                setSuccess(null);
-                void mutations
-                  .add({ userId: target.trim(), role })
-                  .then(() => {
-                    setTarget("");
-                    setSuccess("Colaborador agregado.");
-                  })
-                  .catch(() => undefined);
-              }}
-            >
-              <Stack gap={3}>
-                <Field.Root required>
-                  <Field.Label>Identificador de la persona</Field.Label>
-                  <Input
-                    minH="44px"
-                    required
-                    minLength={1}
-                    maxLength={100}
-                    value={target}
-                    disabled={mutations.isPending}
-                    onChange={(event) => setTarget(event.target.value)}
-                  />
-                  <Field.HelperText>
-                    {isAdmin
-                      ? "Seleccione una persona en la búsqueda o ingrese su identificador."
-                      : "Ingrese el identificador de la cuenta proporcionado por la persona o la administración."}
-                  </Field.HelperText>
-                </Field.Root>
-                <Field.Root>
-                  <Field.Label>Rol del nuevo colaborador</Field.Label>
-                  <NativeSelect.Root disabled={mutations.isPending}>
-                    <NativeSelect.Field
+        {readOnly ? null : (
+          <Surface padding="normal">
+            <Stack gap={4}>
+              <Heading as="h3" size="md">
+                Agregar persona
+              </Heading>
+              {isAdmin ? (
+                <AdminPersonSearch disabled={mutations.isPending} onSelect={setTarget} />
+              ) : null}
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (mutations.isPending || !target.trim()) return;
+                  mutations.reset();
+                  setSuccess(null);
+                  void mutations
+                    .add({ userId: target.trim(), role })
+                    .then(() => {
+                      setTarget("");
+                      setSuccess("Colaborador agregado.");
+                    })
+                    .catch(() => undefined);
+                }}
+              >
+                <Stack gap={3}>
+                  <Field.Root required>
+                    <Field.Label>Identificador de la persona</Field.Label>
+                    <Input
                       minH="44px"
-                      value={role}
-                      onChange={(event) => {
-                        if (isCollaborationRole(event.target.value)) setRole(event.target.value);
-                      }}
-                    >
-                      {COLLABORATION_ROLES.map((value) => (
-                        <option key={value} value={value}>
-                          {resolveCollaborationRoleLabel(value)}
-                        </option>
-                      ))}
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                  </NativeSelect.Root>
-                </Field.Root>
-                <Button type="submit" minH="44px" disabled={mutations.isPending || !target.trim()}>
-                  Agregar colaborador
-                </Button>
-              </Stack>
-            </form>
-          </Stack>
-        </Surface>
+                      required
+                      minLength={1}
+                      maxLength={100}
+                      value={target}
+                      disabled={mutations.isPending}
+                      onChange={(event) => setTarget(event.target.value)}
+                    />
+                    <Field.HelperText>
+                      {isAdmin
+                        ? "Seleccione una persona en la búsqueda o ingrese su identificador."
+                        : "Ingrese el identificador de la cuenta proporcionado por la persona o la administración."}
+                    </Field.HelperText>
+                  </Field.Root>
+                  <Field.Root>
+                    <Field.Label>Rol del nuevo colaborador</Field.Label>
+                    <NativeSelect.Root disabled={mutations.isPending}>
+                      <NativeSelect.Field
+                        minH="44px"
+                        value={role}
+                        onChange={(event) => {
+                          if (isCollaborationRole(event.target.value)) setRole(event.target.value);
+                        }}
+                      >
+                        {COLLABORATION_ROLES.map((value) => (
+                          <option key={value} value={value}>
+                            {resolveCollaborationRoleLabel(value)}
+                          </option>
+                        ))}
+                      </NativeSelect.Field>
+                      <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                  </Field.Root>
+                  <Button
+                    type="submit"
+                    minH="44px"
+                    disabled={mutations.isPending || !target.trim()}
+                  >
+                    Agregar colaborador
+                  </Button>
+                </Stack>
+              </form>
+            </Stack>
+          </Surface>
+        )}
         {(query.data ?? []).length === 0 ? (
           <FeedbackState
             title="Sin colaboradores locales"
-            description="Puede agregar una persona con el formulario. El acceso heredado puede existir aunque esta lista esté vacía."
+            description={
+              readOnly
+                ? "El programa no tiene colaboraciones locales registradas."
+                : "Puede agregar una persona con el formulario. El acceso heredado puede existir aunque esta lista esté vacía."
+            }
           />
         ) : null}
         {(query.data ?? []).map((person) => (
@@ -371,6 +405,7 @@ export function CollaboratorsView({
             person={person}
             mutations={mutations}
             grantablePermissions={grantablePermissions}
+            readOnly={readOnly}
             onSuccess={setSuccess}
           />
         ))}

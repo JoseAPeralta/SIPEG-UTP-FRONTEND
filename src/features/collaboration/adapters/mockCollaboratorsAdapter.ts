@@ -3,6 +3,7 @@ import { collaborationFixtures } from "@/data/mock/collaboration";
 import { users } from "@/data/mock/users";
 import { eventPrograms } from "@/data/mock/eventPrograms";
 import { activities } from "@/data/mock/activities";
+import type { EventProgramStatus } from "@/types/domain";
 import type { EffectiveCollaborator, Collaborator } from "../model/collaborators";
 import type { CollaborationScope } from "../model/ownPermissions";
 import type { CollaborationRole } from "../model/permissions";
@@ -12,6 +13,13 @@ type Options = {
   initial?: { scope: CollaborationScope; collaborators: EffectiveCollaborator[] }[];
   actor?: { isAdmin: boolean; permissions: string[] };
   roleGrants?: Partial<Record<CollaborationRole, string[]>>;
+  /** Estado vivo del programa en la misma composicion; sin el, el fixture sigue siendo la unica fuente. */
+  readProgramState?: (programId: string) => EventProgramStatus | null | undefined;
+  /**
+   * Programa vivo de una actividad de la composicion. `undefined` marca una actividad eliminada,
+   * de modo que su scope responda como recurso inexistente aunque conserve una entrada de fixture.
+   */
+  readActivityProgramId?: (activityId: string) => string | null | undefined;
 };
 function fail(status: number): never {
   throw Object.assign(new Error("La operación de colaboración fue rechazada."), { status });
@@ -30,27 +38,39 @@ export function createMockCollaboratorsAdapter({
   initial = collaborationFixtures,
   actor = { isAdmin: true, permissions: [] },
   roleGrants = {},
+  readProgramState,
+  readActivityProgramId,
 }: Options = {}): CollaboratorsAdapter {
   const state = new Map(
     initial.map((item) => [key(item.scope), structuredClone(item.collaborators)]),
   );
+  const programIdOf = (scope: CollaborationScope): string | null | undefined =>
+    scope.type === "program"
+      ? scope.id
+      : readActivityProgramId
+        ? readActivityProgramId(scope.id)
+        : activities.find((activity) => activity.id === scope.id)?.eventProgramId;
+  const programStateOf = (scope: CollaborationScope) => {
+    const programId = programIdOf(scope);
+    const program = programId
+      ? eventPrograms.find((candidate) => candidate.id === programId)
+      : undefined;
+    const readStatus = programId ? readProgramState?.(programId) : undefined;
+
+    return {
+      exists: Boolean(program) || (readStatus !== undefined && readStatus !== null),
+      status: readStatus ?? program?.status,
+    };
+  };
   const get = (scope: CollaborationScope) => {
-    const program =
-      scope.type === "program"
-        ? eventPrograms.find((p) => p.id === scope.id)
-        : eventPrograms.find(
-            (p) => p.id === activities.find((a) => a.id === scope.id)?.eventProgramId,
-          );
-    if (!program && !state.has(key(scope))) fail(404);
+    const { exists } = programStateOf(scope);
+
+    if (!exists && (scope.type === "activity" || !state.has(key(scope)))) fail(404);
     return state.get(key(scope)) ?? [];
   };
   const authorize = (scope: CollaborationScope, modify = false) => {
     if (!actor.isAdmin && !actor.permissions.includes("permission:grant")) fail(403);
-    const programId =
-      scope.type === "program"
-        ? scope.id
-        : activities.find((a) => a.id === scope.id)?.eventProgramId;
-    if (modify && eventPrograms.find((p) => p.id === programId)?.status === "ARCHIVED") fail(409);
+    if (modify && programStateOf(scope).status === "ARCHIVED") fail(409);
   };
   const allowed = (names: string[]) => {
     if (!actor.isAdmin && names.some((name) => !actor.permissions.includes(name))) fail(403);

@@ -1,4 +1,4 @@
-import type { Activity, AttendanceRecord, Certificate } from "@/types/domain";
+import type { AttendanceRecord, Certificate } from "@/types/domain";
 
 export function filterAttendanceByScope(
   records: readonly AttendanceRecord[],
@@ -28,8 +28,4 @@ export function countQrAttendance(records: readonly AttendanceRecord[]): number 
 
 export function countGeneratedCertificates(certificates: readonly Certificate[]): number {
   return certificates.filter((certificate) => certificate.status === "GENERATED").length;
-}
-
-export function sumEnrolledCount(activities: readonly Activity[]): number {
-  return activities.reduce((total, activity) => total + activity.enrolledCount, 0);
 }

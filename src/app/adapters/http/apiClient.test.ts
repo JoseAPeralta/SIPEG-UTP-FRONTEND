@@ -37,12 +37,36 @@ const baseOptions = (fetcher: typeof fetch): ApiRequestOptions => ({
 });
 
 describe("apiRequest credentials", () => {
-  it("sends the session cookie with every request", async () => {
+  it("omits credentials for anonymous reads", async () => {
+    const { fetcher, calls } = buildFetch(() => jsonResponse(200, { ok: true }));
+
+    await apiRequest("/api/v1/careers", {
+      ...baseOptions(fetcher),
+      auth: { mode: "none" },
+    });
+
+    expect(calls[0]?.init.credentials).toBe("omit");
+    expect(new Headers(calls[0]?.init.headers).has("Authorization")).toBe(false);
+  });
+
+  it("sends the session cookie for bearer requests", async () => {
     const { fetcher, calls } = buildFetch(() => jsonResponse(200, { ok: true }));
 
     await apiRequest("/api/v1/careers", baseOptions(fetcher));
 
     expect(calls[0]?.init.credentials).toBe("include");
+  });
+
+  it("respects an explicit credentials policy over the auth-derived default", async () => {
+    const { fetcher, calls } = buildFetch(() => jsonResponse(200, { ok: true }));
+
+    await apiRequest("/api/v1/careers", {
+      ...baseOptions(fetcher),
+      auth: { mode: "none" },
+      requestInit: { credentials: "same-origin" },
+    });
+
+    expect(calls[0]?.init.credentials).toBe("same-origin");
   });
 
   it("does not set an Authorization header for unauthenticated calls", async () => {
@@ -75,7 +99,27 @@ describe("apiRequest 401 handling", () => {
     expect(calls).toHaveLength(2);
     expect(calls[1]?.url).toBe("http://api.test/api/v1/careers");
     expect(new Headers(calls[1]?.init.headers).get("Authorization")).toBe("Bearer access-2");
+    // El reintento conserva la politica derivada del modo de autenticacion.
+    expect(calls[0]?.init.credentials).toBe("include");
+    expect(calls[1]?.init.credentials).toBe("include");
     expect(result).toEqual({ items: [] });
+  });
+
+  it("preserves an explicit credentials policy across the refresh retry", async () => {
+    const { fetcher, calls } = buildFetch((_call, index) =>
+      index === 0 ? jsonResponse(401) : jsonResponse(200, { ok: true }),
+    );
+    const refresh = vi.fn(() => Promise.resolve({ getAccessToken: () => "access-2" }));
+
+    await apiRequest("/api/v1/careers", {
+      ...baseOptions(fetcher),
+      requestInit: { credentials: "same-origin" },
+      sessionRefresh: refresh,
+    });
+
+    expect(calls).toHaveLength(2);
+    expect(calls[0]?.init.credentials).toBe("same-origin");
+    expect(calls[1]?.init.credentials).toBe("same-origin");
   });
 
   it("does not loop: a second 401 is surfaced to the caller", async () => {

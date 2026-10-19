@@ -36,6 +36,7 @@ const baseActivity: PublicActivity = {
     { firstName: "Luisa", id: "speaker-2", lastName: "Fernandez" },
   ],
   startTime: "09:00",
+  status: "SCHEDULED",
   type: "WORKSHOP",
   unit: {
     backendId: "seed_unit_fic",
@@ -78,10 +79,23 @@ export const ProgramWithCustomLabel: Story = {
       },
     }),
   },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("link", { name: "Taller de Topografia con Drones" }),
+    ).toHaveAttribute("href", "/actividades/activity-1");
+  },
 };
 
 export const WithoutClassroom: Story = {
   args: { row: row({ classroom: null }) },
+};
+
+export const Ongoing: Story = {
+  args: { row: row({ status: "ONGOING" }) },
+};
+
+export const Completed: Story = {
+  args: { row: row({ status: "COMPLETED" }) },
 };
 
 export const WithoutDescriptionOrSpeakers: Story = {

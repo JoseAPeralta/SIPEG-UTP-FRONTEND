@@ -221,4 +221,33 @@ describe("useOrganizationalUnitMutations", () => {
     act(() => result.current.reset());
     await waitFor(() => expect(result.current.failure).toBeNull());
   });
+
+  it.each(["create", "deactivate", "reactivate"] as const)(
+    "refreshes the independent program listing when a unit %s changes its default program",
+    async (command) => {
+      signIn();
+      const { invalidateQueries, result } = renderMutations({});
+
+      await act(async () => {
+        if (command === "create") {
+          await result.current.create({
+            code: "FIQ",
+            description: null,
+            name: "Facultad de Ingenieria Quimica",
+            type: "FACULTY",
+          });
+        } else if (command === "deactivate") {
+          await result.current.deactivate("fic");
+        } else {
+          await result.current.reactivate("fic");
+        }
+      });
+
+      await waitFor(() =>
+        expect(invalidateQueries).toHaveBeenCalledWith({
+          queryKey: queryKeys.administrativeEventPrograms("admin-1"),
+        }),
+      );
+    },
+  );
 });

@@ -69,6 +69,30 @@ Acceptance criteria:
 
 ## Open Questions
 
-- Which alert types, filters, pagination fields, and read operations are contractual?
-- Is an unread-count operation available, or is the count returned with the inbox?
-- What refresh strategy is acceptable for backend load and user expectations?
+- Contract-confirmed on 2026-10-05: the inbox filters by `type` and `isRead` with `page`/`limit`
+  pagination, targets are `PROPOSAL | EVENT_PROGRAM | ACTIVITY | CERTIFICATE`, and read mutations are
+  `PATCH /alerts/{id}/read` and `POST /alerts/read-all`. There is no dedicated unread-count
+  operation; resolved on 2026-10-05 by 7.2: the indicator derives from
+  `GET /api/v1/alerts?isRead=false&page=1` and projects `total`, so it never subcounts a paginated
+  inbox.
+- Resolved on 2026-10-05 by 7.3: the inbox lives at `/perfil/alertas`, and a destination link is
+  offered only when the target appears in `GET /api/v1/users/me/scopes`; a received alert never
+  authorizes by itself and an activity does not inherit access from its parent program. Only
+  program and activity targets have an operational context today; proposals and certificates stay
+  informative until their detail routes exist.
+- Resolved on 2026-10-05 by 7.4: `PATCH /alerts/{id}/read` and `POST /alerts/read-all` are the only
+  read mutations. Both are idempotent and take the recipient from the token. The inbox allows one
+  read action per identity at a time, updates every cached page optimistically, restores the exact
+  snapshot on failure and revalidates the identity scope on settle; the success message of "mark
+  all" uses the server's `updatedCount`.
+- Resolved on 2026-10-05 by 7.5: the contract has no push operation, so refresh is event-driven and
+  never polls. The inbox and the unread indicator share the first unread page (`staleTime` 30 s) and
+  revalidate on mount with stale data, window focus and reconnect; the read mutations invalidate
+  only the identity scope, so inactive pages are marked stale without being fetched and another
+  identity's cache is never touched.
+- Resolved on 2026-10-05 by 7.6: login, logout, identity change and session end clear the query
+  client, so no alert survives to the next session. An in-memory session generation distinguishes
+  two accesses of the same account: read mutations capture the identity and generation at call time
+  and `onMutate`, `onError` and `onSettled` ignore results, rollbacks and revalidations that belong
+  to a discarded session. In-flight queries are cancelled and discarded by the same clear, which a
+  test pins. The generation is never persisted and never travels in a query key.

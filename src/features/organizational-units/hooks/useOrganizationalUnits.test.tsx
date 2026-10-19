@@ -61,4 +61,74 @@ describe("useOrganizationalUnits", () => {
     expect(keys).toContainEqual(queryKeys.administrativeOrganizationalUnits("user-1"));
     expect(JSON.stringify(keys)).not.toContain("secret-token");
   });
+
+  it("should request the all filter and use the all key", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ id: "user-1" }),
+      tokens: createAuthTokens({ accessToken: "secret-token" }),
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+    const loadOrganizationalUnits = vi
+      .fn()
+      .mockResolvedValue([createOrganizationalUnit({ isActive: false })]);
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { result } = renderHookWithProviders(
+      () => useOrganizationalUnits("administrative", { isActive: "all" }),
+      {
+        adapters: { ...adapters, organizationalUnits: { loadOrganizationalUnits } },
+        queryClient,
+      },
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(loadOrganizationalUnits).toHaveBeenCalledWith({ isActive: "all" });
+    expect(
+      queryClient.getQueryData(queryKeys.administrativeOrganizationalUnitsAll("user-1")),
+    ).toBeTruthy();
+  });
+
+  it("should request inactive units with the standard administrative key", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ id: "user-1" }),
+      tokens: createAuthTokens({ accessToken: "secret-token" }),
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+    const loadOrganizationalUnits = vi
+      .fn()
+      .mockResolvedValue([createOrganizationalUnit({ isActive: false })]);
+    const queryClient = createQueryClient({ defaultOptions: { queries: { retry: false } } });
+    const { result } = renderHookWithProviders(
+      () => useOrganizationalUnits("administrative", { isActive: "inactive" }),
+      {
+        adapters: { ...adapters, organizationalUnits: { loadOrganizationalUnits } },
+        queryClient,
+      },
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(loadOrganizationalUnits).toHaveBeenCalledWith({ isActive: "inactive" });
+    const keys = queryClient
+      .getQueryCache()
+      .getAll()
+      .map((query) => query.queryKey);
+    expect(keys).toContainEqual(queryKeys.administrativeOrganizationalUnits("user-1"));
+  });
+
+  it("should call the adapter without arguments when no filter is requested", async () => {
+    useSessionStore.getState().setSession({
+      currentUser: createAuthenticatedUser({ id: "user-1" }),
+      tokens: createAuthTokens({ accessToken: "secret-token" }),
+    });
+    const adapters = createAppAdapters({ source: "mock" });
+    const loadOrganizationalUnits = vi.fn().mockResolvedValue([createOrganizationalUnit()]);
+    const { result } = renderHookWithProviders(() => useOrganizationalUnits("administrative"), {
+      adapters: { ...adapters, organizationalUnits: { loadOrganizationalUnits } },
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(loadOrganizationalUnits).toHaveBeenCalledWith();
+  });
 });

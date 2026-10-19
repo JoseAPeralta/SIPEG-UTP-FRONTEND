@@ -60,15 +60,26 @@ function buildDocument(expectations = CONTRACT_EXPECTATIONS) {
       };
     }
 
-    if (expectation.requestBody) {
+    if (expectation.requestBody && typeof expectation.requestBody === "object") {
       const properties = {};
       for (const [field, values] of Object.entries(expectation.requestBody.enums ?? {})) {
         properties[field] = { enum: [...values], type: "string" };
       }
+      const schema = { properties, type: "object" };
+      if (expectation.requestBody.additionalProperties !== undefined) {
+        schema.additionalProperties = expectation.requestBody.additionalProperties;
+      }
       operation.requestBody = {
-        content: { "application/json": { schema: { properties, type: "object" } } },
+        content: { "application/json": { schema } },
         required: true,
       };
+    }
+
+    if (expectation.response) {
+      operation.responses[expectation.response.status] =
+        expectation.response.content === "absent"
+          ? { description: "sin contenido" }
+          : { content: { "application/json": { schema: {} } }, description: "ok" };
     }
 
     // Varias operaciones comparten path (por ejemplo el listado y el alta de aulas), asi que el
@@ -89,7 +100,7 @@ function buildDocument(expectations = CONTRACT_EXPECTATIONS) {
 describe("compareContract", () => {
   it("should track the classroom availability summary contract", () => {
     expect(CONTRACT_EXPECTATIONS).toContainEqual({
-      enums: { type: ["LABORATORY", "CLASSROOM"] },
+      enums: { type: ["LABORATORY", "CLASSROOM", "CONFERENCE_ROOM"] },
       method: "GET",
       path: "/api/v1/classrooms/available",
       required: ["id", "name", "type", "capacity", "building", "floor", "isActive", "amenities"],
@@ -251,6 +262,116 @@ describe("compareContract", () => {
     });
   });
 
+  it("should track the activity update request statuses", () => {
+    const expectation = CONTRACT_EXPECTATIONS.find(
+      (entry) => entry.method === "PATCH" && entry.path === "/api/v1/activities/{id}",
+    );
+
+    expect(expectation?.requestBody).toEqual({
+      enums: { status: ["DRAFT", "SCHEDULED"] },
+      absentProperties: ["notifyAttendees"],
+      additionalProperties: false,
+    });
+  });
+
+  it("should declare the 5.8 notification block on every activity write body", () => {
+    for (const [method, path] of [
+      ["POST", "/api/v1/activities"],
+      ["PATCH", "/api/v1/activities/{id}"],
+      ["POST", "/api/v1/activities/{id}/cancel"],
+    ]) {
+      const expectation = CONTRACT_EXPECTATIONS.find(
+        (entry) => entry.method === method && entry.path === path,
+      );
+
+      expect(expectation?.requestBody).toMatchObject({
+        absentProperties: ["notifyAttendees"],
+        additionalProperties: false,
+      });
+    }
+  });
+
+  it("should track the activity cancellation operation", () => {
+    const expectation = CONTRACT_EXPECTATIONS.find(
+      (entry) => entry.method === "POST" && entry.path === "/api/v1/activities/{id}/cancel",
+    );
+
+    expect(expectation?.schema).toBe("ActivityDetail");
+  });
+
+  it("should track the activity deletion operation", () => {
+    const expectation = CONTRACT_EXPECTATIONS.find(
+      (entry) => entry.method === "DELETE" && entry.path === "/api/v1/activities/{id}",
+    );
+
+    expect(expectation?.response).toEqual({ content: "absent", status: "204" });
+    expect(expectation?.requestBody).toBe("absent");
+  });
+
+  it("should report an optional notifyAttendees in the activity creation request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities"].post.requestBody.content[
+      "application/json"
+    ].schema.properties.notifyAttendees = { type: "boolean" };
+
+    const { issues } = compareContract(document);
+
+    expect(
+      issues.some((issue) =>
+        issue.includes(
+          "El contrato de la operación cambió: revise el bloqueo de notificación de 5.8 antes de integrar nuevos campos.",
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("should report a required notifyAttendees in the activity update request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}"].patch.requestBody.content[
+      "application/json"
+    ].schema.properties.notifyAttendees = { type: "boolean" };
+    document.paths["/api/v1/activities/{id}"].patch.requestBody.content[
+      "application/json"
+    ].schema.required = ["notifyAttendees"];
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("El contrato de la operación cambió"))).toBe(true);
+  });
+
+  it("should report an optional notifyAttendees in the activity cancellation request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}/cancel"].post.requestBody.content[
+      "application/json"
+    ].schema.properties.notifyAttendees = { type: "boolean" };
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("El contrato de la operación cambió"))).toBe(true);
+  });
+
+  it("should report when additionalProperties stops being false on an activity request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}"].patch.requestBody.content[
+      "application/json"
+    ].schema.additionalProperties = true;
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("additionalProperties"))).toBe(true);
+  });
+
+  it("should request a review when an activity request schema cannot be inspected", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}/cancel"].post.requestBody.content[
+      "application/json"
+    ].schema = { $ref: "#/components/schemas/ActivityDetail" };
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("requiere revisión"))).toBe(true);
+  });
+
   it("should report a new scope status in the contract", () => {
     const document = buildDocument();
     document.components.schemas.UserScope.properties.status.enum.push("RESCHEDULED");
@@ -365,6 +486,94 @@ describe("compareContract", () => {
     const { issues } = compareContract(document);
 
     expect(issues.some((issue) => issue.includes("nuevo valor activity:teleport"))).toBe(true);
+  });
+
+  it("should report a missing activity cancellation operation", () => {
+    const document = buildDocument();
+    delete document.paths["/api/v1/activities/{id}/cancel"];
+
+    const { issues } = compareContract(document);
+
+    expect(
+      issues.some(
+        (issue) =>
+          issue.includes("POST /api/v1/activities/{id}/cancel") && issue.includes("ya no existe"),
+      ),
+    ).toBe(true);
+  });
+
+  it("should report a missing activity deletion operation", () => {
+    const document = buildDocument();
+    delete document.paths["/api/v1/activities/{id}"].delete;
+
+    const { issues } = compareContract(document);
+
+    expect(
+      issues.some(
+        (issue) =>
+          issue.includes("DELETE /api/v1/activities/{id}") && issue.includes("ya no existe"),
+      ),
+    ).toBe(true);
+  });
+
+  it("should report a missing activity deletion response", () => {
+    const document = buildDocument();
+    delete document.paths["/api/v1/activities/{id}"].delete.responses["204"];
+
+    const { issues } = compareContract(document);
+
+    expect(
+      issues.some(
+        (issue) =>
+          issue.includes("DELETE /api/v1/activities/{id}") &&
+          issue.includes("falta la respuesta 204"),
+      ),
+    ).toBe(true);
+  });
+
+  it("should report content added to the activity deletion response", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}"].delete.responses["204"].content = {
+      "application/json": { schema: {} },
+    };
+
+    const { issues } = compareContract(document);
+
+    expect(
+      issues.some(
+        (issue) =>
+          issue.includes("DELETE /api/v1/activities/{id}") &&
+          issue.includes("204") &&
+          issue.includes("sin cuerpo"),
+      ),
+    ).toBe(true);
+  });
+
+  it("should report an undue request body on activity deletion", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}"].delete.requestBody = {
+      content: { "application/json": { schema: {} } },
+    };
+
+    const { issues } = compareContract(document);
+
+    expect(
+      issues.some(
+        (issue) =>
+          issue.includes("DELETE /api/v1/activities/{id}") && issue.includes("requestBody"),
+      ),
+    ).toBe(true);
+  });
+
+  it("should report an activity update status change in the request body", () => {
+    const document = buildDocument();
+    document.paths["/api/v1/activities/{id}"].patch.requestBody.content[
+      "application/json"
+    ].schema.properties.status.enum.push("ONGOING");
+
+    const { issues } = compareContract(document);
+
+    expect(issues.some((issue) => issue.includes("nuevo valor ONGOING"))).toBe(true);
   });
 
   it("should report a missing collaboration operation", () => {

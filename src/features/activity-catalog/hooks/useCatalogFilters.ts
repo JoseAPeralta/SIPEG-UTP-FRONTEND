@@ -1,4 +1,4 @@
-import { startTransition, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import type { ActivityCatalog } from "@/types/domain";
 
@@ -48,11 +48,15 @@ export function useCatalogFilters(
     [filteredRows, page, perPage],
   );
 
+  /**
+   * El termino de busqueda renderiza un input controlado, asi que su actualizacion debe ser urgente:
+   * una transicion retrasa el commit, el input conserva el valor anterior y las pulsaciones
+   * siguientes se pierden sobre un estado obsoleto. El catalogo es pequeno y el filtrado cabe en el
+   * mismo commit, de modo que no se difiere nada.
+   */
   const updateFilter = useCallback((update: () => void) => {
-    startTransition(() => {
-      update();
-      setPage(1);
-    });
+    update();
+    setPage(1);
   }, []);
 
   const onSearchTermChange = useCallback(

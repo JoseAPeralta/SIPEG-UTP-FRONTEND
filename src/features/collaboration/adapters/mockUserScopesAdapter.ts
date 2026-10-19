@@ -1,5 +1,5 @@
 import type { UserScopesAdapter } from "@/app/adapters/contracts";
-import type { GlobalRole } from "@/types/domain";
+import type { Activity, EventProgram, GlobalRole } from "@/types/domain";
 import { mockActivityCatalog } from "@/data/mock/catalog";
 
 import { PERMISSION_NAMES } from "../model/permissions";
@@ -13,7 +13,9 @@ import type {
 /**
  * El mock de sesion inicia como ADMIN (ver `mockAuthenticatedUser`), asi que reproduce la rama
  * documentada del contrato: catalogo completo con el catalogo de permisos como `LOCAL` y envelopes
- * ilimitados. Los scopes se derivan del catalogo existente para no duplicar nombres ni unidades.
+ * ilimitados. Los programas y las actividades vigentes se leen en cada consulta desde la
+ * composicion, de modo que un programa creado, archivado o reactivado, o una actividad creada o
+ * eliminada en ella, descubran su estado real en lugar del fixture congelado.
  */
 
 function adminPermissions(): UserScopePermission[] {
@@ -31,8 +33,10 @@ function compareScopes(left: UserScope, right: UserScope): number {
 
 export function createMockUserScopesAdapter(
   readRole: () => GlobalRole | undefined = () => "ADMIN",
+  readEventPrograms: () => EventProgram[] = () => mockActivityCatalog.eventPrograms,
+  readActivities: () => readonly Activity[] = () => mockActivityCatalog.activities,
 ): UserScopesAdapter {
-  const { activities, eventPrograms, organizationalUnits } = mockActivityCatalog;
+  const { eventPrograms: fixturePrograms, organizationalUnits } = mockActivityCatalog;
 
   function unitReference(unitId: string): UserScopeOrganizationalUnit {
     const unit = organizationalUnits.find((candidate) => candidate.id === unitId);
@@ -44,48 +48,59 @@ export function createMockUserScopesAdapter(
     return { id: unit.id, name: unit.name, type: unit.type };
   }
 
-  const catalog: UserScope[] = [
-    ...eventPrograms.map((program): UserScope => ({
-      eventProgram: null,
-      id: program.id,
-      name: program.name,
-      organizationalUnit: unitReference(program.organizationalUnitId),
-      permissions: adminPermissions(),
-      status: program.status,
-      type: "program",
-    })),
-    ...activities.map((activity): UserScope => {
-      const program = eventPrograms.find((candidate) => candidate.id === activity.eventProgramId);
+  function buildCatalog(): UserScope[] {
+    const byId = new Map(readEventPrograms().map((program) => [program.id, program]));
 
-      if (!program) {
-        throw new Error(`programa desconocido en el mock: ${activity.eventProgramId}`);
-      }
+    for (const program of fixturePrograms) {
+      if (!byId.has(program.id)) byId.set(program.id, program);
+    }
+    const programs = [...byId.values()];
 
-      return {
-        eventProgram: {
-          id: program.id,
-          label: program.label,
-          name: program.name,
-          status: program.status,
-        },
-        id: activity.id,
-        name: activity.name,
+    return [
+      ...programs.map((program): UserScope => ({
+        eventProgram: null,
+        id: program.id,
+        name: program.name,
         organizationalUnit: unitReference(program.organizationalUnitId),
         permissions: adminPermissions(),
-        status: activity.status,
-        type: "activity",
-      };
-    }),
-  ].sort(compareScopes);
+        status: program.status,
+        type: "program",
+      })),
+      ...readActivities().map((activity): UserScope => {
+        const program = byId.get(activity.eventProgramId);
+
+        if (!program) {
+          throw new Error(`programa desconocido en el mock: ${activity.eventProgramId}`);
+        }
+
+        return {
+          eventProgram: {
+            id: program.id,
+            label: program.label,
+            name: program.name,
+            status: program.status,
+          },
+          id: activity.id,
+          name: activity.name,
+          organizationalUnit: unitReference(program.organizationalUnitId),
+          permissions: adminPermissions(),
+          status: activity.status,
+          type: "activity",
+        };
+      }),
+    ].sort(compareScopes);
+  }
 
   return {
     loadUserScopes(filters: UserScopeFilters = {}) {
       if (readRole() !== "ADMIN") return Promise.resolve([]);
-      const scopes = filters.type
-        ? catalog.filter((scope) => scope.type === filters.type)
-        : catalog;
+      const scopes = buildCatalog();
 
-      return Promise.resolve(structuredClone(scopes));
+      return Promise.resolve(
+        structuredClone(
+          filters.type ? scopes.filter((scope) => scope.type === filters.type) : scopes,
+        ),
+      );
     },
   };
 }

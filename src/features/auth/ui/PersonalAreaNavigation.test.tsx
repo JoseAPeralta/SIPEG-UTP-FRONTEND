@@ -27,7 +27,7 @@ function renderNavigation({
 }
 
 describe("PersonalAreaNavigation", () => {
-  it("expone las cuatro secciones como enlaces de navegacion en escritorio", () => {
+  it("expone las cinco secciones como enlaces de navegacion en escritorio", () => {
     renderNavigation();
 
     const navigation = screen.getByRole("navigation", { name: /secciones del area personal/i });
@@ -36,6 +36,7 @@ describe("PersonalAreaNavigation", () => {
       ["Seguridad de la cuenta", "/perfil/seguridad"],
       ["Mis actividades", "/perfil/actividades"],
       ["Mis certificados", "/perfil/certificados"],
+      ["Mis alertas", "/perfil/alertas"],
     ];
 
     for (const [label, path] of sections) {
@@ -80,7 +81,7 @@ describe("PersonalAreaNavigation", () => {
     expect(navigation).toHaveAttribute("aria-label", "Secciones del area personal");
   });
 
-  it("lista los cuatro enlaces en el orden del submenu al desplegar", async () => {
+  it("lista los cinco enlaces en el orden del submenu al desplegar", async () => {
     const user = setupUser();
     renderNavigation({ isDesktop: false });
 
@@ -95,6 +96,7 @@ describe("PersonalAreaNavigation", () => {
       "Seguridad de la cuenta",
       "Mis actividades",
       "Mis certificados",
+      "Mis alertas",
     ]);
   });
 
