@@ -40,14 +40,14 @@ of truth.
 ### Positive
 
 - **POS-001**: Components, their props and their states are mechanically discoverable.
-- **POS-002**: Inventory drift is detected in CI instead of during review.
+- **POS-002**: Inventory drift is detected by the mechanical check instead of during review.
 - **POS-003**: Accessibility violations and visual regressions are caught by tests.
 - **POS-004**: Reuse is cheaper than duplication for both humans and agents.
 - **POS-005**: The catalog is consumable through MCP without loading the whole build into context.
 
 ### Negative
 
-- **NEG-001**: Storybook build and browser tests add CI time.
+- **NEG-001**: Storybook build and browser tests add verification time.
 - **NEG-002**: Visual baselines depend on the pinned Chromium version and rendering environment.
 - **NEG-003**: Contributors must update stories, tests and inventory together.
 - **NEG-004**: The MCP catalog requires a running Storybook server.

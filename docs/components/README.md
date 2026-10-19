@@ -62,7 +62,7 @@ pipeline, por lo que no se adoptan sus addons de testing:
   sobre cada story en `.storybook/storybook.visual.ts`.
 - Visuales: baselines de Playwright en `.storybook/__image_snapshots__` (`pnpm run storybook:test:visual`).
 - Interacciones: `play` functions ejecutadas por `@storybook/test-runner` en `pnpm run test:storybook`.
-- Cobertura: `pnpm run test:coverage`; automatizacion en CI: `pnpm run check` en `.github/workflows/ci.yml`.
+- Cobertura: `pnpm run test:coverage`; la automatizacion equivalente se ejecuta localmente con `pnpm run check`.
 
 No se instala `@storybook/addon-vitest` porque su peer exige `vitest ^3 || ^4` y el proyecto usa
 Vitest 5, y no se instala el addon Visual Tests porque depende de un servicio externo rechazado en

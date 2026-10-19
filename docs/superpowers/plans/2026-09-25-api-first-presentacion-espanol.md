@@ -96,7 +96,7 @@ en verde.
 **Archivos:** `AGENTS.md`, `.opencode/skills/api-contract/SKILL.md`
 
 - [x] Documentar: todo cambio de contrato actualiza dominio, mappers, mocks y tests; validar con
-      `pnpm run api:mocks-check` (backend vivo, no CI).
+      `pnpm run api:mocks-check` (backend vivo, no forma parte de `pnpm run check`).
 - [x] `pnpm run format:check`.
 
 ---
@@ -178,10 +178,10 @@ aserción de fallo HTTP al mensaje nuevo.
 
 ## Riesgos y mitigaciones
 
-| Riesgo                                          | Mitigacion                                                                       |
-| ----------------------------------------------- | -------------------------------------------------------------------------------- |
-| Desarrollo requiere backend en `localhost:3000` | Error español de conexion con reintento en `AsyncStateView`; README lo documenta |
-| Modulos sin contrato muestran aviso pendiente   | Mensaje español existente en `unavailableOperationsAdapter.ts`                   |
-| Storybook/tests cambian por el nuevo default    | Ambos inyectan `{ source: "mock" }` explicito                                    |
-| Script `api:mocks-check` no corre en CI         | Tests puros del script en CI; script manual documentado                          |
-| Cambios visuales por etiquetas                  | Las paginas afectadas no tienen stories; sin cambios de baselines                |
+| Riesgo                                                | Mitigacion                                                                       |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Desarrollo requiere backend en `localhost:3000`       | Error español de conexion con reintento en `AsyncStateView`; README lo documenta |
+| Modulos sin contrato muestran aviso pendiente         | Mensaje español existente en `unavailableOperationsAdapter.ts`                   |
+| Storybook/tests cambian por el nuevo default          | Ambos inyectan `{ source: "mock" }` explicito                                    |
+| Script `api:mocks-check` no corre en `pnpm run check` | Tests puros del script en la suite de tests; script manual documentado           |
+| Cambios visuales por etiquetas                        | Las paginas afectadas no tienen stories; sin cambios de baselines                |

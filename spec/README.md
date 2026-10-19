@@ -94,10 +94,10 @@ Verify both isolation layers with:
 pnpm run test:harness
 ```
 
-## Continuous Integration
+## Local Verification
 
-The `harness-isolation` job runs `pnpm run test:harness` on `ubuntu-latest`. The runner must allow
-unprivileged user namespaces; the job enables them with
-`sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0`. If the runner blocks `unshare --user`,
-run `pnpm run test:harness` locally before integrating. This check is mandatory and has no silent
-exclusion (`continue-on-error`).
+The repository does not define GitHub Actions workflows. Run `pnpm run test:harness` locally; it is
+not part of `pnpm run check`. The environment must allow unprivileged user namespaces. If it blocks
+`unshare --user`, enable them with
+`sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` or use a suitable container. This
+check is mandatory before integrating and has no silent exclusion.

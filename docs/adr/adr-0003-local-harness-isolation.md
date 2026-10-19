@@ -31,9 +31,9 @@ then writes a `.agent-sandbox` marker with the safety policy.
 `scripts/run-agent-sandbox.sh` requires that marker, refuses to run when `.git` exists, and executes
 the command through `unshare --user --map-root-user --mount --net --pid --fork` with a stripped
 environment (`env -i`), tmpfs over `/home`, `/root`, `/media`, `/run` and `/tmp`, and only the
-workspace bind-mounted at `/mnt/workspace`. `pnpm run test:harness` verifies both layers, and the
-`harness-isolation` CI job runs it. If the runner cannot create unprivileged user namespaces, the
-local run is mandatory before integration.
+workspace bind-mounted at `/mnt/workspace`. `pnpm run test:harness` verifies both layers and is
+not part of `pnpm run check`, so it must be run explicitly. If the environment cannot create
+unprivileged user namespaces, the local run is mandatory before integration.
 
 ## Consequences
 
@@ -42,7 +42,7 @@ local run is mandatory before integration.
 - **POS-001**: Network, host filesystem and process visibility are bounded by kernel namespaces.
 - **POS-002**: The prepared workspace carries no Git metadata, credentials or build outputs.
 - **POS-003**: The marker makes accidental reuse of an unprepared directory fail fast.
-- **POS-004**: Both layers are covered by shell tests that also run in CI.
+- **POS-004**: Both layers are covered by shell tests that run locally.
 - **POS-005**: The frontend repository is never mutated by test fixtures.
 
 ### Negative
@@ -88,7 +88,7 @@ local run is mandatory before integration.
 - **IMP-002**: Keep `pnpm run test:harness` green when changing harness scripts.
 - **IMP-003**: Do not add GitHub connectors, tokens, SSH credentials, MCP servers or remote tools to
   agent runs.
-- **IMP-004**: When CI cannot create user namespaces, run `pnpm run test:harness` locally before
+- **IMP-004**: When the environment cannot create user namespaces, run `pnpm run test:harness` locally before
   integrating.
 - **IMP-005**: The repository `opencode.json` pre-approves read-only Git queries for normal sessions.
   That allowance does not weaken this decision: a harness workspace has no Git metadata, so a read-only
@@ -100,4 +100,3 @@ local run is mandatory before integration.
 - **REF-001**: `spec/README.md`
 - **REF-002**: `harness/README.md`
 - **REF-003**: `AGENTS.md` (Local Harness Safety)
-- **REF-004**: `.github/workflows/ci.yml`
