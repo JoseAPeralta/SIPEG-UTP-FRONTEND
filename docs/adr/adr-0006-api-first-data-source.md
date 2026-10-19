@@ -43,7 +43,7 @@ and explicit offline work:
   instead of silently falling back to mocks.
 - Any OpenAPI change must update `src/types/domain.ts`, the feature mappers, `src/data/mock` and
   the related tests in the same change. `pnpm run api:mocks-check` (which reads the live contract)
-  reports drift; pure mock contract tests run in CI.
+  reports drift; pure mock contract tests run in the standard test suite.
 
 This ADR amends the default source recorded in ADR-0001. ADR-0001 remains authoritative for the
 ports, the single composition root and the mock/API adapter split.
@@ -65,7 +65,7 @@ ports, the single composition root and the mock/API adapter split.
   mock override.
 - **NEG-002**: Attendance, certificates, speakers and reports stay degraded until the backend
   publishes their contracts.
-- **NEG-003**: `api:mocks-check` runs against a live backend, so it cannot gate CI; only the pure
+- **NEG-003**: `api:mocks-check` runs against a live backend, so it cannot gate `pnpm run check`; only the pure
   mock tests can.
 
 ## Alternatives Considered

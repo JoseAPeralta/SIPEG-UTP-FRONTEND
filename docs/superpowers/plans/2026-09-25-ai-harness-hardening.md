@@ -1,5 +1,9 @@
 # AI Harness Hardening Implementation Plan
 
+> **Estado (2026-10-19):** los flujos de GitHub Actions y la configuracion de Dependabot se
+> eliminaron del repositorio. Las tareas de este plan que dependian de CI quedan como registro
+> historico; la verificacion equivalente se ejecuta localmente.
+
 > **Para agentes:** REQUIRED SUB-SKILL: Use `executing-plans` para implementar tarea por tarea.
 > Usa checkboxes (`- [ ]`) para seguimiento. No ejecutes Git ni toques el backend.
 
@@ -10,7 +14,7 @@ verificación sea mecánica y los agentes operen con límites reales.
 Añadir fitness tests de arquitectura sin nuevas dependencias y eliminar la duplicación
 documental moviendo detalle a `docs/` con un índice.
 
-**Tech Stack:** Node.js 24, pnpm 12, Vitest, TypeScript 6, GitHub Actions, OpenCode.
+**Tech Stack:** Node.js 24, pnpm 12, Vitest, TypeScript 6, OpenCode.
 
 **Reglas del plan:**
 
@@ -22,9 +26,9 @@ documental moviendo detalle a `docs/` con un índice.
 
 ## Fase 0 — Bloqueantes (correctitud y seguridad)
 
-### Tarea 0.1: Navegadores Playwright en CI
+### Tarea 0.1: Navegadores Playwright en CI (histórica)
 
-**Archivos:** `.github/workflows/ci.yml` (modificar)
+**Archivos:** `.github/workflows/ci.yml` (modificado; el flujo se elimino el 2026-10-19)
 
 - [x] Añadir tras `Install dependencies`:
 
@@ -39,9 +43,12 @@ documental moviendo detalle a `docs/` con un índice.
 - [x] Verificar localmente: `pnpm run test:storybook`.
 - [ ] Operador: push a `dev` y confirmar job `quality` en verde.
 
-**Motivo:** `pnpm run check` incluye `test:storybook` (`package.json:14,36`) y `ci.yml:39-46` no
-instala navegadores; el README (173-179) lo pide solo manualmente.
+**Motivo:** `pnpm run check` incluye `test:storybook` (`package.json:14,36`) y el antiguo
+`ci.yml:39-46` no instala navegadores; el README (173-179) lo pide solo manualmente.
 **Aceptación:** job `quality` completa `pnpm run check`.
+
+**Nota histórica:** con la eliminación del flujo, `pnpm run test:storybook` se ejecuta localmente
+como parte de `pnpm run check`.
 
 ### Tarea 0.2: Endurecer permisos de OpenCode
 
@@ -85,9 +92,9 @@ instala navegadores; el README (173-179) lo pide solo manualmente.
 `git push` cae en `"*": "allow"` aunque `AGENTS.md:233` lo prohíbe.
 **Aceptación:** ambas formas de ruta bloqueadas y operaciones remotas denegadas.
 
-### Tarea 0.3: `test:harness` en CI
+### Tarea 0.3: `test:harness` en CI (histórica)
 
-**Archivos:** `.github/workflows/ci.yml` (modificar), `spec/README.md` (documentar), `AGENTS.md`
+**Archivos:** `.github/workflows/ci.yml` (modificado; el flujo se elimino el 2026-10-19), `spec/README.md` (documentar), `AGENTS.md`
 
 - [x] Crear job `harness-isolation` (ubuntu-latest): checkout, pnpm/node,
       `sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true`,
@@ -99,7 +106,7 @@ instala navegadores; el README (173-179) lo pide solo manualmente.
       muestra fallo.
 - [x] Verificar local: `pnpm run test:harness`.
 
-**Motivo:** las pruebas que validan el sandbox (`package.json:35`) no corren en `check` ni en CI.
+**Motivo:** las pruebas que validan el sandbox (`package.json:35`) no corren en `check`.
 **Aceptación:** job verde o exclusión explícita y documentada.
 
 ---
@@ -131,7 +138,7 @@ instala navegadores; el README (173-179) lo pide solo manualmente.
 - [x] Verificar: `pnpm test && pnpm run lint && pnpm run typecheck` (36 archivos, 186 tests en
       verde; lint y typecheck en verde).
 
-**Aceptación:** test verde e integrado en `pnpm test`/CI.
+**Aceptación:** test verde e integrado en `pnpm test`.
 
 ### Tarea 1.2: Adelgazar `AGENTS.md` y crear índice de `docs/`
 
@@ -246,7 +253,7 @@ instala navegadores; el README (173-179) lo pide solo manualmente.
    estricto) o se documenta como edge permitido?
 2. ¿Qué runtime local se usará para el dry run del harness?
 3. ¿`git status`/`git diff` deben ser `ask` o `deny` para agentes?
-4. ¿Se añade un job de "doc-gardening" recurrente o basta la verificación en CI?
+4. ¿Se añade un job de "doc-gardening" recurrente o basta la verificación local?
 
 ## Orden sugerido
 
@@ -254,7 +261,7 @@ instala navegadores; el README (173-179) lo pide solo manualmente.
 
 ## Definición de terminado global
 
-- `pnpm run check` y `pnpm run test:harness` en verde; CI en verde.
+- `pnpm run check` y `pnpm run test:harness` en verde.
 - Test de arquitectura activo y sin violaciones.
 - `AGENTS.md` ≤ ~130 líneas con índice en `docs/README.md` y ADRs creados.
 - Sin comandos Git ejecutados por agentes; backend intacto.

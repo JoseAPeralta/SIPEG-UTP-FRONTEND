@@ -188,7 +188,7 @@ pnpm run components:inventory:check
 ```
 
 Antes de ejecutar las pruebas de Storybook por primera vez, instale Chromium y sus dependencias
-del sistema en el entorno de desarrollo o CI:
+del sistema en el entorno de desarrollo:
 
 ```bash
 pnpm exec playwright install --with-deps chromium
@@ -346,7 +346,7 @@ estan ignorados por Git, salvo `.env.example`, que contiene solo ejemplos.
 
 Wrangler esta fijado como dependencia de desarrollo y se instala desde `pnpm-lock.yaml`.
 `pnpm-workspace.yaml` autoriza el script de instalacion de su dependencia `workerd`, evitando
-`ERR_PNPM_IGNORED_BUILDS` durante la instalacion en CI.
+`ERR_PNPM_IGNORED_BUILDS` durante la instalacion.
 
 Para validar el empaquetado localmente sin publicar:
 
@@ -418,7 +418,7 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.74.
   image --severity HIGH,CRITICAL --exit-code 1 sipeg-utp-frontend:prod
 ```
 
-GitHub Actions repite estos controles, genera un SBOM SPDX y publica resultados SARIF. El informe de la auditoria se encuentra en `docs/security/container-dependency-audit-2026-09-20.md`.
+Estos controles se ejecutan localmente; el repositorio no define flujos de GitHub Actions. El escaneo de dependencias lo aporta la integracion externa de Snyk conectada al repositorio. El informe de la auditoria se encuentra en `docs/security/container-dependency-audit-2026-09-20.md`.
 
 ## Limite Con Backend
 

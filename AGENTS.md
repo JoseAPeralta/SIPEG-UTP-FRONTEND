@@ -104,7 +104,7 @@ src/
 
 - Run `pnpm run test:storybook` before closing a phase or a task that changes shared visual behavior; it is the only gate that fails on a broken `play` function, because the Playwright pass cannot observe them.
 - The automated catalog uses `127.0.0.1:6007` on purpose: `6006` is the interactive dev server and the MCP catalog port. Do not point the test commands at `6006`.
-- Run `pnpm run test:harness` when changing harness scripts or isolation behavior; the `harness-isolation` CI job runs it too.
+- Run `pnpm run test:harness` when changing harness scripts or isolation behavior; it is not part of `pnpm run check`, so run it explicitly.
 
 ## Backend Boundary
 
@@ -120,7 +120,7 @@ src/
 - The default source is the running backend at `http://localhost:3000/api/openapi.json`; override with `--source` or `SIPEG_OPENAPI_SOURCE` only for a local OpenAPI document or a different loopback backend.
 - Query only the relevant operation; do not fetch `/api/docs` or load the complete OpenAPI document into model context.
 - Treat OpenAPI as the contract source; do not invent request fields, response fields, authentication requirements or status codes.
-- When OpenAPI changes, update `src/types/domain.ts`, the feature mappers, `src/data/mock` and their tests in the same change; validate with `pnpm run api:mocks-check` against the running backend (it is not part of CI).
+- When OpenAPI changes, update `src/types/domain.ts`, the feature mappers, `src/data/mock` and their tests in the same change; validate with `pnpm run api:mocks-check` against the running backend (it is not part of `pnpm run check`).
 - The backend is read-only from this repository: never modify backend files, only read the contract. Make backend changes only in a separate backend task and repository context.
 - Do not execute state-changing API requests unless the user explicitly asks.
 

@@ -4,7 +4,7 @@ Date: 2026-09-20
 
 ## Scope
 
-This audit covers direct and transitive frontend dependencies, Node and pnpm versions, the production image, local development containers, Nginx configuration, PWA caching, and CI supply-chain controls. The backend remains outside this repository.
+This audit covers direct and transitive frontend dependencies, Node and pnpm versions, the production image, local development containers, Nginx configuration, PWA caching, and local supply-chain controls. The backend remains outside this repository.
 
 ## Baseline Findings
 
@@ -58,9 +58,9 @@ TypeScript 7 is intentionally excluded because `typescript-eslint@8.70.0` declar
 - CSP, HSTS, frame protection, MIME sniffing protection, referrer and permissions headers are enabled.
 - The service worker caches only known static paths and rejects API, authenticated, private and `no-store` responses.
 - `.dockerignore` excludes repository metadata, environment files, credentials, keys, agent data, reports and build artifacts.
-- GitHub Actions are pinned to commit SHAs and run dependency, secret, configuration and image scans.
-- Dependabot monitors npm, Docker and GitHub Actions updates weekly.
-- CI produces an SPDX JSON SBOM and uploads a SARIF vulnerability report.
+- Dependency, secret, configuration and image scans run locally with `pnpm audit`, Trivy and Hadolint.
+- GitHub Actions workflows and Dependabot were removed; the repository no longer defines automated CI.
+- Dependency security scanning is provided by the Snyk integration connected to the repository, outside GitHub Actions.
 
 ## Verification Results
 
@@ -86,5 +86,5 @@ Docker Scout generated the local SBOM but required Docker Hub authentication for
 - The CSP permits HTTPS API connections generally because the production API hostname is supplied at build time. A deployment-specific proxy can narrow `connect-src` to the final API origin.
 - Google Fonts remain external dependencies and require CSP exceptions for `fonts.googleapis.com` and `fonts.gstatic.com`.
 - Nginx includes optional packaged modules that are not used by this configuration. Continuous image scanning remains necessary as advisories evolve.
-- Digests intentionally make builds reproducible; Dependabot must update both image versions and digests when security releases become available.
+- Digests intentionally make builds reproducible; the dependency update process must update both image versions and digests when security releases become available.
 - TLS terminates outside this frontend container. The external ingress must enforce HTTPS and preserve the security headers.
