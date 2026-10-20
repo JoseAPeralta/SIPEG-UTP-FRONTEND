@@ -150,6 +150,39 @@ describe("apiRequest 401 handling", () => {
     expect(calls).toHaveLength(1);
   });
 
+  it("consumes the failed response body before rejecting", async () => {
+    let failedResponse: Response | undefined;
+    const { fetcher } = buildFetch(() => {
+      failedResponse = jsonResponse(401);
+      return failedResponse;
+    });
+
+    const error = await apiRequest("/api/v1/auth/refresh", {
+      environment: ENVIRONMENT,
+      fetcher,
+      auth: { mode: "none" },
+    }).catch((caught: unknown) => caught);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({ status: 401 });
+    expect(failedResponse?.bodyUsed).toBe(true);
+  });
+
+  it("still rejects when the failed body was already consumed", async () => {
+    const failedResponse = jsonResponse(401);
+    await failedResponse.text();
+    const { fetcher } = buildFetch(() => failedResponse);
+
+    const request = apiRequest("/api/v1/auth/refresh", {
+      environment: ENVIRONMENT,
+      fetcher,
+      auth: { mode: "none" },
+    });
+
+    await expect(request).rejects.toBeInstanceOf(ApiError);
+    await expect(request).rejects.toMatchObject({ status: 401 });
+  });
+
   it("does not try to refresh a request that was never authenticated", async () => {
     const { fetcher } = buildFetch(() => jsonResponse(401));
     const refresh = vi.fn(() => Promise.resolve({ getAccessToken: () => "access-2" }));
