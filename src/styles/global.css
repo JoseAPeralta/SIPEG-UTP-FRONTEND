@@ -1,3 +1,5 @@
+@import "./fonts.css";
+
 html {
   background: #fbf7f2;
   scrollbar-gutter: stable;

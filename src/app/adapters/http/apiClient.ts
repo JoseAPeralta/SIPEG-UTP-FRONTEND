@@ -62,6 +62,10 @@ function normalizePath(path: string) {
   return path.startsWith("/") ? path : `/${path}`;
 }
 
+async function discardResponseBody(response: Response) {
+  await response.text().catch(() => undefined);
+}
+
 export function resolveApiBaseUrl(environment: ApiEnvironment = import.meta.env) {
   const configuredBaseUrl = environment.VITE_API_BASE_URL?.trim();
 
@@ -141,6 +145,7 @@ async function send(
   }
 
   if (!response.ok) {
+    await discardResponseBody(response);
     throw new ApiError(messageForStatus(response.status), response.status);
   }
 

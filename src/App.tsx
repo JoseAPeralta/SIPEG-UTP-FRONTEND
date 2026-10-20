@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react";
 import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router";
 
@@ -60,8 +61,16 @@ function RouteFallback() {
   return <StatusPanel>Cargando modulo SIPEG...</StatusPanel>;
 }
 
-function renderRoute(element: ReactNode) {
-  return <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
+function LandingRouteFallback() {
+  return (
+    <Box minH="100vh">
+      <RouteFallback />
+    </Box>
+  );
+}
+
+function renderRoute(element: ReactNode, fallback: ReactNode = <RouteFallback />) {
+  return <Suspense fallback={fallback}>{element}</Suspense>;
 }
 
 /**
@@ -120,7 +129,7 @@ export function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={renderRoute(<LandingPage />)} />
+        <Route index element={renderRoute(<LandingPage />, <LandingRouteFallback />)} />
         <Route path="actividades/:activityId" element={renderRoute(<PublicActivityDetailPage />)} />
         <Route path="login" element={renderRoute(<LoginPage />)} />
         <Route path="registro" element={renderRoute(<RegisterPage />)} />

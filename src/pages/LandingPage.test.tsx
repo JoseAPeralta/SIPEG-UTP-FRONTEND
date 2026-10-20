@@ -125,6 +125,24 @@ describe("LandingPage", () => {
     useUnitPreferenceStore.getState().setSelectedUnitId("all");
   });
 
+  it("should announce the loading state and then show the agenda", async () => {
+    renderLanding(buildCatalog());
+
+    const loadingStatus = screen.getByRole("status");
+
+    expect(loadingStatus).toHaveTextContent("Cargando informacion...");
+    expect(loadingStatus.closest("[aria-busy='true']")).not.toBeNull();
+    expect(
+      screen.queryByRole("heading", { level: 2, name: "Actividades disponibles" }),
+    ).not.toBeInTheDocument();
+
+    expect(await screen.findByText("Actividad programada 1")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Actividades disponibles" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
   it("should show only the available activities by default and keep the published total", async () => {
     renderLanding(buildCatalog());
 
