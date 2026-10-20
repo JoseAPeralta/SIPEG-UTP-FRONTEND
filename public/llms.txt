@@ -1,0 +1,9 @@
+# SIPEG
+
+SIPEG es la plataforma de gestión de eventos académicos de la Universidad Tecnológica de Panamá (UTP). Permite consultar la agenda académica pública, registrarse e iniciar sesión para gestionar inscripciones, asistencia y certificados.
+
+## Enlaces públicos
+
+- [Agenda académica](https://sipeg-utp.com/): consulta de actividades y eventos disponibles.
+- [Iniciar sesión](https://sipeg-utp.com/login): acceso a la cuenta personal.
+- [Registro](https://sipeg-utp.com/registro): creación de una cuenta nueva.
