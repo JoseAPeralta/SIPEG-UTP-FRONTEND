@@ -84,7 +84,7 @@ Docker Scout generated the local SBOM but required Docker Hub authentication for
 ## Residual Risks
 
 - The CSP permits HTTPS API connections generally because the production API hostname is supplied at build time. A deployment-specific proxy can narrow `connect-src` to the final API origin.
-- Google Fonts remain external dependencies and require CSP exceptions for `fonts.googleapis.com` and `fonts.gstatic.com`.
+- Google Fonts were external dependencies and required CSP exceptions for `fonts.googleapis.com` and `fonts.gstatic.com`. Since 2026-10-20 the fonts are self-hosted and those origins are no longer allowed.
 - Nginx includes optional packaged modules that are not used by this configuration. Continuous image scanning remains necessary as advisories evolve.
 - Digests intentionally make builds reproducible; the dependency update process must update both image versions and digests when security releases become available.
 - TLS terminates outside this frontend container. The external ingress must enforce HTTPS and preserve the security headers.

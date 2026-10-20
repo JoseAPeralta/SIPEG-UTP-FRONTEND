@@ -43,14 +43,14 @@ function MenuLink({ children, to }: MenuLinkProps) {
   );
 }
 
-function SkeletonCircle() {
+function SessionPlaceholder() {
   return (
     <Skeleton
       aria-hidden="true"
       data-testid="session-restoring-placeholder"
-      height="40px"
+      height="43px"
       rounded="full"
-      width="180px"
+      width="256px"
     />
   );
 }
@@ -92,7 +92,7 @@ export function AppMenu() {
             wrap="wrap"
           >
             {isRestoring ? (
-              <SkeletonCircle />
+              <SessionPlaceholder />
             ) : currentUser ? (
               <>
                 {currentUser.globalRole === "ADMIN" ? (

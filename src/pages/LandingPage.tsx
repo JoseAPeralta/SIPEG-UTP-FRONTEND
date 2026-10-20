@@ -1,4 +1,15 @@
-import { Badge, Box, Heading, HStack, Image, SimpleGrid, Stack, Text } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Heading,
+  HStack,
+  Image,
+  SimpleGrid,
+  Skeleton,
+  Stack,
+  Text,
+  VisuallyHidden,
+} from "@chakra-ui/react";
 
 import {
   AsyncStateView,
@@ -52,6 +63,44 @@ const heroImageSource = `data:image/svg+xml;utf8,${encodeURIComponent(`
     <text x="518" y="94" fill="#9C3A1E" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="4">AGENDA ACADEMICA</text>
   </g>
 </svg>`)} `;
+
+function LandingAgendaLoading() {
+  return (
+    <Box aria-busy="true">
+      <VisuallyHidden role="status">Cargando informacion...</VisuallyHidden>
+      <Stack aria-hidden="true" gap={6}>
+        <Surface padding="normal" radius="control">
+          <Stack gap={5}>
+            <HStack align="start" gap={4} justify="space-between" wrap="wrap">
+              <Stack gap={2}>
+                <Skeleton height="12px" width="130px" />
+                <Skeleton height="32px" maxW="full" width="280px" />
+              </Stack>
+              <Skeleton height="36px" rounded="full" width="110px" />
+            </HStack>
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap={4}>
+              {Array.from({ length: 6 }, (_, index) => (
+                <Stack gap={2} key={index}>
+                  <Skeleton height="16px" width="90px" />
+                  <Skeleton height="44px" rounded="md" width="full" />
+                </Stack>
+              ))}
+            </SimpleGrid>
+            <Skeleton alignSelf="start" height="44px" rounded="full" width="140px" />
+          </Stack>
+        </Surface>
+        <Stack gap={5}>
+          <Skeleton height="34px" maxW="full" width="260px" />
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
+            {Array.from({ length: 4 }, (_, index) => (
+              <Skeleton height="300px" key={index} rounded="3xl" />
+            ))}
+          </SimpleGrid>
+        </Stack>
+      </Stack>
+    </Box>
+  );
+}
 
 export function LandingPage() {
   const page = usePublicActivities();
@@ -111,63 +160,67 @@ export function LandingPage() {
           </SimpleGrid>
         </Box>
 
-        <AsyncStateView error={page.error} isLoading={page.isLoading} onRetry={page.refetch}>
-          <Stack gap={6}>
-            <PublicActivityFilters
-              filteredCount={page.filteredCount}
-              onClearFilters={page.onClearFilters}
-              onPeriodChange={page.onPeriodChange}
-              onProgramFilterChange={page.onProgramFilterChange}
-              onSearchTermChange={page.onSearchTermChange}
-              onSortDirectionChange={page.onSortDirectionChange}
-              onTypeFilterChange={page.onTypeFilterChange}
-              onUnitFilterChange={page.onUnitFilterChange}
-              onUnitTypeFilterChange={page.onUnitTypeFilterChange}
-              period={page.period}
-              programFilter={page.programFilter}
-              programOptions={page.programOptions}
-              rows={page.rows}
-              searchTerm={page.searchTerm}
-              sortDirection={page.sortDirection}
-              typeFilter={page.typeFilter}
-              unitFilter={page.unitFilter}
-              unitTypeFilter={page.unitTypeFilter}
-            />
+        {page.isLoading ? (
+          <LandingAgendaLoading />
+        ) : (
+          <AsyncStateView error={page.error} isLoading={false} onRetry={page.refetch}>
+            <Stack gap={6}>
+              <PublicActivityFilters
+                filteredCount={page.filteredCount}
+                onClearFilters={page.onClearFilters}
+                onPeriodChange={page.onPeriodChange}
+                onProgramFilterChange={page.onProgramFilterChange}
+                onSearchTermChange={page.onSearchTermChange}
+                onSortDirectionChange={page.onSortDirectionChange}
+                onTypeFilterChange={page.onTypeFilterChange}
+                onUnitFilterChange={page.onUnitFilterChange}
+                onUnitTypeFilterChange={page.onUnitTypeFilterChange}
+                period={page.period}
+                programFilter={page.programFilter}
+                programOptions={page.programOptions}
+                rows={page.rows}
+                searchTerm={page.searchTerm}
+                sortDirection={page.sortDirection}
+                typeFilter={page.typeFilter}
+                unitFilter={page.unitFilter}
+                unitTypeFilter={page.unitTypeFilter}
+              />
 
-            <Box as="section" aria-labelledby="public-activities-title">
-              <Stack gap={5}>
-                <SectionHeader
-                  headingLabel="Calendario publico"
-                  id="public-activities-title"
-                  title={periodHeading}
-                />
-
-                {page.pagination.rows.length > 0 ? (
-                  <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
-                    {page.pagination.rows.map((row) => (
-                      <PublicActivityCard key={row.activity.id} row={row} />
-                    ))}
-                  </SimpleGrid>
-                ) : (
-                  <FeedbackState
-                    description="Cambie el periodo, la busqueda o los filtros para ver mas opciones disponibles."
-                    padding="roomy"
-                    title="No hay actividades con esos filtros"
+              <Box as="section" aria-labelledby="public-activities-title">
+                <Stack gap={5}>
+                  <SectionHeader
+                    headingLabel="Calendario publico"
+                    id="public-activities-title"
+                    title={periodHeading}
                   />
-                )}
 
-                <PaginationControls
-                  currentPage={page.pagination.currentPage}
-                  itemLabel="actividades"
-                  onPageChange={page.onPageChange}
-                  pageCount={page.pagination.pageCount}
-                  pageSize={page.pageSize}
-                  totalItems={page.filteredCount}
-                />
-              </Stack>
-            </Box>
-          </Stack>
-        </AsyncStateView>
+                  {page.pagination.rows.length > 0 ? (
+                    <SimpleGrid columns={{ base: 1, md: 2 }} gap={5}>
+                      {page.pagination.rows.map((row) => (
+                        <PublicActivityCard key={row.activity.id} row={row} />
+                      ))}
+                    </SimpleGrid>
+                  ) : (
+                    <FeedbackState
+                      description="Cambie el periodo, la busqueda o los filtros para ver mas opciones disponibles."
+                      padding="roomy"
+                      title="No hay actividades con esos filtros"
+                    />
+                  )}
+
+                  <PaginationControls
+                    currentPage={page.pagination.currentPage}
+                    itemLabel="actividades"
+                    onPageChange={page.onPageChange}
+                    pageCount={page.pagination.pageCount}
+                    pageSize={page.pageSize}
+                    totalItems={page.filteredCount}
+                  />
+                </Stack>
+              </Box>
+            </Stack>
+          </AsyncStateView>
+        )}
       </Stack>
     </Box>
   );
